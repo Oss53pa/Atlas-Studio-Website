@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Exo 2', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #C8A960;
+    color: #fff;
+  }
+}
+
+/* ============================================================
+   COMPONENT CLASSES (outside @layer for reliable specificity)
+   ============================================================ */
+
+/* Gold CTA button */
+.btn-gold {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 15px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #0A0A0A;
+  background: linear-gradient(135deg, #C8A960 0%, #D4BC7C 50%, #C8A960 100%);
+  background-size: 200% 200%;
+  box-shadow: 0 2px 8px rgba(200, 169, 96, 0.25);
+}
+
+.btn-gold:hover {
+  background-position: 100% 100%;
+  box-shadow: 0 4px 20px rgba(200, 169, 96, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+/* Secondary button (outline on dark) */
+.btn-outline-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 15px;
+  border: 1px solid #525252;
+  color: #F5F5F5;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-outline-light:hover {
+  border-color: #C8A960;
+  color: #C8A960;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* Scroll reveal states */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: all 0.7s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Section wrappers (kept for backwards compatibility) */
+.section-dark {
+  background-color: #0A0A0A;
+  color: #F5F5F5;
+}
+
+.section-light {
+  background-color: #FAFAF8;
+  color: #1A1A1A;
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+@layer utilities {
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #C8A960, #D4BC7C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .border-gold-subtle {
+    border-color: rgba(200, 169, 96, 0.2);
+  }
+
+  .bg-dark-card {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .bg-dark-card:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+}
