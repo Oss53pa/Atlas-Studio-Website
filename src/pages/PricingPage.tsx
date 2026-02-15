@@ -67,7 +67,7 @@ export default function PricingPage() {
   const standaloneApps = content.apps.filter(a => a.type === "App" || a.type === "App mobile");
 
   return (
-    <div className="bg-warm-bg text-neutral-text pt-28 pb-24 px-6 min-h-screen">
+    <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
       <div className="max-w-site mx-auto">
         <ScrollReveal>
           <SectionHeading

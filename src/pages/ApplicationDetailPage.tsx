@@ -20,7 +20,7 @@ export default function ApplicationDetailPage() {
   const isAvailable = status === 'available';
 
   return (
-    <div className="bg-warm-bg text-neutral-text pt-28 pb-24 px-6 min-h-screen">
+    <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
       <div className="max-w-4xl mx-auto">
         <ScrollReveal>
           <Link

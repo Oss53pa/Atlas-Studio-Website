@@ -36,7 +36,7 @@ export function Navbar() {
             : "bg-onyx"
         }`}
       >
-        <div className="max-w-site mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-site mx-auto px-5 md:px-8 py-4 flex items-center justify-between">
           <Link to="/" className="flex-shrink-0">
             <Logo size={24} color="text-neutral-light" />
           </Link>

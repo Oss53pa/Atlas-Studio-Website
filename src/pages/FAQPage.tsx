@@ -10,7 +10,7 @@ export default function FAQPage() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <div className="bg-warm-bg text-neutral-text pt-28 pb-24 px-6 min-h-screen">
+    <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
       <div className="max-w-2xl mx-auto">
         <ScrollReveal>
           <SectionHeading

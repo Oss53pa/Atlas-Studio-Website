@@ -5,7 +5,7 @@ import { Logo } from "../ui/Logo";
 export function Footer() {
   return (
     <footer className="bg-onyx text-neutral-light border-t border-white/10">
-      <div className="max-w-site mx-auto px-6 py-10">
+      <div className="max-w-site mx-auto px-5 md:px-8 py-8 md:py-10">
         <div className="flex justify-between items-start flex-wrap gap-8">
           {/* Brand */}
           <div className="max-w-xs">

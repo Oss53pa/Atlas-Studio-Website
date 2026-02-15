@@ -29,7 +29,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
       {/* Panel */}
       <div
-        className="fixed top-0 right-0 h-full w-72 bg-onyx z-50 animate-slide-in-right"
+        className="fixed top-0 right-0 h-full w-[75vw] max-w-72 bg-onyx z-50 animate-slide-in-right"
       >
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <Logo size={22} color="text-neutral-light" />

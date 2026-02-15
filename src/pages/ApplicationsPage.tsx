@@ -29,7 +29,7 @@ export default function ApplicationsPage() {
   const counts: Record<string, number> = { "Tous": visibleApps.length, "Module ERP": erpCount, "App": appCount, "App mobile": mobileCount };
 
   return (
-    <div className="bg-warm-bg text-neutral-text pt-28 pb-24 px-6 min-h-screen">
+    <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
       <div className="max-w-site mx-auto">
         <ScrollReveal>
           <SectionHeading

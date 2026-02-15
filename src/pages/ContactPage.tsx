@@ -9,7 +9,7 @@ export default function ContactPage() {
   const [sent, setSent] = useState(false);
 
   return (
-    <div className="bg-warm-bg text-neutral-text pt-28 pb-24 px-6 min-h-screen">
+    <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
       <div className="max-w-2xl mx-auto">
         <ScrollReveal>
           <SectionHeading
@@ -31,7 +31,7 @@ export default function ContactPage() {
         ) : (
           <ScrollReveal>
             <div className="bg-white border border-warm-border rounded-2xl p-8">
-              <div className="flex gap-3 mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <div className="flex-1">
                   <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Nom</label>
                   <input placeholder="Votre nom" className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors" />

@@ -84,7 +84,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-warm-bg text-neutral-text py-20 px-6">
+      <section className="bg-warm-bg text-neutral-text py-14 md:py-20 px-5 md:px-8">
         <ScrollReveal>
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl font-bold text-neutral-text mb-4">Envie d'en savoir plus ?</h2>

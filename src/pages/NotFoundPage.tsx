@@ -3,7 +3,7 @@ import { Logo } from "../components/ui/Logo";
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen bg-onyx flex items-center justify-center px-6">
+    <div className="min-h-screen bg-onyx flex items-center justify-center px-5 md:px-8">
       <div className="text-center">
         <div className="mb-8">
           <Logo size={32} color="text-neutral-light" />

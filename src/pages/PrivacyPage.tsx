@@ -6,7 +6,7 @@ export default function PrivacyPage() {
   const { title, sections } = LEGAL_CONTENT.privacy;
 
   return (
-    <div className="bg-warm-bg text-neutral-text pt-28 pb-24 px-6 min-h-screen">
+    <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
       <div className="max-w-3xl mx-auto">
         <ScrollReveal>
           <SectionHeading title={title} />
