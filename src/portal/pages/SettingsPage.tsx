@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { supabase } from "../../lib/supabase";
+import { apiCall } from "../../lib/api";
 
 export function SettingsPage() {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, signOut } = useAuth();
   const [fullName, setFullName] = useState(profile?.full_name || "");
   const [company, setCompany] = useState(profile?.company_name || "");
   const [phone, setPhone] = useState(profile?.phone || "");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  // Delete account
+  const [showDelete, setShowDelete] = useState(false);
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const handleSave = async () => {
     if (!profile) return;
@@ -25,6 +31,19 @@ export function SettingsPage() {
       await refreshProfile();
     }
     setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirmEmail !== profile?.email) return;
+    setDeleting(true);
+    try {
+      await apiCall("delete-account", { method: "DELETE" });
+      await signOut();
+      window.location.href = "/";
+    } catch (err: any) {
+      setToast(`Erreur: ${err.message}`);
+      setDeleting(false);
+    }
   };
 
   return (
@@ -85,9 +104,44 @@ export function SettingsPage() {
         <p className="text-neutral-muted text-[13px] mb-4">
           La suppression de votre compte est irréversible et annulera tous vos abonnements.
         </p>
-        <button className="px-5 py-2.5 border border-red-200 rounded-lg text-red-600 text-[13px] font-medium hover:bg-red-50 transition-colors">
-          Supprimer mon compte
-        </button>
+
+        {showDelete ? (
+          <div className="space-y-3">
+            <p className="text-neutral-body text-[13px]">
+              Saisissez <strong>{profile?.email}</strong> pour confirmer :
+            </p>
+            <input
+              value={confirmEmail}
+              onChange={e => setConfirmEmail(e.target.value)}
+              placeholder="Confirmez votre email"
+              className="w-full px-4 py-3 bg-warm-bg border border-red-200 rounded-lg text-neutral-text text-sm outline-none focus:border-red-400 transition-colors"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={confirmEmail !== profile?.email || deleting}
+                className={`flex-1 py-2.5 border border-red-400 rounded-lg text-red-600 text-[13px] font-semibold transition-colors ${
+                  confirmEmail === profile?.email && !deleting ? "hover:bg-red-50" : "opacity-50 cursor-not-allowed"
+                }`}
+              >
+                {deleting ? "Suppression..." : "Confirmer la suppression"}
+              </button>
+              <button
+                onClick={() => { setShowDelete(false); setConfirmEmail(""); }}
+                className="px-5 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] hover:bg-warm-bg transition-colors"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowDelete(true)}
+            className="px-5 py-2.5 border border-red-200 rounded-lg text-red-600 text-[13px] font-medium hover:bg-red-50 transition-colors"
+          >
+            Supprimer mon compte
+          </button>
+        )}
       </div>
     </div>
   );

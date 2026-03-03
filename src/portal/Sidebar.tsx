@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Zap, ShoppingCart, CreditCard, Settings, type LucideIcon } from "lucide-react";
+import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, type LucideIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
+import { NotificationBell } from "../components/ui/NotificationBell";
 import type { Profile } from "../lib/database.types";
 
 interface SidebarProps {
@@ -14,6 +15,7 @@ const nav: { id: string; icon: LucideIcon; label: string }[] = [
   { id: "apps", icon: Zap, label: "Mes Applications" },
   { id: "catalog", icon: ShoppingCart, label: "Catalogue" },
   { id: "billing", icon: CreditCard, label: "Facturation" },
+  { id: "support", icon: LifeBuoy, label: "Support" },
   { id: "settings", icon: Settings, label: "Paramètres" },
 ];
 
@@ -24,10 +26,11 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
 
   return (
     <div className="w-64 min-h-screen bg-onyx border-r border-white/10 p-6 flex flex-col flex-shrink-0">
-      <div className="flex items-center gap-2.5 px-2 mb-8">
+      <div className="flex items-center justify-between px-2 mb-8">
         <Link to="/">
           <Logo size={22} color="text-neutral-light" />
         </Link>
+        <NotificationBell userId={profile?.id} />
       </div>
 
       <nav className="flex-1">

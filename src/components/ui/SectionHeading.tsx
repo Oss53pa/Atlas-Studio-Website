@@ -16,6 +16,7 @@ export function SectionHeading({ title, subtitle, light = false, className = "" 
           {subtitle}
         </p>
       )}
+      <div className="w-12 h-[3px] bg-gold mx-auto mt-3 reveal-line" />
     </div>
   );
 }

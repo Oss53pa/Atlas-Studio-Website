@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, AppWindow, Users, Repeat, Receipt, ArrowLeft, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, FileText, AppWindow, Users, Repeat, Receipt, ClipboardList, MessageSquare, Mail, ArrowLeft, LogOut, type LucideIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useAuth } from "../lib/auth";
 
@@ -10,6 +10,9 @@ const nav: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/admin/clients", icon: Users, label: "Clients" },
   { to: "/admin/subscriptions", icon: Repeat, label: "Abonnements" },
   { to: "/admin/invoices", icon: Receipt, label: "Factures" },
+  { to: "/admin/activity", icon: ClipboardList, label: "Activité" },
+  { to: "/admin/tickets", icon: MessageSquare, label: "Tickets" },
+  { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
 ];
 
 export function AdminSidebar() {

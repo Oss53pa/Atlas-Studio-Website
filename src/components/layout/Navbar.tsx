@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Logo } from "../ui/Logo";
+import { LanguageToggle } from "../ui/LanguageToggle";
 import { MobileMenu } from "./MobileMenu";
 
 const links = [
@@ -56,6 +57,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
+            <LanguageToggle />
             <Link
               to="/portal"
               className="hidden lg:inline-flex btn-gold !px-5 !py-2.5 !text-[13px]"

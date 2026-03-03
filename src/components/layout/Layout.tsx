@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { useSupabaseContent } from "../../hooks/useSupabaseContent";
+import { useAnalytics } from "../../hooks/useAnalytics";
 import { Logo } from "../ui/Logo";
 import type { SiteContent } from "../../config/content";
 
@@ -21,6 +22,7 @@ export function useContentContext() {
 export function Layout() {
   const { content, loaded } = useSupabaseContent();
   const location = useLocation();
+  useAnalytics();
 
   if (!loaded) {
     return (

@@ -34,6 +34,7 @@ export default {
         'page-enter': 'pageEnter 0.4s ease-out',
         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
         'slide-in-right': 'slideInRight 0.3s ease-out',
+        shimmer: 'shimmer 2.5s infinite',
       },
       keyframes: {
         pageEnter: {
@@ -47,6 +48,10 @@ export default {
         slideInRight: {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(0)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
     },

@@ -5,6 +5,7 @@ import { Logo } from "../components/ui/Logo";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { StatCounter } from "../components/ui/StatCounter";
+import { GridPattern } from "../components/ui/GridPattern";
 
 export default function AboutPage() {
   const { content } = useContentContext();
@@ -12,8 +13,9 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen">
       {/* Hero dark */}
-      <section className="bg-onyx text-neutral-light pt-24 pb-14 md:pt-28 md:pb-20 px-5 md:px-8">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="relative bg-onyx text-neutral-light pt-24 pb-14 md:pt-28 md:pb-20 px-5 md:px-8 overflow-hidden">
+        <GridPattern dark />
+        <div className="relative max-w-3xl mx-auto text-center">
           <ScrollReveal>
             <h1 className="text-4xl md:text-5xl font-extrabold text-neutral-light mb-4">
               À propos d'<span className="font-logo text-gold">Atlas Studio</span>
@@ -33,6 +35,23 @@ export default function AboutPage() {
             <p className="text-neutral-body text-[15px] leading-relaxed mb-4">{content.about.p1}</p>
             <p className="text-neutral-body text-[15px] leading-relaxed mb-4">{content.about.p2}</p>
             <p className="text-neutral-body text-[15px] leading-relaxed mb-8">{content.about.p3}</p>
+          </ScrollReveal>
+
+          {/* Timeline */}
+          <ScrollReveal>
+            <div className="relative pl-8 border-l-2 border-gold/30 space-y-8 mb-16">
+              {[
+                { year: "2003", text: "Plus de 20 ans d'expérience opérationnelle en Afrique" },
+                { year: "2020", text: "Naissance d'Atlas Studio — la suite SaaS pour les pros africains" },
+                { year: "Aujourd'hui", text: "10+ pays, 500+ entreprises, 22 produits et une vision panafricaine" },
+              ].map((item, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-gold border-4 border-warm-bg" />
+                  <div className="text-gold text-sm font-bold mb-1">{item.year}</div>
+                  <div className="text-neutral-body text-[15px]">{item.text}</div>
+                </div>
+              ))}
+            </div>
           </ScrollReveal>
 
           {/* Icons row */}

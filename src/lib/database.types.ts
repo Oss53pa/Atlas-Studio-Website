@@ -2,6 +2,7 @@ export type AppType = 'Module ERP' | 'App' | 'App mobile';
 export type AppStatus = 'available' | 'coming_soon' | 'unavailable';
 export type SubscriptionStatus = 'active' | 'suspended' | 'cancelled' | 'expired' | 'trial';
 export type InvoiceStatus = 'paid' | 'pending' | 'failed' | 'refunded';
+export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
 export interface Profile {
   id: string;
@@ -11,6 +12,8 @@ export interface Profile {
   phone: string;
   role: 'client' | 'admin';
   is_active: boolean;
+  stripe_customer_id: string | null;
+  preferred_payment_method: string;
   created_at: string;
   updated_at: string;
 }
@@ -48,6 +51,7 @@ export interface Subscription {
   current_period_start: string;
   current_period_end: string;
   cancelled_at: string | null;
+  stripe_subscription_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +67,10 @@ export interface Invoice {
   currency: string;
   status: InvoiceStatus;
   paid_at: string | null;
+  stripe_payment_intent_id: string | null;
+  cinetpay_transaction_id: string | null;
+  payment_method: string;
+  pdf_url: string | null;
   created_at: string;
 }
 
@@ -72,6 +80,43 @@ export interface ActivityLog {
   action: string;
   metadata: Record<string, any>;
   created_at: string;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  is_read: boolean;
+  link: string | null;
+  created_at: string;
+}
+
+export interface Ticket {
+  id: string;
+  user_id: string;
+  subject: string;
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TicketMessage {
+  id: string;
+  ticket_id: string;
+  user_id: string;
+  message: string;
+  is_admin: boolean;
+  created_at: string;
+}
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  subscribed_at: string;
+  is_active: boolean;
 }
 
 export interface Database {
@@ -106,6 +151,26 @@ export interface Database {
         Row: ActivityLog;
         Insert: Partial<ActivityLog> & { action: string };
         Update: Partial<ActivityLog>;
+      };
+      notifications: {
+        Row: Notification;
+        Insert: Partial<Notification> & { user_id: string; title: string; message: string };
+        Update: Partial<Notification>;
+      };
+      tickets: {
+        Row: Ticket;
+        Insert: Partial<Ticket> & { user_id: string; subject: string };
+        Update: Partial<Ticket>;
+      };
+      ticket_messages: {
+        Row: TicketMessage;
+        Insert: Partial<TicketMessage> & { ticket_id: string; user_id: string; message: string };
+        Update: Partial<TicketMessage>;
+      };
+      newsletter_subscribers: {
+        Row: NewsletterSubscriber;
+        Insert: Partial<NewsletterSubscriber> & { email: string };
+        Update: Partial<NewsletterSubscriber>;
       };
     };
     Functions: {

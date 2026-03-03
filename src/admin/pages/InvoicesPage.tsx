@@ -1,46 +1,69 @@
 import { useState, useEffect } from "react";
-import { Loader2, DollarSign, Clock, AlertTriangle } from "lucide-react";
+import { Loader2, DollarSign, Clock, AlertTriangle, Download } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminCard } from "../components/AdminCard";
 import { APP_INFO } from "../../config/apps";
-import type { Invoice } from "../../lib/database.types";
+import type { Invoice, InvoiceStatus } from "../../lib/database.types";
 
 interface InvoiceWithProfile extends Invoice {
   profiles?: { full_name: string; email: string } | null;
 }
+
+const statusCycle: InvoiceStatus[] = ["pending", "paid", "failed", "refunded"];
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<InvoiceWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from("invoices")
-        .select("*, profiles(full_name, email)")
-        .order("created_at", { ascending: false });
-      if (data) setInvoices(data as InvoiceWithProfile[]);
-      setLoading(false);
-    }
-    load();
-  }, []);
+  const fetchInvoices = async () => {
+    const { data } = await supabase
+      .from("invoices")
+      .select("*, profiles(full_name, email)")
+      .order("created_at", { ascending: false });
+    if (data) setInvoices(data as InvoiceWithProfile[]);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchInvoices(); }, []);
 
   const filtered = filter === "all" ? invoices : invoices.filter(i => i.status === filter);
+
+  const cycleStatus = async (inv: InvoiceWithProfile) => {
+    const idx = statusCycle.indexOf(inv.status);
+    const next = statusCycle[(idx + 1) % statusCycle.length];
+    const updates: Record<string, any> = { status: next };
+    if (next === "paid") updates.paid_at = new Date().toISOString();
+    await supabase.from("invoices").update(updates).eq("id", inv.id);
+    fetchInvoices();
+  };
+
+  const handleDownloadPDF = async (invoiceId: string, invoiceNumber: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invoice-pdf?id=${invoiceId}`,
+        { headers: { Authorization: `Bearer ${session?.access_token}` } }
+      );
+      if (!res.ok) throw new Error("Erreur");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `facture-${invoiceNumber}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { /* PDF non disponible */ }
+  };
 
   const monthlyRevenue = invoices
     .filter(i => i.status === "paid" && new Date(i.created_at) >= new Date(new Date().getFullYear(), new Date().getMonth(), 1))
     .reduce((sum, i) => sum + Number(i.amount), 0);
 
-  const pendingAmount = invoices
-    .filter(i => i.status === "pending")
-    .reduce((sum, i) => sum + Number(i.amount), 0);
-
-  const failedAmount = invoices
-    .filter(i => i.status === "failed")
-    .reduce((sum, i) => sum + Number(i.amount), 0);
+  const pendingAmount = invoices.filter(i => i.status === "pending").reduce((sum, i) => sum + Number(i.amount), 0);
+  const failedAmount = invoices.filter(i => i.status === "failed").reduce((sum, i) => sum + Number(i.amount), 0);
 
   if (loading) {
     return (
@@ -99,8 +122,17 @@ export default function InvoicesPage() {
           { key: "amount", label: "Montant", sortable: true, render: (r: InvoiceWithProfile) => (
             <span className="text-gold font-semibold">{Number(r.amount).toFixed(2)} {r.currency}</span>
           )},
-          { key: "status", label: "Statut", render: (r: InvoiceWithProfile) => <AdminBadge status={r.status} /> },
+          { key: "status", label: "Statut", render: (r: InvoiceWithProfile) => (
+            <button onClick={(e) => { e.stopPropagation(); cycleStatus(r); }} title="Cliquer pour changer le statut">
+              <AdminBadge status={r.status} />
+            </button>
+          )},
           { key: "created_at", label: "Date", sortable: true, render: (r: InvoiceWithProfile) => new Date(r.created_at).toLocaleDateString("fr-FR") },
+          { key: "pdf", label: "PDF", render: (r: InvoiceWithProfile) => (
+            <button onClick={(e) => { e.stopPropagation(); handleDownloadPDF(r.id, r.invoice_number); }} className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors" title="Télécharger le PDF">
+              <Download size={14} strokeWidth={1.5} />
+            </button>
+          )},
         ]}
         data={filtered}
       />

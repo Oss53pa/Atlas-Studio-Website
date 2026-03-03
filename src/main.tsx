@@ -2,6 +2,7 @@ import { StrictMode, lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './lib/auth';
 import { Layout } from './components/layout/Layout';
 import { RequireAdmin } from './components/guards/RequireAdmin';
@@ -19,6 +20,7 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Portal from './portal/Portal';
+import './i18n';
 import './index.css';
 
 // Lazy load admin pages
@@ -28,6 +30,9 @@ const AppsManagementPage = lazy(() => import('./admin/pages/AppsManagementPage')
 const ClientsPage = lazy(() => import('./admin/pages/ClientsPage'));
 const SubscriptionsPage = lazy(() => import('./admin/pages/SubscriptionsPage'));
 const InvoicesPage = lazy(() => import('./admin/pages/InvoicesPage'));
+const ActivityLogPage = lazy(() => import('./admin/pages/ActivityLogPage'));
+const TicketsPage = lazy(() => import('./admin/pages/TicketsPage'));
+const NewsletterPage = lazy(() => import('./admin/pages/NewsletterPage'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -47,6 +52,7 @@ function AdminLoader() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <HelmetProvider>
     <BrowserRouter>
       <AuthProvider>
         <ScrollToTop />
@@ -81,6 +87,9 @@ createRoot(document.getElementById('root')!).render(
               <Route path="clients" element={<Suspense fallback={<AdminLoader />}><ClientsPage /></Suspense>} />
               <Route path="subscriptions" element={<Suspense fallback={<AdminLoader />}><SubscriptionsPage /></Suspense>} />
               <Route path="invoices" element={<Suspense fallback={<AdminLoader />}><InvoicesPage /></Suspense>} />
+              <Route path="activity" element={<Suspense fallback={<AdminLoader />}><ActivityLogPage /></Suspense>} />
+              <Route path="tickets" element={<Suspense fallback={<AdminLoader />}><TicketsPage /></Suspense>} />
+              <Route path="newsletter" element={<Suspense fallback={<AdminLoader />}><NewsletterPage /></Suspense>} />
             </Route>
           </Route>
 
@@ -89,5 +98,6 @@ createRoot(document.getElementById('root')!).render(
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </HelmetProvider>
   </StrictMode>
 );

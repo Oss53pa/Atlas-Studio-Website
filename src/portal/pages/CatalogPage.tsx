@@ -1,17 +1,20 @@
 import { useState } from "react";
 import { PartyPopper, Loader2 } from "lucide-react";
 import { AppLogo } from "../../components/ui/Logo";
+import { PaymentMethodSelector } from "../../components/ui/PaymentMethodSelector";
 import { APP_INFO } from "../../config/apps";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
+import { createCheckoutSession } from "../../lib/payments";
 
 interface CatalogPageProps {
   userId: string | undefined;
 }
 
 export function CatalogPage({ userId }: CatalogPageProps) {
-  const { subscriptions, subscribe, loading } = useSubscriptions(userId);
+  const { subscriptions, loading } = useSubscriptions(userId);
   const [selectedApp, setSelectedApp] = useState<(typeof APP_INFO)[string] & { id: string } | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [subscribing, setSubscribing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -21,17 +24,14 @@ export function CatalogPage({ userId }: CatalogPageProps) {
   const handleSubscribe = async () => {
     if (!selectedApp || !selectedPlan) return;
     setSubscribing(true);
-    const price = selectedApp.pricing[selectedPlan]?.price || 0;
-    const { error } = await subscribe(selectedApp.id, selectedPlan, price);
-    setSubscribing(false);
-    if (error) {
-      setToast(`Erreur: ${error}`);
-    } else {
-      setToast(`Abonnement à ${selectedApp.name} créé avec succès !`);
-      setSelectedApp(null);
-      setSelectedPlan(null);
+    try {
+      const price = selectedApp.pricing[selectedPlan]?.price || 0;
+      await createCheckoutSession(selectedApp.id, selectedPlan, price, paymentMethod);
+    } catch (err: any) {
+      setToast(`Erreur: ${err.message}`);
+      setSubscribing(false);
+      setTimeout(() => setToast(null), 4000);
     }
-    setTimeout(() => setToast(null), 4000);
   };
 
   if (loading) {
@@ -96,12 +96,18 @@ export function CatalogPage({ userId }: CatalogPageProps) {
               ))}
             </div>
 
+            {selectedPlan && (
+              <div className="mb-6">
+                <PaymentMethodSelector selected={paymentMethod} onChange={setPaymentMethod} />
+              </div>
+            )}
+
             <button
               disabled={!selectedPlan || subscribing}
               onClick={handleSubscribe}
               className={`btn-gold w-full ${!selectedPlan || subscribing ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {subscribing ? "Création..." : selectedPlan ? "Démarrer l'essai gratuit (14 jours)" : "Sélectionnez un plan"}
+              {subscribing ? "Redirection..." : selectedPlan ? "Procéder au paiement" : "Sélectionnez un plan"}
             </button>
           </div>
         </div>

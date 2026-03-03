@@ -8,15 +8,20 @@ import { StatCounter } from "../components/ui/StatCounter";
 import { AppCard } from "../components/ui/AppCard";
 import { TestimonialCard } from "../components/ui/TestimonialCard";
 import { SectorBadge } from "../components/ui/SectorBadge";
+import { SEOHead } from "../components/ui/SEOHead";
+import { GridPattern } from "../components/ui/GridPattern";
 
 export default function HomePage() {
   const { content } = useContentContext();
 
   return (
     <>
+    <SEOHead title="Accueil" description="Atlas Studio - Solutions digitales professionnelles pour les entreprises africaines. ERP, CRM, facturation et plus." canonical="/" />
       {/* ===== HERO (Dark) ===== */}
-      <section className="bg-onyx text-neutral-light min-h-screen flex items-center justify-center text-center px-5 md:px-8 pt-24 pb-14 md:pt-28 md:pb-20">
-        <div className="max-w-3xl">
+      <section className="relative bg-onyx text-neutral-light min-h-screen flex items-center justify-center text-center px-5 md:px-8 pt-24 pb-14 md:pt-28 md:pb-20 overflow-hidden">
+        <GridPattern dark />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] glow-gold pointer-events-none" />
+        <div className="relative max-w-3xl">
           <div className="mb-8">
             <Logo size={56} color="text-neutral-light" />
           </div>
@@ -195,8 +200,9 @@ export default function HomePage() {
       </section>
 
       {/* ===== CTA FINAL (Dark) ===== */}
-      <section className="bg-onyx text-neutral-light py-16 md:py-24 px-5 md:px-8">
-        <div className="max-w-2xl mx-auto text-center">
+      <section className="relative bg-onyx text-neutral-light py-16 md:py-24 px-5 md:px-8 overflow-hidden">
+        <GridPattern dark />
+        <div className="relative max-w-2xl mx-auto text-center">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">
               Prêt à simplifier votre gestion ?

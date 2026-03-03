@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Rocket, AlertTriangle, Loader2 } from "lucide-react";
 import { AppLogo } from "../../components/ui/Logo";
+import { PaymentMethodSelector } from "../../components/ui/PaymentMethodSelector";
 import { APP_INFO, STATUS_CONFIG } from "../../config/apps";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
+import { createRegularizationSession, createReactivationSession } from "../../lib/payments";
 
 interface MyAppsPageProps {
   userId: string | undefined;
@@ -11,6 +14,24 @@ interface MyAppsPageProps {
 
 export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
   const { subscriptions, loading } = useSubscriptions(userId);
+  const [paymentModal, setPaymentModal] = useState<{ subId: string; type: "regularize" | "reactivate" } | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
+  const [processing, setProcessing] = useState(false);
+
+  const handlePaymentAction = async () => {
+    if (!paymentModal) return;
+    setProcessing(true);
+    try {
+      if (paymentModal.type === "regularize") {
+        await createRegularizationSession(paymentModal.subId, paymentMethod);
+      } else {
+        await createReactivationSession(paymentModal.subId, paymentMethod);
+      }
+    } catch {
+      setProcessing(false);
+      setPaymentModal(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -39,6 +60,27 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
     <div>
       <h1 className="text-neutral-text text-2xl font-bold mb-1">Mes Applications</h1>
       <p className="text-neutral-muted text-sm mb-7">Gérez vos abonnements et accédez à vos outils</p>
+
+      {/* Payment method modal */}
+      {paymentModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5" onClick={() => setPaymentModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl p-8 max-w-md w-full border border-warm-border shadow-2xl">
+            <h3 className="text-neutral-text text-lg font-bold mb-4">
+              {paymentModal.type === "regularize" ? "Régulariser le paiement" : "Réactiver l'abonnement"}
+            </h3>
+            <div className="mb-6">
+              <PaymentMethodSelector selected={paymentMethod} onChange={setPaymentMethod} />
+            </div>
+            <button
+              onClick={handlePaymentAction}
+              disabled={processing}
+              className={`btn-gold w-full ${processing ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {processing ? "Redirection..." : "Procéder au paiement"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {subscriptions.map(sub => {
@@ -88,7 +130,13 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
                   Ouvrir l'app &rarr;
                 </button>
               ) : (
-                <button className="w-full py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-semibold hover:border-gold/40 transition-colors">
+                <button
+                  onClick={() => setPaymentModal({
+                    subId: sub.id,
+                    type: sub.status === "suspended" ? "regularize" : "reactivate",
+                  })}
+                  className="w-full py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-semibold hover:border-gold/40 transition-colors"
+                >
                   {sub.status === "suspended" ? "Régulariser le paiement" : "Réactiver"}
                 </button>
               )}

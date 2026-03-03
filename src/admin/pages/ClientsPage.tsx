@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Search, Loader2, Check, UserX, UserCheck } from "lucide-react";
+import { Search, Loader2, Check, UserX, UserCheck, Plus, Pencil, Trash2, Download } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { apiCall } from "../../lib/api";
+import { exportToCSV } from "../../lib/csvExport";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
@@ -14,6 +16,10 @@ export default function ClientsPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Profile | null>(null);
   const [clientSubs, setClientSubs] = useState<Subscription[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editClient, setEditClient] = useState<Profile | null>(null);
+  const [formData, setFormData] = useState({ email: "", password: "", full_name: "", company_name: "", phone: "" });
+  const [saving, setSaving] = useState(false);
 
   const fetchClients = async () => {
     const { data } = await supabase
@@ -41,8 +47,7 @@ export default function ClientsPage() {
       .update({ is_active: !client.is_active, updated_at: new Date().toISOString() })
       .eq("id", client.id);
     fetchClients();
-    setToast(client.is_active ? "Client suspendu" : "Client réactivé");
-    setTimeout(() => setToast(null), 3000);
+    showToast(client.is_active ? "Client suspendu" : "Client réactivé");
   };
 
   const openClientDetail = async (client: Profile) => {
@@ -53,6 +58,62 @@ export default function ClientsPage() {
       .eq("user_id", client.id)
       .order("created_at", { ascending: false });
     setClientSubs(data as Subscription[] || []);
+  };
+
+  const openCreateForm = () => {
+    setEditClient(null);
+    setFormData({ email: "", password: "", full_name: "", company_name: "", phone: "" });
+    setShowForm(true);
+  };
+
+  const openEditForm = (client: Profile) => {
+    setEditClient(client);
+    setFormData({ email: client.email, password: "", full_name: client.full_name, company_name: client.company_name || "", phone: client.phone || "" });
+    setShowForm(true);
+  };
+
+  const handleSaveClient = async () => {
+    setSaving(true);
+    try {
+      if (editClient) {
+        // Update via Supabase directly
+        await supabase.from("profiles").update({
+          full_name: formData.full_name,
+          company_name: formData.company_name,
+          phone: formData.phone,
+          updated_at: new Date().toISOString(),
+        }).eq("id", editClient.id);
+        showToast("Client modifié");
+      } else {
+        // Create via backend (needs service role)
+        await apiCall("admin-clients", {
+          method: "POST",
+          body: formData,
+        });
+        showToast("Client créé");
+      }
+      setShowForm(false);
+      fetchClients();
+    } catch (err: any) {
+      showToast(`Erreur: ${err.message}`);
+    }
+    setSaving(false);
+  };
+
+  const handleDeleteClient = async (client: Profile) => {
+    if (!confirm(`Supprimer le client ${client.full_name} ? Cette action est irréversible.`)) return;
+    try {
+      await apiCall(`admin-clients?id=${client.id}`, { method: "DELETE" });
+      showToast("Client supprimé");
+      fetchClients();
+    } catch (err: any) {
+      showToast(`Erreur: ${err.message}`);
+    }
+  };
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
   };
 
   if (loading) {
@@ -69,6 +130,21 @@ export default function ClientsPage() {
         <div>
           <h1 className="text-neutral-text text-2xl font-bold mb-1">Clients</h1>
           <p className="text-neutral-muted text-sm">{clients.length} clients</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => exportToCSV(clients, [
+            { key: "full_name", label: "Nom" },
+            { key: "email", label: "Email" },
+            { key: "company_name", label: "Entreprise" },
+            { key: "phone", label: "Telephone" },
+            { key: "is_active", label: "Actif", render: (r) => r.is_active ? "Oui" : "Non" },
+            { key: "created_at", label: "Inscrit le", render: (r) => new Date(r.created_at).toLocaleDateString("fr-FR") },
+          ], "clients")} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border rounded-lg bg-white text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">
+            <Download size={14} /> CSV
+          </button>
+          <button onClick={openCreateForm} className="btn-gold !py-2.5 !text-[13px] flex items-center gap-2">
+            <Plus size={14} /> Nouveau client
+          </button>
         </div>
       </div>
 
@@ -103,19 +179,24 @@ export default function ClientsPage() {
           )},
           { key: "created_at", label: "Inscrit le", sortable: true, render: (r: Profile) => new Date(r.created_at).toLocaleDateString("fr-FR") },
           { key: "actions", label: "Actions", render: (r: Profile) => (
-            <button
-              onClick={(e) => { e.stopPropagation(); toggleActive(r); }}
-              className={`p-1.5 rounded transition-colors ${r.is_active ? "hover:bg-red-50 text-red-400" : "hover:bg-green-50 text-green-600"}`}
-              title={r.is_active ? "Suspendre" : "Réactiver"}
-            >
-              {r.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
-            </button>
+            <div className="flex items-center gap-1">
+              <button onClick={(e) => { e.stopPropagation(); openEditForm(r); }} className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors" title="Modifier">
+                <Pencil size={14} />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); toggleActive(r); }} className={`p-1.5 rounded transition-colors ${r.is_active ? "hover:bg-red-50 text-red-400" : "hover:bg-green-50 text-green-600"}`} title={r.is_active ? "Suspendre" : "Réactiver"}>
+                {r.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); handleDeleteClient(r); }} className="p-1.5 rounded hover:bg-red-50 text-neutral-muted hover:text-red-500 transition-colors" title="Supprimer">
+                <Trash2 size={14} />
+              </button>
+            </div>
           )},
         ]}
         data={filtered}
         onRowClick={openClientDetail}
       />
 
+      {/* Client detail modal */}
       <AdminModal open={!!selectedClient} onClose={() => setSelectedClient(null)} title={selectedClient?.full_name || "Client"}>
         {selectedClient && (
           <div className="space-y-4">
@@ -137,7 +218,6 @@ export default function ClientsPage() {
                 <div className="text-neutral-text text-sm">{new Date(selectedClient.created_at).toLocaleDateString("fr-FR")}</div>
               </div>
             </div>
-
             <div className="border-t border-warm-border pt-4">
               <h3 className="text-neutral-text text-sm font-bold mb-3">Abonnements ({clientSubs.length})</h3>
               {clientSubs.length === 0 ? (
@@ -158,6 +238,39 @@ export default function ClientsPage() {
             </div>
           </div>
         )}
+      </AdminModal>
+
+      {/* Create/Edit form modal */}
+      <AdminModal open={showForm} onClose={() => setShowForm(false)} title={editClient ? "Modifier le client" : "Nouveau client"}>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Nom complet</label>
+            <input value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors" />
+          </div>
+          {!editClient && (
+            <>
+              <div>
+                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Email</label>
+                <input value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors" />
+              </div>
+              <div>
+                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Mot de passe</label>
+                <input type="password" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors" />
+              </div>
+            </>
+          )}
+          <div>
+            <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Entreprise</label>
+            <input value={formData.company_name} onChange={e => setFormData(p => ({ ...p, company_name: e.target.value }))} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors" />
+          </div>
+          <div>
+            <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Téléphone</label>
+            <input value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors" />
+          </div>
+          <button onClick={handleSaveClient} disabled={saving} className={`btn-gold w-full mt-4 ${saving ? "opacity-50" : ""}`}>
+            {saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer le client"}
+          </button>
+        </div>
       </AdminModal>
     </div>
   );

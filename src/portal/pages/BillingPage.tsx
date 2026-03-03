@@ -1,6 +1,7 @@
-import { CreditCard, Loader2 } from "lucide-react";
+import { CreditCard, Download, Loader2 } from "lucide-react";
 import { APP_INFO } from "../../config/apps";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
+import { openPaymentMethodPortal } from "../../lib/payments";
 
 interface BillingPageProps {
   userId: string | undefined;
@@ -8,6 +9,37 @@ interface BillingPageProps {
 
 export function BillingPage({ userId }: BillingPageProps) {
   const { subscriptions, invoices, loading } = useSubscriptions(userId);
+
+  const handleManagePayment = async () => {
+    try {
+      await openPaymentMethodPortal();
+    } catch {
+      // No Stripe customer yet
+    }
+  };
+
+  const handleDownloadPDF = async (invoiceId: string, invoiceNumber: string) => {
+    try {
+      const { supabase } = await import("../../lib/supabase");
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invoice-pdf?id=${invoiceId}`,
+        {
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+        }
+      );
+      if (!res.ok) throw new Error("Erreur");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `facture-${invoiceNumber}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // PDF non disponible
+    }
+  };
 
   if (loading) {
     return (
@@ -51,7 +83,10 @@ export function BillingPage({ userId }: BillingPageProps) {
         </div>
       </div>
 
-      <button className="flex items-center gap-2 px-5 py-3 border border-warm-border rounded-lg bg-white text-neutral-body text-sm font-medium hover:border-gold/40 transition-colors mb-8">
+      <button
+        onClick={handleManagePayment}
+        className="flex items-center gap-2 px-5 py-3 border border-warm-border rounded-lg bg-white text-neutral-body text-sm font-medium hover:border-gold/40 transition-colors mb-8"
+      >
         <CreditCard size={16} strokeWidth={1.5} className="text-gold" />
         Gérer mes moyens de paiement
       </button>
@@ -66,7 +101,7 @@ export function BillingPage({ userId }: BillingPageProps) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-warm-border">
-                {["Facture", "Date", "Application", "Montant", "Statut"].map(h => (
+                {["Facture", "Date", "Application", "Montant", "Statut", "PDF"].map(h => (
                   <th key={h} className="text-neutral-muted text-[11px] font-bold uppercase tracking-wider p-4 text-left">
                     {h}
                   </th>
@@ -92,6 +127,17 @@ export function BillingPage({ userId }: BillingPageProps) {
                       }`}>
                         {inv.status === "paid" ? "\u2713 Payée" : inv.status === "pending" ? "En attente" : "\u2715 Échouée"}
                       </span>
+                    </td>
+                    <td className="p-4">
+                      {inv.status === "paid" && (
+                        <button
+                          onClick={() => handleDownloadPDF(inv.id, inv.invoice_number)}
+                          className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors"
+                          title="Télécharger le PDF"
+                        >
+                          <Download size={14} strokeWidth={1.5} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 );

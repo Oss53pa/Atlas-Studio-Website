@@ -1,19 +1,29 @@
 import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
+import { apiCall } from "../lib/api";
 import { LoginPage } from "./LoginPage";
 import { Sidebar } from "./Sidebar";
 import { MyAppsPage } from "./pages/MyAppsPage";
 import { CatalogPage } from "./pages/CatalogPage";
 import { BillingPage } from "./pages/BillingPage";
+import { SupportPage } from "./pages/SupportPage";
 import { SettingsPage } from "./pages/SettingsPage";
 
 function PortalDashboard() {
   const { user, profile, signOut } = useAuth();
   const [page, setPage] = useState("apps");
 
-  const handleOpenApp = (appId: string) => {
-    alert(`Redirection vers https://${appId}.atlasstudio.com\n\n(En production, l'utilisateur est redirigé avec son token JWT)`);
+  const handleOpenApp = async (appId: string) => {
+    try {
+      const { redirectUrl } = await apiCall<{ token: string; redirectUrl: string }>("app-token", {
+        method: "POST",
+        body: { appId },
+      });
+      window.open(redirectUrl, "_blank");
+    } catch (err: any) {
+      alert(err.message || "Impossible d'ouvrir l'application");
+    }
   };
 
   return (
@@ -23,6 +33,7 @@ function PortalDashboard() {
         {page === "apps" && <MyAppsPage userId={user?.id} onOpenApp={handleOpenApp} onNavigate={setPage} />}
         {page === "catalog" && <CatalogPage userId={user?.id} />}
         {page === "billing" && <BillingPage userId={user?.id} />}
+        {page === "support" && <SupportPage userId={user?.id} />}
         {page === "settings" && <SettingsPage />}
       </main>
     </div>

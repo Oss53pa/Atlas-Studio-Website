@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users, Repeat, DollarSign, TrendingUp, Loader2 } from "lucide-react";
+import { Users, Repeat, DollarSign, TrendingUp, Loader2, Eye } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminCard } from "../components/AdminCard";
 import { APP_INFO } from "../../config/apps";
@@ -24,10 +24,17 @@ interface ActivityItem {
   user_id: string | null;
 }
 
+interface PageViewStat {
+  path: string;
+  count: number;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenue, setRevenue] = useState<RevenueSummary | null>(null);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [pageViews, setPageViews] = useState<PageViewStat[]>([]);
+  const [totalWeekViews, setTotalWeekViews] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,6 +48,29 @@ export default function DashboardPage() {
       if (statsRes.data) setStats(statsRes.data as unknown as DashboardStats);
       if (revenueRes.data) setRevenue(revenueRes.data as unknown as RevenueSummary);
       if (activityRes.data) setActivity(activityRes.data as ActivityItem[]);
+
+      // Fetch page view analytics (last 7 days)
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const { data: views } = await supabase
+        .from("activity_log")
+        .select("metadata")
+        .eq("action", "page_view")
+        .gte("created_at", weekAgo);
+
+      if (views) {
+        setTotalWeekViews(views.length);
+        const pathCounts: Record<string, number> = {};
+        views.forEach((v: any) => {
+          const path = v.metadata?.path || "/";
+          pathCounts[path] = (pathCounts[path] || 0) + 1;
+        });
+        const sorted = Object.entries(pathCounts)
+          .map(([path, count]) => ({ path, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5);
+        setPageViews(sorted);
+      }
+
       setLoading(false);
     }
     load();
@@ -118,6 +148,37 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Analytics */}
+      <div className="mt-6 bg-white border border-warm-border rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-neutral-text text-base font-bold">Analytics (7 jours)</h2>
+          <div className="flex items-center gap-2 text-neutral-muted text-sm">
+            <Eye size={14} /> {totalWeekViews} vues
+          </div>
+        </div>
+        {pageViews.length > 0 ? (
+          <div className="space-y-3">
+            {pageViews.map(pv => {
+              const maxCount = pageViews[0].count;
+              const pct = Math.round((pv.count / maxCount) * 100);
+              return (
+                <div key={pv.path}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-neutral-text text-[13px] font-medium">{pv.path}</span>
+                    <span className="text-neutral-muted text-[11px]">{pv.count} vues</span>
+                  </div>
+                  <div className="w-full h-2 bg-warm-bg rounded-full overflow-hidden">
+                    <div className="h-full bg-gold rounded-full transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-neutral-muted text-sm">Aucune donnée analytics</p>
+        )}
+      </div>
     </div>
   );
 }

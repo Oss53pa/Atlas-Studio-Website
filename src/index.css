@@ -80,7 +80,8 @@
 
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(200, 169, 96, 0.15);
+  border-color: rgba(200, 169, 96, 0.3);
 }
 
 /* Scroll reveal states */
@@ -93,6 +94,38 @@
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Glow gold radial effect */
+.glow-gold {
+  background: radial-gradient(ellipse, rgba(200, 169, 96, 0.08) 0%, transparent 70%);
+}
+
+/* Shimmer badge effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  animation: shimmer 2.5s infinite;
+}
+
+/* Reveal line animation for section headings */
+.reveal-line {
+  transform: scaleX(0);
+  transition: transform 0.6s ease-out 0.3s;
+}
+
+.visible .reveal-line {
+  transform: scaleX(1);
 }
 
 /* Section wrappers (kept for backwards compatibility) */

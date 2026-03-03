@@ -22,8 +22,8 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
   return (
     <Link
       to={`/applications/${app.id}`}
-      className={`block bg-white border border-warm-border rounded-xl p-5 card-hover group ${isComingSoon ? 'opacity-80' : ''}`}
-      style={{ animationDelay: `${index * 60}ms` }}
+      className={`block bg-white border border-warm-border rounded-xl p-5 card-hover group overflow-hidden ${isComingSoon ? 'opacity-80' : ''}`}
+      style={{ animationDelay: `${index * 60}ms`, borderTopWidth: '3px', borderTopColor: app.color || '#C8A960' }}
     >
       <div className="flex items-center justify-between mb-2">
         <AppLogo name={app.name} size={18} color="text-gold" />
