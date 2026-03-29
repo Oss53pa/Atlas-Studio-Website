@@ -33,6 +33,7 @@ const InvoicesPage = lazy(() => import('./admin/pages/InvoicesPage'));
 const ActivityLogPage = lazy(() => import('./admin/pages/ActivityLogPage'));
 const TicketsPage = lazy(() => import('./admin/pages/TicketsPage'));
 const NewsletterPage = lazy(() => import('./admin/pages/NewsletterPage'));
+const EmailTemplatesPage = lazy(() => import('./admin/pages/EmailTemplatesPage'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -90,6 +91,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="activity" element={<Suspense fallback={<AdminLoader />}><ActivityLogPage /></Suspense>} />
               <Route path="tickets" element={<Suspense fallback={<AdminLoader />}><TicketsPage /></Suspense>} />
               <Route path="newsletter" element={<Suspense fallback={<AdminLoader />}><NewsletterPage /></Suspense>} />
+              <Route path="emails" element={<Suspense fallback={<AdminLoader />}><EmailTemplatesPage /></Suspense>} />
             </Route>
           </Route>
 
