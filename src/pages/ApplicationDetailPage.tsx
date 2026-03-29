@@ -55,12 +55,25 @@ export default function ApplicationDetailPage() {
   const iconName = app.icon || "receipt";
   const highlights = app.highlights || [];
   const IconComponent = ICON_MAP[iconName] || CheckCircle;
+  const pricingPeriod = (app as any).pricingPeriod || "mois";
 
-  const allFeatures = [
-    ...app.features,
-    "Support prioritaire",
-    "API & intégrations",
-  ];
+  const formatPrice = (price: number) => price.toLocaleString("fr-FR");
+
+  // Premium tags used to mark features exclusive to the higher-tier plan
+  const PREMIUM_TAGS = ["(Premium)", "(Cabinet)", "(Entreprise)"];
+  const isPremiumFeature = (f: string) => PREMIUM_TAGS.some(tag => f.includes(tag));
+  const cleanFeatureName = (f: string) => {
+    let clean = f;
+    for (const tag of PREMIUM_TAGS) clean = clean.replace(` ${tag}`, "");
+    return clean;
+  };
+
+  const allFeatures = app.features;
+
+  const isFeatureIncluded = (feature: string, planIndex: number) => {
+    if (planIndex > 0) return true; // premium plan gets everything
+    return !isPremiumFeature(feature); // basic plan only gets non-tagged features
+  };
 
   return (
     <div className="min-h-screen">
@@ -176,7 +189,12 @@ export default function ApplicationDetailPage() {
                       <CheckCircle size={18} style={{ color: appColor }} />
                     </div>
                     <div className="text-neutral-text font-semibold text-[15px] pt-1.5">
-                      {f}
+                      {cleanFeatureName(f)}
+                      {isPremiumFeature(f) && (
+                        <span className="ml-1.5 text-[10px] font-semibold text-gold bg-gold/10 px-1.5 py-0.5 rounded-full align-middle">
+                          Premium
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -236,14 +254,11 @@ export default function ApplicationDetailPage() {
                       className="border-b border-warm-border last:border-0"
                     >
                       <td className="p-4 text-neutral-body text-sm">
-                        {feature}
+                        {cleanFeatureName(feature)}
                       </td>
                       {pricingEntries.map(([plan], pi) => {
                         const isPopular = pi === 1;
-                        const isIncluded =
-                          fi < app.features.length
-                            ? fi < 2 || pi > 0
-                            : pi === pricingEntries.length - 1;
+                        const isIncluded = isFeatureIncluded(feature, pi);
                         return (
                           <td
                             key={plan}
@@ -279,11 +294,11 @@ export default function ApplicationDetailPage() {
                           }`}
                         >
                           <div className="text-gold text-2xl font-extrabold">
-                            {price === 0 ? "Gratuit" : price}
+                            {price === 0 ? "Gratuit" : formatPrice(price as number)}
                           </div>
                           {(price as number) > 0 && (
                             <div className="text-neutral-placeholder text-xs">
-                              /mois
+                              FCFA/{pricingPeriod}
                             </div>
                           )}
                         </td>

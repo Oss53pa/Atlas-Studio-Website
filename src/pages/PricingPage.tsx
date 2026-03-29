@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
 import { useContentContext } from "../components/layout/Layout";
 import { AppLogo } from "../components/ui/Logo";
 import { SectionHeading } from "../components/ui/SectionHeading";
@@ -6,66 +7,77 @@ import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { GridPattern } from "../components/ui/GridPattern";
 import type { AppItem } from "../config/content";
 
-function PricingTable({ apps, columns }: { apps: AppItem[]; columns: string[] }) {
+function formatPrice(price: number): string {
+  return price.toLocaleString("fr-FR");
+}
+
+function AppPricingCard({ app }: { app: AppItem }) {
+  const plans = Object.entries(app.pricing);
+  const period = app.pricingPeriod || "mois";
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse min-w-[600px] bg-white rounded-2xl overflow-hidden border border-warm-border">
-        <thead>
-          <tr className="bg-warm-bg">
-            <th className="p-5 text-left text-neutral-muted text-xs font-bold uppercase border-b border-warm-border">Application</th>
-            {columns.map((col, i) => (
-              <th
-                key={col}
-                className={`p-5 text-center text-xs font-bold uppercase border-b border-warm-border ${
-                  i === 1 ? "text-gold" : "text-neutral-muted"
-                }`}
-              >
-                {col}
-                {i === 1 && <span className="shimmer bg-gold text-onyx px-2 py-0.5 rounded-full text-[10px] ml-1.5 inline-block">POPULAIRE</span>}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {apps.map((app) => {
-            const p = Object.entries(app.pricing);
-            return (
-              <tr key={app.id} className="border-b border-warm-border last:border-b-0 hover:bg-warm-bg/50 transition-colors">
-                <td className="p-5">
-                  <Link to={`/applications/${app.id}`} className="hover:opacity-80 transition-opacity">
-                    <AppLogo name={app.name} size={18} color="text-gold" />
-                    <div className="text-neutral-placeholder text-[11px] mt-0.5">{app.tagline}</div>
-                  </Link>
-                </td>
-                {columns.map((_, ci) => (
-                  <td key={ci} className={`p-5 text-center ${ci === 1 ? "bg-gold/[0.03]" : ""}`}>
-                    {p[ci] ? (
-                      <span className="text-gold text-2xl font-bold">
-                        {p[ci][1] === 0 ? (
-                          <span className="text-lg">Gratuit</span>
-                        ) : (
-                          <>{p[ci][1]}<span className="text-neutral-muted text-xs font-normal">/mois</span></>
-                        )}
-                      </span>
-                    ) : (
-                      <span className="text-neutral-muted text-sm">&mdash;</span>
-                    )}
-                  </td>
+    <div className="mb-14">
+      <div className="mb-6">
+        <Link to={`/applications/${app.id}`} className="hover:opacity-80 transition-opacity">
+          <AppLogo name={app.name} size={24} color="text-gold" />
+        </Link>
+        <p className="text-neutral-muted text-sm mt-1">{app.tagline}</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {plans.map(([plan, price], i) => (
+          <div
+            key={plan}
+            className={`bg-white border rounded-2xl p-7 ${
+              i === 1 ? "border-gold/40 ring-1 ring-gold/20" : "border-warm-border"
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="text-neutral-text font-bold text-lg">{plan}</h4>
+              {i === 1 && (
+                <span className="shimmer bg-gold text-onyx px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                  PREMIUM
+                </span>
+              )}
+            </div>
+            <div className="mb-5">
+              <span className="text-gold text-3xl font-extrabold">{formatPrice(price)}</span>
+              <span className="text-neutral-muted text-sm ml-1">FCFA/{period}</span>
+            </div>
+
+            <ul className="space-y-2">
+              {app.features
+                .filter((f) => {
+                  if (i === 0) return !f.includes("(Cabinet)") && !f.includes("(Entreprise)") && !f.includes("(Premium)");
+                  return true;
+                })
+                .map((f, fi) => (
+                  <li key={fi} className="flex items-start gap-2 text-neutral-body text-[13px]">
+                    <CheckCircle size={15} className="text-gold flex-shrink-0 mt-0.5" />
+                    <span>{f.replace(/ \(Cabinet\)$/, "").replace(/ \(Entreprise\)$/, "").replace(/ \(Premium\)$/, "")}</span>
+                  </li>
                 ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </ul>
+
+            <Link
+              to={`/portal?app=${app.id}`}
+              className={`mt-6 block text-center py-2.5 rounded-lg font-semibold text-sm transition-colors ${
+                i === 1
+                  ? "btn-gold w-full"
+                  : "border border-warm-border text-neutral-body hover:border-gold/40"
+              }`}
+            >
+              Démarrer
+            </Link>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 export default function PricingPage() {
   const { content } = useContentContext();
-
-  const erpModules = content.apps.filter(a => a.type === "Module ERP");
-  const standaloneApps = content.apps.filter(a => a.type === "App" || a.type === "App mobile");
 
   return (
     <div className="min-h-screen">
@@ -86,36 +98,12 @@ export default function PricingPage() {
 
       {/* Pricing content */}
       <div className="bg-warm-bg text-neutral-text py-16 md:py-24 px-5 md:px-8">
-        <div className="max-w-site mx-auto">
-          {/* Summary cards */}
-          <ScrollReveal>
-            <div className="flex gap-5 justify-center flex-wrap mb-14">
-              <div className="bg-white border border-warm-border rounded-2xl p-8 flex-1 min-w-[200px] max-w-[280px] text-center">
-                <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-2">Modules ERP</div>
-                <div className="text-gold text-4xl font-extrabold">19</div>
-                <div className="text-neutral-placeholder text-sm">/mois par module</div>
-                <p className="text-neutral-muted text-xs mt-3">{erpModules.length} modules disponibles</p>
-              </div>
-              <div className="bg-white border border-warm-border rounded-2xl p-8 flex-1 min-w-[200px] max-w-[280px] text-center">
-                <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-2">Apps standalone</div>
-                <div className="text-gold text-4xl font-extrabold">0</div>
-                <div className="text-neutral-placeholder text-sm">/mois (freemium)</div>
-                <p className="text-neutral-muted text-xs mt-3">{standaloneApps.length} apps disponibles</p>
-              </div>
-            </div>
-          </ScrollReveal>
-
-          {/* ERP Modules table */}
-          <ScrollReveal>
-            <h3 className="text-neutral-text text-lg font-bold mb-4">Modules ERP — {erpModules.length} modules</h3>
-            <PricingTable apps={erpModules} columns={["Starter", "Pro", "Enterprise"]} />
-          </ScrollReveal>
-
-          {/* Standalone Apps table */}
-          <ScrollReveal>
-            <h3 className="text-neutral-text text-lg font-bold mb-4 mt-12">Apps standalone — {standaloneApps.length} apps</h3>
-            <PricingTable apps={standaloneApps} columns={["Basic", "Pro", "Enterprise"]} />
-          </ScrollReveal>
+        <div className="max-w-4xl mx-auto">
+          {content.apps.map((app) => (
+            <ScrollReveal key={app.id}>
+              <AppPricingCard app={app} />
+            </ScrollReveal>
+          ))}
 
           {/* CTA */}
           <ScrollReveal>

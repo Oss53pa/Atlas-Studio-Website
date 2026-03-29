@@ -15,8 +15,13 @@ const typeBadgeClass: Record<string, string> = {
   "App mobile": "bg-emerald-50 text-emerald-600 border-emerald-200",
 };
 
+function formatPrice(price: number): string {
+  return price.toLocaleString("fr-FR");
+}
+
 export function AppCard({ app, index = 0 }: AppCardProps) {
   const minPrice = Math.min(...Object.values(app.pricing));
+  const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === 'coming_soon';
 
   return (
@@ -48,8 +53,8 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
             <span className="text-gold text-sm font-extrabold">Gratuit</span>
           ) : (
             <>
-              <span className="text-gold text-lg font-extrabold">{minPrice}</span>
-              <span className="text-neutral-muted text-[11px] ml-0.5">/mois</span>
+              <span className="text-gold text-lg font-extrabold">{formatPrice(minPrice)}</span>
+              <span className="text-neutral-muted text-[11px] ml-1">FCFA/{period}</span>
             </>
           )}
         </div>

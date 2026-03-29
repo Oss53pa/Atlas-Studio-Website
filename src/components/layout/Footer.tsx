@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Shield, Send } from "lucide-react";
+import { Heart, Send } from "lucide-react";
 import { Logo } from "../ui/Logo";
 import { supabase } from "../../lib/supabase";
 
@@ -106,11 +106,8 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-8 pt-5 flex justify-between flex-wrap gap-4">
-          <p className="text-neutral-500 text-xs">&copy; 2026 Atlas Studio. Tous droits réservés.</p>
+          <p className="text-neutral-500 text-xs">&copy; 2026 Atlas Studio<Link to="/admin/login" className="text-neutral-500 hover:text-neutral-500 cursor-default">.</Link> Tous droits réservés.</p>
           <div className="flex items-center gap-3">
-            <Link to="/admin/login" className="text-neutral-700 hover:text-neutral-500 transition-colors" title="Administration">
-              <Shield size={13} strokeWidth={1.5} />
-            </Link>
             <p className="text-neutral-500 text-xs flex items-center gap-1">
               Conçu avec <Heart size={12} strokeWidth={1.5} className="text-gold" /> à Abidjan
             </p>

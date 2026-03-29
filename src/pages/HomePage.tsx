@@ -55,12 +55,12 @@ export default function HomePage() {
           <ScrollReveal>
             <SectionHeading
               title="Nos Produits"
-              subtitle="13 modules ERP et 9 apps standalone — choisissez ce dont vous avez besoin."
+              subtitle="Des solutions professionnelles adaptées à vos besoins."
             />
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {content.apps.slice(0, 6).map((app, i) => (
+            {content.apps.map((app, i) => (
               <ScrollReveal key={app.id} delay={i * 80}>
                 <AppCard app={app} index={i} />
               </ScrollReveal>
@@ -73,7 +73,7 @@ export default function HomePage() {
                 to="/applications"
                 className="inline-flex items-center gap-2 text-gold font-semibold text-sm hover:gap-3 transition-all duration-300"
               >
-                Voir les 22 produits <ArrowRight size={16} />
+                Voir tous nos produits <ArrowRight size={16} />
               </Link>
             </div>
           </ScrollReveal>
@@ -165,23 +165,23 @@ export default function HomePage() {
           <ScrollReveal>
             <SectionHeading
               title="Tarifs simples et transparents"
-              subtitle="Modules ERP dès 19/mois, apps standalone dès 0/mois. Payez uniquement ce que vous utilisez."
+              subtitle="Payez uniquement ce que vous utilisez. Changez ou annulez à tout moment."
             />
           </ScrollReveal>
 
           <ScrollReveal>
             <div className="flex gap-5 justify-center flex-wrap mb-10">
               <div className="bg-white border border-warm-border rounded-2xl p-8 flex-1 min-w-[200px] max-w-[280px]">
-                <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-2">Modules ERP</div>
-                <div className="text-gold text-4xl font-extrabold">19</div>
-                <div className="text-neutral-placeholder text-sm">/mois par module</div>
-                <p className="text-neutral-muted text-xs mt-3">13 modules disponibles</p>
+                <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-2">Atlas F&A</div>
+                <div className="text-gold text-3xl font-extrabold">49 000</div>
+                <div className="text-neutral-placeholder text-sm">FCFA/mois</div>
+                <p className="text-neutral-muted text-xs mt-3">Comptabilité SYSCOHADA</p>
               </div>
               <div className="bg-white border border-warm-border rounded-2xl p-8 flex-1 min-w-[200px] max-w-[280px]">
                 <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-2">Apps standalone</div>
-                <div className="text-gold text-4xl font-extrabold">0</div>
-                <div className="text-neutral-placeholder text-sm">/mois (freemium)</div>
-                <p className="text-neutral-muted text-xs mt-3">9 apps disponibles</p>
+                <div className="text-gold text-3xl font-extrabold">dès 25 000</div>
+                <div className="text-neutral-placeholder text-sm">FCFA/mois ou /an</div>
+                <p className="text-neutral-muted text-xs mt-3">Liass'Pilot & Advist</p>
               </div>
             </div>
           </ScrollReveal>

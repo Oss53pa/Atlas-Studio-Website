@@ -34,7 +34,7 @@ export default function ApplicationsPage() {
         <ScrollReveal>
           <SectionHeading
             title="Nos Produits"
-            subtitle={`${visibleApps.length} solutions professionnelles : un ERP modulaire et des apps standalone pour tous vos besoins.`}
+            subtitle="Nos solutions professionnelles disponibles."
           />
         </ScrollReveal>
 
