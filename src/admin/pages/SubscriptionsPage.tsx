@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
-import { APP_INFO } from "../../config/apps";
+import { useAppCatalog } from "../../hooks/useAppCatalog";
 import type { Subscription, SubscriptionStatus, Profile } from "../../lib/database.types";
 
 interface SubWithProfile extends Subscription {
@@ -21,13 +21,14 @@ const statusFilters: { label: string; value: string }[] = [
 ];
 
 export default function SubscriptionsPage() {
+  const { appMap, appList } = useAppCatalog();
   const [subs, setSubs] = useState<SubWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [toast, setToast] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [clients, setClients] = useState<Profile[]>([]);
-  const [formData, setFormData] = useState({ user_id: "", app_id: "", plan: "starter", price: 19 });
+  const [formData, setFormData] = useState({ user_id: "", app_id: "", plan: "", price: 0 });
   const [saving, setSaving] = useState(false);
 
   const fetchSubs = async () => {
@@ -54,7 +55,8 @@ export default function SubscriptionsPage() {
   const openCreateForm = async () => {
     const { data } = await supabase.from("profiles").select("*").eq("role", "client").order("full_name");
     setClients(data as Profile[] || []);
-    setFormData({ user_id: "", app_id: Object.keys(APP_INFO)[0], plan: "starter", price: 19 });
+    const firstAppId = appList.length > 0 ? appList[0].id : "";
+    setFormData({ user_id: "", app_id: firstAppId, plan: "", price: 0 });
     setShowForm(true);
   };
 
@@ -137,7 +139,7 @@ export default function SubscriptionsPage() {
               <div className="text-neutral-muted text-[11px]">{r.profiles?.email || "—"}</div>
             </div>
           )},
-          { key: "app_id", label: "Application", sortable: true, render: (r: SubWithProfile) => APP_INFO[r.app_id]?.name || r.app_id },
+          { key: "app_id", label: "Application", sortable: true, render: (r: SubWithProfile) => appMap[r.app_id]?.name || r.app_id },
           { key: "plan", label: "Plan", sortable: true, render: (r: SubWithProfile) => (
             <span className="capitalize">{r.plan}</span>
           )},
@@ -174,16 +176,22 @@ export default function SubscriptionsPage() {
           <div>
             <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Application</label>
             <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors">
-              {Object.entries(APP_INFO).map(([id, info]) => <option key={id} value={id}>{info.name}</option>)}
+              {appList.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Plan</label>
-              <select value={formData.plan} onChange={e => setFormData(p => ({ ...p, plan: e.target.value }))} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors">
-                <option value="starter">Starter</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
+              <select value={formData.plan} onChange={e => {
+                const plan = e.target.value;
+                const app = appMap[formData.app_id];
+                const price = app ? (app.pricing as Record<string, number>)[plan] || 0 : 0;
+                setFormData(p => ({ ...p, plan, price }));
+              }} className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors">
+                <option value="">Sélectionner un plan</option>
+                {formData.app_id && appMap[formData.app_id] && Object.entries(appMap[formData.app_id].pricing as Record<string, number>).map(([planName, price]) => (
+                  <option key={planName} value={planName}>{planName} — {price.toLocaleString("fr-FR")} FCFA</option>
+                ))}
               </select>
             </div>
             <div>

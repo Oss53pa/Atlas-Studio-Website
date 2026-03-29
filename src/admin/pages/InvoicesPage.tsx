@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminCard } from "../components/AdminCard";
-import { APP_INFO } from "../../config/apps";
+import { useAppCatalog } from "../../hooks/useAppCatalog";
 import type { Invoice, InvoiceStatus } from "../../lib/database.types";
 
 interface InvoiceWithProfile extends Invoice {
@@ -14,6 +14,7 @@ interface InvoiceWithProfile extends Invoice {
 const statusCycle: InvoiceStatus[] = ["pending", "paid", "failed", "refunded"];
 
 export default function InvoicesPage() {
+  const { appMap } = useAppCatalog();
   const [invoices, setInvoices] = useState<InvoiceWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -117,7 +118,7 @@ export default function InvoicesPage() {
             </div>
           )},
           { key: "app_id", label: "Application", render: (r: InvoiceWithProfile) => (
-            <span>{APP_INFO[r.app_id]?.name || r.app_id} &middot; {r.plan}</span>
+            <span>{appMap[r.app_id]?.name || r.app_id} &middot; {r.plan}</span>
           )},
           { key: "amount", label: "Montant", sortable: true, render: (r: InvoiceWithProfile) => (
             <span className="text-gold font-semibold">{Number(r.amount).toFixed(2)} {r.currency}</span>

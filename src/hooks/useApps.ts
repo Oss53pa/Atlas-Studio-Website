@@ -32,6 +32,10 @@ export function useApps() {
           features: row.features || [],
           categories: row.categories || [],
           pricing: row.pricing as Record<string, number>,
+          pricingPeriod: (row as any).pricing_period || 'mois',
+          color: (row as any).color || '#C8A960',
+          icon: (row as any).icon || 'receipt',
+          highlights: (row as any).highlights || [],
           status: row.status as AppStatus,
         })));
       }

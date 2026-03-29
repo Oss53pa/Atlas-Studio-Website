@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Rocket, AlertTriangle, Loader2 } from "lucide-react";
 import { AppLogo } from "../../components/ui/Logo";
 import { PaymentMethodSelector } from "../../components/ui/PaymentMethodSelector";
-import { APP_INFO, STATUS_CONFIG } from "../../config/apps";
+import { STATUS_CONFIG } from "../../config/apps";
+import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
 import { createRegularizationSession, createReactivationSession } from "../../lib/payments";
 
@@ -13,10 +14,13 @@ interface MyAppsPageProps {
 }
 
 export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
-  const { subscriptions, loading } = useSubscriptions(userId);
+  const { subscriptions, loading: subsLoading } = useSubscriptions(userId);
+  const { appMap, loading: appsLoading } = useAppCatalog();
   const [paymentModal, setPaymentModal] = useState<{ subId: string; type: "regularize" | "reactivate" } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [processing, setProcessing] = useState(false);
+
+  const loading = subsLoading || appsLoading;
 
   const handlePaymentAction = async () => {
     if (!paymentModal) return;
@@ -84,8 +88,8 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {subscriptions.map(sub => {
-          const info = APP_INFO[sub.app_id];
-          if (!info) return null;
+          const info = appMap[sub.app_id];
+          const appName = info?.name || sub.app_id;
           const statusConf = STATUS_CONFIG[sub.status] || STATUS_CONFIG.expired;
           const isActive = sub.status === "active" || sub.status === "trial";
           const daysRemaining = Math.ceil((new Date(sub.current_period_end).getTime() - Date.now()) / 86400000);
@@ -94,7 +98,7 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
             <div key={sub.id} className="bg-white border border-warm-border rounded-2xl p-6 card-hover">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <AppLogo name={info.name} size={22} color="text-gold" />
+                  <AppLogo name={appName} size={22} color="text-gold" />
                   <div className="text-neutral-muted text-xs mt-1">
                     Plan {sub.plan?.charAt(0).toUpperCase() + sub.plan?.slice(1)}
                   </div>

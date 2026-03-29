@@ -7,9 +7,10 @@ import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import type { Profile, Subscription } from "../../lib/database.types";
-import { APP_INFO } from "../../config/apps";
+import { useAppCatalog } from "../../hooks/useAppCatalog";
 
 export default function ClientsPage() {
+  const { appMap } = useAppCatalog();
   const [clients, setClients] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -227,7 +228,7 @@ export default function ClientsPage() {
                   {clientSubs.map(sub => (
                     <div key={sub.id} className="flex items-center justify-between p-3 bg-warm-bg rounded-lg">
                       <div>
-                        <span className="text-neutral-text text-sm font-medium">{APP_INFO[sub.app_id]?.name || sub.app_id}</span>
+                        <span className="text-neutral-text text-sm font-medium">{appMap[sub.app_id]?.name || sub.app_id}</span>
                         <span className="text-neutral-muted text-[11px] ml-2">Plan {sub.plan}</span>
                       </div>
                       <AdminBadge status={sub.status} />

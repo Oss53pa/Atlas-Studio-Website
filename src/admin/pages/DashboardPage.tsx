@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Users, Repeat, DollarSign, TrendingUp, Loader2, Eye } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminCard } from "../components/AdminCard";
-import { APP_INFO } from "../../config/apps";
+import { useAppCatalog } from "../../hooks/useAppCatalog";
 
 interface DashboardStats {
   total_users: number;
@@ -30,6 +30,7 @@ interface PageViewStat {
 }
 
 export default function DashboardPage() {
+  const { appMap } = useAppCatalog();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenue, setRevenue] = useState<RevenueSummary | null>(null);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
@@ -109,7 +110,7 @@ export default function DashboardPage() {
                       {i + 1}
                     </div>
                     <span className="text-neutral-text text-sm font-medium">
-                      {APP_INFO[app.app_id]?.name || app.app_id}
+                      {appMap[app.app_id]?.name || app.app_id}
                     </span>
                   </div>
                   <span className="text-neutral-muted text-sm">{app.sub_count} abonnés</span>

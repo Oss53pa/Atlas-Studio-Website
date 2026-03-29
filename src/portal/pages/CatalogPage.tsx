@@ -2,30 +2,36 @@ import { useState } from "react";
 import { PartyPopper, Loader2 } from "lucide-react";
 import { AppLogo } from "../../components/ui/Logo";
 import { PaymentMethodSelector } from "../../components/ui/PaymentMethodSelector";
-import { APP_INFO } from "../../config/apps";
+import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
 import { createCheckoutSession } from "../../lib/payments";
+import type { AppRow } from "../../lib/database.types";
 
 interface CatalogPageProps {
   userId: string | undefined;
 }
 
 export function CatalogPage({ userId }: CatalogPageProps) {
-  const { subscriptions, loading } = useSubscriptions(userId);
-  const [selectedApp, setSelectedApp] = useState<(typeof APP_INFO)[string] & { id: string } | null>(null);
+  const { subscriptions, loading: subsLoading } = useSubscriptions(userId);
+  const { appList, loading: appsLoading } = useAppCatalog();
+  const [selectedApp, setSelectedApp] = useState<AppRow | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [subscribing, setSubscribing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  const loading = subsLoading || appsLoading;
   const subscribedIds = subscriptions.map(s => s.app_id);
-  const allApps = Object.entries(APP_INFO).filter(([id]) => !subscribedIds.includes(id));
+  const availableApps = appList.filter(
+    a => !subscribedIds.includes(a.id) && a.status === "available"
+  );
 
   const handleSubscribe = async () => {
     if (!selectedApp || !selectedPlan) return;
     setSubscribing(true);
     try {
-      const price = selectedApp.pricing[selectedPlan]?.price || 0;
+      const pricing = selectedApp.pricing as Record<string, number>;
+      const price = pricing[selectedPlan] || 0;
       await createCheckoutSession(selectedApp.id, selectedPlan, price, paymentMethod);
     } catch (err: any) {
       setToast(`Erreur: ${err.message}`);
@@ -33,6 +39,8 @@ export function CatalogPage({ userId }: CatalogPageProps) {
       setTimeout(() => setToast(null), 4000);
     }
   };
+
+  const formatPrice = (price: number) => price.toLocaleString("fr-FR");
 
   if (loading) {
     return (
@@ -79,19 +87,19 @@ export function CatalogPage({ userId }: CatalogPageProps) {
 
             <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-3">Choisir un plan</div>
             <div className="flex gap-3 mb-6">
-              {Object.entries(selectedApp.pricing).map(([key, plan]) => (
+              {Object.entries(selectedApp.pricing as Record<string, number>).map(([planName, price]) => (
                 <div
-                  key={key}
-                  onClick={() => setSelectedPlan(key)}
+                  key={planName}
+                  onClick={() => setSelectedPlan(planName)}
                   className={`flex-1 p-4 rounded-xl cursor-pointer text-center border transition-all duration-200 ${
-                    selectedPlan === key
+                    selectedPlan === planName
                       ? "border-gold bg-gold/5"
                       : "border-warm-border hover:border-gold/30"
                   }`}
                 >
-                  <div className="text-neutral-muted text-xs font-medium">{plan.label}</div>
-                  <div className="text-gold text-2xl font-extrabold my-1">{plan.price}</div>
-                  <div className="text-neutral-placeholder text-[11px]">/mois</div>
+                  <div className="text-neutral-muted text-xs font-medium">{planName}</div>
+                  <div className="text-gold text-2xl font-extrabold my-1">{formatPrice(price)}</div>
+                  <div className="text-neutral-placeholder text-[11px]">FCFA/{selectedApp.pricing_period || "mois"}</div>
                 </div>
               ))}
             </div>
@@ -114,24 +122,28 @@ export function CatalogPage({ userId }: CatalogPageProps) {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {allApps.map(([id, info]) => (
-          <div
-            key={id}
-            onClick={() => setSelectedApp({ ...info, id })}
-            className="bg-white border border-warm-border rounded-2xl p-6 cursor-pointer card-hover"
-          >
-            <div className="mb-3">
-              <AppLogo name={info.name} size={22} color="text-gold" />
+        {availableApps.map(app => {
+          const prices = Object.values(app.pricing as Record<string, number>);
+          const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          return (
+            <div
+              key={app.id}
+              onClick={() => setSelectedApp(app)}
+              className="bg-white border border-warm-border rounded-2xl p-6 cursor-pointer card-hover"
+            >
+              <div className="mb-3">
+                <AppLogo name={app.name} size={22} color="text-gold" />
+              </div>
+              <p className="text-neutral-muted text-[13px] mb-4">{app.tagline}</p>
+              <div className="text-gold text-sm font-semibold">
+                À partir de {formatPrice(minPrice)} FCFA/{app.pricing_period || "mois"} &rarr;
+              </div>
             </div>
-            <p className="text-neutral-muted text-[13px] mb-4">{info.tagline}</p>
-            <div className="text-gold text-sm font-semibold">
-              À partir de {Math.min(...Object.values(info.pricing).map(p => p.price))}/mois &rarr;
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {allApps.length === 0 && (
+      {availableApps.length === 0 && (
         <div className="text-center py-16">
           <div className="mb-3 flex justify-center"><PartyPopper size={48} className="text-gold" strokeWidth={1.5} /></div>
           <p className="text-neutral-muted">Vous êtes abonné à toutes nos applications !</p>

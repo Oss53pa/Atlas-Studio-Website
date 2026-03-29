@@ -113,9 +113,19 @@ export default function ApplicationDetailPage() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-4 tracking-tight">
               <AppLogo name={app.name} size={48} color="text-neutral-light" />
             </h1>
-            <p className="text-neutral-400 text-lg md:text-xl max-w-2xl leading-relaxed">
+            <p className="text-neutral-400 text-lg md:text-xl max-w-2xl leading-relaxed mb-8">
               {app.tagline}
             </p>
+            {isAvailable && (
+              <div className="flex gap-4 flex-wrap">
+                <a href="#tarifs" className="btn-gold">
+                  Voir les tarifs
+                </a>
+                <Link to={`/portal?app=${app.id}`} className="btn-outline-light">
+                  Essai gratuit 14 jours
+                </Link>
+              </div>
+            )}
           </ScrollReveal>
         </div>
       </section>
@@ -204,113 +214,211 @@ export default function ApplicationDetailPage() {
         </div>
       </section>
 
-      {/* ===== PLAN COMPARISON ===== */}
-      <section className="bg-white py-16 md:py-24 px-5 md:px-8">
-        <div className="max-w-4xl mx-auto">
+      {/* ===== PRICING CARDS ===== */}
+      <section id="tarifs" className="bg-white py-16 md:py-24 px-5 md:px-8">
+        <div className="max-w-5xl mx-auto">
           <ScrollReveal>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-text mb-3">
-                Comparez les plans
+                Choisissez votre plan
               </h2>
               <p className="text-neutral-muted text-[15px]">
-                Choisissez l'offre adaptée à vos besoins
+                Toutes les fonctionnalités incluses. Choisissez la formule adaptée à votre taille.
               </p>
               <div className="w-12 h-[3px] bg-gold mx-auto mt-3" />
             </div>
           </ScrollReveal>
 
-          <ScrollReveal>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse min-w-[500px] bg-white rounded-2xl overflow-hidden border border-warm-border">
-                <thead>
-                  <tr className="bg-warm-bg">
-                    <th className="p-5 text-left text-neutral-muted text-xs font-bold uppercase border-b border-warm-border">
-                      Fonctionnalité
-                    </th>
-                    {pricingEntries.map(([plan], i) => {
-                      const isPopular = i === 1;
-                      return (
-                        <th
-                          key={plan}
-                          className={`p-5 text-center text-xs font-bold uppercase border-b border-warm-border ${
-                            isPopular ? "text-gold" : "text-neutral-muted"
-                          }`}
-                        >
-                          {plan}
-                          {isPopular && (
-                            <span className="shimmer bg-gold text-onyx px-2 py-0.5 rounded-full text-[10px] ml-1.5 inline-block">
-                              POPULAIRE
+          <div className={`grid gap-6 mx-auto ${pricingEntries.length <= 2 ? "grid-cols-1 md:grid-cols-2 max-w-3xl" : "grid-cols-1 md:grid-cols-3 max-w-5xl"}`}>
+            {pricingEntries.map(([plan, price], pi) => {
+              const isPopular = pricingEntries.length > 1 && pi === pricingEntries.length - 1;
+              return (
+                <ScrollReveal key={plan} delay={pi * 100}>
+                  <div className={`relative rounded-2xl border-2 p-8 flex flex-col h-full ${
+                    isPopular
+                      ? "border-gold bg-gold/[0.02] shadow-lg"
+                      : "border-warm-border bg-white"
+                  }`}>
+                    {isPopular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <span className="shimmer bg-gold text-onyx px-4 py-1 rounded-full text-[11px] font-bold tracking-wide">
+                          POPULAIRE
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="text-center mb-6">
+                      <h3 className="text-neutral-text text-xl font-bold mb-2">{plan}</h3>
+                      <div className="flex items-baseline justify-center gap-1">
+                        {(price as number) === 0 ? (
+                          <span className="text-gold text-4xl font-extrabold">Gratuit</span>
+                        ) : (
+                          <>
+                            <span className="text-gold text-4xl font-extrabold">
+                              {formatPrice(price as number)}
                             </span>
-                          )}
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody>
-                  {allFeatures.map((feature, fi) => (
-                    <tr
-                      key={fi}
-                      className="border-b border-warm-border last:border-0"
-                    >
-                      <td className="p-4 text-neutral-body text-sm">
-                        {cleanFeatureName(feature)}
+                            <span className="text-neutral-muted text-sm">
+                              FCFA/{pricingPeriod}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex-1 mb-6">
+                      <div className="space-y-2.5">
+                        {allFeatures.map((feature, fi) => {
+                          const included = isFeatureIncluded(feature, pi);
+                          return (
+                            <div key={fi} className={`flex items-start gap-2.5 text-[13px] ${included ? "text-neutral-text" : "text-neutral-300"}`}>
+                              {included ? (
+                                <CheckCircle size={16} className="text-gold flex-shrink-0 mt-0.5" />
+                              ) : (
+                                <span className="w-4 h-4 flex-shrink-0 mt-0.5 text-center">&mdash;</span>
+                              )}
+                              <span>{cleanFeatureName(feature)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {isAvailable ? (
+                      <Link
+                        to={`/portal?app=${app.id}&plan=${encodeURIComponent(plan)}`}
+                        className={`block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                          isPopular
+                            ? "bg-gold text-onyx hover:bg-gold-dark"
+                            : "border-2 border-gold text-gold hover:bg-gold/5"
+                        }`}
+                      >
+                        Souscrire
+                      </Link>
+                    ) : (
+                      <button
+                        disabled
+                        className="w-full py-3.5 rounded-xl bg-neutral-100 text-neutral-400 font-semibold text-sm cursor-not-allowed"
+                      >
+                        {status === "coming_soon" ? "Bientôt disponible" : "Indisponible"}
+                      </button>
+                    )}
+                  </div>
+                </ScrollReveal>
+              );
+            })}
+          </div>
+
+          {isAvailable && (
+            <ScrollReveal>
+              <p className="text-center text-neutral-muted text-[13px] mt-8">
+                14 jours d'essai gratuit &middot; Sans carte bancaire &middot; Annulation à tout moment
+              </p>
+            </ScrollReveal>
+          )}
+        </div>
+      </section>
+
+      {/* ===== COMPARISON TABLE ===== */}
+      {pricingEntries.length > 1 && (
+        <section className="bg-warm-bg py-16 md:py-24 px-5 md:px-8">
+          <div className="max-w-4xl mx-auto">
+            <ScrollReveal>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-text mb-3">
+                  Comparez les plans en détail
+                </h2>
+                <div className="w-12 h-[3px] bg-gold mx-auto mt-3" />
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse min-w-[500px] bg-white rounded-2xl overflow-hidden border border-warm-border">
+                  <thead>
+                    <tr className="bg-warm-bg">
+                      <th className="p-5 text-left text-neutral-muted text-xs font-bold uppercase border-b border-warm-border">
+                        Fonctionnalité
+                      </th>
+                      {pricingEntries.map(([plan], i) => {
+                        const isPopular = pricingEntries.length > 1 && i === pricingEntries.length - 1;
+                        return (
+                          <th
+                            key={plan}
+                            className={`p-5 text-center text-xs font-bold uppercase border-b border-warm-border ${
+                              isPopular ? "text-gold" : "text-neutral-muted"
+                            }`}
+                          >
+                            {plan}
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allFeatures.map((feature, fi) => (
+                      <tr
+                        key={fi}
+                        className="border-b border-warm-border last:border-0"
+                      >
+                        <td className="p-4 text-neutral-body text-sm">
+                          {cleanFeatureName(feature)}
+                        </td>
+                        {pricingEntries.map(([plan], pi) => {
+                          const isPopular = pricingEntries.length > 1 && pi === pricingEntries.length - 1;
+                          const isIncluded = isFeatureIncluded(feature, pi);
+                          return (
+                            <td
+                              key={plan}
+                              className={`p-4 text-center ${
+                                isPopular ? "bg-gold/[0.03]" : ""
+                              }`}
+                            >
+                              {isIncluded ? (
+                                <CheckCircle
+                                  size={18}
+                                  className="text-gold mx-auto"
+                                />
+                              ) : (
+                                <span className="text-neutral-300">&mdash;</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                    {/* Price row */}
+                    <tr className="bg-warm-bg">
+                      <td className="p-5 text-neutral-text font-bold text-sm">
+                        Prix
                       </td>
-                      {pricingEntries.map(([plan], pi) => {
-                        const isPopular = pi === 1;
-                        const isIncluded = isFeatureIncluded(feature, pi);
+                      {pricingEntries.map(([plan, price], pi) => {
+                        const isPopular = pricingEntries.length > 1 && pi === pricingEntries.length - 1;
                         return (
                           <td
                             key={plan}
-                            className={`p-4 text-center ${
+                            className={`p-5 text-center ${
                               isPopular ? "bg-gold/[0.03]" : ""
                             }`}
                           >
-                            {isIncluded ? (
-                              <CheckCircle
-                                size={18}
-                                className="text-gold mx-auto"
-                              />
-                            ) : (
-                              <span className="text-neutral-300">&mdash;</span>
+                            <div className="text-gold text-2xl font-extrabold">
+                              {price === 0 ? "Gratuit" : formatPrice(price as number)}
+                            </div>
+                            {(price as number) > 0 && (
+                              <div className="text-neutral-placeholder text-xs">
+                                FCFA/{pricingPeriod}
+                              </div>
                             )}
                           </td>
                         );
                       })}
                     </tr>
-                  ))}
-                  {/* Price row */}
-                  <tr className="bg-warm-bg">
-                    <td className="p-5 text-neutral-text font-bold text-sm">
-                      Prix
-                    </td>
-                    {pricingEntries.map(([plan, price], pi) => {
-                      const isPopular = pi === 1;
-                      return (
-                        <td
-                          key={plan}
-                          className={`p-5 text-center ${
-                            isPopular ? "bg-gold/[0.03]" : ""
-                          }`}
-                        >
-                          <div className="text-gold text-2xl font-extrabold">
-                            {price === 0 ? "Gratuit" : formatPrice(price as number)}
-                          </div>
-                          {(price as number) > 0 && (
-                            <div className="text-neutral-placeholder text-xs">
-                              FCFA/{pricingPeriod}
-                            </div>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
+                  </tbody>
+                </table>
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
 
       {/* ===== CTA FINAL ===== */}
       <section className="relative bg-onyx text-neutral-light py-16 md:py-24 px-5 md:px-8 overflow-hidden">
@@ -325,9 +433,14 @@ export default function ApplicationDetailPage() {
               carte bancaire.
             </p>
             {isAvailable ? (
-              <Link to={`/portal?app=${app.id}`} className="btn-gold">
-                Essayer {app.name} gratuitement
-              </Link>
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Link to={`/portal?app=${app.id}`} className="btn-gold">
+                  Souscrire maintenant
+                </Link>
+                <a href="#tarifs" className="btn-outline-light">
+                  Revoir les tarifs
+                </a>
+              </div>
             ) : (
               <button
                 disabled
@@ -337,11 +450,6 @@ export default function ApplicationDetailPage() {
                   ? "Bientôt disponible"
                   : "Indisponible"}
               </button>
-            )}
-            {isAvailable && (
-              <p className="text-neutral-500 text-[12px] mt-4">
-                14 jours d'essai gratuit &middot; Sans carte bancaire
-              </p>
             )}
           </ScrollReveal>
         </div>

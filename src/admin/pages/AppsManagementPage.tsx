@@ -12,7 +12,9 @@ const appStatuses: AppStatus[] = ["available", "coming_soon", "unavailable"];
 
 const emptyApp: Partial<AppRow> = {
   id: "", name: "", type: "App", tagline: "", description: "",
-  features: [], categories: [], pricing: {}, status: "available", sort_order: 0,
+  features: [], categories: [], pricing: {}, pricing_period: "mois",
+  color: "#C8A960", icon: "receipt", highlights: [],
+  status: "available", sort_order: 0,
 };
 
 export default function AppsManagementPage() {
@@ -25,6 +27,7 @@ export default function AppsManagementPage() {
   const [featuresStr, setFeaturesStr] = useState("");
   const [categoriesStr, setCategoriesStr] = useState("");
   const [pricingStr, setPricingStr] = useState("");
+  const [highlightsStr, setHighlightsStr] = useState("");
 
   const fetchApps = async () => {
     const { data } = await supabase.from("apps").select("*").order("sort_order");
@@ -40,6 +43,7 @@ export default function AppsManagementPage() {
     setFeaturesStr((app.features || []).join("\n"));
     setCategoriesStr((app.categories || []).join(", "));
     setPricingStr(JSON.stringify(app.pricing || {}, null, 2));
+    setHighlightsStr((app.highlights || []).join(", "));
   };
 
   const openCreate = () => {
@@ -48,6 +52,7 @@ export default function AppsManagementPage() {
     setFeaturesStr("");
     setCategoriesStr("");
     setPricingStr("{}");
+    setHighlightsStr("");
   };
 
   const handleSave = async () => {
@@ -66,6 +71,10 @@ export default function AppsManagementPage() {
       features: featuresStr.split("\n").map(s => s.trim()).filter(Boolean),
       categories: categoriesStr.split(",").map(s => s.trim()).filter(Boolean),
       pricing,
+      pricing_period: editApp.pricing_period || "mois",
+      color: editApp.color || "#C8A960",
+      icon: editApp.icon || "receipt",
+      highlights: highlightsStr.split(",").map(s => s.trim()).filter(Boolean),
       status: editApp.status as AppStatus || "available",
       sort_order: editApp.sort_order || 0,
       updated_at: new Date().toISOString(),
@@ -112,12 +121,16 @@ export default function AppsManagementPage() {
       features: a.features,
       categories: a.categories,
       pricing: a.pricing,
+      pricing_period: a.pricingPeriod || "mois",
+      color: a.color || "#C8A960",
+      icon: a.icon || "receipt",
+      highlights: a.highlights || [],
       status: "available" as AppStatus,
       sort_order: i,
     }));
     await supabase.from("apps").upsert(rows);
     setSaving(false);
-    setToast("22 applications importées depuis le contenu par défaut");
+    setToast(`${rows.length} applications importées depuis le contenu par défaut`);
     fetchApps();
     setTimeout(() => setToast(null), 4000);
   };
@@ -275,6 +288,46 @@ export default function AppsManagementPage() {
                 onChange={e => setPricingStr(e.target.value)}
                 rows={4}
                 className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold resize-y font-mono"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Couleur (hex)</label>
+                <input
+                  value={editApp.color || "#C8A960"}
+                  onChange={e => setEditApp({ ...editApp, color: e.target.value })}
+                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
+                />
+              </div>
+              <div>
+                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Icône (Lucide)</label>
+                <input
+                  value={editApp.icon || "receipt"}
+                  onChange={e => setEditApp({ ...editApp, icon: e.target.value })}
+                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
+                />
+              </div>
+              <div>
+                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Période tarif</label>
+                <select
+                  value={editApp.pricing_period || "mois"}
+                  onChange={e => setEditApp({ ...editApp, pricing_period: e.target.value })}
+                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
+                >
+                  <option value="mois">Par mois</option>
+                  <option value="an">Par an</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Points forts (séparés par des virgules)</label>
+              <input
+                value={highlightsStr}
+                onChange={e => setHighlightsStr(e.target.value)}
+                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
+                placeholder="Ex: SYSCOHADA natif, PROPH3T IA, Multi-sociétés"
               />
             </div>
 

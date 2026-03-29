@@ -1,5 +1,5 @@
 import { CreditCard, Download, Loader2 } from "lucide-react";
-import { APP_INFO } from "../../config/apps";
+import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
 import { openPaymentMethodPortal } from "../../lib/payments";
 
@@ -8,6 +8,7 @@ interface BillingPageProps {
 }
 
 export function BillingPage({ userId }: BillingPageProps) {
+  const { appMap } = useAppCatalog();
   const { subscriptions, invoices, loading } = useSubscriptions(userId);
 
   const handleManagePayment = async () => {
@@ -110,7 +111,7 @@ export function BillingPage({ userId }: BillingPageProps) {
             </thead>
             <tbody>
               {invoices.map(inv => {
-                const appName = APP_INFO[inv.app_id]?.name || inv.app_id;
+                const appName = appMap[inv.app_id]?.name || inv.app_id;
                 return (
                   <tr key={inv.id} className="border-b border-warm-bg last:border-b-0 hover:bg-warm-bg/50 transition-colors">
                     <td className="text-neutral-body text-[13px] p-4 font-mono">{inv.invoice_number}</td>
