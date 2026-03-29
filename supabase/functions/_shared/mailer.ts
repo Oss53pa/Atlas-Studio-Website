@@ -7,7 +7,7 @@
  *
  * Env vars:
  *   RESEND_API_KEY   — Resend API token
- *   EMAIL_FROM       — Fallback sender (e.g. "Atlas Studio <notifications@atlasstudio.org>")
+ *   EMAIL_FROM       — Fallback sender (e.g. "Atlas Studio <notifications@atlas-studio.org>")
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -40,7 +40,7 @@ export interface TenantEmailOptions {
 
 export async function sendMail(options: SendMailOptions): Promise<string | null> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
-  const defaultFrom = Deno.env.get("EMAIL_FROM") || "Atlas Studio <notifications@atlasstudio.org>";
+  const defaultFrom = Deno.env.get("EMAIL_FROM") || "Atlas Studio <notifications@atlas-studio.org>";
   const from = options.from || defaultFrom;
 
   if (!apiKey) {
@@ -85,7 +85,7 @@ function getSupabaseAdmin() {
 export async function resolveEmailSender(tenantId?: string): Promise<EmailSender> {
   if (!tenantId) {
     return {
-      from: "notifications@atlasstudio.org",
+      from: "notifications@atlas-studio.org",
       fromName: "Atlas Studio",
     };
   }
@@ -118,7 +118,7 @@ export async function resolveEmailSender(tenantId?: string): Promise<EmailSender
 
   // Default: company name via Atlas Studio
   return {
-    from: "notifications@atlasstudio.org",
+    from: "notifications@atlas-studio.org",
     fromName: `${companyName} via Atlas Studio`,
   };
 }
