@@ -15,8 +15,8 @@ export default function AdminLoginPage() {
 
   // Already logged in as admin — redirect
   if (user) {
-    supabase.from('profiles').select('role').eq('id', user.id).single().then(({ data }) => {
-      if (data?.role === 'admin') navigate('/admin', { replace: true });
+    supabase.from('profiles').select('role_id, roles(code)').eq('id', user.id).single().then(({ data }) => {
+      if ((data?.roles as any)?.code === 'admin') navigate('/admin', { replace: true });
     });
   }
 
@@ -39,11 +39,11 @@ export default function AdminLoginPage() {
     if (session?.session?.user) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role_id, roles(code)')
         .eq('id', session.session.user.id)
         .single();
 
-      if (profile?.role !== 'admin') {
+      if ((profile?.roles as any)?.code !== 'admin') {
         setError("Accès refusé. Ce compte n'a pas les droits administrateur.");
         await supabase.auth.signOut();
         setLoading(false);

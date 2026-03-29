@@ -8,14 +8,16 @@ export interface Profile {
   id: string;
   full_name: string;
   email: string;
-  company_name: string;
-  phone: string;
-  role: 'client' | 'admin';
+  username: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  role_id: string;
+  company_id: string | null;
+  organization_id: string | null;
   is_active: boolean;
-  stripe_customer_id: string | null;
-  preferred_payment_method: string;
   created_at: string;
   updated_at: string;
+  roles?: { code: string; name: string } | null;
 }
 
 export interface AppRow {
@@ -27,6 +29,10 @@ export interface AppRow {
   features: string[];
   categories: string[];
   pricing: Record<string, number>;
+  pricing_period: string;
+  color: string;
+  icon: string;
+  highlights: string[];
   status: AppStatus;
   sort_order: number;
   created_at: string;

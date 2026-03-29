@@ -28,11 +28,12 @@ export async function requireAdmin(req: Request): Promise<AuthUser> {
 
   const { data: profile } = await supabaseAdmin
     .from("profiles")
-    .select("role")
+    .select("role_id, roles(code)")
     .eq("id", user.id)
     .single();
 
-  if (!profile || profile.role !== "admin") {
+  const roleCode = (profile?.roles as any)?.code;
+  if (!profile || roleCode !== "admin") {
     throw new AuthError("Acces refuse", 403);
   }
 
