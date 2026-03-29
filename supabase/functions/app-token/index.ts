@@ -59,7 +59,12 @@ Deno.serve(async (req) => {
       key
     );
 
-    const redirectUrl = `https://${appId}.atlasstudio.app/auth?token=${token}`;
+    // Map appId to custom subdomain (when subdomain differs from appId)
+    const appSubdomains: Record<string, string> = {
+      "atlas-compta": "atlas-fna",
+    };
+    const subdomain = appSubdomains[appId] || appId;
+    const redirectUrl = `https://${subdomain}.atlasstudio.app/auth?token=${token}`;
 
     return jsonResponse({ token, redirectUrl });
   } catch (error: any) {
