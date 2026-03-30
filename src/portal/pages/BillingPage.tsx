@@ -34,9 +34,11 @@ export function BillingPage({ userId }: BillingPageProps) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `facture-${invoiceNumber}.html`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Open in new tab for print-to-PDF
+      const win = window.open(url, "_blank");
+      if (win) {
+        win.onload = () => win.print();
+      }
     } catch {
       // PDF non disponible
     }

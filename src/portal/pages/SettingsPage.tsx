@@ -11,6 +11,12 @@ export function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  // Password change
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+
   // Delete account
   const [showDelete, setShowDelete] = useState(false);
   const [confirmEmail, setConfirmEmail] = useState("");
@@ -29,6 +35,31 @@ export function SettingsPage() {
     } else {
       setToast("Profil mis à jour avec succès");
       await refreshProfile();
+    }
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || newPassword.length < 8) {
+      setToast("Le mot de passe doit contenir au moins 8 caracteres");
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setToast("Les mots de passe ne correspondent pas");
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setChangingPassword(false);
+    if (error) {
+      setToast(`Erreur: ${error.message}`);
+    } else {
+      setToast("Mot de passe modifie avec succes");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     }
     setTimeout(() => setToast(null), 3000);
   };
@@ -96,6 +127,35 @@ export function SettingsPage() {
         </div>
         <button onClick={handleSave} disabled={saving} className="btn-gold mt-6 !py-2.5 !text-[13px]">
           {saving ? "Sauvegarde..." : "Sauvegarder"}
+        </button>
+      </div>
+
+      <div className="bg-white border border-warm-border rounded-2xl p-7 max-w-md mb-5">
+        <h3 className="text-neutral-text text-base font-bold mb-5">Changer le mot de passe</h3>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Nouveau mot de passe</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder="Min. 8 caracteres"
+              className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Confirmer le mot de passe</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="Retapez le mot de passe"
+              className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors"
+            />
+          </div>
+        </div>
+        <button onClick={handleChangePassword} disabled={changingPassword || !newPassword} className={`btn-gold mt-6 !py-2.5 !text-[13px] ${!newPassword ? "opacity-50" : ""}`}>
+          {changingPassword ? "Modification..." : "Modifier le mot de passe"}
         </button>
       </div>
 

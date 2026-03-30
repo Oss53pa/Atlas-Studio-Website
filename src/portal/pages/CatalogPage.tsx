@@ -41,6 +41,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
   };
 
   const formatPrice = (price: number) => price.toLocaleString("fr-FR");
+  const getCurrency = (app: AppRow) => (app as any).currency || "FCFA";
 
   if (loading) {
     return (
@@ -99,7 +100,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
                 >
                   <div className="text-neutral-muted text-xs font-medium">{planName}</div>
                   <div className="text-gold text-2xl font-extrabold my-1">{formatPrice(price)}</div>
-                  <div className="text-neutral-placeholder text-[11px]">FCFA/{selectedApp.pricing_period || "mois"}</div>
+                  <div className="text-neutral-placeholder text-[11px]">{getCurrency(selectedApp)}/{selectedApp.pricing_period || "mois"}</div>
                 </div>
               ))}
             </div>
@@ -136,7 +137,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
               </div>
               <p className="text-neutral-muted text-[13px] mb-4">{app.tagline}</p>
               <div className="text-gold text-sm font-semibold">
-                À partir de {formatPrice(minPrice)} FCFA/{app.pricing_period || "mois"} &rarr;
+                A partir de {formatPrice(minPrice)} {getCurrency(app)}/{app.pricing_period || "mois"} &rarr;
               </div>
             </div>
           );
