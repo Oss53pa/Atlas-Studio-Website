@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Send } from "lucide-react";
-import { Logo } from "../ui/Logo";
+import { Send } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 
 export function Footer() {
@@ -13,7 +12,7 @@ export function Footer() {
     setNewsletterStatus("loading");
     const { error } = await supabase.from("newsletter_subscribers").insert({ email });
     if (error) {
-      setNewsletterStatus(error.code === "23505" ? "success" : "error"); // 23505 = already exists
+      setNewsletterStatus(error.code === "23505" ? "success" : "error");
     } else {
       setNewsletterStatus("success");
     }
@@ -22,20 +21,18 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-onyx text-neutral-light border-t border-white/10">
-      <div className="max-w-site mx-auto px-5 md:px-8 py-8 md:py-10">
-        <div className="flex justify-between items-start flex-wrap gap-8">
+    <footer className="bg-onyx text-neutral-light border-t border-dark-border">
+      <div className="max-w-site mx-auto px-5 md:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
           {/* Brand */}
-          <div className="max-w-xs">
-            <div className="mb-3">
-              <Logo size={20} color="text-neutral-light" />
-            </div>
-            <p className="text-neutral-400 text-[13px] leading-relaxed mb-4">
-              Des outils digitaux professionnels pour les entreprises africaines.
+          <div>
+            <div className="font-logo text-2xl text-gold mb-3">Atlas Studio</div>
+            <p className="text-xs text-neutral-muted font-light leading-relaxed max-w-[220px] mb-5">
+              La suite de gestion conçue pour les entreprises d'Afrique francophone. SYSCOHADA natif, Mobile Money, IA PROPH3T.
             </p>
 
             {/* Newsletter */}
-            <div className="text-neutral-500 text-[11px] font-bold uppercase tracking-wider mb-2">Newsletter</div>
+            <div className="text-neutral-muted/60 text-[11px] font-bold uppercase tracking-wider mb-2">Newsletter</div>
             <div className="flex gap-2">
               <input
                 value={email}
@@ -47,7 +44,7 @@ export function Footer() {
               <button
                 onClick={handleNewsletter}
                 disabled={newsletterStatus === "loading"}
-                className="px-3 py-2 bg-gold rounded-lg text-onyx hover:bg-gold/90 transition-colors"
+                className="px-3 py-2 bg-gold rounded-lg text-onyx hover:bg-gold-dark transition-colors"
               >
                 <Send size={14} strokeWidth={1.5} />
               </button>
@@ -60,59 +57,71 @@ export function Footer() {
             )}
           </div>
 
-          <div className="flex gap-12 flex-wrap">
-            {/* Products column */}
-            <div>
-              <div className="text-neutral-500 text-[11px] font-bold uppercase tracking-wider mb-3">Produits</div>
+          {/* Applications */}
+          <div>
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Applications</h4>
+            <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
+              {[
+                { to: "/applications/atlas-finance", label: "Atlas Finance" },
+                { to: "/applications/taxpilot", label: "Liass'Pilot" },
+                { to: "/applications/cashpilot", label: "CashPilot" },
+                { to: "/applications/wisehr", label: "WiseHR" },
+                { to: "/applications/scrutix", label: "Scrutix" },
+                { to: "/applications/advist", label: "ADVIST" },
+                { to: "/applications/docjourney", label: "DocJourney" },
+                { to: "/applications/cockpit", label: "COCKPIT" },
+              ].map((l) => (
+                <li key={l.to}>
+                  <Link to={l.to} className="hover:text-gold transition-colors">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Ressources */}
+          <div>
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Ressources</h4>
+            <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
               {[
                 { to: "/applications", label: "Tous les produits" },
                 { to: "/tarifs", label: "Tarifs" },
+                { to: "/faq", label: "FAQ" },
                 { to: "/portal", label: "Essai gratuit" },
               ].map((l) => (
-                <Link key={l.to} to={l.to} className="block text-neutral-400 text-[13px] mb-2 hover:text-gold transition-colors">
-                  {l.label}
-                </Link>
+                <li key={l.to}>
+                  <Link to={l.to} className="hover:text-gold transition-colors">{l.label}</Link>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
 
-            {/* Company column */}
-            <div>
-              <div className="text-neutral-500 text-[11px] font-bold uppercase tracking-wider mb-3">Entreprise</div>
+          {/* Entreprise */}
+          <div>
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Entreprise</h4>
+            <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
               {[
                 { to: "/a-propos", label: "À propos" },
                 { to: "/contact", label: "Contact" },
-                { to: "/faq", label: "FAQ" },
-              ].map((l) => (
-                <Link key={l.to} to={l.to} className="block text-neutral-400 text-[13px] mb-2 hover:text-gold transition-colors">
-                  {l.label}
-                </Link>
-              ))}
-            </div>
-
-            {/* Legal column */}
-            <div>
-              <div className="text-neutral-500 text-[11px] font-bold uppercase tracking-wider mb-3">Légal</div>
-              {[
                 { to: "/mentions-legales", label: "Mentions légales" },
                 { to: "/cgu", label: "CGU" },
                 { to: "/confidentialite", label: "Confidentialité" },
               ].map((l) => (
-                <Link key={l.to} to={l.to} className="block text-neutral-400 text-[13px] mb-2 hover:text-gold transition-colors">
-                  {l.label}
-                </Link>
+                <li key={l.to}>
+                  <Link to={l.to} className="hover:text-gold transition-colors">{l.label}</Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
+      </div>
 
-        <div className="border-t border-white/10 mt-8 pt-5 flex justify-between flex-wrap gap-4">
-          <p className="text-neutral-500 text-xs">&copy; 2026 Atlas Studio<Link to="/admin/login" className="text-neutral-500 hover:text-neutral-500 cursor-default">.</Link> Tous droits réservés.</p>
-          <div className="flex items-center gap-3">
-            <p className="text-neutral-500 text-xs flex items-center gap-1">
-              Conçu avec <Heart size={12} strokeWidth={1.5} className="text-gold" /> à Abidjan
-            </p>
-          </div>
-        </div>
+      <div className="border-t border-dark-border px-5 md:px-8 py-4 flex justify-between flex-wrap gap-4 max-w-site mx-auto">
+        <p className="text-neutral-muted/60 text-[11px]">
+          &copy; 2026 Atlas Studio<Link to="/admin/login" className="text-neutral-muted/60 hover:text-neutral-muted/60 cursor-default">.</Link> Abidjan, Côte d'Ivoire
+        </p>
+        <p className="text-neutral-muted/60 text-[11px]">
+          Paiement sécurisé · Données hébergées · Supabase
+        </p>
       </div>
     </footer>
   );

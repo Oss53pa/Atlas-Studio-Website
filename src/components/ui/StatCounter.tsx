@@ -55,10 +55,10 @@ export function StatCounter({ value, label, light = false }: StatCounterProps) {
 
   return (
     <div className="text-center" ref={ref}>
-      <div className="text-3xl md:text-4xl font-extrabold text-gold">
+      <div className="text-3xl md:text-4xl font-extrabold text-gold font-mono">
         {match ? `${displayValue}${suffix}` : value}
       </div>
-      <div className={`text-[13px] font-medium mt-1 ${light ? "text-neutral-400" : "text-neutral-placeholder"}`}>
+      <div className="text-[13px] font-light mt-1 text-neutral-muted">
         {label}
       </div>
     </div>

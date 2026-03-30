@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useContentContext } from "../components/layout/Layout";
-import { SectionHeading } from "../components/ui/SectionHeading";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { FAQItem } from "../components/ui/FAQItem";
 import { SEOHead } from "../components/ui/SEOHead";
@@ -11,37 +10,28 @@ export default function FAQPage() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
-      <SEOHead title="FAQ" description="Questions frequentes sur Atlas Studio. Abonnements, securite, fonctionnalites." canonical="/faq" />
+    <div className="bg-onyx min-h-screen pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8">
+      <SEOHead title="FAQ" description="Questions fréquentes sur Atlas Studio." canonical="/faq" />
       <div className="max-w-2xl mx-auto">
         <ScrollReveal>
-          <SectionHeading
-            title="Vos questions. Nos r\u00e9ponses."
-            subtitle="Tout ce que vous devez savoir avant de d\u00e9marrer."
-          />
+          <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">FAQ</div>
+          <h1 className="text-[34px] font-bold text-neutral-light leading-tight mb-3">Questions fréquentes</h1>
+          <p className="text-[15px] text-neutral-muted font-light mb-12">Trouvez rapidement les réponses à vos questions.</p>
         </ScrollReveal>
 
         <ScrollReveal>
           <div>
             {content.faqs.map((faq, i) => (
-              <FAQItem
-                key={i}
-                question={faq.q}
-                answer={faq.a}
-                isOpen={open === i}
-                onToggle={() => setOpen(open === i ? null : i)}
-              />
+              <FAQItem key={i} question={faq.q} answer={faq.a} isOpen={open === i} onToggle={() => setOpen(open === i ? null : i)} />
             ))}
           </div>
         </ScrollReveal>
 
         <ScrollReveal>
-          <div className="text-center mt-12 bg-white border border-warm-border rounded-2xl p-8">
-            <h3 className="text-neutral-text text-lg font-bold mb-2">Une question sp\u00e9cifique ?</h3>
-            <p className="text-neutral-muted text-sm mb-6">Notre \u00e9quipe bas\u00e9e \u00e0 Abidjan vous r\u00e9pond sous 24h.</p>
-            <Link to="/contact" className="btn-gold">
-              Nous contacter
-            </Link>
+          <div className="text-center mt-12 bg-dark-bg2 border border-dark-border rounded-xl p-8">
+            <h3 className="text-neutral-light text-lg font-bold mb-2">Vous n'avez pas trouvé votre réponse ?</h3>
+            <p className="text-neutral-muted text-sm font-light mb-6">Notre équipe est là pour vous aider.</p>
+            <Link to="/contact" className="btn-gold">Nous contacter</Link>
           </div>
         </ScrollReveal>
       </div>

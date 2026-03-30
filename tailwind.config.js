@@ -10,10 +10,18 @@ export default {
           light: '#D4BC7C',
           dark: '#B89A50',
         },
+        teal: '#1D9E75',
         warm: {
           bg: '#FAFAF8',
           card: '#FFFFFF',
           border: '#E8E6E1',
+        },
+        dark: {
+          bg: '#0a0a0a',
+          bg2: '#111111',
+          bg3: '#1a1a1a',
+          border: '#2a2a2a',
+          border2: '#333333',
         },
         neutral: {
           text: '#1A1A1A',
@@ -26,9 +34,10 @@ export default {
       fontFamily: {
         body: ["'Exo 2'", 'sans-serif'],
         logo: ["'Grand Hotel'", 'cursive'],
+        mono: ["'JetBrains Mono'", 'monospace'],
       },
       maxWidth: {
-        site: '1200px',
+        site: '1100px',
       },
       animation: {
         'page-enter': 'pageEnter 0.4s ease-out',

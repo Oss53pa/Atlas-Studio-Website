@@ -3,9 +3,8 @@ import { CheckCircle, X } from "lucide-react";
 import { useContentContext } from "../components/layout/Layout";
 import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
-import { GridPattern } from "../components/ui/GridPattern";
-import type { AppItem } from "../config/content";
 import { SEOHead } from "../components/ui/SEOHead";
+import type { AppItem } from "../config/content";
 
 function formatPrice(price: number): string {
   return price.toLocaleString("fr-FR");
@@ -26,100 +25,53 @@ function AppPricingSection({ app }: { app: AppItem }) {
 
   return (
     <div className="mb-20 last:mb-0">
-      {/* App header */}
       <div className="flex items-center gap-4 mb-8">
-        <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center"
-          style={{ backgroundColor: `${appColor}15` }}
-        >
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${appColor}15` }}>
           <AppLogo name={app.name.charAt(0)} size={20} color="text-gold" />
         </div>
         <div>
           <Link to={`/applications/${app.id}`} className="hover:opacity-80 transition-opacity">
-            <AppLogo name={app.name} size={24} color="text-neutral-text" />
+            <AppLogo name={app.name} size={24} color="text-neutral-light" />
           </Link>
-          <p className="text-neutral-muted text-sm">{app.tagline}</p>
+          <p className="text-neutral-muted text-sm font-light">{app.tagline}</p>
         </div>
       </div>
 
-      {/* Plan cards */}
-      <div className={`grid gap-6 ${plans.length <= 2 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-3"}`}>
+      <div className={`grid gap-4 ${plans.length <= 2 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-3"}`}>
         {plans.map(([plan, price], i) => {
           const isPopular = plans.length > 1 && i === plans.length - 1;
-          const planFeatures = app.features.filter((f) => {
-            if (i === 0) return !isPremiumFeature(f);
-            return true;
-          });
-
           return (
-            <div
-              key={plan}
-              className={`relative rounded-2xl border-2 p-8 flex flex-col ${
-                isPopular
-                  ? "border-gold bg-gold/[0.02] shadow-lg"
-                  : "border-warm-border bg-white"
-              }`}
-            >
+            <div key={plan} className={`relative rounded-xl border p-8 flex flex-col ${isPopular ? "border-gold bg-gold/[0.02]" : "border-dark-border bg-dark-bg2"}`}>
               {isPopular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="shimmer bg-gold text-onyx px-4 py-1 rounded-full text-[11px] font-bold tracking-wide">
-                    POPULAIRE
-                  </span>
+                  <span className="shimmer bg-gold text-onyx px-4 py-1 rounded-full text-[11px] font-bold tracking-wide">POPULAIRE</span>
                 </div>
               )}
-
-              {/* Plan name & price */}
               <div className="text-center mb-6">
-                <h3 className="text-neutral-text text-lg font-bold mb-2">{plan}</h3>
+                <h3 className="text-neutral-light text-lg font-bold mb-2">{plan}</h3>
                 <div className="flex items-baseline justify-center gap-1">
-                  {(price as number) === 0 ? (
-                    <span className="text-gold text-4xl font-extrabold">Gratuit</span>
+                  {price === 0 ? (
+                    <span className="text-gold font-mono text-4xl font-semibold">Gratuit</span>
                   ) : (
                     <>
-                      <span className="text-gold text-3xl font-extrabold">
-                        {formatPrice(price as number)}
-                      </span>
-                      <span className="text-neutral-muted text-sm ml-1">
-                        FCFA/{period}
-                      </span>
+                      <span className="text-gold font-mono text-3xl font-semibold">{formatPrice(price)}</span>
+                      <span className="text-neutral-muted text-sm ml-1 font-light">FCFA/{period}</span>
                     </>
                   )}
                 </div>
               </div>
-
-              {/* Features */}
-              <div className="flex-1 mb-6">
-                <div className="space-y-2.5">
-                  {app.features.map((feature, fi) => {
-                    const included = i > 0 || !isPremiumFeature(feature);
-                    return (
-                      <div
-                        key={fi}
-                        className={`flex items-start gap-2.5 text-[13px] ${
-                          included ? "text-neutral-text" : "text-neutral-300"
-                        }`}
-                      >
-                        {included ? (
-                          <CheckCircle size={16} className="text-gold flex-shrink-0 mt-0.5" />
-                        ) : (
-                          <X size={16} className="text-neutral-300 flex-shrink-0 mt-0.5" />
-                        )}
-                        <span>{cleanFeatureName(feature)}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="flex-1 mb-6 space-y-2.5">
+                {app.features.map((feature, fi) => {
+                  const included = i > 0 || !isPremiumFeature(feature);
+                  return (
+                    <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted/40"}`}>
+                      {included ? <CheckCircle size={16} className="text-gold flex-shrink-0 mt-0.5" /> : <X size={16} className="text-neutral-muted/30 flex-shrink-0 mt-0.5" />}
+                      <span>{cleanFeatureName(feature)}</span>
+                    </div>
+                  );
+                })}
               </div>
-
-              {/* CTA */}
-              <Link
-                to={`/portal?app=${app.id}&plan=${encodeURIComponent(plan)}`}
-                className={`block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                  isPopular
-                    ? "bg-gold text-onyx hover:bg-gold-dark"
-                    : "border-2 border-gold text-gold hover:bg-gold/5"
-                }`}
-              >
+              <Link to={`/portal?app=${app.id}&plan=${encodeURIComponent(plan)}`} className={`block w-full text-center py-3.5 rounded-lg font-semibold text-sm transition-all ${isPopular ? "bg-gold text-onyx hover:bg-gold-dark" : "border border-dark-border2 text-neutral-muted hover:border-neutral-muted hover:text-neutral-light"}`}>
                 Souscrire
               </Link>
             </div>
@@ -134,55 +86,33 @@ export default function PricingPage() {
   const { content } = useContentContext();
 
   return (
-    <div className="min-h-screen">
-      <SEOHead title="Tarifs" description="Tarifs simples et transparents pour toutes les applications Atlas Studio." canonical="/tarifs" />
-      {/* ===== HERO DARK ===== */}
-      <section className="relative bg-onyx text-neutral-light pt-24 pb-16 md:pt-28 md:pb-20 px-5 md:px-8 overflow-hidden">
-        <GridPattern dark />
-        <div className="relative max-w-3xl mx-auto text-center">
+    <div className="min-h-screen bg-onyx">
+      <SEOHead title="Tarifs" description="Tarifs simples et transparents. Atlas Studio." canonical="/tarifs" />
+      <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-5 md:px-8 border-b border-dark-border">
+        <div className="max-w-3xl mx-auto text-center">
           <ScrollReveal>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-4 tracking-tight">
-              Des tarifs clairs. Z&eacute;ro surprise.
-            </h1>
-            <p className="text-neutral-400 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-              14 jours d'essai gratuit sur toutes les apps. Sans engagement, sans carte bancaire. Vous ne payez que si vous &ecirc;tes convaincu.
-            </p>
+            <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">Tarifs</div>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-neutral-light mb-4 tracking-tight">Tarifs simples et transparents</h1>
+            <p className="text-neutral-muted text-base font-light max-w-xl mx-auto">Payez uniquement ce que vous utilisez. Sans engagement, changez ou annulez à tout moment.</p>
           </ScrollReveal>
         </div>
       </section>
-
-      {/* ===== PRICING SECTIONS ===== */}
-      <section className="bg-warm-bg text-neutral-text py-16 md:py-24 px-5 md:px-8">
+      <section className="py-16 md:py-24 px-5 md:px-8 border-b border-dark-border">
         <div className="max-w-5xl mx-auto">
           {content.apps.map((app) => (
-            <ScrollReveal key={app.id}>
-              <AppPricingSection app={app} />
-            </ScrollReveal>
+            <ScrollReveal key={app.id}><AppPricingSection app={app} /></ScrollReveal>
           ))}
         </div>
       </section>
-
-      {/* ===== CTA FINAL DARK ===== */}
-      <section className="relative bg-onyx text-neutral-light py-16 md:py-20 px-5 md:px-8 overflow-hidden">
-        <GridPattern dark />
-        <div className="relative max-w-2xl mx-auto text-center">
-          <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">
-              Testez. Comparez. D&eacute;cidez.
-            </h2>
-            <p className="text-neutral-400 text-[15px] mb-8 max-w-md mx-auto leading-relaxed">
-              14 jours pour essayer, 5 minutes pour d&eacute;marrer. Si ce n'est pas pour vous, annulez sans rien payer.
-            </p>
-            <div className="flex gap-4 justify-center flex-wrap">
-              <Link to="/portal" className="btn-gold">
-                D&eacute;marrer l'essai gratuit
-              </Link>
-              <Link to="/contact" className="btn-outline-light">
-                Parler &agrave; un conseiller
-              </Link>
-            </div>
-          </ScrollReveal>
-        </div>
+      <section className="bg-dark-bg2 py-16 md:py-20 px-5 md:px-8 text-center">
+        <ScrollReveal>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">Prêt à démarrer ?</h2>
+          <p className="text-neutral-muted text-[15px] font-light mb-8 max-w-md mx-auto">Essai gratuit 14 jours. Sans engagement, sans carte bancaire.</p>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Link to="/portal" className="btn-gold">Créer mon compte</Link>
+            <Link to="/contact" className="btn-outline-light">Nous contacter</Link>
+          </div>
+        </ScrollReveal>
       </section>
     </div>
   );

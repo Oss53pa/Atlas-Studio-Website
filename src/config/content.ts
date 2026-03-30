@@ -31,6 +31,8 @@ export interface SiteContent {
     cta2: string;
   };
   stats: { value: string; label: string }[];
+  trustBar: string[];
+  steps: { num: string; title: string; desc: string }[];
   apps: AppItem[];
   about: {
     p1: string;
@@ -40,6 +42,10 @@ export interface SiteContent {
   };
   sectors: SectorItem[];
   testimonials: { name: string; role: string; company: string; text: string; avatar: string }[];
+  comparatif: {
+    headers: string[];
+    rows: { name: string; values: string[]; highlight?: boolean }[];
+  };
   faqs: { q: string; a: string }[];
   contact: { email: string; phone: string; city: string };
 }
@@ -56,6 +62,19 @@ export const DEFAULT_CONTENT: SiteContent = {
     { value: "3", label: "produits" },
     { value: "10+", label: "pays" },
     { value: "99.9%", label: "disponibilité" },
+  ],
+  trustBar: [
+    "SYSCOHADA révisé natif",
+    "Mode offline (PWA)",
+    "IA PROPH3T intégrée",
+    "Données sécurisées",
+    "17 pays OHADA",
+  ],
+  steps: [
+    { num: "01 — Compte", title: "Créez votre workspace", desc: "Inscription en 2 minutes. Votre espace entreprise est créé automatiquement avec vos informations." },
+    { num: "02 — Activation", title: "Activez vos applications", desc: "Choisissez les apps dont vous avez besoin. Commencez gratuitement, upgradez à tout moment." },
+    { num: "03 — Équipe", title: "Invitez vos collaborateurs", desc: "Ajoutez votre équipe avec des rôles précis. Chacun accède à ses modules depuis le même workspace." },
+    { num: "04 — Intelligence", title: "PROPH3T prend le relai", desc: "Le moteur IA analyse vos données, détecte les anomalies et génère des prévisions en continu." },
   ],
   apps: [
     // ── MODULE ERP ───────────────────────────────────────────
@@ -94,6 +113,15 @@ export const DEFAULT_CONTENT: SiteContent = {
     { name: "Mariam T.", role: "Directrice Administrative", company: "Société minière, Conakry", text: "Avec DocJourney, plus aucun document ne se perd. Les validations se font maintenant en 48h.", avatar: "MT" },
     { name: "Jean-Paul M.", role: "Responsable Achats", company: "Chaîne de distribution, Douala", text: "Atlas Stock nous a permis de réduire nos ruptures de 40%. L'inventaire multi-sites est un game changer.", avatar: "JM" },
   ],
+  comparatif: {
+    headers: ["Solution", "Prix PME", "SYSCOHADA", "Mode offline", "IA intégrée"],
+    rows: [
+      { name: "Sage 100", values: ["300–800 K FCFA", "✓", "✗", "✗"] },
+      { name: "Odoo", values: ["150–400 K FCFA", "Plugin", "✗", "Partiel"] },
+      { name: "Zoho / QuickBooks", values: ["80–300 K FCFA", "✗", "✗", "Basique"] },
+      { name: "Atlas Studio", values: ["49 000 FCFA/mois", "✓ Natif", "✓ PWA", "✓ PROPH3T"], highlight: true },
+    ],
+  },
   faqs: [
     { q: "À qui s'adressent les applications ?", a: "À tous les professionnels et entreprises qui veulent digitaliser leur gestion, quel que soit le secteur." },
     { q: "Quelle est la différence entre les modules ERP et les apps standalone ?", a: "Les modules ERP partagent une base commune et s'interconnectent. Les apps standalone fonctionnent de manière indépendante pour des besoins spécifiques." },
