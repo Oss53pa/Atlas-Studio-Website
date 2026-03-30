@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, AppWindow, Users, Repeat, Receipt, ClipboardList, MessageSquare, Mail, Palette, ArrowLeft, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, FileText, AppWindow, Users, Repeat, Receipt, ClipboardList, MessageSquare, Mail, Palette, BarChart3, ArrowLeft, LogOut, type LucideIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useAuth } from "../lib/auth";
 
@@ -12,6 +12,7 @@ const nav: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/admin/invoices", icon: Receipt, label: "Factures" },
   { to: "/admin/activity", icon: ClipboardList, label: "Activité" },
   { to: "/admin/tickets", icon: MessageSquare, label: "Tickets" },
+  { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
   { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
   { to: "/admin/emails", icon: Palette, label: "Templates Email" },
 ];

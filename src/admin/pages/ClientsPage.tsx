@@ -1,26 +1,32 @@
 import { useState, useEffect } from "react";
-import { Search, Loader2, Check, UserX, UserCheck, Plus, Pencil, Trash2, Download } from "lucide-react";
+import { Search, Loader2, Check, UserX, UserCheck, Plus, Pencil, Trash2, Download, KeyRound, FileText, FlaskConical } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { apiCall } from "../../lib/api";
 import { exportToCSV } from "../../lib/csvExport";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
-import type { Profile, Subscription } from "../../lib/database.types";
+import type { Profile, Subscription, Invoice } from "../../lib/database.types";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 
 export default function ClientsPage() {
-  const { appMap } = useAppCatalog();
+  const { appMap, appList } = useAppCatalog();
   const [clients, setClients] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Profile | null>(null);
   const [clientSubs, setClientSubs] = useState<Subscription[]>([]);
+  const [clientInvoices, setClientInvoices] = useState<Invoice[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editClient, setEditClient] = useState<Profile | null>(null);
   const [formData, setFormData] = useState({ email: "", password: "", full_name: "", company_name: "", phone: "" });
   const [saving, setSaving] = useState(false);
+
+  // ── Test access state ──
+  const [testAccessClient, setTestAccessClient] = useState<Profile | null>(null);
+  const [testAccessForm, setTestAccessForm] = useState({ appId: "", duration: "7" });
+  const [grantingAccess, setGrantingAccess] = useState(false);
 
   const fetchClients = async () => {
     const { data } = await supabase
@@ -53,12 +59,25 @@ export default function ClientsPage() {
 
   const openClientDetail = async (client: Profile) => {
     setSelectedClient(client);
-    const { data } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("user_id", client.id)
-      .order("created_at", { ascending: false });
-    setClientSubs(data as Subscription[] || []);
+    const [subsRes, invRes] = await Promise.all([
+      supabase.from("subscriptions").select("*").eq("user_id", client.id).order("created_at", { ascending: false }),
+      supabase.from("invoices").select("*").eq("user_id", client.id).order("created_at", { ascending: false }).limit(10),
+    ]);
+    setClientSubs(subsRes.data as Subscription[] || []);
+    setClientInvoices(invRes.data as Invoice[] || []);
+  };
+
+  const handleResetPassword = async (client: Profile) => {
+    if (!confirm(`Reinitialiser le mot de passe de ${client.full_name} ? Un nouveau mot de passe sera envoye par email.`)) return;
+    try {
+      await apiCall("admin-reset-password", {
+        method: "POST",
+        body: { userId: client.id, email: client.email, fullName: client.full_name },
+      });
+      showToast(`Nouveau mot de passe envoye a ${client.email}`);
+    } catch (err: any) {
+      showToast(`Erreur: ${err.message}`);
+    }
   };
 
   const openCreateForm = () => {
@@ -110,6 +129,47 @@ export default function ClientsPage() {
     } catch (err: any) {
       showToast(`Erreur: ${err.message}`);
     }
+  };
+
+  const openTestAccess = (client: Profile) => {
+    setTestAccessClient(client);
+    setTestAccessForm({ appId: appList[0]?.id || "", duration: "7" });
+  };
+
+  const handleGrantTestAccess = async () => {
+    if (!testAccessClient || !testAccessForm.appId) return;
+    setGrantingAccess(true);
+    try {
+      const days = parseInt(testAccessForm.duration);
+      const trialEnd = new Date(Date.now() + days * 86400000);
+
+      // Create trial subscription
+      const { error } = await supabase.from("subscriptions").insert({
+        user_id: testAccessClient.id,
+        app_id: testAccessForm.appId,
+        plan: "test",
+        status: "trial",
+        price_at_subscription: 0,
+        trial_ends_at: trialEnd.toISOString(),
+        current_period_start: new Date().toISOString(),
+        current_period_end: trialEnd.toISOString(),
+      });
+
+      if (error) throw error;
+
+      // Log activity
+      await supabase.from("activity_log").insert({
+        user_id: testAccessClient.id,
+        action: "test_access_granted",
+        metadata: { app_id: testAccessForm.appId, duration_days: days, expires_at: trialEnd.toISOString() },
+      });
+
+      setTestAccessClient(null);
+      showToast(`Accès test accordé à ${testAccessClient.full_name} pour ${days} jours`);
+    } catch (err: any) {
+      showToast(`Erreur: ${err.message}`);
+    }
+    setGrantingAccess(false);
   };
 
   const showToast = (msg: string) => {
@@ -184,6 +244,12 @@ export default function ClientsPage() {
               <button onClick={(e) => { e.stopPropagation(); openEditForm(r); }} className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors" title="Modifier">
                 <Pencil size={14} />
               </button>
+              <button onClick={(e) => { e.stopPropagation(); handleResetPassword(r); }} className="p-1.5 rounded hover:bg-blue-50 text-neutral-muted hover:text-blue-600 transition-colors" title="Reset mot de passe">
+                <KeyRound size={14} />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); openTestAccess(r); }} className="p-1.5 rounded hover:bg-emerald-50 text-neutral-muted hover:text-emerald-600 transition-colors" title="Accorder accès test">
+                <FlaskConical size={14} />
+              </button>
               <button onClick={(e) => { e.stopPropagation(); toggleActive(r); }} className={`p-1.5 rounded transition-colors ${r.is_active ? "hover:bg-red-50 text-red-400" : "hover:bg-green-50 text-green-600"}`} title={r.is_active ? "Suspendre" : "Réactiver"}>
                 {r.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
               </button>
@@ -237,6 +303,29 @@ export default function ClientsPage() {
                 </div>
               )}
             </div>
+            <div className="border-t border-warm-border pt-4">
+              <h3 className="text-neutral-text text-sm font-bold mb-3 flex items-center gap-2">
+                <FileText size={14} /> Factures ({clientInvoices.length})
+              </h3>
+              {clientInvoices.length === 0 ? (
+                <p className="text-neutral-muted text-sm">Aucune facture</p>
+              ) : (
+                <div className="space-y-2">
+                  {clientInvoices.map(inv => (
+                    <div key={inv.id} className="flex items-center justify-between p-3 bg-warm-bg rounded-lg">
+                      <div>
+                        <span className="text-neutral-text text-sm font-mono">{inv.invoice_number}</span>
+                        <span className="text-neutral-muted text-[11px] ml-2">{new Date(inv.created_at).toLocaleDateString("fr-FR")}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gold text-sm font-semibold">{Number(inv.amount).toLocaleString("fr-FR")} {inv.currency || "FCFA"}</span>
+                        <AdminBadge status={inv.status} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </AdminModal>
@@ -272,6 +361,64 @@ export default function ClientsPage() {
             {saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer le client"}
           </button>
         </div>
+      </AdminModal>
+
+      {/* Grant test access modal */}
+      <AdminModal open={!!testAccessClient} onClose={() => setTestAccessClient(null)} title="Accorder un accès test">
+        {testAccessClient && (
+          <div className="space-y-4">
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <p className="text-emerald-800 text-sm">
+                Accorder un accès test temporaire à <strong>{testAccessClient.full_name}</strong>
+                {testAccessClient.company_name && <> ({testAccessClient.company_name})</>}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Application</label>
+              <select
+                value={testAccessForm.appId}
+                onChange={e => setTestAccessForm(p => ({ ...p, appId: e.target.value }))}
+                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors"
+              >
+                <option value="">-- Choisir une application --</option>
+                {appList.map(app => (
+                  <option key={app.id} value={app.id}>{app.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Durée de l'accès</label>
+              <select
+                value={testAccessForm.duration}
+                onChange={e => setTestAccessForm(p => ({ ...p, duration: e.target.value }))}
+                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors"
+              >
+                <option value="3">3 jours</option>
+                <option value="7">7 jours</option>
+                <option value="14">14 jours</option>
+                <option value="30">30 jours</option>
+              </select>
+            </div>
+
+            <div className="p-3 bg-warm-bg rounded-lg text-[13px] text-neutral-muted">
+              <p className="mb-1">Expire le : <strong className="text-neutral-text">
+                {new Date(Date.now() + parseInt(testAccessForm.duration) * 86400000).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+              </strong></p>
+              <p className="mb-0">Plan : <strong className="text-neutral-text">test</strong> (gratuit)</p>
+            </div>
+
+            <button
+              onClick={handleGrantTestAccess}
+              disabled={grantingAccess || !testAccessForm.appId}
+              className={`btn-gold w-full flex items-center justify-center gap-2 ${grantingAccess || !testAccessForm.appId ? "opacity-50" : ""}`}
+            >
+              <FlaskConical size={14} />
+              {grantingAccess ? "Attribution en cours..." : "Accorder l'accès test"}
+            </button>
+          </div>
+        )}
       </AdminModal>
     </div>
   );
