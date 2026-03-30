@@ -5,6 +5,7 @@ import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { GridPattern } from "../components/ui/GridPattern";
 import type { AppItem } from "../config/content";
+import { SEOHead } from "../components/ui/SEOHead";
 
 function formatPrice(price: number): string {
   return price.toLocaleString("fr-FR");
@@ -134,16 +135,17 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen">
+      <SEOHead title="Tarifs" description="Tarifs simples et transparents pour toutes les applications Atlas Studio." canonical="/tarifs" />
       {/* ===== HERO DARK ===== */}
       <section className="relative bg-onyx text-neutral-light pt-24 pb-16 md:pt-28 md:pb-20 px-5 md:px-8 overflow-hidden">
         <GridPattern dark />
         <div className="relative max-w-3xl mx-auto text-center">
           <ScrollReveal>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-4 tracking-tight">
-              Tarifs simples et transparents
+              Des tarifs clairs. Z&eacute;ro surprise.
             </h1>
             <p className="text-neutral-400 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-              Payez uniquement ce que vous utilisez. Sans engagement, changez ou annulez à tout moment.
+              14 jours d'essai gratuit sur toutes les apps. Sans engagement, sans carte bancaire. Vous ne payez que si vous &ecirc;tes convaincu.
             </p>
           </ScrollReveal>
         </div>
@@ -166,17 +168,17 @@ export default function PricingPage() {
         <div className="relative max-w-2xl mx-auto text-center">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">
-              Prêt à démarrer ?
+              Testez. Comparez. D&eacute;cidez.
             </h2>
             <p className="text-neutral-400 text-[15px] mb-8 max-w-md mx-auto leading-relaxed">
-              Essai gratuit 14 jours. Sans engagement, sans carte bancaire.
+              14 jours pour essayer, 5 minutes pour d&eacute;marrer. Si ce n'est pas pour vous, annulez sans rien payer.
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link to="/portal" className="btn-gold">
-                Créer mon compte
+                D&eacute;marrer l'essai gratuit
               </Link>
               <Link to="/contact" className="btn-outline-light">
-                Nous contacter
+                Parler &agrave; un conseiller
               </Link>
             </div>
           </ScrollReveal>

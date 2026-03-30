@@ -14,6 +14,7 @@ import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { GridPattern } from "../components/ui/GridPattern";
 import { AppMockup } from "../components/ui/AppMockup";
+import { SEOHead } from "../components/ui/SEOHead";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   receipt: Receipt,
@@ -77,6 +78,7 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="min-h-screen">
+      <SEOHead title={app.name} description={app.tagline} canonical={`/applications/${id}`} />
       {/* ===== HERO DARK ===== */}
       <section className="relative bg-onyx text-neutral-light pt-24 pb-16 md:pt-28 md:pb-20 px-5 md:px-8 overflow-hidden">
         <GridPattern dark />

@@ -1,12 +1,14 @@
 import { LEGAL_CONTENT } from "../config/legal";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
+import { SEOHead } from "../components/ui/SEOHead";
 
 export default function TermsPage() {
   const { title, sections } = LEGAL_CONTENT.terms;
 
   return (
     <div className="bg-warm-bg text-neutral-text pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
+      <SEOHead title="Conditions Generales" description="Conditions generales d utilisation d Atlas Studio." canonical="/cgu" />
       <div className="max-w-3xl mx-auto">
         <ScrollReveal>
           <SectionHeading title={title} />

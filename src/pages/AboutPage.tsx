@@ -6,12 +6,14 @@ import { SectionHeading } from "../components/ui/SectionHeading";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { StatCounter } from "../components/ui/StatCounter";
 import { GridPattern } from "../components/ui/GridPattern";
+import { SEOHead } from "../components/ui/SEOHead";
 
 export default function AboutPage() {
   const { content } = useContentContext();
 
   return (
     <div className="min-h-screen">
+      <SEOHead title="A propos" description="Atlas Studio developpe des applications SaaS pour les entreprises africaines. 20 ans d experience en Afrique." canonical="/a-propos" />
       {/* Hero dark */}
       <section className="relative bg-onyx text-neutral-light pt-24 pb-14 md:pt-28 md:pb-20 px-5 md:px-8 overflow-hidden">
         <GridPattern dark />
@@ -21,7 +23,7 @@ export default function AboutPage() {
               À propos d'<span className="font-logo text-gold">Atlas Studio</span>
             </h1>
             <p className="text-neutral-400 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-              Des outils digitaux professionnels, conçus en Afrique, pour l'Afrique et le monde.
+              20 ans d'exp&eacute;rience terrain. 10 pays. Une obsession : des outils qui marchent vraiment.
             </p>
           </ScrollReveal>
         </div>
@@ -31,7 +33,7 @@ export default function AboutPage() {
       <section className="bg-warm-bg text-neutral-text py-16 md:py-24 px-5 md:px-8">
         <div className="max-w-3xl mx-auto">
           <ScrollReveal>
-            <h2 className="text-2xl font-bold text-neutral-text mb-6">Notre histoire</h2>
+            <h2 className="text-2xl font-bold text-neutral-text mb-6">On conna\u00eet vos probl\u00e8mes. On les a v\u00e9cus.</h2>
             <p className="text-neutral-body text-[15px] leading-relaxed mb-4">{content.about.p1}</p>
             <p className="text-neutral-body text-[15px] leading-relaxed mb-4">{content.about.p2}</p>
             <p className="text-neutral-body text-[15px] leading-relaxed mb-8">{content.about.p3}</p>
@@ -41,9 +43,9 @@ export default function AboutPage() {
           <ScrollReveal>
             <div className="relative pl-8 border-l-2 border-gold/30 space-y-8 mb-16">
               {[
-                { year: "2003", text: "Plus de 20 ans d'expérience opérationnelle en Afrique" },
-                { year: "2020", text: "Naissance d'Atlas Studio — la suite SaaS pour les pros africains" },
-                { year: "Aujourd'hui", text: "10+ pays, 500+ entreprises, 22 produits et une vision panafricaine" },
+                { year: "2003", text: "D\u00e9but de 20 ans d'accompagnement d'entreprises \u00e0 travers l'Afrique" },
+                { year: "2020", text: "Lancement d'Atlas Studio \u2014 transformer l'exp\u00e9rience terrain en logiciel" },
+                { year: "Aujourd'hui", text: "500+ entreprises dans 10+ pays font confiance \u00e0 nos apps au quotidien" },
               ].map((item, i) => (
                 <div key={i} className="relative">
                   <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-gold border-4 border-warm-bg" />
@@ -106,14 +108,14 @@ export default function AboutPage() {
       <section className="bg-warm-bg text-neutral-text py-14 md:py-20 px-5 md:px-8">
         <ScrollReveal>
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-2xl font-bold text-neutral-text mb-4">Envie d'en savoir plus ?</h2>
-            <p className="text-neutral-muted text-sm mb-8">Découvrez nos applications ou contactez notre équipe.</p>
+            <h2 className="text-2xl font-bold text-neutral-text mb-4">Pr\u00eat \u00e0 essayer ?</h2>
+            <p className="text-neutral-muted text-sm mb-8">14 jours d'essai gratuit. Op\u00e9rationnel en 5 minutes. Sans carte bancaire.</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link to="/applications" className="btn-gold">
-                Voir les applications
+              <Link to="/portal" className="btn-gold">
+                D\u00e9marrer l'essai gratuit
               </Link>
               <Link to="/contact" className="px-6 py-3 rounded-lg font-semibold text-sm border border-warm-border text-neutral-body hover:border-gold/40 transition-colors">
-                Nous contacter
+                Demander une d\u00e9mo
               </Link>
             </div>
           </div>

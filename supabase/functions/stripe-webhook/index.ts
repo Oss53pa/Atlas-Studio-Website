@@ -75,6 +75,23 @@ Deno.serve(async (req) => {
           metadata: { appId, plan, amount: (session.amount_total || 0) / 100, provider: "stripe" },
         });
 
+        // Send confirmation email to client
+        try {
+          const { data: clientProfile } = await supabaseAdmin.from("profiles").select("full_name, email").eq("id", userId).single();
+          if (clientProfile?.email) {
+            const { data: appInfo } = await supabaseAdmin.from("apps").select("name").eq("id", appId).single();
+            const appName = appInfo?.name || appId;
+            const amount = ((session.amount_total || 0) / 100).toLocaleString("fr-FR");
+            await sendMail({
+              to: clientProfile.email,
+              subject: `Abonnement confirme — ${appName}`,
+              html: `<div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;"><div style="background:#0A0A0A;color:#fff;padding:30px;text-align:center;border-radius:12px 12px 0 0;"><h1 style="margin:0;font-size:22px;">Atlas <span style="color:#C8A960;">Studio</span></h1><div style="margin-top:8px;opacity:0.7;font-size:14px;">Confirmation de paiement</div></div><div style="background:#fff;padding:30px;"><h2>Bonjour ${clientProfile.full_name || ""},</h2><p>Votre abonnement a ete confirme avec succes !</p><div style="background:#FAFAF8;padding:20px;border-radius:10px;margin:20px 0;border-left:4px solid #C8A960;"><p><strong>Application :</strong> <span style="color:#C8A960;font-weight:bold;">${appName}</span></p><p><strong>Plan :</strong> ${plan || "—"}</p><p><strong>Montant :</strong> <span style="color:#C8A960;font-weight:bold;">${amount} XOF</span></p></div><p>Vous pouvez acceder a votre application depuis votre espace client.</p><p style="text-align:center;margin:30px 0;"><a href="https://atlas-studio.org/portal" style="display:inline-block;background:#C8A960;color:#0A0A0A;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;">Mon espace</a></p></div><div style="text-align:center;padding:20px;color:#999;font-size:12px;">Atlas Studio — Solutions digitales professionnelles</div></div>`,
+            });
+          }
+        } catch (clientEmailErr) {
+          console.error("Client confirmation email error:", clientEmailErr);
+        }
+
         // Notify admin(s) of new subscription
         try {
           const { data: profile } = await supabaseAdmin.from("profiles").select("full_name, email").eq("id", userId).single();

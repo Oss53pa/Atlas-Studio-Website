@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useApps } from "../hooks/useApps";
+import { SEOHead } from "../components/ui/SEOHead";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { GridPattern } from "../components/ui/GridPattern";
 import { AppCardLarge } from "../components/ui/AppCardLarge";
@@ -31,17 +32,17 @@ export default function ApplicationsPage() {
 
   return (
     <div className="min-h-screen">
+      <SEOHead title="Applications" description="Decouvrez les applications Atlas Studio : comptabilite SYSCOHADA, liasse fiscale, signature electronique et plus." canonical="/applications" />
       {/* ===== HERO DARK ===== */}
       <section className="relative bg-onyx text-neutral-light pt-24 pb-16 md:pt-28 md:pb-20 px-5 md:px-8 overflow-hidden">
         <GridPattern dark />
         <div className="relative max-w-site mx-auto text-center">
           <ScrollReveal>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-4 tracking-tight">
-              Nos Solutions
+              Chaque app r&egrave;gle un vrai probl&egrave;me.
             </h1>
             <p className="text-neutral-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-              Des outils professionnels conçus pour les réalités africaines.
-              Comptabilité SYSCOHADA, liasse fiscale, signature électronique — tout ce qu'il faut pour digitaliser votre gestion.
+              Comptabilit&eacute; SYSCOHADA, liasse fiscale automatis&eacute;e, signature &eacute;lectronique &mdash; des outils qui vous font gagner du temps et de l'argent, d&egrave;s le premier mois.
             </p>
 
             {activeFilters.length > 2 && (
@@ -84,17 +85,17 @@ export default function ApplicationsPage() {
         <div className="relative max-w-2xl mx-auto text-center">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">
-              Prêt à digitaliser votre gestion ?
+              Pr&ecirc;t &agrave; gagner du temps d&egrave;s cette semaine ?
             </h2>
             <p className="text-neutral-400 text-[15px] mb-8 max-w-md mx-auto leading-relaxed">
-              Essai gratuit 14 jours. Sans engagement, sans carte bancaire.
+              14 jours d'essai gratuit. Op&eacute;rationnel en 5 minutes. Annulation libre.
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link to="/portal" className="btn-gold">
-                Démarrer gratuitement
+                Cr&eacute;er mon compte gratuit
               </Link>
               <Link to="/contact" className="btn-outline-light">
-                Nous contacter
+                Demander une d&eacute;mo
               </Link>
             </div>
           </ScrollReveal>
