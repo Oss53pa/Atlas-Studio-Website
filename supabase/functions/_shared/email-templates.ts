@@ -182,6 +182,39 @@ export function trialExpiringEmail(fullName: string, appName: string, appId: str
   };
 }
 
+export function grantTestAccessEmail(fullName: string, appName: string, appId: string, durationDays: number, expiresAt: string, tempPassword?: string) {
+  const appUrl = getAppUrl(appId);
+  return {
+    subject: `Acc\u00e8s test accord\u00e9 \u2014 ${appName} (${durationDays} jours)`,
+    html: baseTemplate("Acc\u00e8s test temporaire", `
+      <h2 style="margin-top:0;">Bonjour ${fullName},</h2>
+      <p>Bonne nouvelle ! Un acc&egrave;s test temporaire vous a &eacute;t&eacute; accord&eacute; sur <strong>${appName}</strong>.</p>
+
+      <div class="info-box">
+        <p><strong>Application :</strong> <span class="highlight">${appName}</span></p>
+        <p><strong>Dur&eacute;e :</strong> <span class="highlight">${durationDays} jours</span></p>
+        <p><strong>Expire le :</strong> ${expiresAt}</p>
+        <p><strong>Acc&egrave;s :</strong> <a href="${appUrl}" style="color:#C8A960;">${appUrl}</a></p>
+        ${tempPassword ? `<p><strong>Mot de passe temporaire :</strong> <code style="background:#f3f4f6; padding:2px 8px; border-radius:4px; font-size:15px;">${tempPassword}</code></p>` : ""}
+      </div>
+
+      <p>Profitez de cette p&eacute;riode pour explorer toutes les fonctionnalit&eacute;s de l'application. &Agrave; l'issue de cette p&eacute;riode, votre acc&egrave;s sera automatiquement d&eacute;sactiv&eacute;.</p>
+
+      <p style="text-align:center; margin: 30px 0;">
+        <a href="${appUrl}" class="btn">Acc&eacute;der &agrave; ${appName}</a>
+      </p>
+
+      <div class="install-tip">
+        <strong>Astuce :</strong> Installez l'app sur votre appareil pour un acc&egrave;s rapide !<br>
+        &bull; <strong>Chrome / Edge :</strong> ic&ocirc;ne &laquo; Installer &raquo; dans la barre d'adresse<br>
+        &bull; <strong>Mobile :</strong> Partager &rarr; &laquo; Sur l'&eacute;cran d'accueil &raquo;
+      </div>
+
+      <p style="color:#999; font-size:13px;">Si vous avez des questions, n'h&eacute;sitez pas &agrave; nous contacter.</p>
+    `),
+  };
+}
+
 export function invoiceEmail(fullName: string, invoiceNumber: string, amount: number, currency: string) {
   return {
     subject: `Nouvelle facture \u2014 ${invoiceNumber}`,
