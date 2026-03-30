@@ -29,11 +29,11 @@ export default function ClientsPage() {
   const [grantingAccess, setGrantingAccess] = useState(false);
 
   const fetchClients = async () => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("role", "client")
-      .order("created_at", { ascending: false });
+    // Fetch all non-admin profiles (role_id != admin role)
+    const { data: adminRole } = await supabase.from("roles").select("id").eq("code", "admin").single();
+    let query = supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    if (adminRole?.id) query = query.neq("role_id", adminRole.id);
+    const { data } = await query;
     if (data) setClients(data as Profile[]);
     setLoading(false);
   };

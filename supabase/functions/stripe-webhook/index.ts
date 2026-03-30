@@ -1,6 +1,7 @@
 import { jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { stripe } from "../_shared/stripe.ts";
+import { sendMail } from "../_shared/mailer.ts";
 
 Deno.serve(async (req) => {
   const sig = req.headers.get("stripe-signature");
@@ -73,6 +74,30 @@ Deno.serve(async (req) => {
           action: "payment_completed",
           metadata: { appId, plan, amount: (session.amount_total || 0) / 100, provider: "stripe" },
         });
+
+        // Notify admin(s) of new subscription
+        try {
+          const { data: profile } = await supabaseAdmin.from("profiles").select("full_name, email").eq("id", userId).single();
+          const { data: admins } = await supabaseAdmin
+            .from("profiles")
+            .select("email")
+            .eq("role_id", "b0000000-0000-0000-0000-000000000001");
+          const amount = ((session.amount_total || 0) / 100).toLocaleString("fr-FR");
+          const clientName = profile?.full_name || profile?.email || "Client";
+          const subject = type === "reactivation"
+            ? `Reactivation: ${clientName} — ${appId}`
+            : type === "regularization"
+            ? `Regularisation: ${clientName} — ${appId}`
+            : `Nouvelle souscription: ${clientName} — ${appId} (${plan})`;
+          const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#0A0A0A;color:#fff;padding:20px;text-align:center;border-radius:12px 12px 0 0;"><h2 style="margin:0;font-size:18px;">Atlas <span style="color:#C8A960;">Studio</span> — Admin</h2></div><div style="padding:20px;background:#fff;"><h3>${subject}</h3><div style="background:#FAFAF8;padding:15px;border-radius:8px;border-left:4px solid #C8A960;margin:15px 0;"><p><strong>Client :</strong> ${clientName} (${profile?.email || ""})</p><p><strong>Application :</strong> ${appId}</p><p><strong>Plan :</strong> ${plan || "—"}</p><p><strong>Montant :</strong> ${amount} XOF</p><p><strong>Date :</strong> ${new Date().toLocaleDateString("fr-FR")}</p></div><p><a href="https://atlas-studio.org/admin/subscriptions" style="display:inline-block;background:#C8A960;color:#0A0A0A;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Voir dans la console</a></p></div></div>`;
+          if (admins) {
+            for (const admin of admins) {
+              if (admin.email) await sendMail({ to: admin.email, subject, html });
+            }
+          }
+        } catch (notifErr) {
+          console.error("Admin notification error:", notifErr);
+        }
         break;
       }
 
@@ -106,6 +131,24 @@ Deno.serve(async (req) => {
             action: "payment_failed",
             metadata: { stripe_subscription_id: subId, provider: "stripe" },
           });
+
+          // Notify admin of failed payment
+          try {
+            const { data: sub } = await supabaseAdmin.from("subscriptions").select("user_id, app_id, profiles(full_name, email)").eq("stripe_subscription_id", subId).single();
+            if (sub) {
+              const { data: admins } = await supabaseAdmin.from("profiles").select("email").eq("role_id", "b0000000-0000-0000-0000-000000000001");
+              const clientName = (sub.profiles as any)?.full_name || "Client";
+              if (admins) {
+                for (const admin of admins) {
+                  if (admin.email) await sendMail({
+                    to: admin.email,
+                    subject: `Paiement echoue: ${clientName} — ${sub.app_id}`,
+                    html: `<p>Le paiement de <strong>${clientName}</strong> pour <strong>${sub.app_id}</strong> a echoue. L'abonnement a ete suspendu.</p><p><a href="https://atlas-studio.org/admin/subscriptions">Voir dans la console</a></p>`,
+                  });
+                }
+              }
+            }
+          } catch (e) { console.error("Admin notify error:", e); }
         }
         break;
       }
