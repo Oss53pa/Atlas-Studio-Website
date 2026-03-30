@@ -18,6 +18,8 @@ import FAQPage from './pages/FAQPage';
 import LegalNoticePage from './pages/LegalNoticePage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Portal from './portal/Portal';
 import './i18n';
@@ -68,6 +70,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/a-propos" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/faq" element={<FAQPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/mentions-legales" element={<LegalNoticePage />} />
             <Route path="/cgu" element={<TermsPage />} />
             <Route path="/confidentialite" element={<PrivacyPage />} />

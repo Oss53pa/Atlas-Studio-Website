@@ -256,6 +256,72 @@
 .comp-hl td { background: rgba(200, 169, 96, 0.06) !important; }
 .comp-hl td:first-child { color: #C8A960; }
 
+/* Blog article prose */
+.prose-atlas {
+  color: #a3a3a3;
+  font-size: 15px;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.prose-atlas h2 {
+  color: #f5f5f5;
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+}
+
+.prose-atlas h3 {
+  color: #f5f5f5;
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.prose-atlas p {
+  margin-bottom: 1.2em;
+}
+
+.prose-atlas ul,
+.prose-atlas ol {
+  margin-bottom: 1.2em;
+  padding-left: 1.5em;
+}
+
+.prose-atlas ul { list-style-type: disc; }
+.prose-atlas ol { list-style-type: decimal; }
+
+.prose-atlas li {
+  margin-bottom: 0.4em;
+}
+
+.prose-atlas strong {
+  color: #f5f5f5;
+  font-weight: 600;
+}
+
+.prose-atlas blockquote {
+  border-left: 3px solid #C8A960;
+  padding: 1em 1.2em;
+  margin: 1.5em 0;
+  background: rgba(200, 169, 96, 0.06);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #d4d4d4;
+}
+
+.prose-atlas a {
+  color: #C8A960;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-atlas a:hover {
+  color: #D4BC7C;
+}
+
 /* Section helpers */
 .section-dark { background-color: #0A0A0A; color: #F5F5F5; }
 .section-light { background-color: #FAFAF8; color: #1A1A1A; }

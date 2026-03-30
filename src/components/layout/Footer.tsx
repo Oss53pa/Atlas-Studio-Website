@@ -85,6 +85,7 @@ export function Footer() {
               {[
                 { to: "/applications", label: "Tous les produits" },
                 { to: "/tarifs", label: "Tarifs" },
+                { to: "/blog", label: "Blog" },
                 { to: "/faq", label: "FAQ" },
                 { to: "/portal", label: "Essai gratuit" },
               ].map((l) => (

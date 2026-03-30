@@ -8,6 +8,7 @@ import { MobileMenu } from "./MobileMenu";
 const links = [
   { to: "/applications", label: "Applications" },
   { to: "/tarifs", label: "Tarifs" },
+  { to: "/blog", label: "Blog" },
   { to: "/a-propos", label: "À propos" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
