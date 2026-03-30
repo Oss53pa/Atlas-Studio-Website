@@ -24,12 +24,44 @@ export function useSupabaseContent() {
           contentMap[row.key] = row.data;
         });
 
+        // Fetch apps from apps table
+        const { data: appsData } = await supabase
+          .from('apps')
+          .select('*')
+          .eq('status', 'available')
+          .order('sort_order', { ascending: true });
+
+        const dbApps = appsData && appsData.length > 0
+          ? appsData.map((row: any) => ({
+              id: row.id,
+              name: row.name,
+              type: row.type,
+              tagline: row.tagline,
+              desc: row.description,
+              features: row.features || [],
+              categories: row.categories || [],
+              pricing: row.pricing || {},
+              pricingPeriod: row.pricing_period || 'mois',
+              color: row.color || '#C8A960',
+              icon: row.icon || 'receipt',
+              highlights: row.highlights || [],
+            }))
+          : DEFAULT_CONTENT.apps;
+
+        // Sectors from DB come as string array, need to map to objects with icons
+        const sectorNames = contentMap.sectors || [];
+        const dbSectors = Array.isArray(sectorNames) && sectorNames.length > 0
+          ? DEFAULT_CONTENT.sectors.filter(s => sectorNames.includes(s.name)).concat(
+              sectorNames.filter((name: string) => !DEFAULT_CONTENT.sectors.find(s => s.name === name)).map((name: string) => ({ icon: DEFAULT_CONTENT.sectors[0]?.icon, name }))
+            )
+          : DEFAULT_CONTENT.sectors;
+
         setContent({
           hero: contentMap.hero || DEFAULT_CONTENT.hero,
           stats: contentMap.stats || DEFAULT_CONTENT.stats,
-          apps: DEFAULT_CONTENT.apps,
+          apps: dbApps,
           about: contentMap.about || DEFAULT_CONTENT.about,
-          sectors: DEFAULT_CONTENT.sectors,
+          sectors: dbSectors,
           testimonials: contentMap.testimonials || DEFAULT_CONTENT.testimonials,
           faqs: contentMap.faqs || DEFAULT_CONTENT.faqs,
           contact: contentMap.contact || DEFAULT_CONTENT.contact,
