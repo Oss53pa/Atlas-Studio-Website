@@ -50,6 +50,12 @@ export default function ApplicationDetailPage() {
   const appWithStatus = apps.find((a) => a.id === id);
   const app = appWithStatus || content.apps.find((a) => a.id === id);
 
+  useEffect(() => {
+    if (app?.external_url) {
+      window.location.href = app.external_url;
+    }
+  }, [app]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dark-950">
@@ -57,12 +63,6 @@ export default function ApplicationDetailPage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (app?.external_url) {
-      window.location.href = app.external_url;
-    }
-  }, [app]);
 
   if (!app) return <Navigate to="/applications" replace />;
 

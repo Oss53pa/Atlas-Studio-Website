@@ -3,8 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useContentContext } from "../components/layout/Layout";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
+import { StatCounter } from "../components/ui/StatCounter";
 import { AppCard } from "../components/ui/AppCard";
-import { TestimonialCard } from "../components/ui/TestimonialCard";
 import { SectorBadge } from "../components/ui/SectorBadge";
 import { SEOHead } from "../components/ui/SEOHead";
 import { FAQItem } from "../components/ui/FAQItem";
@@ -22,8 +22,8 @@ export default function HomePage() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-onyx text-neutral-light min-h-screen flex items-center justify-center text-center px-5 md:px-8 pt-24 pb-14 md:pt-28 md:pb-20 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] glow-gold pointer-events-none" />
-        <div className="relative max-w-5xl mx-auto">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] glow-gold glow-pulse pointer-events-none" />
+        <div className="relative max-w-5xl mx-auto hero-anim">
           <div className="mb-8">
             <span className="font-logo text-gold text-4xl">Atlas Studio</span>
           </div>
@@ -39,9 +39,8 @@ export default function HomePage() {
           </div>
           <div className="flex justify-center border-t border-dark-border pt-12 max-w-[700px] mx-auto">
             {content.stats.map((s, i) => (
-              <div key={i} className={`flex-1 text-center px-6 ${i < content.stats.length - 1 ? "border-r border-dark-border" : ""}`}>
-                <div className="font-mono text-[32px] font-normal text-gold mb-1">{s.value}</div>
-                <div className="text-xs text-neutral-muted font-light">{s.label}</div>
+              <div key={i} className={`flex-1 px-6 ${i < content.stats.length - 1 ? "border-r border-dark-border" : ""}`}>
+                <StatCounter value={s.value} label={s.label} />
               </div>
             ))}
           </div>
@@ -50,7 +49,7 @@ export default function HomePage() {
 
       {/* ===== TRUST BAR ===== */}
       <div className="bg-dark-bg2 border-b border-dark-border py-4 px-5 md:px-8">
-        <div className="flex items-center justify-center gap-0 flex-wrap">
+        <div className="flex items-center justify-center gap-0 flex-wrap trust-anim">
           {content.trustBar.map((item, i) => (
             <div key={i} className={`text-xs text-neutral-muted px-5 py-1.5 ${i < content.trustBar.length - 1 ? "border-r border-dark-border" : ""}`}>
               <span className="trust-dot" /><StyledText>{item}</StyledText>
@@ -71,7 +70,7 @@ export default function HomePage() {
           </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {content.apps.map((app, i) => (
-              <ScrollReveal key={app.id} delay={i * 80}>
+              <ScrollReveal key={app.id} delay={i * 100}>
                 <AppCard app={app} index={i} />
               </ScrollReveal>
             ))}
@@ -96,25 +95,25 @@ export default function HomePage() {
               {t("home.noInstall")}
             </p>
           </ScrollReveal>
-          <ScrollReveal>
-            <div className="steps-grid">
-              {content.steps.map((step, i) => (
-                <div key={i} className={`p-6 md:p-8 ${i < content.steps.length - 1 ? "border-r border-dark-border" : ""}`}>
-                  <div className="h-0.5 bg-dark-border mb-6"><div className="h-0.5 bg-gold w-full" /></div>
+          <div className="steps-grid">
+            {content.steps.map((step, i) => (
+              <ScrollReveal key={i} delay={i * 150}>
+                <div className={`p-6 md:p-8 ${i < content.steps.length - 1 ? "border-r border-dark-border" : ""}`}>
+                  <div className="h-0.5 bg-dark-border mb-6"><div className="h-0.5 bg-gold w-full reveal-line" /></div>
                   <div className="font-mono text-[11px] font-medium text-gold mb-4 tracking-wide">{step.num}</div>
                   <div className="text-[15px] font-medium text-neutral-light mb-2"><StyledText>{step.title}</StyledText></div>
                   <div className="text-xs text-neutral-muted font-light leading-relaxed"><StyledText>{step.desc}</StyledText></div>
                 </div>
-              ))}
-            </div>
-          </ScrollReveal>
+              </ScrollReveal>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ===== ABOUT PREVIEW ===== */}
       <section className="bg-onyx border-b border-dark-border py-20 px-5 md:px-8">
         <div className="max-w-site mx-auto flex gap-10 md:gap-14 flex-wrap items-center">
-          <ScrollReveal className="flex-1 min-w-[320px]">
+          <ScrollReveal className="flex-1 min-w-[320px] reveal-left">
             <div className="text-[11px] font-medium text-gold uppercase tracking-[0.1em] mb-3">{t("home.aboutLabel")}</div>
             <h2 className="text-3xl md:text-4xl font-normal text-neutral-light mb-5">
               <span className="font-logo text-gold">Atlas Studio</span>
@@ -122,7 +121,7 @@ export default function HomePage() {
             <p className="text-neutral-muted text-[15px] leading-relaxed mb-4 font-light">{content.about.p1}</p>
             <p className="text-neutral-muted text-[15px] leading-relaxed font-light">{content.about.p2}</p>
           </ScrollReveal>
-          <ScrollReveal className="flex-1 min-w-[280px]" delay={200}>
+          <ScrollReveal className="flex-1 min-w-[280px] reveal-right" delay={200}>
             <div className="bg-dark-bg2 border border-dark-border rounded-xl p-8">
               <h3 className="text-neutral-light text-lg font-normal mb-5">{t("home.whyChooseUs")}</h3>
               {content.about.values.map((v, i) => (
@@ -148,7 +147,7 @@ export default function HomePage() {
           </ScrollReveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {content.sectors.map((s, i) => (
-              <ScrollReveal key={i} delay={i * 50}>
+              <ScrollReveal key={i} delay={i * 60}>
                 <SectorBadge icon={s.icon} name={s.name} />
               </ScrollReveal>
             ))}
@@ -194,8 +193,8 @@ export default function HomePage() {
           </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {content.testimonials.map((tm, i) => (
-              <ScrollReveal key={i} delay={i * 100}>
-                <div className="bg-dark-bg3 border border-dark-border rounded-xl p-6">
+              <ScrollReveal key={i} delay={i * 120}>
+                <div className="bg-dark-bg3 border border-dark-border rounded-xl p-6 hover:border-gold/20 transition-colors duration-300">
                   <div className="text-gold text-[13px] mb-3 tracking-wider">★★★★★</div>
                   <p className="text-[13px] text-neutral-muted font-light leading-relaxed italic mb-4">"{tm.text}"</p>
                   <div className="flex items-center gap-3">
@@ -222,13 +221,13 @@ export default function HomePage() {
           </ScrollReveal>
           <ScrollReveal>
             <div className="flex gap-5 justify-center flex-wrap mb-10">
-              <div className="bg-dark-bg2 border border-dark-border rounded-xl p-8 flex-1 min-w-[200px] max-w-[280px]">
+              <div className="bg-dark-bg2 border border-dark-border rounded-xl p-8 flex-1 min-w-[200px] max-w-[280px] hover:border-gold/20 transition-colors duration-300">
                 <div className="text-neutral-muted text-xs font-normal uppercase tracking-wider mb-2">{t("home.atlasFNA")}</div>
                 <div className="text-gold font-mono text-3xl font-medium">49 000</div>
                 <div className="text-neutral-muted text-sm font-light">FCFA/mois</div>
                 <p className="text-neutral-muted text-xs mt-3 font-light">{t("home.accountingSyscohada")}</p>
               </div>
-              <div className="bg-dark-bg2 border border-dark-border rounded-xl p-8 flex-1 min-w-[200px] max-w-[280px]">
+              <div className="bg-dark-bg2 border border-dark-border rounded-xl p-8 flex-1 min-w-[200px] max-w-[280px] hover:border-gold/20 transition-colors duration-300">
                 <div className="text-neutral-muted text-xs font-normal uppercase tracking-wider mb-2">{t("home.standaloneAppsLabel")}</div>
                 <div className="text-gold font-mono text-3xl font-medium">dès 25 000</div>
                 <div className="text-neutral-muted text-sm font-light">{t("home.perMonthOrYear")}</div>

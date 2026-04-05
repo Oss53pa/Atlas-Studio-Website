@@ -6,6 +6,7 @@ import { AdminBadge } from "../components/AdminBadge";
 import { AdminCard } from "../components/AdminCard";
 import { AdminModal } from "../components/AdminModal";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
+import { useAppFilter } from "../contexts/AppFilterContext";
 import { exportToCSV } from "../../lib/csvExport";
 import { apiCall } from "../../lib/api";
 import type { Invoice, InvoiceStatus, Profile } from "../../lib/database.types";
@@ -24,6 +25,7 @@ const dateFilters = [
 
 export default function InvoicesPage() {
   const { appMap, appList } = useAppCatalog();
+  const { selectedApp: globalAppFilter } = useAppFilter();
   const [invoices, setInvoices] = useState<InvoiceWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -53,6 +55,7 @@ export default function InvoicesPage() {
   // Apply filters
   const filtered = invoices.filter(i => {
     if (filter !== "all" && i.status !== filter) return false;
+    if (globalAppFilter !== "all" && i.app_id !== globalAppFilter) return false;
     if (dateFilter !== "all") {
       const months = Number(dateFilter);
       const cutoff = new Date();

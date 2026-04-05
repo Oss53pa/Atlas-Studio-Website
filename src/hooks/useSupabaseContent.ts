@@ -45,6 +45,7 @@ export function useSupabaseContent() {
               color: row.color || '#C8A960',
               icon: row.icon || 'receipt',
               highlights: row.highlights || [],
+              external_url: row.external_url || undefined,
             }))
           : DEFAULT_CONTENT.apps;
 
@@ -59,12 +60,17 @@ export function useSupabaseContent() {
         setContent({
           hero: contentMap.hero || DEFAULT_CONTENT.hero,
           stats: contentMap.stats || DEFAULT_CONTENT.stats,
+          trustBar: contentMap.trustBar || DEFAULT_CONTENT.trustBar,
+          steps: contentMap.steps || DEFAULT_CONTENT.steps,
           apps: dbApps,
           about: contentMap.about || DEFAULT_CONTENT.about,
           sectors: dbSectors,
           testimonials: contentMap.testimonials || DEFAULT_CONTENT.testimonials,
+          comparatif: contentMap.comparatif || DEFAULT_CONTENT.comparatif,
           faqs: contentMap.faqs || DEFAULT_CONTENT.faqs,
           contact: contentMap.contact || DEFAULT_CONTENT.contact,
+          social: contentMap.social || undefined,
+          appearance: contentMap.appearance || undefined,
         });
       } catch {
         setContent(DEFAULT_CONTENT);

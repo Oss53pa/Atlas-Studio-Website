@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
-import { Users, Repeat, DollarSign, TrendingUp, Loader2, Eye, AlertTriangle, UserPlus, BarChart3, ArrowDownRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Users, Repeat, DollarSign, TrendingUp, Loader2, AlertTriangle,
+  UserPlus, BarChart3, ArrowDownRight, ArrowRight, FileText,
+  MessageSquare, Receipt, Mail, CreditCard, ClipboardList, Megaphone,
+  type LucideIcon,
+} from "lucide-react";
 import { supabase } from "../../lib/supabase";
-import { AdminCard } from "../components/AdminCard";
-import { AdminBadge } from "../components/AdminBadge";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
+import { useAppFilter } from "../contexts/AppFilterContext";
 
+/* ─── Types ─── */
 interface DashboardStats {
   total_users: number;
   active_subscriptions: number;
@@ -15,14 +21,6 @@ interface RevenueSummary {
   monthly_revenue: number;
   total_revenue: number;
   pending_payments: number;
-}
-
-interface ActivityItem {
-  id: string;
-  action: string;
-  metadata: Record<string, any>;
-  created_at: string;
-  user_id: string | null;
 }
 
 interface MonthlyRevenue {
@@ -46,59 +44,98 @@ interface PendingInvoice {
   profiles?: { full_name: string; email: string } | null;
 }
 
+/* ─── Quick Access Module Card ─── */
+function ModuleCard({ to, icon: Icon, label, description, stat, color }: {
+  to: string; icon: LucideIcon; label: string; description: string; stat?: string | number; color: string;
+}) {
+  return (
+    <Link to={to} className="bg-white border border-warm-border rounded-xl p-5 hover:border-gold/30 hover:shadow-sm transition-all group">
+      <div className="flex items-start justify-between mb-3">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
+          <Icon size={20} strokeWidth={1.5} />
+        </div>
+        <ArrowRight size={14} className="text-neutral-300 group-hover:text-gold group-hover:translate-x-0.5 transition-all mt-1" />
+      </div>
+      <div className="text-neutral-text text-sm font-semibold mb-0.5">{label}</div>
+      <div className="text-neutral-muted text-[12px] font-light leading-relaxed">{description}</div>
+      {stat !== undefined && (
+        <div className="text-gold text-lg font-semibold mt-2">{stat}</div>
+      )}
+    </Link>
+  );
+}
+
+/* ─── KPI Card ─── */
+function KpiCard({ label, value, icon: Icon, trend }: {
+  label: string; value: string | number; icon: LucideIcon; trend?: string;
+}) {
+  return (
+    <div className="bg-white border border-warm-border rounded-xl p-5">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
+        <Icon size={18} className="text-neutral-placeholder" strokeWidth={1.5} />
+      </div>
+      <div className="text-gold text-2xl font-semibold">{value}</div>
+      {trend && <div className="text-neutral-muted text-[11px] mt-0.5">{trend}</div>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════ */
 export default function DashboardPage() {
   const { appMap } = useAppCatalog();
+  const { selectedApp } = useAppFilter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenue, setRevenue] = useState<RevenueSummary | null>(null);
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [monthlyRevenues, setMonthlyRevenues] = useState<MonthlyRevenue[]>([]);
   const [topClients, setTopClients] = useState<TopClient[]>([]);
   const [pendingInvoices, setPendingInvoices] = useState<PendingInvoice[]>([]);
   const [mrr, setMrr] = useState(0);
   const [newClientsMonth, setNewClientsMonth] = useState(0);
   const [churnRate, setChurnRate] = useState(0);
+  const [openTickets, setOpenTickets] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const [statsRes, revenueRes, activityRes] = await Promise.all([
+      const [statsRes, revenueRes] = await Promise.all([
         supabase.rpc('admin_dashboard_stats'),
         supabase.rpc('admin_revenue_summary'),
-        supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(10),
       ]);
 
       if (statsRes.data) setStats(statsRes.data as unknown as DashboardStats);
       if (revenueRes.data) setRevenue(revenueRes.data as unknown as RevenueSummary);
-      if (activityRes.data) setActivity(activityRes.data as ActivityItem[]);
 
-      // MRR: sum of price_at_subscription for active subscriptions
-      const { data: activeSubs } = await supabase
-        .from("subscriptions")
-        .select("price_at_subscription")
-        .in("status", ["active", "trial"]);
+      // MRR
+      let subsQuery = supabase.from("subscriptions").select("price_at_subscription").in("status", ["active", "trial"]);
+      if (selectedApp !== "all") subsQuery = subsQuery.eq("app_id", selectedApp);
+      const { data: activeSubs } = await subsQuery;
       if (activeSubs) {
-        const total = activeSubs.reduce((sum, s) => sum + (Number(s.price_at_subscription) || 0), 0);
-        setMrr(total);
+        setMrr(activeSubs.reduce((sum, s) => sum + (Number(s.price_at_subscription) || 0), 0));
       }
 
       // New clients this month
       const monthStart = new Date();
       monthStart.setDate(1);
       monthStart.setHours(0, 0, 0, 0);
-      const { count } = await supabase
+      const { count: newCount } = await supabase
         .from("profiles")
         .select("id", { count: "exact", head: true })
         .gte("created_at", monthStart.toISOString());
-      setNewClientsMonth(count || 0);
+      setNewClientsMonth(newCount || 0);
 
-      // Churn rate: cancelled last 30 days / total active
+      // Open tickets
+      let ticketQuery = supabase.from("tickets").select("id", { count: "exact", head: true }).in("status", ["open", "in_progress"]);
+      if (selectedApp !== "all") ticketQuery = ticketQuery.eq("app_id", selectedApp);
+      const { count: ticketCount } = await ticketQuery;
+      setOpenTickets(ticketCount || 0);
+
+      // Churn rate
       const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
-      const [cancelledRes, totalActiveRes] = await Promise.all([
-        supabase.from("subscriptions").select("id", { count: "exact", head: true })
-          .eq("status", "cancelled").gte("cancelled_at", thirtyDaysAgo),
-        supabase.from("subscriptions").select("id", { count: "exact", head: true })
-          .in("status", ["active", "trial"]),
-      ]);
+      let cancelledQuery = supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "cancelled").gte("cancelled_at", thirtyDaysAgo);
+      let activeQuery = supabase.from("subscriptions").select("id", { count: "exact", head: true }).in("status", ["active", "trial"]);
+      if (selectedApp !== "all") { cancelledQuery = cancelledQuery.eq("app_id", selectedApp); activeQuery = activeQuery.eq("app_id", selectedApp); }
+      const [cancelledRes, totalActiveRes] = await Promise.all([cancelledQuery, activeQuery]);
       const cancelled = cancelledRes.count || 0;
       const totalActive = totalActiveRes.count || 0;
       setChurnRate(totalActive > 0 ? Math.round((cancelled / (totalActive + cancelled)) * 100) : 0);
@@ -111,53 +148,38 @@ export default function DashboardPage() {
         const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
         const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59).toISOString();
         const label = d.toLocaleDateString("fr-FR", { month: "short" });
-        const { data: inv } = await supabase
-          .from("invoices")
-          .select("amount")
-          .eq("status", "paid")
-          .gte("created_at", start)
-          .lte("created_at", end);
-        const amount = inv ? inv.reduce((s, r) => s + (Number(r.amount) || 0), 0) : 0;
-        months.push({ month: start, label, amount });
+        let invQuery = supabase.from("invoices").select("amount").eq("status", "paid").gte("created_at", start).lte("created_at", end);
+        if (selectedApp !== "all") invQuery = invQuery.eq("app_id", selectedApp);
+        const { data: inv } = await invQuery;
+        months.push({ month: start, label, amount: inv ? inv.reduce((s, r) => s + (Number(r.amount) || 0), 0) : 0 });
       }
       setMonthlyRevenues(months);
 
-      // Top 5 clients by revenue
-      const { data: topData } = await supabase
-        .from("invoices")
-        .select("user_id, amount, profiles(full_name, email)")
-        .eq("status", "paid");
+      // Top clients
+      let topQuery = supabase.from("invoices").select("user_id, amount, profiles(full_name, email)").eq("status", "paid");
+      if (selectedApp !== "all") topQuery = topQuery.eq("app_id", selectedApp);
+      const { data: topData } = await topQuery;
       if (topData) {
         const byClient: Record<string, TopClient> = {};
         topData.forEach((inv: any) => {
           const uid = inv.user_id;
           if (!uid) return;
-          if (!byClient[uid]) {
-            byClient[uid] = {
-              full_name: inv.profiles?.full_name || "—",
-              email: inv.profiles?.email || "",
-              total: 0,
-            };
-          }
+          if (!byClient[uid]) byClient[uid] = { full_name: inv.profiles?.full_name || "—", email: inv.profiles?.email || "", total: 0 };
           byClient[uid].total += Number(inv.amount) || 0;
         });
-        const sorted = Object.values(byClient).sort((a, b) => b.total - a.total).slice(0, 5);
-        setTopClients(sorted);
+        setTopClients(Object.values(byClient).sort((a, b) => b.total - a.total).slice(0, 5));
       }
 
       // Pending invoices
-      const { data: pending } = await supabase
-        .from("invoices")
-        .select("id, invoice_number, amount, currency, created_at, profiles(full_name, email)")
-        .eq("status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(5);
+      let pendingQuery = supabase.from("invoices").select("id, invoice_number, amount, currency, created_at, profiles(full_name, email)").eq("status", "pending").order("created_at", { ascending: false }).limit(5);
+      if (selectedApp !== "all") pendingQuery = pendingQuery.eq("app_id", selectedApp);
+      const { data: pending } = await pendingQuery;
       if (pending) setPendingInvoices(pending as PendingInvoice[]);
 
       setLoading(false);
     }
     load();
-  }, []);
+  }, [selectedApp]);
 
   const fmt = (n: number) => n.toLocaleString("fr-FR");
 
@@ -173,36 +195,61 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-neutral-text text-2xl font-bold mb-1">Dashboard</h1>
-      <p className="text-neutral-muted text-sm mb-7">Vue d'ensemble de votre plateforme</p>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <AdminCard label="MRR (Revenus recurrents)" value={`${fmt(mrr)} FCFA`} icon={DollarSign} />
-        <AdminCard label="Revenus du mois" value={`${fmt(revenue?.monthly_revenue || 0)} FCFA`} icon={TrendingUp} />
-        <AdminCard label="Clients" value={stats?.total_users || 0} icon={Users} />
-        <AdminCard label="Abonnements actifs" value={stats?.active_subscriptions || 0} icon={Repeat} />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <AdminCard label="Nouveaux clients (ce mois)" value={newClientsMonth} icon={UserPlus} />
-        <AdminCard label="Taux de churn (30j)" value={`${churnRate}%`} icon={ArrowDownRight} />
-        <AdminCard label="Revenus totaux" value={`${fmt(revenue?.total_revenue || 0)} FCFA`} icon={BarChart3} />
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-neutral-text text-2xl font-bold mb-1">Console Atlas Studio</h1>
+        <p className="text-neutral-muted text-sm">
+          {selectedApp === "all"
+            ? "Centre de commande unifié — vue d'ensemble de la plateforme"
+            : `Filtré par : ${appMap[selectedApp]?.name || selectedApp}`}
+        </p>
       </div>
 
+      {/* 4 KPI principaux */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <KpiCard label="Utilisateurs" value={stats?.total_users || 0} icon={Users} trend={`+${newClientsMonth} ce mois`} />
+        <KpiCard label="Abonnements actifs" value={stats?.active_subscriptions || 0} icon={Repeat} trend={`Churn ${churnRate}%`} />
+        <KpiCard label="MRR" value={`${fmt(mrr)} FCFA`} icon={DollarSign} />
+        <KpiCard label="Tickets ouverts" value={openTickets} icon={MessageSquare} />
+      </div>
+
+      {/* Alerte paiements en attente */}
       {revenue && revenue.pending_payments > 0 && (
         <div className="mb-6 px-5 py-4 rounded-xl bg-amber-50 border border-amber-200 flex items-center gap-3">
           <AlertTriangle size={18} className="text-amber-600" />
           <span className="text-amber-700 text-sm font-semibold">
             {fmt(revenue.pending_payments)} FCFA de paiements en attente
           </span>
+          <Link to="/admin/invoices" className="ml-auto text-amber-700 text-[12px] font-semibold hover:underline">
+            Voir les factures →
+          </Link>
         </div>
       )}
 
-      {/* Revenue chart + Popular apps */}
+      {/* Modules en accès rapide */}
+      <div className="mb-8">
+        <h2 className="text-neutral-text text-base font-semibold mb-4">Accès rapide</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <ModuleCard to="/admin/clients" icon={Users} label="Utilisateurs" description="Comptes, rôles, accès" stat={stats?.total_users || 0} color="bg-blue-50 text-blue-600" />
+          <ModuleCard to="/admin/subscriptions" icon={Repeat} label="Abonnements" description="Actifs, essais, résiliés" stat={stats?.active_subscriptions || 0} color="bg-emerald-50 text-emerald-600" />
+          <ModuleCard to="/admin/invoices" icon={Receipt} label="Facturation" description="Factures, paiements" stat={`${fmt(revenue?.monthly_revenue || 0)} FCFA`} color="bg-amber-50 text-amber-600" />
+          <ModuleCard to="/admin/tickets" icon={MessageSquare} label="Support" description="Tickets, demandes" stat={openTickets} color="bg-purple-50 text-purple-600" />
+          <ModuleCard to="/admin/content" icon={FileText} label="Landing Page" description="Contenu, images, couleurs" color="bg-pink-50 text-pink-600" />
+          <ModuleCard to="/admin/apps" icon={CreditCard} label="Grille Tarifaire" description="Apps, plans, pricing" color="bg-cyan-50 text-cyan-600" />
+          <ModuleCard to="/admin/analytics" icon={BarChart3} label="Analytics" description="Revenus, tendances" color="bg-indigo-50 text-indigo-600" />
+          <ModuleCard to="/admin/newsletter" icon={Mail} label="Newsletter" description="Abonnés, campagnes" color="bg-orange-50 text-orange-600" />
+          <ModuleCard to="/admin/emails" icon={Megaphone} label="Templates Email" description="Modèles de notifications" color="bg-teal-50 text-teal-600" />
+          <ModuleCard to="/admin/activity" icon={ClipboardList} label="Logs & Audit" description="Événements, historique" color="bg-slate-50 text-slate-600" />
+        </div>
+      </div>
+
+      {/* Revenue chart + Top clients */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Revenue bar chart */}
-        <div className="bg-white border border-warm-border rounded-2xl p-6">
-          <h2 className="text-neutral-text text-base font-bold mb-4">Revenus (6 derniers mois)</h2>
+        <div className="bg-white border border-warm-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-neutral-text text-sm font-semibold">Revenus (6 derniers mois)</h2>
+            <Link to="/admin/analytics" className="text-gold text-[12px] font-medium hover:underline">Détails →</Link>
+          </div>
           <div className="flex items-end gap-3 h-40">
             {monthlyRevenues.map(m => {
               const pct = Math.max((m.amount / maxMonthly) * 100, 2);
@@ -210,10 +257,7 @@ export default function DashboardPage() {
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
                   <span className="text-[10px] text-neutral-muted">{m.amount > 0 ? fmt(m.amount) : ""}</span>
                   <div className="w-full bg-warm-bg rounded-t-md overflow-hidden" style={{ height: "120px" }}>
-                    <div
-                      className="w-full bg-gold/80 rounded-t-md transition-all"
-                      style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }}
-                    />
+                    <div className="w-full bg-gold/80 rounded-t-md transition-all" style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
                   </div>
                   <span className="text-[11px] text-neutral-muted font-medium capitalize">{m.label}</span>
                 </div>
@@ -222,44 +266,16 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Popular apps */}
-        <div className="bg-white border border-warm-border rounded-2xl p-6">
-          <h2 className="text-neutral-text text-base font-bold mb-4">Apps populaires</h2>
-          {stats?.popular_apps && stats.popular_apps.length > 0 ? (
-            <div className="space-y-3">
-              {stats.popular_apps.map((app, i) => (
-                <div key={app.app_id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold/10 flex items-center justify-center text-gold text-[11px] font-bold">
-                      {i + 1}
-                    </div>
-                    <span className="text-neutral-text text-sm font-medium">
-                      {appMap[app.app_id]?.name || app.app_id}
-                    </span>
-                  </div>
-                  <span className="text-neutral-muted text-sm">{app.sub_count} abonnes</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-neutral-muted text-sm">Aucune donnee disponible</p>
-          )}
-        </div>
-      </div>
-
-      {/* Top clients + Pending invoices */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Top clients by revenue */}
-        <div className="bg-white border border-warm-border rounded-2xl p-6">
-          <h2 className="text-neutral-text text-base font-bold mb-4">Top clients par revenu</h2>
+        <div className="bg-white border border-warm-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-neutral-text text-sm font-semibold">Top clients par revenu</h2>
+          </div>
           {topClients.length > 0 ? (
             <div className="space-y-3">
               {topClients.map((c, i) => (
                 <div key={c.email} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold/10 flex items-center justify-center text-gold text-[11px] font-bold">
-                      {i + 1}
-                    </div>
+                    <div className="w-6 h-6 rounded bg-gold/10 flex items-center justify-center text-gold text-[11px] font-bold">{i + 1}</div>
                     <div>
                       <span className="text-neutral-text text-sm font-medium">{c.full_name}</span>
                       <div className="text-neutral-muted text-[11px]">{c.email}</div>
@@ -270,28 +286,48 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-neutral-muted text-sm">Aucune donnee</p>
+            <p className="text-neutral-muted text-sm">Aucune donnée</p>
+          )}
+        </div>
+      </div>
+
+      {/* Apps populaires + Factures en attente */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white border border-warm-border rounded-xl p-6">
+          <h2 className="text-neutral-text text-sm font-semibold mb-4">Apps populaires</h2>
+          {stats?.popular_apps && stats.popular_apps.length > 0 ? (
+            <div className="space-y-3">
+              {stats.popular_apps.map((app, i) => (
+                <div key={app.app_id} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded bg-gold/10 flex items-center justify-center text-gold text-[11px] font-bold">{i + 1}</div>
+                    <span className="text-neutral-text text-sm font-medium">{appMap[app.app_id]?.name || app.app_id}</span>
+                  </div>
+                  <span className="text-neutral-muted text-sm">{app.sub_count} abonnés</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-neutral-muted text-sm">Aucune donnée</p>
           )}
         </div>
 
-        {/* Pending invoices */}
-        <div className="bg-white border border-warm-border rounded-2xl p-6">
-          <h2 className="text-neutral-text text-base font-bold mb-4">Factures en attente</h2>
+        <div className="bg-white border border-warm-border rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-neutral-text text-sm font-semibold">Factures en attente</h2>
+            <Link to="/admin/invoices" className="text-gold text-[12px] font-medium hover:underline">Tout voir →</Link>
+          </div>
           {pendingInvoices.length > 0 ? (
             <div className="space-y-3">
               {pendingInvoices.map(inv => (
                 <div key={inv.id} className="flex items-center justify-between py-1">
                   <div>
                     <span className="text-neutral-text text-sm font-medium">{inv.invoice_number}</span>
-                    <div className="text-neutral-muted text-[11px]">
-                      {(inv.profiles as any)?.full_name || "—"}
-                    </div>
+                    <div className="text-neutral-muted text-[11px]">{(inv.profiles as any)?.full_name || "—"}</div>
                   </div>
                   <div className="text-right">
                     <span className="text-amber-600 text-sm font-semibold">{fmt(Number(inv.amount))} {inv.currency || "FCFA"}</span>
-                    <div className="text-neutral-placeholder text-[10px]">
-                      {new Date(inv.created_at).toLocaleDateString("fr-FR")}
-                    </div>
+                    <div className="text-neutral-placeholder text-[10px]">{new Date(inv.created_at).toLocaleDateString("fr-FR")}</div>
                   </div>
                 </div>
               ))}
@@ -300,25 +336,6 @@ export default function DashboardPage() {
             <p className="text-neutral-muted text-sm">Aucune facture en attente</p>
           )}
         </div>
-      </div>
-
-      {/* Recent activity */}
-      <div className="bg-white border border-warm-border rounded-2xl p-6">
-        <h2 className="text-neutral-text text-base font-bold mb-4">Activite recente</h2>
-        {activity.length > 0 ? (
-          <div className="space-y-3">
-            {activity.map(a => (
-              <div key={a.id} className="flex items-center justify-between py-1">
-                <span className="text-neutral-body text-[13px]">{a.action}</span>
-                <span className="text-neutral-placeholder text-[11px]">
-                  {new Date(a.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-neutral-muted text-sm">Aucune activite recente</p>
-        )}
       </div>
     </div>
   );

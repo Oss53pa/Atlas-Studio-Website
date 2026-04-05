@@ -42,13 +42,15 @@ export interface SiteContent {
     values: { title: string; desc: string }[];
   };
   sectors: SectorItem[];
-  testimonials: { name: string; role: string; company: string; text: string; avatar: string }[];
+  testimonials: { name: string; role: string; company: string; text: string; avatar: string; photo?: string; companyLogo?: string }[];
   comparatif: {
     headers: string[];
     rows: { name: string; values: string[]; highlight?: boolean }[];
   };
   faqs: { q: string; a: string }[];
   contact: { email: string; phone: string; city: string };
+  social?: { facebook?: string; instagram?: string; linkedin?: string; twitter?: string; youtube?: string; tiktok?: string };
+  appearance?: { primaryColor?: string; accentColor?: string; heroBackground?: string; clientLogos?: string[] };
 }
 
 export const DEFAULT_CONTENT: SiteContent = {

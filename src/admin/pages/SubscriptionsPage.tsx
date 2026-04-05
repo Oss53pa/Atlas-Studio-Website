@@ -5,6 +5,7 @@ import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
+import { useAppFilter } from "../contexts/AppFilterContext";
 import { exportToCSV } from "../../lib/csvExport";
 import type { Subscription, SubscriptionStatus, Profile } from "../../lib/database.types";
 
@@ -23,10 +24,11 @@ const statusFilters: { label: string; value: string }[] = [
 
 export default function SubscriptionsPage() {
   const { appMap, appList } = useAppCatalog();
+  const { selectedApp: globalAppFilter } = useAppFilter();
   const [subs, setSubs] = useState<SubWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  const [appFilter, setAppFilter] = useState("all");
+  const appFilter = globalAppFilter;
   const [toast, setToast] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
