@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers,
+  CreditCard, Megaphone, Layers, Search,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -84,6 +84,14 @@ export function AdminSidebar() {
         </Link>
         <div className="text-gold text-[10px] font-bold uppercase tracking-widest mt-1.5">Administration</div>
       </div>
+
+      {/* Quick search hint */}
+      <button onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
+        className="w-full mb-4 px-3 py-2 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2 text-neutral-500 text-[12px] hover:border-gold/30 hover:text-neutral-400 transition-colors">
+        <Search size={13} />
+        <span className="flex-1 text-left">Rechercher...</span>
+        <kbd className="text-[10px] font-mono bg-white/5 px-1.5 py-0.5 rounded border border-white/10">⌘K</kbd>
+      </button>
 
       {/* App selector */}
       <div className="mb-6 px-1">

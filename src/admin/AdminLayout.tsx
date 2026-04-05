@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { AdminSidebar } from "./AdminSidebar";
 import { AppFilterProvider } from "./contexts/AppFilterContext";
 import { ToastProvider } from "./contexts/ToastContext";
+import { CommandPalette } from "./components/CommandPalette";
 
 export function AdminLayout() {
   return (
@@ -13,6 +14,7 @@ export function AdminLayout() {
             <Outlet />
           </main>
         </div>
+        <CommandPalette />
       </ToastProvider>
     </AppFilterProvider>
   );

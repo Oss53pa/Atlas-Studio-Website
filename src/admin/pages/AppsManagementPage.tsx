@@ -1,80 +1,93 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, Check } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, GripVertical, ExternalLink } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
+import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
+import { useToast } from "../contexts/ToastContext";
 import type { AppRow, AppType, AppStatus } from "../../lib/database.types";
 import { DEFAULT_CONTENT } from "../../config/content";
 
 const appTypes: AppType[] = ["Module ERP", "App", "App mobile"];
 const appStatuses: AppStatus[] = ["available", "coming_soon", "unavailable"];
+const STATUS_LABELS: Record<string, string> = { available: "Disponible", coming_soon: "Bientôt", unavailable: "Indisponible" };
 
 const emptyApp: Partial<AppRow> = {
   id: "", name: "", type: "App", tagline: "", description: "",
   features: [], categories: [], pricing: {}, pricing_period: "mois",
   color: "#C8A960", icon: "receipt", highlights: [],
-  status: "available", sort_order: 0,
+  status: "available", sort_order: 0, external_url: null,
 };
 
+interface PricingRow { plan: string; price: number }
+
 export default function AppsManagementPage() {
+  const { success, error: showError } = useToast();
   const [apps, setApps] = useState<AppRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [editApp, setEditApp] = useState<Partial<AppRow> | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
   const [featuresStr, setFeaturesStr] = useState("");
   const [categoriesStr, setCategoriesStr] = useState("");
-  const [pricingStr, setPricingStr] = useState("");
   const [highlightsStr, setHighlightsStr] = useState("");
+  const [pricingRows, setPricingRows] = useState<PricingRow[]>([]);
+  const [subCounts, setSubCounts] = useState<Record<string, number>>({});
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: "", message: "", onConfirm: () => {} });
 
   const fetchApps = async () => {
-    const { data } = await supabase.from("apps").select("*").order("sort_order");
-    if (data) setApps(data as AppRow[]);
+    const [appsRes, subsRes] = await Promise.all([
+      supabase.from("apps").select("*").order("sort_order"),
+      supabase.from("subscriptions").select("app_id").in("status", ["active", "trial"]),
+    ]);
+    if (appsRes.data) setApps(appsRes.data as AppRow[]);
+    if (subsRes.data) {
+      const counts: Record<string, number> = {};
+      subsRes.data.forEach((s: any) => { counts[s.app_id] = (counts[s.app_id] || 0) + 1; });
+      setSubCounts(counts);
+    }
     setLoading(false);
   };
 
   useEffect(() => { fetchApps(); }, []);
 
+  const filtered = search
+    ? apps.filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.id.toLowerCase().includes(search.toLowerCase()))
+    : apps;
+
   const openEdit = (app: AppRow) => {
-    setEditApp(app);
-    setIsNew(false);
+    setEditApp(app); setIsNew(false);
     setFeaturesStr((app.features || []).join("\n"));
     setCategoriesStr((app.categories || []).join(", "));
-    setPricingStr(JSON.stringify(app.pricing || {}, null, 2));
     setHighlightsStr((app.highlights || []).join(", "));
+    const pricing = app.pricing as Record<string, number> || {};
+    setPricingRows(Object.entries(pricing).map(([plan, price]) => ({ plan, price })));
   };
 
   const openCreate = () => {
-    setEditApp({ ...emptyApp });
-    setIsNew(true);
-    setFeaturesStr("");
-    setCategoriesStr("");
-    setPricingStr("{}");
-    setHighlightsStr("");
+    setEditApp({ ...emptyApp }); setIsNew(true);
+    setFeaturesStr(""); setCategoriesStr(""); setHighlightsStr("");
+    setPricingRows([{ plan: "", price: 0 }]);
   };
 
   const handleSave = async () => {
     if (!editApp || !editApp.id || !editApp.name) return;
     setSaving(true);
 
-    let pricing = {};
-    try { pricing = JSON.parse(pricingStr); } catch { /* keep empty */ }
+    const pricing: Record<string, number> = {};
+    pricingRows.filter(r => r.plan.trim()).forEach(r => { pricing[r.plan.trim()] = r.price; });
 
     const row = {
-      id: editApp.id,
-      name: editApp.name,
-      type: editApp.type as AppType,
-      tagline: editApp.tagline || "",
-      description: editApp.description || "",
+      id: editApp.id, name: editApp.name, type: editApp.type as AppType,
+      tagline: editApp.tagline || "", description: editApp.description || "",
       features: featuresStr.split("\n").map(s => s.trim()).filter(Boolean),
       categories: categoriesStr.split(",").map(s => s.trim()).filter(Boolean),
-      pricing,
-      pricing_period: editApp.pricing_period || "mois",
-      color: editApp.color || "#C8A960",
-      icon: editApp.icon || "receipt",
+      pricing, pricing_period: editApp.pricing_period || "mois",
+      color: editApp.color || "#C8A960", icon: editApp.icon || "receipt",
       highlights: highlightsStr.split(",").map(s => s.trim()).filter(Boolean),
+      external_url: editApp.external_url || null,
       status: editApp.status as AppStatus || "available",
       sort_order: editApp.sort_order || 0,
       updated_at: new Date().toISOString(),
@@ -85,74 +98,50 @@ export default function AppsManagementPage() {
       : await supabase.from("apps").update(row).eq("id", editApp.id);
 
     setSaving(false);
-    if (error) {
-      setToast(`Erreur: ${error.message}`);
-    } else {
-      setToast(isNew ? "Application créée" : "Application mise à jour");
-      setEditApp(null);
-      fetchApps();
-    }
-    setTimeout(() => setToast(null), 3000);
+    if (error) { showError(`Erreur: ${error.message}`); }
+    else { success(isNew ? "Application créée" : "Application mise à jour"); setEditApp(null); fetchApps(); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cette application ?")) return;
-    await supabase.from("apps").delete().eq("id", id);
-    fetchApps();
-    setToast("Application supprimée");
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  const toggleStatus = async (app: AppRow) => {
-    const cycle: AppStatus[] = ["available", "coming_soon", "unavailable"];
-    const nextIdx = (cycle.indexOf(app.status as AppStatus) + 1) % cycle.length;
-    await supabase.from("apps").update({ status: cycle[nextIdx], updated_at: new Date().toISOString() }).eq("id", app.id);
-    fetchApps();
+  const handleDelete = (app: AppRow) => {
+    setConfirmDialog({
+      open: true, title: "Supprimer cette application ?",
+      message: `${app.name} sera définitivement supprimée. Les abonnements associés seront orphelins.`,
+      onConfirm: async () => {
+        await supabase.from("apps").delete().eq("id", app.id);
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        success("Application supprimée"); fetchApps();
+      },
+    });
   };
 
   const seedFromDefaults = async () => {
     setSaving(true);
     const rows = DEFAULT_CONTENT.apps.map((a, i) => ({
-      id: a.id,
-      name: a.name,
-      type: a.type as AppType,
-      tagline: a.tagline,
-      description: a.desc,
-      features: a.features,
-      categories: a.categories,
-      pricing: a.pricing,
-      pricing_period: a.pricingPeriod || "mois",
-      color: a.color || "#C8A960",
-      icon: a.icon || "receipt",
-      highlights: a.highlights || [],
-      status: "available" as AppStatus,
-      sort_order: i,
+      id: a.id, name: a.name, type: a.type as AppType, tagline: a.tagline, description: a.desc,
+      features: a.features, categories: a.categories, pricing: a.pricing,
+      pricing_period: a.pricingPeriod || "mois", color: a.color || "#C8A960",
+      icon: a.icon || "receipt", highlights: a.highlights || [],
+      status: "available" as AppStatus, sort_order: i,
     }));
     await supabase.from("apps").upsert(rows);
     setSaving(false);
-    setToast(`${rows.length} applications importées depuis le contenu par défaut`);
-    fetchApps();
-    setTimeout(() => setToast(null), 4000);
+    success(`${rows.length} applications importées`); fetchApps();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-gold" />
-      </div>
-    );
-  }
+  const fmt = (n: number) => n.toLocaleString("fr-FR");
+  const inputClass = "w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors";
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-7">
+      <div className="flex items-center justify-between mb-7 flex-wrap gap-4">
         <div>
-          <h1 className="text-neutral-text text-2xl font-bold mb-1">Applications</h1>
-          <p className="text-neutral-muted text-sm">{apps.length} applications</p>
+          <h1 className="text-neutral-text text-2xl font-bold mb-1">Grille Tarifaire & Applications</h1>
+          <p className="text-neutral-muted text-sm">{apps.length} applications configurées</p>
         </div>
         <div className="flex gap-2">
           {apps.length === 0 && (
-            <button onClick={seedFromDefaults} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">
+            <button onClick={seedFromDefaults} disabled={saving}
+              className="flex items-center gap-2 px-4 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">
               Importer par défaut
             </button>
           )}
@@ -162,197 +151,202 @@ export default function AppsManagementPage() {
         </div>
       </div>
 
-      {toast && (
-        <div className="mb-6 px-4 py-3 rounded-lg bg-gold/10 border border-gold/20 text-gold text-sm font-medium flex items-center gap-2">
-          <Check size={16} /> {toast}
-        </div>
-      )}
+      {/* Search */}
+      <div className="relative mb-6 max-w-sm">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..."
+          className="w-full pl-9 pr-4 py-2.5 bg-white border border-warm-border rounded-lg text-sm text-neutral-text outline-none focus:border-gold transition-colors" />
+      </div>
 
       <AdminTable
         keyExtractor={(r: AppRow) => r.id}
+        loading={loading}
         columns={[
-          { key: "name", label: "Nom", sortable: true, render: (r: AppRow) => <span className="font-medium text-neutral-text">{r.name}</span> },
-          { key: "type", label: "Type", sortable: true },
-          { key: "status", label: "Statut", render: (r: AppRow) => (
-            <button onClick={(e) => { e.stopPropagation(); toggleStatus(r); }}>
-              <AdminBadge status={r.status} />
-            </button>
+          { key: "name", label: "Application", sortable: true, render: (r: AppRow) => (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[11px] font-bold" style={{ backgroundColor: r.color || "#C8A960" }}>
+                {r.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <div className="font-medium text-neutral-text flex items-center gap-1.5">
+                  {r.name}
+                  {r.external_url && <ExternalLink size={11} className="text-neutral-muted" />}
+                </div>
+                <div className="text-neutral-muted text-[11px]">{r.tagline}</div>
+              </div>
+            </div>
           )},
-          { key: "pricing", label: "Prix min", render: (r: AppRow) => {
-            const prices = Object.values(r.pricing as Record<string, number>);
-            return prices.length > 0 ? `${Math.min(...prices)}/mois` : "—";
+          { key: "type", label: "Type", sortable: true, render: (r: AppRow) => (
+            <span className="text-[12px] text-neutral-body">{r.type}</span>
+          )},
+          { key: "status", label: "Statut", render: (r: AppRow) => <AdminBadge status={r.status} /> },
+          { key: "subs", label: "Abonnés", render: (r: AppRow) => (
+            <span className="text-gold font-medium">{subCounts[r.id] || 0}</span>
+          )},
+          { key: "pricing", label: "Tarifs", render: (r: AppRow) => {
+            const prices = Object.entries(r.pricing as Record<string, number>);
+            if (prices.length === 0) return <span className="text-neutral-muted">—</span>;
+            return (
+              <div className="space-y-0.5">
+                {prices.map(([plan, price]) => (
+                  <div key={plan} className="text-[11px]">
+                    <span className="text-neutral-muted">{plan}:</span>{" "}
+                    <span className="text-neutral-text font-medium">{fmt(price)} FCFA/{r.pricing_period || "mois"}</span>
+                  </div>
+                ))}
+              </div>
+            );
           }},
-          { key: "sort_order", label: "Ordre", sortable: true },
-          { key: "actions", label: "Actions", render: (r: AppRow) => (
-            <div className="flex items-center gap-2">
-              <button onClick={(e) => { e.stopPropagation(); openEdit(r); }} className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted transition-colors">
-                <Pencil size={14} />
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }} className="p-1.5 rounded hover:bg-red-50 text-red-400 transition-colors">
-                <Trash2 size={14} />
-              </button>
+          { key: "sort_order", label: "Ordre", sortable: true, render: (r: AppRow) => (
+            <span className="text-neutral-muted text-[12px] font-mono">{r.sort_order}</span>
+          )},
+          { key: "actions", label: "", render: (r: AppRow) => (
+            <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+              <button onClick={() => openEdit(r)} className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors" title="Modifier"><Pencil size={14} /></button>
+              <button onClick={() => handleDelete(r)} className="p-1.5 rounded hover:bg-red-50 text-neutral-muted hover:text-red-500 transition-colors" title="Supprimer"><Trash2 size={14} /></button>
             </div>
           )},
         ]}
-        data={apps}
+        data={filtered}
+        onRowClick={(r) => openEdit(r)}
       />
 
-      <AdminModal open={!!editApp} onClose={() => setEditApp(null)} title={isNew ? "Nouvelle application" : "Modifier l'application"} wide>
+      {/* Edit/Create modal */}
+      <AdminModal open={!!editApp} onClose={() => setEditApp(null)} title={isNew ? "Nouvelle application" : `Modifier ${editApp?.name || ""}`} size="xl"
+        footer={
+          <>
+            <button onClick={() => setEditApp(null)} className="px-4 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">Annuler</button>
+            <button onClick={handleSave} disabled={saving} className={`btn-gold !py-2.5 !text-[13px] ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : isNew ? "Créer" : "Sauvegarder"}</button>
+          </>
+        }>
         {editApp && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">ID (slug)</label>
-                <input
-                  value={editApp.id || ""}
-                  onChange={e => setEditApp({ ...editApp, id: e.target.value })}
-                  disabled={!isNew}
-                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold disabled:opacity-50"
-                />
-              </div>
-              <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Nom</label>
-                <input
-                  value={editApp.name || ""}
-                  onChange={e => setEditApp({ ...editApp, name: e.target.value })}
-                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-                />
+          <div className="space-y-5">
+            {/* Identity */}
+            <div>
+              <h3 className="text-neutral-text text-sm font-semibold mb-3">Identité</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">ID (slug)</label>
+                  <input value={editApp.id || ""} onChange={e => setEditApp({ ...editApp, id: e.target.value })} disabled={!isNew} placeholder="mon-app" className={`${inputClass} ${!isNew ? "opacity-50" : ""}`} />
+                </div>
+                <div>
+                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Nom</label>
+                  <input value={editApp.name || ""} onChange={e => setEditApp({ ...editApp, name: e.target.value })} className={inputClass} />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Type, Status, Period */}
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Type</label>
-                <select
-                  value={editApp.type || "App"}
-                  onChange={e => setEditApp({ ...editApp, type: e.target.value as AppType })}
-                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-                >
+                <select value={editApp.type || "App"} onChange={e => setEditApp({ ...editApp, type: e.target.value as AppType })} className={inputClass}>
                   {appTypes.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Statut</label>
-                <select
-                  value={editApp.status || "available"}
-                  onChange={e => setEditApp({ ...editApp, status: e.target.value as AppStatus })}
-                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-                >
-                  {appStatuses.map(s => <option key={s} value={s}>{s === "available" ? "Disponible" : s === "coming_soon" ? "Bientôt" : "Indisponible"}</option>)}
+                <select value={editApp.status || "available"} onChange={e => setEditApp({ ...editApp, status: e.target.value as AppStatus })} className={inputClass}>
+                  {appStatuses.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                 </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Tagline</label>
-              <input
-                value={editApp.tagline || ""}
-                onChange={e => setEditApp({ ...editApp, tagline: e.target.value })}
-                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-              />
-            </div>
-
-            <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Description</label>
-              <textarea
-                value={editApp.description || ""}
-                onChange={e => setEditApp({ ...editApp, description: e.target.value })}
-                rows={3}
-                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold resize-y"
-              />
-            </div>
-
-            <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Fonctionnalités (une par ligne)</label>
-              <textarea
-                value={featuresStr}
-                onChange={e => setFeaturesStr(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold resize-y font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Catégories (séparées par des virgules)</label>
-              <input
-                value={categoriesStr}
-                onChange={e => setCategoriesStr(e.target.value)}
-                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-              />
-            </div>
-
-            <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Pricing (JSON)</label>
-              <textarea
-                value={pricingStr}
-                onChange={e => setPricingStr(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold resize-y font-mono"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Couleur (hex)</label>
-                <input
-                  value={editApp.color || "#C8A960"}
-                  onChange={e => setEditApp({ ...editApp, color: e.target.value })}
-                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-                />
-              </div>
-              <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Icône (Lucide)</label>
-                <input
-                  value={editApp.icon || "receipt"}
-                  onChange={e => setEditApp({ ...editApp, icon: e.target.value })}
-                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-                />
               </div>
               <div>
                 <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Période tarif</label>
-                <select
-                  value={editApp.pricing_period || "mois"}
-                  onChange={e => setEditApp({ ...editApp, pricing_period: e.target.value })}
-                  className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-                >
-                  <option value="mois">Par mois</option>
-                  <option value="an">Par an</option>
+                <select value={editApp.pricing_period || "mois"} onChange={e => setEditApp({ ...editApp, pricing_period: e.target.value })} className={inputClass}>
+                  <option value="mois">Par mois</option><option value="an">Par an</option>
                 </select>
               </div>
             </div>
 
+            {/* External URL */}
             <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Points forts (séparés par des virgules)</label>
-              <input
-                value={highlightsStr}
-                onChange={e => setHighlightsStr(e.target.value)}
-                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-                placeholder="Ex: SYSCOHADA natif, PROPH3T IA, Multi-sociétés"
-              />
+              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">URL externe (landing page)</label>
+              <input value={editApp.external_url || ""} onChange={e => setEditApp({ ...editApp, external_url: e.target.value || null })} placeholder="https://mon-app.atlas-studio.org" className={inputClass} />
+              <p className="text-neutral-placeholder text-[11px] mt-1">Redirige vers ce site au lieu de la page détail interne.</p>
             </div>
 
+            {/* Tagline + Description */}
             <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Ordre d'affichage</label>
-              <input
-                type="number"
-                value={editApp.sort_order || 0}
-                onChange={e => setEditApp({ ...editApp, sort_order: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold"
-              />
+              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Tagline</label>
+              <input value={editApp.tagline || ""} onChange={e => setEditApp({ ...editApp, tagline: e.target.value })} className={inputClass} />
+            </div>
+            <div>
+              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Description</label>
+              <textarea value={editApp.description || ""} onChange={e => setEditApp({ ...editApp, description: e.target.value })} rows={3} className={`${inputClass} resize-y`} />
             </div>
 
-            <div className="flex gap-3 pt-4 border-t border-warm-border">
-              <button onClick={handleSave} disabled={saving} className="btn-gold !py-2.5 !text-[13px] flex items-center gap-2">
-                {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                {saving ? "Sauvegarde..." : isNew ? "Créer" : "Sauvegarder"}
-              </button>
-              <button onClick={() => setEditApp(null)} className="px-4 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">
-                Annuler
-              </button>
+            {/* Structured Pricing */}
+            <div>
+              <h3 className="text-neutral-text text-sm font-semibold mb-3">Tarification</h3>
+              <div className="space-y-2">
+                {pricingRows.map((row, i) => (
+                  <div key={i} className="flex gap-3 items-center">
+                    <input value={row.plan} onChange={e => { const r = [...pricingRows]; r[i] = { ...r[i], plan: e.target.value }; setPricingRows(r); }}
+                      placeholder="Nom du plan" className={`flex-1 ${inputClass}`} />
+                    <div className="relative flex-1">
+                      <input type="number" value={row.price} onChange={e => { const r = [...pricingRows]; r[i] = { ...r[i], price: Number(e.target.value) }; setPricingRows(r); }}
+                        className={inputClass} />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-muted text-[11px]">FCFA</span>
+                    </div>
+                    <button onClick={() => setPricingRows(pricingRows.filter((_, j) => j !== i))} className="p-2 text-red-400 hover:text-red-600 transition-colors"><Trash2 size={14} /></button>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setPricingRows([...pricingRows, { plan: "", price: 0 }])}
+                className="text-gold text-[12px] font-semibold mt-2 hover:underline">+ Ajouter un plan</button>
+            </div>
+
+            {/* Appearance */}
+            <div>
+              <h3 className="text-neutral-text text-sm font-semibold mb-3">Apparence</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Couleur</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
+                      className="w-10 h-10 rounded border border-warm-border cursor-pointer bg-transparent" />
+                    <input value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
+                      className={`flex-1 ${inputClass} font-mono`} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Icône Lucide</label>
+                  <input value={editApp.icon || "receipt"} onChange={e => setEditApp({ ...editApp, icon: e.target.value })} placeholder="receipt" className={inputClass} />
+                  <p className="text-neutral-placeholder text-[11px] mt-1">Nom d'icône lucide-react</p>
+                </div>
+                <div>
+                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Ordre d'affichage</label>
+                  <input type="number" value={editApp.sort_order || 0} onChange={e => setEditApp({ ...editApp, sort_order: parseInt(e.target.value) || 0 })} className={inputClass} />
+                </div>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div>
+              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Fonctionnalités (une par ligne)</label>
+              <textarea value={featuresStr} onChange={e => setFeaturesStr(e.target.value)} rows={5}
+                className={`${inputClass} resize-y font-mono text-[12px]`} />
+              <p className="text-neutral-placeholder text-[11px] mt-1">{featuresStr.split("\n").filter(Boolean).length} fonctionnalités</p>
+            </div>
+
+            {/* Categories + Highlights */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Catégories</label>
+                <input value={categoriesStr} onChange={e => setCategoriesStr(e.target.value)} placeholder="Finance, Comptabilité" className={inputClass} />
+                <p className="text-neutral-placeholder text-[11px] mt-1">Séparées par des virgules</p>
+              </div>
+              <div>
+                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Points forts</label>
+                <input value={highlightsStr} onChange={e => setHighlightsStr(e.target.value)} placeholder="SYSCOHADA natif, Proph3t IA" className={inputClass} />
+                <p className="text-neutral-placeholder text-[11px] mt-1">Séparés par des virgules</p>
+              </div>
             </div>
           </div>
         )}
       </AdminModal>
+
+      <AdminConfirmDialog {...confirmDialog} onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))} />
     </div>
   );
 }
