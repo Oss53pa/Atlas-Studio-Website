@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import {
   CheckCircle, ArrowLeft, Clock,
@@ -43,11 +44,34 @@ const ICON_MAP: Record<string, LucideIcon> = {
 export default function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { content } = useContentContext();
-  const { apps } = useApps();
+  const { apps, loading } = useApps();
 
   const appWithStatus = apps.find((a) => a.id === id);
   const app = appWithStatus || content.apps.find((a) => a.id === id);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-dark-950">
+        <div className="w-10 h-10 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  useEffect(() => {
+    if (app?.external_url) {
+      window.location.href = app.external_url;
+    }
+  }, [app]);
+
   if (!app) return <Navigate to="/applications" replace />;
+
+  if (app.external_url) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-dark-950">
+        <div className="w-10 h-10 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const pricingEntries = Object.entries(app.pricing);
   const status = appWithStatus?.status || "available";
