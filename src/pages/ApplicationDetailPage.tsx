@@ -16,6 +16,7 @@ import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { GridPattern } from "../components/ui/GridPattern";
 import { AppMockup } from "../components/ui/AppMockup";
 import { SEOHead } from "../components/ui/SEOHead";
+import { StyledText } from "../components/ui/StyledText";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   receipt: Receipt,
@@ -118,7 +119,7 @@ export default function ApplicationDetailPage() {
 
           <ScrollReveal>
             <div className="flex items-center gap-3 flex-wrap mb-4">
-              <span className="px-3 py-1 rounded-full text-[11px] font-semibold border bg-gold/10 text-gold border-gold/20">
+              <span className="px-3 py-1 rounded-full text-[11px] font-normal border bg-gold/10 text-gold border-gold/20">
                 {app.type}
               </span>
               {app.categories.map((c, i) => (
@@ -130,13 +131,13 @@ export default function ApplicationDetailPage() {
                 </span>
               ))}
               {status === "coming_soon" && (
-                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold border bg-amber-500/10 text-amber-400 border-amber-500/20">
+                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-normal border bg-amber-500/10 text-amber-400 border-amber-500/20">
                   <Clock size={12} /> Bientôt disponible
                 </span>
               )}
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-4 tracking-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal text-neutral-light mb-4 tracking-tight">
               <AppLogo name={app.name} size={48} color="text-neutral-light" />
             </h1>
             <p className="text-neutral-400 text-lg md:text-xl max-w-2xl leading-relaxed mb-8">
@@ -189,7 +190,7 @@ export default function ApplicationDetailPage() {
                     >
                       <IconComponent size={24} style={{ color: appColor }} />
                     </div>
-                    <div className="text-neutral-text font-bold text-lg">{h}</div>
+                    <div className="text-neutral-text font-normal text-lg"><StyledText>{h}</StyledText></div>
                   </div>
                 </ScrollReveal>
               ))}
@@ -203,7 +204,7 @@ export default function ApplicationDetailPage() {
         <div className="max-w-site mx-auto">
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-text mb-4">
+              <h2 className="text-3xl md:text-4xl font-normal text-neutral-text mb-4">
                 Fonctionnalités
               </h2>
               <p className="text-neutral-body text-[15px] leading-relaxed">
@@ -224,10 +225,10 @@ export default function ApplicationDetailPage() {
                     >
                       <CheckCircle size={18} style={{ color: appColor }} />
                     </div>
-                    <div className="text-neutral-text font-semibold text-[15px] pt-1.5">
-                      {cleanFeatureName(f)}
+                    <div className="text-neutral-text font-normal text-[15px] pt-1.5">
+                      <StyledText>{cleanFeatureName(f)}</StyledText>
                       {isPremiumFeature(f) && (
-                        <span className="ml-1.5 text-[10px] font-semibold text-gold bg-gold/10 px-1.5 py-0.5 rounded-full align-middle">
+                        <span className="ml-1.5 text-[10px] font-normal text-gold bg-gold/10 px-1.5 py-0.5 rounded-full align-middle">
                           Premium
                         </span>
                       )}
@@ -245,7 +246,7 @@ export default function ApplicationDetailPage() {
         <div className="max-w-5xl mx-auto">
           <ScrollReveal>
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-text mb-3">
+              <h2 className="text-3xl md:text-4xl font-normal text-neutral-text mb-3">
                 Choisissez votre plan
               </h2>
               <p className="text-neutral-muted text-[15px]">
@@ -267,20 +268,20 @@ export default function ApplicationDetailPage() {
                   }`}>
                     {isPopular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="shimmer bg-gold text-onyx px-4 py-1 rounded-full text-[11px] font-bold tracking-wide">
+                        <span className="shimmer bg-gold text-onyx px-4 py-1 rounded-full text-[11px] font-normal tracking-wide">
                           POPULAIRE
                         </span>
                       </div>
                     )}
 
                     <div className="text-center mb-6">
-                      <h3 className="text-neutral-text text-xl font-bold mb-2">{plan}</h3>
+                      <h3 className="text-neutral-text text-xl font-normal mb-2">{plan}</h3>
                       <div className="flex items-baseline justify-center gap-1">
                         {(price as number) === 0 ? (
-                          <span className="text-gold text-4xl font-extrabold">Gratuit</span>
+                          <span className="text-gold text-4xl font-normal">Gratuit</span>
                         ) : (
                           <>
-                            <span className="text-gold text-4xl font-extrabold">
+                            <span className="text-gold text-4xl font-normal">
                               {formatPrice(price as number)}
                             </span>
                             <span className="text-neutral-muted text-sm">
@@ -302,7 +303,7 @@ export default function ApplicationDetailPage() {
                               ) : (
                                 <span className="w-4 h-4 flex-shrink-0 mt-0.5 text-center">&mdash;</span>
                               )}
-                              <span>{cleanFeatureName(feature)}</span>
+                              <span><StyledText>{cleanFeatureName(feature)}</StyledText></span>
                             </div>
                           );
                         })}
@@ -312,7 +313,7 @@ export default function ApplicationDetailPage() {
                     {isAvailable ? (
                       <Link
                         to={`/portal?app=${app.id}&plan=${encodeURIComponent(plan)}`}
-                        className={`block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                        className={`block w-full text-center py-3.5 rounded-xl font-normal text-sm transition-all duration-200 ${
                           isPopular
                             ? "bg-gold text-onyx hover:bg-gold-dark"
                             : "border-2 border-gold text-gold hover:bg-gold/5"
@@ -323,7 +324,7 @@ export default function ApplicationDetailPage() {
                     ) : (
                       <button
                         disabled
-                        className="w-full py-3.5 rounded-xl bg-neutral-100 text-neutral-400 font-semibold text-sm cursor-not-allowed"
+                        className="w-full py-3.5 rounded-xl bg-neutral-100 text-neutral-400 font-normal text-sm cursor-not-allowed"
                       >
                         {status === "coming_soon" ? "Bientôt disponible" : "Indisponible"}
                       </button>
@@ -350,7 +351,7 @@ export default function ApplicationDetailPage() {
           <div className="max-w-4xl mx-auto">
             <ScrollReveal>
               <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-text mb-3">
+                <h2 className="text-3xl md:text-4xl font-normal text-neutral-text mb-3">
                   Comparez les plans en détail
                 </h2>
                 <div className="w-12 h-[3px] bg-gold mx-auto mt-3" />
@@ -362,7 +363,7 @@ export default function ApplicationDetailPage() {
                 <table className="w-full border-collapse min-w-[500px] bg-white rounded-2xl overflow-hidden border border-warm-border">
                   <thead>
                     <tr className="bg-warm-bg">
-                      <th className="p-5 text-left text-neutral-muted text-xs font-bold uppercase border-b border-warm-border">
+                      <th className="p-5 text-left text-neutral-muted text-xs font-normal uppercase border-b border-warm-border">
                         Fonctionnalité
                       </th>
                       {pricingEntries.map(([plan], i) => {
@@ -370,7 +371,7 @@ export default function ApplicationDetailPage() {
                         return (
                           <th
                             key={plan}
-                            className={`p-5 text-center text-xs font-bold uppercase border-b border-warm-border ${
+                            className={`p-5 text-center text-xs font-normal uppercase border-b border-warm-border ${
                               isPopular ? "text-gold" : "text-neutral-muted"
                             }`}
                           >
@@ -387,7 +388,7 @@ export default function ApplicationDetailPage() {
                         className="border-b border-warm-border last:border-0"
                       >
                         <td className="p-4 text-neutral-body text-sm">
-                          {cleanFeatureName(feature)}
+                          <StyledText>{cleanFeatureName(feature)}</StyledText>
                         </td>
                         {pricingEntries.map(([plan], pi) => {
                           const isPopular = pricingEntries.length > 1 && pi === pricingEntries.length - 1;
@@ -414,7 +415,7 @@ export default function ApplicationDetailPage() {
                     ))}
                     {/* Price row */}
                     <tr className="bg-warm-bg">
-                      <td className="p-5 text-neutral-text font-bold text-sm">
+                      <td className="p-5 text-neutral-text font-normal text-sm">
                         Prix
                       </td>
                       {pricingEntries.map(([plan, price], pi) => {
@@ -426,7 +427,7 @@ export default function ApplicationDetailPage() {
                               isPopular ? "bg-gold/[0.03]" : ""
                             }`}
                           >
-                            <div className="text-gold text-2xl font-extrabold">
+                            <div className="text-gold text-2xl font-normal">
                               {price === 0 ? "Gratuit" : formatPrice(price as number)}
                             </div>
                             {(price as number) > 0 && (
@@ -451,7 +452,7 @@ export default function ApplicationDetailPage() {
         <GridPattern dark />
         <div className="relative max-w-2xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">
+            <h2 className="text-3xl md:text-4xl font-normal text-neutral-light mb-4">
               Prêt à essayer {app.name} ?
             </h2>
             <p className="text-neutral-400 text-[15px] mb-8 max-w-md mx-auto leading-relaxed">
@@ -470,7 +471,7 @@ export default function ApplicationDetailPage() {
             ) : (
               <button
                 disabled
-                className="py-3 px-6 rounded-lg bg-neutral-700 text-neutral-400 font-semibold text-sm cursor-not-allowed"
+                className="py-3 px-6 rounded-lg bg-neutral-700 text-neutral-400 font-normal text-sm cursor-not-allowed"
               >
                 {status === "coming_soon"
                   ? "Bientôt disponible"

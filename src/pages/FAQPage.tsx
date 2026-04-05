@@ -14,8 +14,8 @@ export default function FAQPage() {
       <SEOHead title="FAQ" description="Questions fréquentes sur Atlas Studio." canonical="/faq" />
       <div className="max-w-2xl mx-auto">
         <ScrollReveal>
-          <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">FAQ</div>
-          <h1 className="text-[34px] font-bold text-neutral-light leading-tight mb-3">Questions fréquentes</h1>
+          <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">FAQ</div>
+          <h1 className="text-[34px] font-normal text-neutral-light leading-tight mb-3">Questions fréquentes</h1>
           <p className="text-[15px] text-neutral-muted font-light mb-12">Trouvez rapidement les réponses à vos questions.</p>
         </ScrollReveal>
 
@@ -29,7 +29,7 @@ export default function FAQPage() {
 
         <ScrollReveal>
           <div className="text-center mt-12 bg-dark-bg2 border border-dark-border rounded-xl p-8">
-            <h3 className="text-neutral-light text-lg font-bold mb-2">Vous n'avez pas trouvé votre réponse ?</h3>
+            <h3 className="text-neutral-light text-lg font-normal mb-2">Vous n'avez pas trouvé votre réponse ?</h3>
             <p className="text-neutral-muted text-sm font-light mb-6">Notre équipe est là pour vous aider.</p>
             <Link to="/contact" className="btn-gold">Nous contacter</Link>
           </div>

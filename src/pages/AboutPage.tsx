@@ -16,7 +16,7 @@ export default function AboutPage() {
       <section className="pt-24 pb-14 md:pt-28 md:pb-20 px-5 md:px-8 border-b border-dark-border">
         <div className="max-w-3xl mx-auto text-center">
           <ScrollReveal>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-neutral-light mb-4">
+            <h1 className="text-4xl md:text-5xl font-normal text-neutral-light mb-4">
               À propos d'<span className="font-logo text-gold">Atlas Studio</span>
             </h1>
             <p className="text-neutral-muted text-base font-light max-w-xl mx-auto">
@@ -30,7 +30,7 @@ export default function AboutPage() {
       <section className="py-16 md:py-24 px-5 md:px-8 border-b border-dark-border">
         <div className="max-w-3xl mx-auto">
           <ScrollReveal>
-            <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">Notre histoire</div>
+            <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">Notre histoire</div>
             <p className="text-neutral-muted text-[15px] leading-relaxed mb-4 font-light">{content.about.p1}</p>
             <p className="text-neutral-muted text-[15px] leading-relaxed mb-4 font-light">{content.about.p2}</p>
             <p className="text-neutral-muted text-[15px] leading-relaxed mb-8 font-light">{content.about.p3}</p>
@@ -46,7 +46,7 @@ export default function AboutPage() {
               ].map((item, i) => (
                 <div key={i} className="relative">
                   <div className="absolute -left-[25px] w-4 h-4 rounded-full bg-gold border-4 border-onyx" />
-                  <div className="text-gold text-sm font-bold mb-1">{item.year}</div>
+                  <div className="text-gold text-sm font-normal mb-1">{item.year}</div>
                   <div className="text-neutral-muted text-[15px] font-light">{item.text}</div>
                 </div>
               ))}
@@ -64,7 +64,7 @@ export default function AboutPage() {
               ].map((v, i) => (
                 <div key={i} className="flex items-center gap-2.5 bg-dark-bg2 border border-dark-border rounded-xl px-5 py-3">
                   <v.icon size={20} className="text-gold" strokeWidth={1.5} />
-                  <span className="text-neutral-light text-sm font-semibold">{v.label}</span>
+                  <span className="text-neutral-light text-sm font-normal">{v.label}</span>
                 </div>
               ))}
             </div>
@@ -72,14 +72,14 @@ export default function AboutPage() {
 
           {/* Values */}
           <ScrollReveal>
-            <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">Nos valeurs</div>
-            <h2 className="text-[34px] font-bold text-neutral-light leading-tight mb-8">Ce qui nous guide</h2>
+            <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">Nos valeurs</div>
+            <h2 className="text-[34px] font-normal text-neutral-light leading-tight mb-8">Ce qui nous guide</h2>
           </ScrollReveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {content.about.values.map((v, i) => (
               <ScrollReveal key={i} delay={i * 100}>
                 <div className="bg-dark-bg2 border border-dark-border rounded-xl p-6 card-hover">
-                  <div className="text-gold text-sm font-bold mb-2">{v.title}</div>
+                  <div className="text-gold text-sm font-normal mb-2">{v.title}</div>
                   <div className="text-neutral-muted text-[13px] leading-relaxed font-light">{v.desc}</div>
                 </div>
               </ScrollReveal>
@@ -104,7 +104,7 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="py-14 md:py-20 px-5 md:px-8 text-center">
         <ScrollReveal>
-          <h2 className="text-2xl font-bold text-neutral-light mb-4">Envie d'en savoir plus ?</h2>
+          <h2 className="text-2xl font-normal text-neutral-light mb-4">Envie d'en savoir plus ?</h2>
           <p className="text-neutral-muted text-sm font-light mb-8">Découvrez nos applications ou contactez notre équipe.</p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link to="/applications" className="btn-gold">Voir les applications</Link>

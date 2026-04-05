@@ -47,7 +47,7 @@ export default function BlogPostPage() {
             </Link>
 
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-gold/90 text-onyx px-2.5 py-1 rounded-md">
+              <span className="text-[10px] font-normal uppercase tracking-wider bg-gold/90 text-onyx px-2.5 py-1 rounded-md">
                 {post.category}
               </span>
               <span className="flex items-center gap-1 text-neutral-muted/60 text-[11px]">
@@ -60,7 +60,7 @@ export default function BlogPostPage() {
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4 leading-tight">
+            <h1 className="text-3xl md:text-4xl font-normal text-neutral-light mb-4 leading-tight">
               {post.title}
             </h1>
 
@@ -103,10 +103,10 @@ export default function BlogPostPage() {
         <section className="py-14 px-5 md:px-8 bg-dark-bg2 border-t border-dark-border">
           <div className="max-w-site mx-auto">
             <ScrollReveal>
-              <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">
+              <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">
                 Articles similaires
               </div>
-              <h2 className="text-2xl font-bold text-neutral-light mb-8">
+              <h2 className="text-2xl font-normal text-neutral-light mb-8">
                 Continuer la lecture
               </h2>
             </ScrollReveal>
@@ -126,7 +126,7 @@ export default function BlogPostPage() {
                       />
                     </div>
                     <div className="p-5">
-                      <h3 className="text-sm font-bold text-neutral-light group-hover:text-gold transition-colors mb-2 line-clamp-2">
+                      <h3 className="text-sm font-normal text-neutral-light group-hover:text-gold transition-colors mb-2 line-clamp-2">
                         {r.title}
                       </h3>
                       <p className="text-neutral-muted text-[12px] font-light line-clamp-2">

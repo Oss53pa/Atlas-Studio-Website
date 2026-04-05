@@ -126,31 +126,31 @@ export const blogPosts: BlogPost[] = [
     slug: "intelligence-artificielle-comptabilite-afrique",
     title: "L'IA au service de la comptabilité africaine",
     excerpt:
-      "Comment l'intelligence artificielle PROPH3T transforme la saisie comptable, la détection d'anomalies et la prévision financière.",
+      "Comment l'intelligence artificielle Proph3t transforme la saisie comptable, la détection d'anomalies et la prévision financière.",
     cover: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=450&fit=crop",
     category: "Digital",
     date: "4 mars 2026",
     readTime: "7 min",
     author: "Équipe Atlas Studio",
-    tags: ["IA", "PROPH3T", "Comptabilité", "Innovation"],
+    tags: ["IA", "Proph3t", "Comptabilité", "Innovation"],
     content: `
-      <p>L'intelligence artificielle n'est plus réservée aux géants de la tech. Avec PROPH3T, notre moteur IA intégré, les PME africaines accèdent à des capacités d'analyse et d'automatisation jusqu'ici inaccessibles.</p>
+      <p>L'intelligence artificielle n'est plus réservée aux géants de la tech. Avec Proph3t, notre moteur IA intégré, les PME africaines accèdent à des capacités d'analyse et d'automatisation jusqu'ici inaccessibles.</p>
 
-      <h2>Qu'est-ce que PROPH3T ?</h2>
-      <p>PROPH3T est le moteur d'intelligence artificielle développé par Atlas Studio, spécialement entraîné sur les données comptables et fiscales africaines. Il comprend les spécificités du SYSCOHADA, les pratiques locales et les normes fiscales de chaque pays.</p>
+      <h2>Qu'est-ce que Proph3t ?</h2>
+      <p>Proph3t est le moteur d'intelligence artificielle développé par Atlas Studio, spécialement entraîné sur les données comptables et fiscales africaines. Il comprend les spécificités du SYSCOHADA, les pratiques locales et les normes fiscales de chaque pays.</p>
 
-      <h2>Ce que PROPH3T peut faire pour vous</h2>
+      <h2>Ce que Proph3t peut faire pour vous</h2>
       <ul>
-        <li><strong>Saisie automatique</strong> — scannez une facture, PROPH3T identifie le fournisseur, le montant, la TVA et le compte comptable</li>
+        <li><strong>Saisie automatique</strong> — scannez une facture, Proph3t identifie le fournisseur, le montant, la TVA et le compte comptable</li>
         <li><strong>Détection d'anomalies</strong> — repérage automatique des doublons, écarts et incohérences</li>
         <li><strong>Prévisions de trésorerie</strong> — anticipez vos besoins de financement à 30, 60 et 90 jours</li>
         <li><strong>Assistant fiscal</strong> — posez vos questions en langage naturel sur la fiscalité de votre pays</li>
       </ul>
 
       <h2>Une IA qui respecte vos données</h2>
-      <p>PROPH3T fonctionne en mode privé : vos données ne sont jamais partagées avec des tiers. Le traitement se fait de manière sécurisée, dans le respect des réglementations locales sur la protection des données.</p>
+      <p>Proph3t fonctionne en mode privé : vos données ne sont jamais partagées avec des tiers. Le traitement se fait de manière sécurisée, dans le respect des réglementations locales sur la protection des données.</p>
 
-      <p>L'avenir de la comptabilité en Afrique sera intelligent, automatisé et accessible à tous. C'est la promesse de PROPH3T.</p>
+      <p>L'avenir de la comptabilité en Afrique sera intelligent, automatisé et accessible à tous. C'est la promesse de Proph3t.</p>
     `,
   },
   {

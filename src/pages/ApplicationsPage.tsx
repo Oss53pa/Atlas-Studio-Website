@@ -33,8 +33,8 @@ export default function ApplicationsPage() {
       <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-5 md:px-8 border-b border-dark-border">
         <div className="max-w-site mx-auto text-center">
           <ScrollReveal>
-            <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">Applications</div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-light mb-4 tracking-tight">Nos Solutions</h1>
+            <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">Applications</div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal text-neutral-light mb-4 tracking-tight">Nos Solutions</h1>
             <p className="text-neutral-muted text-base font-light max-w-2xl mx-auto leading-relaxed mb-8">
               Des outils professionnels conçus pour les réalités africaines.
               Comptabilité SYSCOHADA, liasse fiscale, signature électronique — tout ce qu'il faut pour digitaliser votre gestion.
@@ -42,7 +42,7 @@ export default function ApplicationsPage() {
             {activeFilters.length > 2 && (
               <div className="flex gap-2 justify-center flex-wrap">
                 {activeFilters.map((f) => (
-                  <button key={f.value} onClick={() => setFilter(f.value)} className={`px-5 py-2.5 rounded-lg text-[13px] font-semibold transition-all ${filter === f.value ? "bg-gold text-onyx" : "border border-dark-border2 text-neutral-muted hover:border-gold/40 hover:text-gold"}`}>
+                  <button key={f.value} onClick={() => setFilter(f.value)} className={`px-5 py-2.5 rounded-lg text-[13px] font-normal transition-all ${filter === f.value ? "bg-gold text-onyx" : "border border-dark-border2 text-neutral-muted hover:border-gold/40 hover:text-gold"}`}>
                     {f.label}
                   </button>
                 ))}
@@ -66,7 +66,7 @@ export default function ApplicationsPage() {
       {/* CTA */}
       <section className="bg-dark-bg2 py-16 md:py-20 px-5 md:px-8 text-center">
         <ScrollReveal>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">Prêt à digitaliser votre gestion ?</h2>
+          <h2 className="text-3xl md:text-4xl font-normal text-neutral-light mb-4">Prêt à digitaliser votre gestion ?</h2>
           <p className="text-neutral-muted text-[15px] font-light mb-8 max-w-md mx-auto">Essai gratuit 14 jours. Sans engagement, sans carte bancaire.</p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link to="/portal" className="btn-gold">Démarrer gratuitement</Link>

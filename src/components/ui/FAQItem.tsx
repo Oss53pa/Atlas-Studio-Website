@@ -16,7 +16,7 @@ export function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
       onClick={onToggle}
     >
       <div className="px-6 py-4 flex justify-between items-center">
-        <span className="text-neutral-light text-[15px] font-semibold pr-4">{question}</span>
+        <span className="text-neutral-light text-[15px] font-normal pr-4">{question}</span>
         <ChevronDown
           size={20}
           className={`text-neutral-muted flex-shrink-0 transition-transform duration-300 ${

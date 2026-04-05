@@ -8,7 +8,7 @@ interface SectionHeadingProps {
 export function SectionHeading({ title, subtitle, className = "" }: SectionHeadingProps) {
   return (
     <div className={`text-center mb-12 ${className}`}>
-      <h2 className="text-3xl md:text-4xl font-extrabold mb-3 text-neutral-light">
+      <h2 className="text-3xl md:text-4xl font-normal mb-3 text-neutral-light">
         {title}
       </h2>
       {subtitle && (

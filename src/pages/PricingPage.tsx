@@ -44,17 +44,17 @@ function AppPricingSection({ app }: { app: AppItem }) {
             <div key={plan} className={`relative rounded-xl border p-8 flex flex-col ${isPopular ? "border-gold bg-gold/[0.02]" : "border-dark-border bg-dark-bg2"}`}>
               {isPopular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="shimmer bg-gold text-onyx px-4 py-1 rounded-full text-[11px] font-bold tracking-wide">POPULAIRE</span>
+                  <span className="shimmer bg-gold text-onyx px-4 py-1 rounded-full text-[11px] font-normal tracking-wide">POPULAIRE</span>
                 </div>
               )}
               <div className="text-center mb-6">
-                <h3 className="text-neutral-light text-lg font-bold mb-2">{plan}</h3>
+                <h3 className="text-neutral-light text-lg font-normal mb-2">{plan}</h3>
                 <div className="flex items-baseline justify-center gap-1">
                   {price === 0 ? (
-                    <span className="text-gold font-mono text-4xl font-semibold">Gratuit</span>
+                    <span className="text-gold font-mono text-4xl font-normal">Gratuit</span>
                   ) : (
                     <>
-                      <span className="text-gold font-mono text-3xl font-semibold">{formatPrice(price)}</span>
+                      <span className="text-gold font-mono text-3xl font-normal">{formatPrice(price)}</span>
                       <span className="text-neutral-muted text-sm ml-1 font-light">FCFA/{period}</span>
                     </>
                   )}
@@ -71,7 +71,7 @@ function AppPricingSection({ app }: { app: AppItem }) {
                   );
                 })}
               </div>
-              <Link to={`/portal?app=${app.id}&plan=${encodeURIComponent(plan)}`} className={`block w-full text-center py-3.5 rounded-lg font-semibold text-sm transition-all ${isPopular ? "bg-gold text-onyx hover:bg-gold-dark" : "border border-dark-border2 text-neutral-muted hover:border-neutral-muted hover:text-neutral-light"}`}>
+              <Link to={`/portal?app=${app.id}&plan=${encodeURIComponent(plan)}`} className={`block w-full text-center py-3.5 rounded-lg font-normal text-sm transition-all ${isPopular ? "bg-gold text-onyx hover:bg-gold-dark" : "border border-dark-border2 text-neutral-muted hover:border-neutral-muted hover:text-neutral-light"}`}>
                 Souscrire
               </Link>
             </div>
@@ -91,8 +91,8 @@ export default function PricingPage() {
       <section className="pt-24 pb-16 md:pt-28 md:pb-20 px-5 md:px-8 border-b border-dark-border">
         <div className="max-w-3xl mx-auto text-center">
           <ScrollReveal>
-            <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">Tarifs</div>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-neutral-light mb-4 tracking-tight">Tarifs simples et transparents</h1>
+            <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">Tarifs</div>
+            <h1 className="text-4xl md:text-5xl font-normal text-neutral-light mb-4 tracking-tight">Tarifs simples et transparents</h1>
             <p className="text-neutral-muted text-base font-light max-w-xl mx-auto">Payez uniquement ce que vous utilisez. Sans engagement, changez ou annulez à tout moment.</p>
           </ScrollReveal>
         </div>
@@ -106,7 +106,7 @@ export default function PricingPage() {
       </section>
       <section className="bg-dark-bg2 py-16 md:py-20 px-5 md:px-8 text-center">
         <ScrollReveal>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-light mb-4">Prêt à démarrer ?</h2>
+          <h2 className="text-3xl md:text-4xl font-normal text-neutral-light mb-4">Prêt à démarrer ?</h2>
           <p className="text-neutral-muted text-[15px] font-light mb-8 max-w-md mx-auto">Essai gratuit 14 jours. Sans engagement, sans carte bancaire.</p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link to="/portal" className="btn-gold">Créer mon compte</Link>

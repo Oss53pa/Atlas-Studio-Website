@@ -11,7 +11,7 @@ export function SectorBadge({ icon: Icon, name }: SectorBadgeProps) {
       <div className="mb-2 flex justify-center">
         <Icon size={28} className="text-neutral-placeholder" strokeWidth={1.5} />
       </div>
-      <div className="text-neutral-light text-[13px] font-semibold">{name}</div>
+      <div className="text-neutral-light text-[13px] font-normal">{name}</div>
     </div>
   );
 }

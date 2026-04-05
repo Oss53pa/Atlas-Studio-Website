@@ -8,8 +8,8 @@ export default function NotFoundPage() {
         <div className="mb-8">
           <Logo size={32} color="text-neutral-light" />
         </div>
-        <div className="text-gold text-8xl font-extrabold mb-4">404</div>
-        <h1 className="text-neutral-light text-2xl font-bold mb-3">Page introuvable</h1>
+        <div className="text-gold text-8xl font-normal mb-4">404</div>
+        <h1 className="text-neutral-light text-2xl font-normal mb-3">Page introuvable</h1>
         <p className="text-neutral-400 text-sm mb-10 max-w-sm mx-auto">
           La page que vous recherchez n'existe pas ou a été déplacée.
         </p>

@@ -20,7 +20,7 @@ function BlogCard({ post, featured = false }: { post: BlogPost; featured?: boole
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3">
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-gold/90 text-onyx px-2.5 py-1 rounded-md">
+          <span className="text-[10px] font-normal uppercase tracking-wider bg-gold/90 text-onyx px-2.5 py-1 rounded-md">
             {post.category}
           </span>
         </div>
@@ -28,7 +28,7 @@ function BlogCard({ post, featured = false }: { post: BlogPost; featured?: boole
 
       <div className="p-5 md:p-6 flex flex-col justify-between">
         <div>
-          <h3 className={`font-bold text-neutral-light group-hover:text-gold transition-colors mb-2 ${
+          <h3 className={`font-normal text-neutral-light group-hover:text-gold transition-colors mb-2 ${
             featured ? "text-xl md:text-2xl" : "text-base"
           }`}>
             {post.title}
@@ -86,7 +86,7 @@ export default function BlogPage() {
       <section className="pt-24 pb-14 md:pt-28 md:pb-20 px-5 md:px-8 border-b border-dark-border">
         <div className="max-w-3xl mx-auto text-center">
           <ScrollReveal>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-neutral-light mb-4">
+            <h1 className="text-4xl md:text-5xl font-normal text-neutral-light mb-4">
               Le Blog <span className="font-logo text-gold">Atlas</span>
             </h1>
             <p className="text-neutral-muted text-base font-light max-w-xl mx-auto">
@@ -163,7 +163,7 @@ export default function BlogPage() {
       {/* CTA Newsletter */}
       <section className="py-14 md:py-20 px-5 md:px-8 bg-dark-bg2 border-t border-dark-border text-center">
         <ScrollReveal>
-          <h2 className="text-2xl font-bold text-neutral-light mb-4">Restez informé</h2>
+          <h2 className="text-2xl font-normal text-neutral-light mb-4">Restez informé</h2>
           <p className="text-neutral-muted text-sm font-light mb-6 max-w-md mx-auto">
             Recevez nos derniers articles et conseils directement dans votre boîte mail.
           </p>

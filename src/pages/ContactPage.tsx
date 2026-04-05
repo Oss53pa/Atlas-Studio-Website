@@ -44,8 +44,8 @@ export default function ContactPage() {
       <div className="bg-onyx min-h-screen pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8">
         <div className="max-w-2xl mx-auto">
           <ScrollReveal>
-            <div className="text-[11px] font-semibold text-gold uppercase tracking-[0.1em] mb-3">Contact</div>
-            <h1 className="text-[34px] font-bold text-neutral-light leading-tight mb-3">Contactez-nous</h1>
+            <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">Contact</div>
+            <h1 className="text-[34px] font-normal text-neutral-light leading-tight mb-3">Contactez-nous</h1>
             <p className="text-[15px] text-neutral-muted font-light mb-12">Une question ? Notre équipe vous répond sous 24h.</p>
           </ScrollReveal>
 
@@ -55,7 +55,7 @@ export default function ContactPage() {
                 <div className="mb-4 flex justify-center">
                   <CheckCircle size={48} className="text-gold" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-neutral-light text-xl font-bold mb-2">Message envoyé !</h3>
+                <h3 className="text-neutral-light text-xl font-normal mb-2">Message envoyé !</h3>
                 <p className="text-neutral-muted text-sm font-light">Nous vous répondrons dans les plus brefs délais.</p>
               </div>
             </ScrollReveal>
@@ -69,20 +69,20 @@ export default function ContactPage() {
                 )}
                 <div className="flex flex-col sm:flex-row gap-3 mb-4">
                   <div className="flex-1">
-                    <label className="block text-neutral-light text-[13px] font-semibold mb-1.5">Nom</label>
+                    <label className="block text-neutral-light text-[13px] font-normal mb-1.5">Nom</label>
                     <input value={name} onChange={e => setName(e.target.value)} placeholder="Votre nom" className={inputClass} />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-neutral-light text-[13px] font-semibold mb-1.5">Email</label>
+                    <label className="block text-neutral-light text-[13px] font-normal mb-1.5">Email</label>
                     <input value={email} onChange={e => setEmail(e.target.value)} placeholder="vous@entreprise.com" className={inputClass} />
                   </div>
                 </div>
                 <div className="mb-4">
-                  <label className="block text-neutral-light text-[13px] font-semibold mb-1.5">Entreprise</label>
+                  <label className="block text-neutral-light text-[13px] font-normal mb-1.5">Entreprise</label>
                   <input value={company} onChange={e => setCompany(e.target.value)} placeholder="Nom de votre entreprise" className={inputClass} />
                 </div>
                 <div className="mb-6">
-                  <label className="block text-neutral-light text-[13px] font-semibold mb-1.5">Message</label>
+                  <label className="block text-neutral-light text-[13px] font-normal mb-1.5">Message</label>
                   <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Décrivez votre besoin..." rows={5} className={`${inputClass} resize-y`} />
                 </div>
                 <button onClick={handleSubmit} disabled={loading} className={`btn-gold w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}>

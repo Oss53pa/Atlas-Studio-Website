@@ -28,11 +28,11 @@ export function Footer() {
           <div>
             <div className="font-logo text-2xl text-gold mb-3">Atlas Studio</div>
             <p className="text-xs text-neutral-muted font-light leading-relaxed max-w-[220px] mb-5">
-              La suite de gestion conçue pour les entreprises d'Afrique francophone. SYSCOHADA natif, Mobile Money, IA PROPH3T.
+              La suite de gestion conçue pour les entreprises d'Afrique francophone. SYSCOHADA natif, Mobile Money, IA <span className="font-logo">Proph3t</span>.
             </p>
 
             {/* Newsletter */}
-            <div className="text-neutral-muted/60 text-[11px] font-bold uppercase tracking-wider mb-2">Newsletter</div>
+            <div className="text-neutral-muted/60 text-[11px] font-normal uppercase tracking-wider mb-2">Newsletter</div>
             <div className="flex gap-2">
               <input
                 value={email}
@@ -59,7 +59,7 @@ export function Footer() {
 
           {/* Applications */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Applications</h4>
+            <h4 className="text-[10px] font-normal uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Applications</h4>
             <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
               {[
                 { to: "/applications/atlas-finance", label: "Atlas Finance" },
@@ -80,7 +80,7 @@ export function Footer() {
 
           {/* Ressources */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Ressources</h4>
+            <h4 className="text-[10px] font-normal uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Ressources</h4>
             <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
               {[
                 { to: "/applications", label: "Tous les produits" },
@@ -98,7 +98,7 @@ export function Footer() {
 
           {/* Entreprise */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Entreprise</h4>
+            <h4 className="text-[10px] font-normal uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Entreprise</h4>
             <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
               {[
                 { to: "/a-propos", label: "À propos" },

@@ -17,7 +17,7 @@ export default function TermsPage() {
         {sections.map((s, i) => (
           <ScrollReveal key={i}>
             <div className="bg-white border border-warm-border rounded-2xl p-8 mb-4">
-              <h3 className="text-neutral-text text-lg font-bold mb-3">{s.heading}</h3>
+              <h3 className="text-neutral-text text-lg font-normal mb-3">{s.heading}</h3>
               <p className="text-neutral-body text-sm leading-relaxed whitespace-pre-line">{s.content}</p>
             </div>
           </ScrollReveal>
