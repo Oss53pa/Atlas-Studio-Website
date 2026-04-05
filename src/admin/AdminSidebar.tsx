@@ -2,13 +2,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers, Search,
+  CreditCard, Megaphone, Layers, Search, Brain, Activity,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useAuth } from "../lib/auth";
 import { useAppFilter } from "./contexts/AppFilterContext";
 import { useAppCatalog } from "../hooks/useAppCatalog";
+import { NotificationCenter } from "./components/NotificationCenter";
 
 interface NavItem {
   to: string;
@@ -25,6 +26,7 @@ const navGroups: NavGroup[] = [
   {
     items: [
       { to: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/admin/proph3t", icon: Brain, label: "Proph3t IA" },
     ],
   },
   {
@@ -54,6 +56,7 @@ const navGroups: NavGroup[] = [
     label: "Plateforme & Ops",
     items: [
       { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+      { to: "/admin/system", icon: Activity, label: "Santé système" },
       { to: "/admin/activity", icon: ClipboardList, label: "Logs & Audit" },
     ],
   },
@@ -79,9 +82,10 @@ export function AdminSidebar() {
   return (
     <div className="w-64 min-h-screen bg-onyx border-r border-white/10 p-6 flex flex-col flex-shrink-0">
       <div className="px-2 mb-6">
-        <Link to="/">
-          <Logo size={22} color="text-neutral-light" />
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link to="/"><Logo size={22} color="text-neutral-light" /></Link>
+          <NotificationCenter />
+        </div>
         <div className="text-gold text-[10px] font-bold uppercase tracking-widest mt-1.5">Administration</div>
       </div>
 
