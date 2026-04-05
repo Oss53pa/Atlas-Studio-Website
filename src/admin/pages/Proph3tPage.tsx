@@ -8,6 +8,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import { useToast } from "../contexts/ToastContext";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
+import { Proph3tChat } from "../components/Proph3tChat";
 
 /* ─── Types ─── */
 interface Insight {
@@ -43,6 +44,7 @@ export default function Proph3tPage() {
   const { appMap } = useAppCatalog();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   // Raw data
   const [subsData, setSubsData] = useState<any[]>([]);
@@ -255,10 +257,16 @@ export default function Proph3tPage() {
           </h1>
           <p className="text-neutral-muted text-sm">Intelligence artificielle — Assistant de gestion</p>
         </div>
-        <button onClick={handleRefresh} disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border rounded-lg bg-white text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">
-          <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} /> Actualiser l'analyse
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setChatOpen(true)}
+            className="btn-gold !py-2.5 !text-[13px] flex items-center gap-2">
+            <MessageSquare size={14} /> Parler à <span className="font-logo">Proph3t</span>
+          </button>
+          <button onClick={handleRefresh} disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border rounded-lg bg-white text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">
+            <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} /> Actualiser
+          </button>
+        </div>
       </div>
 
       {/* Health Score + KPIs */}
@@ -422,6 +430,9 @@ export default function Proph3tPage() {
           </div>
         </div>
       </div>
+
+      {/* Chat Proph3t */}
+      <Proph3tChat open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }
