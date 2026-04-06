@@ -3,13 +3,14 @@ import { Save, RotateCcw, Loader2, Check, Trash2, Plus, Upload, X, Image, Extern
 import { supabase } from "../../lib/supabase";
 import { DEFAULT_CONTENT } from "../../config/content";
 
-const tabs = ["Hero", "Stats", "Trust Bar", "About", "Témoignages", "Secteurs", "Comparatif", "FAQs", "Contact", "Réseaux sociaux", "Apparence"] as const;
+const tabs = ["Hero", "Stats", "Trust Bar", "Steps", "About", "Témoignages", "Secteurs", "Comparatif", "FAQs", "Contact", "Réseaux sociaux", "Apparence"] as const;
 type Tab = (typeof tabs)[number];
 
 const TAB_KEY_MAP: Record<Tab, string> = {
   Hero: "hero",
   Stats: "stats",
   "Trust Bar": "trustBar",
+  Steps: "steps",
   About: "about",
   Témoignages: "testimonials",
   Secteurs: "sectors",
@@ -147,6 +148,7 @@ export default function ContentManagementPage() {
         hero: map.hero || DEFAULT_CONTENT.hero,
         stats: map.stats || DEFAULT_CONTENT.stats,
         trustBar: map.trustBar || DEFAULT_CONTENT.trustBar,
+        steps: map.steps || DEFAULT_CONTENT.steps,
         about: map.about || DEFAULT_CONTENT.about,
         testimonials: map.testimonials || DEFAULT_CONTENT.testimonials,
         sectors: map.sectors || DEFAULT_CONTENT.sectors.map(s => s.name),
@@ -187,6 +189,7 @@ export default function ContentManagementPage() {
       hero: DEFAULT_CONTENT.hero,
       stats: DEFAULT_CONTENT.stats,
       trustBar: DEFAULT_CONTENT.trustBar,
+      steps: DEFAULT_CONTENT.steps,
       about: DEFAULT_CONTENT.about,
       testimonials: DEFAULT_CONTENT.testimonials,
       sectors: DEFAULT_CONTENT.sectors.map(s => s.name),
@@ -292,6 +295,32 @@ export default function ContentManagementPage() {
               </div>
             ))}
             <AddBtn label="Ajouter un élément" onClick={() => update("trustBar", [...(content.trustBar || []), ""])} />
+          </>
+        )}
+
+        {/* ═══ STEPS ═══ */}
+        {tab === "Steps" && (
+          <>
+            <p className="text-neutral-muted dark:text-admin-muted text-[13px] mb-4">Étapes "Comment ça marche" affichées sur la landing page.</p>
+            {(content.steps || []).map((step: any, i: number) => (
+              <div key={i} className="mb-3 p-4 bg-warm-bg dark:bg-admin-surface-alt rounded-lg relative">
+                <div className="absolute top-3 right-3"><DeleteBtn onClick={() => {
+                  const arr = [...(content.steps || [])]; arr.splice(i, 1); update("steps", arr);
+                }} /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label={`Numéro (ex: 01 — Compte)`} value={step.num} onChange={v => {
+                    const arr = [...(content.steps || [])]; arr[i] = { ...arr[i], num: v }; update("steps", arr);
+                  }} />
+                  <Field label="Titre" value={step.title} onChange={v => {
+                    const arr = [...(content.steps || [])]; arr[i] = { ...arr[i], title: v }; update("steps", arr);
+                  }} />
+                </div>
+                <Field label="Description" value={step.desc} onChange={v => {
+                  const arr = [...(content.steps || [])]; arr[i] = { ...arr[i], desc: v }; update("steps", arr);
+                }} multiline />
+              </div>
+            ))}
+            <AddBtn label="Ajouter une étape" onClick={() => update("steps", [...(content.steps || []), { num: "", title: "", desc: "" }])} />
           </>
         )}
 

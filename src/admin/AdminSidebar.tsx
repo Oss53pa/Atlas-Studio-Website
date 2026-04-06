@@ -1,8 +1,9 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon,
+  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -70,19 +71,22 @@ export function AdminSidebar() {
   const { selectedApp, setSelectedApp } = useAppFilter();
   const { theme, toggleTheme, isDark } = useTheme();
   const { appList } = useAppCatalog();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
     navigate("/admin/login");
   };
 
+  // Close mobile sidebar on navigation
+  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
   const isActive = (to: string) =>
     to === "/admin"
       ? location.pathname === "/admin"
       : location.pathname.startsWith(to);
 
-  return (
-    <div className="w-64 min-h-screen bg-onyx border-r border-white/10 p-6 flex flex-col flex-shrink-0">
+  const sidebarContent = (
       <div className="px-2 mb-6">
         <div className="flex items-center justify-between">
           <Link to="/"><Logo size={22} color="text-neutral-light" /></Link>
@@ -188,5 +192,26 @@ export function AdminSidebar() {
         </button>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger */}
+      <button onClick={() => setMobileOpen(true)}
+        className="fixed top-4 left-4 z-50 md:hidden w-10 h-10 rounded-lg bg-onyx border border-white/10 flex items-center justify-center text-neutral-400">
+        <Menu size={20} />
+      </button>
+
+      {/* Desktop sidebar */}
+      <div className="hidden md:block">{sidebarContent}</div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
+          <div className="relative w-64">{sidebarContent}</div>
+        </div>
+      )}
+    </>
   );
 }
