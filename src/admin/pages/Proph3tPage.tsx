@@ -241,7 +241,7 @@ export default function Proph3tPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-admin-accent" />
+        <Loader2 size={24} className="animate-spin text-gold dark:text-admin-accent" />
       </div>
     );
   }
@@ -251,19 +251,19 @@ export default function Proph3tPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-admin-text text-2xl font-bold mb-1 flex items-center gap-3">
-            <Brain size={24} className="text-admin-accent" />
-            <span className="font-logo text-admin-accent text-3xl">Proph3t</span>
+          <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1 flex items-center gap-3">
+            <Brain size={24} className="text-gold dark:text-admin-accent" />
+            <span className="font-logo text-gold dark:text-admin-accent text-3xl">Proph3t</span>
           </h1>
-          <p className="text-admin-muted text-sm">Intelligence artificielle — Assistant de gestion</p>
+          <p className="text-neutral-muted dark:text-admin-muted text-sm">Intelligence artificielle — Assistant de gestion</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setChatOpen(true)}
-            className="bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
+            className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <MessageSquare size={14} /> Parler à <span className="font-logo">Proph3t</span>
           </button>
           <button onClick={handleRefresh} disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2.5 border border-admin-surface-alt rounded-lg bg-admin-surface text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors">
+            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} /> Actualiser
           </button>
         </div>
@@ -271,7 +271,7 @@ export default function Proph3tPage() {
 
       {/* Health Score + KPIs */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8">
-        <div className="lg:col-span-2 bg-admin-surface border border-admin-surface-alt rounded-xl p-6 flex items-center gap-6">
+        <div className="lg:col-span-2 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 flex items-center gap-6">
           <div className="relative w-24 h-24 flex-shrink-0">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
               <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" strokeWidth="8" />
@@ -283,27 +283,27 @@ export default function Proph3tPage() {
             </div>
           </div>
           <div>
-            <div className="text-admin-text text-lg font-semibold">Score de santé</div>
+            <div className="text-neutral-text dark:text-admin-text text-lg font-semibold">Score de santé</div>
             <div className={`text-sm font-medium ${healthColor}`}>{healthLabel}</div>
-            <div className="text-admin-muted text-[12px] mt-1">Basé sur {insights.length} indicateurs</div>
+            <div className="text-neutral-muted dark:text-admin-muted text-[12px] mt-1">Basé sur {insights.length} indicateurs</div>
           </div>
         </div>
 
-        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5">
-          <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Alertes critiques</div>
+        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Alertes critiques</div>
           <div className={`text-2xl font-semibold ${criticalCount > 0 ? "text-red-500" : "text-emerald-500"}`}>{criticalCount}</div>
-          <div className="text-admin-muted text-[11px]">{warningCount} avertissements</div>
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{warningCount} avertissements</div>
         </div>
 
-        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5">
-          <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Recommandations</div>
-          <div className="text-2xl font-semibold text-admin-accent">{recommendations.length}</div>
-          <div className="text-admin-muted text-[11px]">{recommendations.filter(r => r.priority === "high").length} prioritaires</div>
+        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Recommandations</div>
+          <div className="text-2xl font-semibold text-gold dark:text-admin-accent">{recommendations.length}</div>
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{recommendations.filter(r => r.priority === "high").length} prioritaires</div>
         </div>
 
-        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5">
-          <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">MRR</div>
-          <div className="text-2xl font-semibold text-admin-accent">{fmt(mrr)}</div>
+        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">MRR</div>
+          <div className="text-2xl font-semibold text-gold dark:text-admin-accent">{fmt(mrr)}</div>
           <div className={`text-[11px] font-medium ${revenueGrowth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
             {revenueGrowth >= 0 ? "+" : ""}{revenueGrowth}% vs mois dernier
           </div>
@@ -312,15 +312,15 @@ export default function Proph3tPage() {
 
       {/* Insights */}
       <div className="mb-8">
-        <h2 className="text-admin-text text-base font-semibold mb-4 flex items-center gap-2">
-          <Zap size={16} className="text-admin-accent" /> Analyses en temps réel
+        <h2 className="text-neutral-text dark:text-admin-text text-base font-semibold mb-4 flex items-center gap-2">
+          <Zap size={16} className="text-gold dark:text-admin-accent" /> Analyses en temps réel
         </h2>
         <div className="space-y-3">
           {insights.map(insight => {
             const colors = SEVERITY_COLORS[insight.severity];
             return (
               <div key={insight.id} className={`${colors.bg} border ${colors.border} rounded-xl p-5 flex items-start gap-4`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colors.text} bg-admin-surface/60`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${colors.text} bg-white dark:bg-white dark:bg-admin-surface/60`}>
                   {insight.icon}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -335,7 +335,7 @@ export default function Proph3tPage() {
                   <p className={`text-[13px] ${colors.text} opacity-80 leading-relaxed`}>{insight.description}</p>
                 </div>
                 {insight.action && (
-                  <Link to={insight.action.to} className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-semibold bg-admin-surface/80 ${colors.text} hover:bg-admin-surface transition-colors`}>
+                  <Link to={insight.action.to} className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-semibold bg-white dark:bg-white dark:bg-admin-surface/80 ${colors.text} hover:bg-white dark:bg-white dark:bg-admin-surface transition-colors`}>
                     {insight.action.label} <ArrowRight size={12} />
                   </Link>
                 )}
@@ -348,26 +348,26 @@ export default function Proph3tPage() {
       {/* Recommendations + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <h2 className="text-admin-text text-base font-semibold mb-4 flex items-center gap-2">
-            <Target size={16} className="text-admin-accent" /> Recommandations
+          <h2 className="text-neutral-text dark:text-admin-text text-base font-semibold mb-4 flex items-center gap-2">
+            <Target size={16} className="text-gold dark:text-admin-accent" /> Recommandations
           </h2>
           {recommendations.length === 0 ? (
-            <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-8 text-center">
+            <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-8 text-center">
               <CheckCircle2 size={32} className="mx-auto text-emerald-400 mb-3" />
-              <p className="text-admin-muted text-sm">Aucune recommandation — tout est optimisé</p>
+              <p className="text-neutral-muted dark:text-admin-muted text-sm">Aucune recommandation — tout est optimisé</p>
             </div>
           ) : (
             <div className="space-y-3">
               {recommendations.map(rec => (
-                <div key={rec.id} className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5 flex items-start gap-4 hover:border-gold/20 transition-colors">
+                <div key={rec.id} className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 flex items-start gap-4 hover:border-gold/20 transition-colors">
                   <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${PRIORITY_COLORS[rec.priority]}`}>
                     {rec.priority === "high" ? "Urgent" : rec.priority === "medium" ? "Moyen" : "Faible"}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-admin-text text-sm font-medium mb-0.5">{rec.title}</div>
-                    <p className="text-admin-muted text-[12px] leading-relaxed">{rec.description}</p>
+                    <div className="text-neutral-text dark:text-admin-text text-sm font-medium mb-0.5">{rec.title}</div>
+                    <p className="text-neutral-muted dark:text-admin-muted text-[12px] leading-relaxed">{rec.description}</p>
                   </div>
-                  <Link to={rec.to} className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-semibold text-admin-accent bg-admin-accent/5 hover:bg-admin-accent/10 transition-colors">
+                  <Link to={rec.to} className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-semibold text-gold dark:text-admin-accent bg-gold dark:bg-admin-accent/5 hover:bg-gold dark:bg-admin-accent/10 transition-colors">
                     {rec.actionLabel} <ArrowRight size={12} />
                   </Link>
                 </div>
@@ -378,52 +378,52 @@ export default function Proph3tPage() {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-admin-text text-base font-semibold mb-4 flex items-center gap-2">
-            <Zap size={16} className="text-admin-accent" /> Actions rapides
+          <h2 className="text-neutral-text dark:text-admin-text text-base font-semibold mb-4 flex items-center gap-2">
+            <Zap size={16} className="text-gold dark:text-admin-accent" /> Actions rapides
           </h2>
           <div className="space-y-3">
-            <Link to="/admin/invoices" className="block bg-admin-surface border border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
+            <Link to="/admin/invoices" className="block bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600"><Receipt size={16} /></div>
                 <div>
-                  <div className="text-admin-text text-sm font-medium group-hover:text-admin-accent transition-colors">Relancer les impayés</div>
-                  <div className="text-admin-muted text-[11px]">{pendingInvoices.length} factures en attente</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm font-medium group-hover:text-gold dark:text-admin-accent transition-colors">Relancer les impayés</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{pendingInvoices.length} factures en attente</div>
                 </div>
               </div>
             </Link>
-            <Link to="/admin/subscriptions" className="block bg-admin-surface border border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
+            <Link to="/admin/subscriptions" className="block bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600"><Users size={16} /></div>
                 <div>
-                  <div className="text-admin-text text-sm font-medium group-hover:text-admin-accent transition-colors">Convertir les essais</div>
-                  <div className="text-admin-muted text-[11px]">{trialSubs.length} essais actifs</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm font-medium group-hover:text-gold dark:text-admin-accent transition-colors">Convertir les essais</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{trialSubs.length} essais actifs</div>
                 </div>
               </div>
             </Link>
-            <Link to="/admin/tickets" className="block bg-admin-surface border border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
+            <Link to="/admin/tickets" className="block bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600"><MessageSquare size={16} /></div>
                 <div>
-                  <div className="text-admin-text text-sm font-medium group-hover:text-admin-accent transition-colors">Traiter les tickets</div>
-                  <div className="text-admin-muted text-[11px]">{openTickets.length} en attente</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm font-medium group-hover:text-gold dark:text-admin-accent transition-colors">Traiter les tickets</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{openTickets.length} en attente</div>
                 </div>
               </div>
             </Link>
-            <Link to="/admin/analytics" className="block bg-admin-surface border border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
+            <Link to="/admin/analytics" className="block bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600"><Activity size={16} /></div>
                 <div>
-                  <div className="text-admin-text text-sm font-medium group-hover:text-admin-accent transition-colors">Rapport mensuel</div>
-                  <div className="text-admin-muted text-[11px]">Analytics détaillées</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm font-medium group-hover:text-gold dark:text-admin-accent transition-colors">Rapport mensuel</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px]">Analytics détaillées</div>
                 </div>
               </div>
             </Link>
-            <Link to="/admin/system" className="block bg-admin-surface border border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
+            <Link to="/admin/system" className="block bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4 hover:border-gold/20 transition-colors group">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600"><Shield size={16} /></div>
                 <div>
-                  <div className="text-admin-text text-sm font-medium group-hover:text-admin-accent transition-colors">Santé système</div>
-                  <div className="text-admin-muted text-[11px]">Monitoring & uptime</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm font-medium group-hover:text-gold dark:text-admin-accent transition-colors">Santé système</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px]">Monitoring & uptime</div>
                 </div>
               </div>
             </Link>

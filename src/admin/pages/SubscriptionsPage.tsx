@@ -147,7 +147,7 @@ export default function SubscriptionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-admin-accent" />
+        <Loader2 size={24} className="animate-spin text-gold dark:text-admin-accent" />
       </div>
     );
   }
@@ -156,21 +156,21 @@ export default function SubscriptionsPage() {
     <div>
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-admin-text text-2xl font-bold mb-1">Abonnements</h1>
-          <p className="text-admin-muted text-sm">{subs.length} abonnements</p>
+          <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Abonnements</h1>
+          <p className="text-neutral-muted dark:text-admin-muted text-sm">{subs.length} abonnements</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleExport} className="px-4 py-2.5 border border-admin-surface-alt rounded-lg text-[13px] font-semibold text-admin-text/80 hover:border-admin-accent/40 transition-colors flex items-center gap-2">
+          <button onClick={handleExport} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-semibold text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
             <Download size={14} /> Export CSV
           </button>
-          <button onClick={openCreateForm} className="bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
+          <button onClick={openCreateForm} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <Plus size={14} /> Nouvel abonnement
           </button>
         </div>
       </div>
 
       {toast && (
-        <div className="mb-6 px-4 py-3 rounded-lg bg-admin-accent/10 border border-gold/20 text-admin-accent text-sm font-medium flex items-center gap-2">
+        <div className="mb-6 px-4 py-3 rounded-lg bg-gold dark:bg-admin-accent/10 border border-gold/20 text-gold dark:text-admin-accent text-sm font-medium flex items-center gap-2">
           <Check size={16} /> {toast}
         </div>
       )}
@@ -182,7 +182,7 @@ export default function SubscriptionsPage() {
             key={f.value}
             onClick={() => setFilter(f.value)}
             className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${
-              filter === f.value ? "bg-admin-accent text-onyx" : "bg-admin-surface border border-admin-surface-alt text-admin-text/80 hover:border-admin-accent/40"
+              filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
             }`}
           >
             {f.label}
@@ -194,11 +194,11 @@ export default function SubscriptionsPage() {
       </div>
       {/* App filter */}
       <div className="flex gap-2 flex-wrap mb-6">
-        <button onClick={() => setAppFilter("all")} className={`px-3 py-1.5 rounded text-[12px] font-medium transition-all ${appFilter === "all" ? "bg-neutral-200 text-neutral-700" : "bg-admin-surface-alt text-admin-muted hover:bg-neutral-100"}`}>
+        <button onClick={() => setAppFilter("all")} className={`px-3 py-1.5 rounded text-[12px] font-medium transition-all ${appFilter === "all" ? "bg-neutral-200 text-neutral-700" : "bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:bg-neutral-100"}`}>
           Toutes les apps
         </button>
         {uniqueApps.map(appId => (
-          <button key={appId} onClick={() => setAppFilter(appId)} className={`px-3 py-1.5 rounded text-[12px] font-medium transition-all ${appFilter === appId ? "bg-neutral-200 text-neutral-700" : "bg-admin-surface-alt text-admin-muted hover:bg-neutral-100"}`}>
+          <button key={appId} onClick={() => setAppFilter(appId)} className={`px-3 py-1.5 rounded text-[12px] font-medium transition-all ${appFilter === appId ? "bg-neutral-200 text-neutral-700" : "bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:bg-neutral-100"}`}>
             {appMap[appId]?.name || appId}
           </button>
         ))}
@@ -209,8 +209,8 @@ export default function SubscriptionsPage() {
         columns={[
           { key: "user", label: "Client", render: (r: SubWithProfile) => (
             <div>
-              <span className="font-medium text-admin-text">{r.profiles?.full_name || "—"}</span>
-              <div className="text-admin-muted text-[11px]">{r.profiles?.email || "—"}</div>
+              <span className="font-medium text-neutral-text dark:text-admin-text">{r.profiles?.full_name || "—"}</span>
+              <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{r.profiles?.email || "—"}</div>
             </div>
           )},
           { key: "app_id", label: "Application", sortable: true, render: (r: SubWithProfile) => appMap[r.app_id]?.name || r.app_id },
@@ -242,34 +242,34 @@ export default function SubscriptionsPage() {
       <AdminModal open={showForm} onClose={() => setShowForm(false)} title="Nouvel abonnement">
         <div className="space-y-3">
           <div>
-            <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Client</label>
-            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors">
+            <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Client</label>
+            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
               <option value="">Selectionner un client</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.full_name} ({c.email})</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Application</label>
-            <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors">
+            <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Application</label>
+            <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
               {appList.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut initial</label>
-            <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors">
+            <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut initial</label>
+            <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
               <option value="active">Actif</option>
               <option value="trial">Essai gratuit (14 jours)</option>
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
+              <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
               <select value={formData.plan} onChange={e => {
                 const plan = e.target.value;
                 const app = appMap[formData.app_id];
                 const price = app ? (app.pricing as Record<string, number>)[plan] || 0 : 0;
                 setFormData(p => ({ ...p, plan, price }));
-              }} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors">
+              }} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
                 <option value="">Selectionner</option>
                 {formData.app_id && appMap[formData.app_id] && Object.entries(appMap[formData.app_id].pricing as Record<string, number>).map(([planName, price]) => (
                   <option key={planName} value={planName}>{planName} — {price.toLocaleString("fr-FR")} FCFA</option>
@@ -277,11 +277,11 @@ export default function SubscriptionsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Prix (FCFA)</label>
-              <input type="number" value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors" />
+              <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Prix (FCFA)</label>
+              <input type="number" value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
             </div>
           </div>
-          <button onClick={handleCreateSub} disabled={saving || !formData.user_id} className={`bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors w-full mt-4 ${saving || !formData.user_id ? "opacity-50" : ""}`}>
+          <button onClick={handleCreateSub} disabled={saving || !formData.user_id} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors w-full mt-4 ${saving || !formData.user_id ? "opacity-50" : ""}`}>
             {saving ? "Creation..." : "Creer l'abonnement"}
           </button>
         </div>
@@ -291,31 +291,31 @@ export default function SubscriptionsPage() {
       <AdminModal open={showEditForm} onClose={() => setShowEditForm(false)} title="Modifier l'abonnement">
         {editSub && (
           <div className="space-y-3">
-            <div className="px-4 py-3 bg-admin-surface-alt rounded-lg text-sm">
-              <p className="font-semibold text-admin-text">{editSub.profiles?.full_name}</p>
-              <p className="text-admin-muted text-[12px]">{editSub.profiles?.email} — {appMap[editSub.app_id]?.name || editSub.app_id}</p>
+            <div className="px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-lg text-sm">
+              <p className="font-semibold text-neutral-text dark:text-admin-text">{editSub.profiles?.full_name}</p>
+              <p className="text-neutral-muted dark:text-admin-muted text-[12px]">{editSub.profiles?.email} — {appMap[editSub.app_id]?.name || editSub.app_id}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
-                <input value={editData.plan} onChange={e => setEditData(p => ({ ...p, plan: e.target.value }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors" />
+                <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
+                <input value={editData.plan} onChange={e => setEditData(p => ({ ...p, plan: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
               </div>
               <div>
-                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Prix (FCFA)</label>
-                <input type="number" value={editData.price} onChange={e => setEditData(p => ({ ...p, price: Number(e.target.value) }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors" />
+                <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Prix (FCFA)</label>
+                <input type="number" value={editData.price} onChange={e => setEditData(p => ({ ...p, price: Number(e.target.value) }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Fin essai</label>
-                <input type="date" value={editData.trial_ends_at} onChange={e => setEditData(p => ({ ...p, trial_ends_at: e.target.value }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors" />
+                <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Fin essai</label>
+                <input type="date" value={editData.trial_ends_at} onChange={e => setEditData(p => ({ ...p, trial_ends_at: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
               </div>
               <div>
-                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Fin periode</label>
-                <input type="date" value={editData.current_period_end} onChange={e => setEditData(p => ({ ...p, current_period_end: e.target.value }))} className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors" />
+                <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Fin periode</label>
+                <input type="date" value={editData.current_period_end} onChange={e => setEditData(p => ({ ...p, current_period_end: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
               </div>
             </div>
-            <button onClick={handleEditSub} disabled={saving} className={`bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors w-full mt-4 ${saving ? "opacity-50" : ""}`}>
+            <button onClick={handleEditSub} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors w-full mt-4 ${saving ? "opacity-50" : ""}`}>
               {saving ? "Enregistrement..." : "Enregistrer"}
             </button>
           </div>

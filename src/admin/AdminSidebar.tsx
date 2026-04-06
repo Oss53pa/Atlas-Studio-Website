@@ -2,12 +2,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers, Search, Brain, Activity,
+  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useAuth } from "../lib/auth";
 import { useAppFilter } from "./contexts/AppFilterContext";
+import { useTheme } from "./contexts/ThemeContext";
 import { useAppCatalog } from "../hooks/useAppCatalog";
 import { NotificationCenter } from "./components/NotificationCenter";
 
@@ -67,6 +68,7 @@ export function AdminSidebar() {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const { selectedApp, setSelectedApp } = useAppFilter();
+  const { theme, toggleTheme, isDark } = useTheme();
   const { appList } = useAppCatalog();
 
   const handleLogout = async () => {
@@ -154,6 +156,13 @@ export function AdminSidebar() {
       </nav>
 
       <div className="border-t border-white/10 pt-4 space-y-2">
+        {/* Theme toggle */}
+        <button onClick={toggleTheme}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-neutral-500 text-[13px] hover:text-neutral-300 hover:bg-white/5 transition-all">
+          {isDark ? <Sun size={14} /> : <Moon size={14} />}
+          {isDark ? "Mode clair" : "Mode sombre"}
+        </button>
+
         <div className="flex items-center gap-2.5 px-2">
           <div className="w-8 h-8 rounded-full bg-admin-accent flex items-center justify-center text-onyx text-[12px] font-bold">
             {(profile?.full_name || "A").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}

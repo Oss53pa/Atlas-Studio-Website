@@ -224,8 +224,8 @@ export default function EmailTemplatesPage() {
     <div>
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-admin-text text-2xl font-bold mb-1">Templates Email</h1>
-          <p className="text-admin-muted text-sm">
+          <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Templates Email</h1>
+          <p className="text-neutral-muted dark:text-admin-muted text-sm">
             {templates.length} templates &middot; Envoi via Resend &middot; Domaine atlasstudio.org
           </p>
         </div>
@@ -235,7 +235,7 @@ export default function EmailTemplatesPage() {
         {templates.map((tpl) => (
           <div
             key={tpl.id}
-            className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5 flex flex-col hover:border-admin-accent/40 transition-colors"
+            className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 flex flex-col hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors"
           >
             <div className="flex items-start gap-3 mb-3">
               <div
@@ -245,7 +245,7 @@ export default function EmailTemplatesPage() {
                 <Mail size={18} style={{ color: tpl.typeColor }} strokeWidth={1.5} />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-admin-text font-semibold text-[15px] leading-tight">{tpl.name}</h3>
+                <h3 className="text-neutral-text dark:text-admin-text font-semibold text-[15px] leading-tight">{tpl.name}</h3>
                 <div className="flex items-center gap-2 mt-1">
                   <span
                     className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold"
@@ -258,14 +258,14 @@ export default function EmailTemplatesPage() {
               </div>
             </div>
 
-            <p className="text-admin-muted text-[13px] leading-relaxed mb-4 flex-1">
+            <p className="text-neutral-muted dark:text-admin-muted text-[13px] leading-relaxed mb-4 flex-1">
               {tpl.description}
             </p>
 
             <div className="mb-4">
               <div className="flex items-center gap-1.5 mb-2">
-                <Code size={12} className="text-admin-muted" />
-                <span className="text-[11px] font-semibold text-admin-muted uppercase tracking-wide">Variables</span>
+                <Code size={12} className="text-neutral-muted dark:text-admin-muted" />
+                <span className="text-[11px] font-semibold text-neutral-muted dark:text-admin-muted uppercase tracking-wide">Variables</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {tpl.variables.map((v) => (
@@ -282,7 +282,7 @@ export default function EmailTemplatesPage() {
 
             <button
               onClick={() => { setPreviewTpl(tpl); setCopied(false); }}
-              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-admin-surface-alt rounded-lg bg-admin-surface text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 hover:text-admin-accent transition-colors"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 hover:text-gold dark:text-admin-accent transition-colors"
             >
               <Eye size={14} />
               Aper&ccedil;u
@@ -297,9 +297,9 @@ export default function EmailTemplatesPage() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
           onClick={(e) => { if (e.target === e.currentTarget) setPreviewTpl(null); }}
         >
-          <div className="bg-admin-surface rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="bg-white dark:bg-white dark:bg-admin-surface rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-admin-surface-alt">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border dark:border-admin-surface-alt">
               <div className="flex items-center gap-3">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -308,25 +308,25 @@ export default function EmailTemplatesPage() {
                   <FileText size={16} style={{ color: previewTpl.typeColor }} />
                 </div>
                 <div>
-                  <h2 className="text-admin-text font-semibold text-[15px]">{previewTpl.name}</h2>
-                  <p className="text-admin-muted text-[12px] flex items-center gap-1">
+                  <h2 className="text-neutral-text dark:text-admin-text font-semibold text-[15px]">{previewTpl.name}</h2>
+                  <p className="text-neutral-muted dark:text-admin-muted text-[12px] flex items-center gap-1">
                     <Send size={10} />
                     <span className="font-mono">{previewTpl.sender}</span>
-                    &middot; Sujet : <span className="font-medium text-admin-text/80">{preview.subject}</span>
+                    &middot; Sujet : <span className="font-medium text-neutral-text dark:text-neutral-body dark:text-admin-text/80">{preview.subject}</span>
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyHtml}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium border border-admin-surface-alt text-admin-muted hover:border-admin-accent/40 hover:text-admin-accent transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium border border-warm-border dark:border-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:border-gold/40 dark:hover:border-admin-accent/40 hover:text-gold dark:text-admin-accent transition-colors"
                 >
                   {copied ? <Check size={12} /> : <Copy size={12} />}
                   {copied ? "Copié" : "Copier HTML"}
                 </button>
                 <button
                   onClick={() => setPreviewTpl(null)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-admin-muted hover:bg-neutral-100 hover:text-admin-text transition-colors"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-muted dark:text-admin-muted hover:bg-neutral-100 hover:text-neutral-text dark:text-admin-text transition-colors"
                 >
                   <X size={18} />
                 </button>
@@ -334,12 +334,12 @@ export default function EmailTemplatesPage() {
             </div>
 
             {/* Variables bar */}
-            <div className="px-6 py-3 bg-neutral-50 border-b border-admin-surface-alt overflow-x-auto">
+            <div className="px-6 py-3 bg-neutral-50 border-b border-warm-border dark:border-admin-surface-alt overflow-x-auto">
               <div className="flex items-center gap-2 flex-wrap text-[12px]">
-                <span className="text-[11px] font-semibold text-admin-muted uppercase tracking-wide mr-1">Test :</span>
+                <span className="text-[11px] font-semibold text-neutral-muted dark:text-admin-muted uppercase tracking-wide mr-1">Test :</span>
                 {previewTpl.variables.map((v) => (
                   <span key={v.name} className="inline-flex items-center mr-2 whitespace-nowrap">
-                    <span className="font-mono text-admin-accent/80">{v.name}</span>
+                    <span className="font-mono text-gold dark:text-admin-accent/80">{v.name}</span>
                     <span className="mx-1 text-neutral-400">=</span>
                     <span className="font-medium text-neutral-600">&quot;{previewTpl.samplePayload[v.name]}&quot;</span>
                   </span>
@@ -353,7 +353,7 @@ export default function EmailTemplatesPage() {
                 <iframe
                   srcDoc={preview.html}
                   title={`Aperçu - ${previewTpl.name}`}
-                  className="w-full border-0 bg-admin-surface"
+                  className="w-full border-0 bg-white dark:bg-white dark:bg-admin-surface"
                   style={{ minHeight: "650px" }}
                   sandbox="allow-same-origin"
                 />

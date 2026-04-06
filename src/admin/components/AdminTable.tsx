@@ -33,9 +33,9 @@ interface AdminTableProps<T> {
 
 function SkeletonRow({ cols }: { cols: number }) {
   return (
-    <tr className="border-b border-admin-surface-alt/50">
+    <tr className="border-b border-warm-border/50 dark:border-admin-surface-alt/50">
       {Array.from({ length: cols }).map((_, i) => (
-        <td key={i} className="p-4"><div className={`h-4 bg-admin-surface-alt rounded animate-pulse ${i === 0 ? "w-32" : "w-24"}`} /></td>
+        <td key={i} className="p-4"><div className={`h-4 bg-warm-bg dark:bg-admin-surface-alt rounded animate-pulse ${i === 0 ? "w-32" : "w-24"}`} /></td>
       ))}
     </tr>
   );
@@ -84,38 +84,40 @@ export function AdminTable<T>({
   const clearSelection = () => setSelected(new Set());
 
   return (
-    <div className="bg-admin-surface border border-admin-surface-alt rounded-2xl overflow-hidden">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-2xl overflow-hidden">
       {/* Bulk actions */}
       {selectable && someSelected && (
-        <div className="px-4 py-3 bg-admin-accent/10 border-b border-admin-accent/20 flex items-center gap-4 flex-wrap">
-          <span className="text-sm font-medium text-admin-accent">{selected.size} sélectionné{selected.size > 1 ? "s" : ""}</span>
+        <div className="px-4 py-3 bg-gold/5 dark:bg-admin-accent/10 border-b border-gold/20 dark:border-admin-accent/20 flex items-center gap-4 flex-wrap">
+          <span className="text-sm font-medium text-gold dark:text-admin-accent">{selected.size} sélectionné{selected.size > 1 ? "s" : ""}</span>
           <div className="flex items-center gap-2">
             {bulkActions.map((action, i) => (
               <button key={i} onClick={() => { action.onClick(Array.from(selected)); clearSelection(); }}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${
-                  action.variant === "danger" ? "bg-admin-error/20 text-red-400 hover:bg-admin-error/30" : "bg-admin-surface-alt text-admin-text hover:bg-admin-accent/20"
+                  action.variant === "danger"
+                    ? "bg-red-50 dark:bg-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/30"
+                    : "bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt text-neutral-body dark:text-admin-text hover:border-gold/40 dark:hover:border-admin-accent/40"
                 }`}>{action.icon}{action.label}</button>
             ))}
           </div>
-          <button onClick={clearSelection} className="ml-auto text-[12px] text-admin-muted hover:text-admin-text transition-colors">Désélectionner</button>
+          <button onClick={clearSelection} className="ml-auto text-[12px] text-neutral-muted dark:text-admin-muted hover:text-neutral-text dark:hover:text-admin-text transition-colors">Désélectionner</button>
         </div>
       )}
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className={`border-b border-admin-surface-alt bg-admin-accent/10 ${stickyHeader ? "sticky top-0 z-10" : ""}`}>
+            <tr className={`border-b border-warm-border dark:border-admin-surface-alt bg-warm-bg/50 dark:bg-admin-accent/10 ${stickyHeader ? "sticky top-0 z-10" : ""}`}>
               {selectable && (
                 <th className="w-10 p-4">
-                  <input type="checkbox" checked={allPageSelected} onChange={toggleAll} className="w-4 h-4 rounded accent-admin-accent cursor-pointer" />
+                  <input type="checkbox" checked={allPageSelected} onChange={toggleAll} className="w-4 h-4 rounded accent-gold dark:accent-admin-accent cursor-pointer" />
                 </th>
               )}
               {columns.map(col => (
                 <th key={col.key} onClick={col.sortable ? () => toggleSort(col.key) : undefined}
-                  className={`text-admin-accent text-[11px] font-bold uppercase tracking-wider p-4 text-left ${col.sortable ? "cursor-pointer select-none hover:text-admin-accent" : ""} ${col.className || ""}`}>
+                  className={`text-neutral-muted dark:text-admin-accent text-[11px] font-bold uppercase tracking-wider p-4 text-left ${col.sortable ? "cursor-pointer select-none hover:text-gold dark:hover:text-admin-accent" : ""} ${col.className || ""}`}>
                   <span className="inline-flex items-center gap-1">
                     {col.label}
-                    {col.sortable && <ArrowUpDown size={12} className={sortKey === col.key ? "text-admin-accent" : "opacity-40"} />}
+                    {col.sortable && <ArrowUpDown size={12} className={sortKey === col.key ? "text-gold dark:text-admin-accent" : "opacity-40"} />}
                   </span>
                 </th>
               ))}
@@ -126,24 +128,24 @@ export function AdminTable<T>({
               Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={columns.length + (selectable ? 1 : 0)} />)
             ) : paged.length === 0 ? (
               <tr><td colSpan={columns.length + (selectable ? 1 : 0)} className="p-12 text-center">
-                {emptyIcon && <div className="flex justify-center mb-3 text-admin-muted">{emptyIcon}</div>}
-                <p className="text-admin-muted text-sm">{emptyMessage}</p>
+                {emptyIcon && <div className="flex justify-center mb-3 text-neutral-300 dark:text-admin-muted">{emptyIcon}</div>}
+                <p className="text-neutral-muted dark:text-admin-muted text-sm">{emptyMessage}</p>
               </td></tr>
             ) : paged.map((row, ri) => {
               const id = keyExtractor(row);
               const isSelected = selected.has(id);
               return (
                 <tr key={id} onClick={() => onRowClick?.(row)}
-                  className={`border-b border-admin-surface-alt/50 last:border-b-0 transition-colors ${
-                    isSelected ? "bg-admin-accent/5" : ri % 2 === 1 ? "bg-admin-surface-alt/30" : ""
-                  } ${onRowClick ? "cursor-pointer hover:bg-admin-accent/10" : "hover:bg-admin-surface-alt/50"}`}>
+                  className={`border-b border-warm-bg dark:border-admin-surface-alt/50 last:border-b-0 transition-colors ${
+                    isSelected ? "bg-gold/5 dark:bg-admin-accent/5" : ri % 2 === 1 ? "bg-warm-bg/30 dark:bg-admin-surface-alt/30" : ""
+                  } ${onRowClick ? "cursor-pointer hover:bg-warm-bg/50 dark:hover:bg-admin-accent/10" : "hover:bg-warm-bg/50 dark:hover:bg-admin-surface-alt/50"}`}>
                   {selectable && (
                     <td className="w-10 p-4" onClick={e => e.stopPropagation()}>
-                      <input type="checkbox" checked={isSelected} onChange={() => toggleOne(id)} className="w-4 h-4 rounded accent-admin-accent cursor-pointer" />
+                      <input type="checkbox" checked={isSelected} onChange={() => toggleOne(id)} className="w-4 h-4 rounded accent-gold dark:accent-admin-accent cursor-pointer" />
                     </td>
                   )}
                   {columns.map(col => (
-                    <td key={col.key} className={`text-admin-text text-[13px] p-4 ${col.className || ""}`}>
+                    <td key={col.key} className={`text-neutral-body dark:text-admin-text text-[13px] p-4 ${col.className || ""}`}>
                       {col.render ? col.render(row) : String((row as any)[col.key] ?? "")}
                     </td>
                   ))}
@@ -155,23 +157,23 @@ export function AdminTable<T>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-admin-surface-alt flex-wrap gap-2">
+      <div className="flex items-center justify-between px-4 py-3 border-t border-warm-border dark:border-admin-surface-alt flex-wrap gap-2">
         <div className="flex items-center gap-3">
-          <span className="text-admin-muted text-[12px]">
+          <span className="text-neutral-muted dark:text-admin-muted text-[12px]">
             {sorted.length === 0 ? "0 résultats" : `${page * pageSize + 1}–${Math.min((page + 1) * pageSize, sorted.length)} sur ${sorted.length}`}
           </span>
           <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(0); }}
-            className="text-[12px] text-admin-muted bg-admin-surface-alt border border-admin-surface-alt rounded px-2 py-1 outline-none cursor-pointer">
+            className="text-[12px] text-neutral-muted dark:text-admin-muted bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded px-2 py-1 outline-none cursor-pointer">
             {pageSizeOptions.map(n => <option key={n} value={n}>{n} / page</option>)}
           </select>
         </div>
         {totalPages > 1 && (
           <div className="flex items-center gap-1">
-            <button onClick={() => setPage(0)} disabled={page === 0} className="p-1.5 rounded hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-admin-muted"><ChevronsLeft size={14} /></button>
-            <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="p-1.5 rounded hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-admin-muted"><ChevronLeft size={16} /></button>
-            <span className="text-[12px] text-admin-muted px-2">{page + 1} / {totalPages}</span>
-            <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="p-1.5 rounded hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-admin-muted"><ChevronRight size={16} /></button>
-            <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1} className="p-1.5 rounded hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-admin-muted"><ChevronsRight size={14} /></button>
+            <button onClick={() => setPage(0)} disabled={page === 0} className="p-1.5 rounded hover:bg-warm-bg dark:hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-neutral-muted dark:text-admin-muted"><ChevronsLeft size={14} /></button>
+            <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="p-1.5 rounded hover:bg-warm-bg dark:hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-neutral-muted dark:text-admin-muted"><ChevronLeft size={16} /></button>
+            <span className="text-[12px] text-neutral-muted dark:text-admin-muted px-2">{page + 1} / {totalPages}</span>
+            <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="p-1.5 rounded hover:bg-warm-bg dark:hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-neutral-muted dark:text-admin-muted"><ChevronRight size={16} /></button>
+            <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1} className="p-1.5 rounded hover:bg-warm-bg dark:hover:bg-admin-surface-alt disabled:opacity-30 transition-colors text-neutral-muted dark:text-admin-muted"><ChevronsRight size={14} /></button>
           </div>
         )}
       </div>

@@ -190,24 +190,24 @@ export default function ClientsPage() {
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="mb-3">
-      <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       {children}
     </div>
   );
-  const inputClass = "w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors";
+  const inputClass = "w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
 
   return (
     <div>
       <div className="flex items-center justify-between mb-7 flex-wrap gap-4">
         <div>
-          <h1 className="text-admin-text text-2xl font-bold mb-1">Utilisateurs</h1>
-          <p className="text-admin-muted text-sm">{clients.length} clients — {newThisMonth} nouveaux ce mois</p>
+          <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Utilisateurs</h1>
+          <p className="text-neutral-muted dark:text-admin-muted text-sm">{clients.length} clients — {newThisMonth} nouveaux ce mois</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-admin-surface-alt rounded-lg bg-admin-surface text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <Download size={14} /> CSV
           </button>
-          <button onClick={openCreateForm} className="bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
+          <button onClick={openCreateForm} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <Plus size={14} /> Nouveau client
           </button>
         </div>
@@ -219,16 +219,16 @@ export default function ClientsPage() {
           {statusFilters.map(f => (
             <button key={f.value} onClick={() => setStatusFilter(f.value)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                statusFilter === f.value ? "bg-admin-accent text-onyx" : "bg-admin-surface border border-admin-surface-alt text-admin-text/80 hover:border-admin-accent/40"
+                statusFilter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
               }`}>
               {f.label} <span className="ml-1 opacity-60">{f.count}</span>
             </button>
           ))}
         </div>
         <div className="relative flex-1 max-w-sm">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par nom, email, entreprise..."
-            className="w-full pl-9 pr-4 py-2.5 bg-admin-surface border border-admin-surface-alt rounded-lg text-sm text-admin-text outline-none focus:border-admin-accent transition-colors" />
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
         </div>
       </div>
 
@@ -245,12 +245,12 @@ export default function ClientsPage() {
         columns={[
           { key: "full_name", label: "Client", sortable: true, render: (r: Profile) => (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-admin-accent/10 flex items-center justify-center text-admin-accent text-[11px] font-semibold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gold dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-semibold flex-shrink-0">
                 {getInitials(r.full_name || "?")}
               </div>
               <div>
-                <div className="font-medium text-admin-text">{r.full_name}</div>
-                {r.company_name && <div className="text-admin-muted text-[11px]">{r.company_name}</div>}
+                <div className="font-medium text-neutral-text dark:text-admin-text">{r.full_name}</div>
+                {r.company_name && <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{r.company_name}</div>}
               </div>
             </div>
           )},
@@ -259,17 +259,17 @@ export default function ClientsPage() {
             <AdminBadge status={r.is_active ? "active" : "suspended"} label={r.is_active ? "Actif" : "Suspendu"} />
           )},
           { key: "created_at", label: "Inscrit le", sortable: true, render: (r: Profile) =>
-            <span className="text-[12px] text-admin-muted">{new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}</span>
+            <span className="text-[12px] text-neutral-muted dark:text-admin-muted">{new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}</span>
           },
           { key: "actions", label: "", render: (r: Profile) => (
             <div className="flex items-center gap-0.5" onClick={e => e.stopPropagation()}>
-              <button onClick={() => openEditForm(r)} className="p-1.5 rounded hover:bg-admin-surface-alt text-admin-muted hover:text-admin-accent transition-colors" title="Modifier"><Pencil size={14} /></button>
-              <button onClick={() => handleResetPassword(r)} className="p-1.5 rounded hover:bg-blue-50 text-admin-muted hover:text-blue-600 transition-colors" title="Reset mot de passe"><KeyRound size={14} /></button>
-              <button onClick={() => openTestAccess(r)} className="p-1.5 rounded hover:bg-emerald-50 text-admin-muted hover:text-emerald-600 transition-colors" title="Accès test"><FlaskConical size={14} /></button>
+              <button onClick={() => openEditForm(r)} className="p-1.5 rounded hover:bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-gold dark:text-admin-accent transition-colors" title="Modifier"><Pencil size={14} /></button>
+              <button onClick={() => handleResetPassword(r)} className="p-1.5 rounded hover:bg-blue-50 text-neutral-muted dark:text-admin-muted hover:text-blue-600 transition-colors" title="Reset mot de passe"><KeyRound size={14} /></button>
+              <button onClick={() => openTestAccess(r)} className="p-1.5 rounded hover:bg-emerald-50 text-neutral-muted dark:text-admin-muted hover:text-emerald-600 transition-colors" title="Accès test"><FlaskConical size={14} /></button>
               <button onClick={() => toggleActive(r)} className={`p-1.5 rounded transition-colors ${r.is_active ? "hover:bg-red-50 text-red-400" : "hover:bg-green-50 text-green-600"}`} title={r.is_active ? "Suspendre" : "Réactiver"}>
                 {r.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
               </button>
-              <button onClick={() => handleDeleteClient(r)} className="p-1.5 rounded hover:bg-red-50 text-admin-muted hover:text-red-500 transition-colors" title="Supprimer"><Trash2 size={14} /></button>
+              <button onClick={() => handleDeleteClient(r)} className="p-1.5 rounded hover:bg-red-50 text-neutral-muted dark:text-admin-muted hover:text-red-500 transition-colors" title="Supprimer"><Trash2 size={14} /></button>
             </div>
           )},
         ]}
@@ -281,11 +281,11 @@ export default function ClientsPage() {
         subtitle={selectedClient?.email}>
         {selectedClient && (
           <div>
-            <div className="flex gap-2 mb-6 border-b border-admin-surface-alt">
+            <div className="flex gap-2 mb-6 border-b border-warm-border dark:border-admin-surface-alt">
               {DETAIL_TABS.map(tab => (
                 <button key={tab.value} onClick={() => setDetailTab(tab.value)}
                   className={`px-4 py-2.5 text-[13px] font-medium border-b-2 transition-colors -mb-px ${
-                    detailTab === tab.value ? "border-gold text-admin-accent" : "border-transparent text-admin-muted hover:text-admin-text"
+                    detailTab === tab.value ? "border-gold text-gold dark:text-admin-accent" : "border-transparent text-neutral-muted dark:text-admin-muted hover:text-neutral-text dark:text-admin-text"
                   }`}>
                   {tab.label} {tab.count !== undefined && <span className="ml-1 text-[11px] opacity-60">{tab.count}</span>}
                 </button>
@@ -295,43 +295,43 @@ export default function ClientsPage() {
             {detailTab === "profile" && (
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Nom</div>
-                  <div className="text-admin-text text-sm">{selectedClient.full_name}</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Nom</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm">{selectedClient.full_name}</div>
                 </div>
                 <div>
-                  <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Email</div>
-                  <div className="text-admin-text text-sm">{selectedClient.email}</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Email</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm">{selectedClient.email}</div>
                 </div>
                 <div>
-                  <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Entreprise</div>
-                  <div className="text-admin-text text-sm">{selectedClient.company_name || "—"}</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Entreprise</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm">{selectedClient.company_name || "—"}</div>
                 </div>
                 <div>
-                  <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Téléphone</div>
-                  <div className="text-admin-text text-sm">{selectedClient.phone || "—"}</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Téléphone</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm">{selectedClient.phone || "—"}</div>
                 </div>
                 <div>
-                  <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Statut</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Statut</div>
                   <AdminBadge status={selectedClient.is_active ? "active" : "suspended"} label={selectedClient.is_active ? "Actif" : "Suspendu"} />
                 </div>
                 <div>
-                  <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Inscrit le</div>
-                  <div className="text-admin-text text-sm">{new Date(selectedClient.created_at).toLocaleDateString("fr-FR", { dateStyle: "long" })}</div>
+                  <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Inscrit le</div>
+                  <div className="text-neutral-text dark:text-admin-text text-sm">{new Date(selectedClient.created_at).toLocaleDateString("fr-FR", { dateStyle: "long" })}</div>
                 </div>
               </div>
             )}
 
             {detailTab === "subscriptions" && (
-              clientSubs.length === 0 ? <p className="text-admin-muted text-sm py-4">Aucun abonnement</p> : (
+              clientSubs.length === 0 ? <p className="text-neutral-muted dark:text-admin-muted text-sm py-4">Aucun abonnement</p> : (
                 <div className="space-y-2">
                   {clientSubs.map(sub => (
-                    <div key={sub.id} className="flex items-center justify-between p-4 bg-admin-surface-alt rounded-xl">
+                    <div key={sub.id} className="flex items-center justify-between p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-xl">
                       <div>
-                        <div className="text-admin-text text-sm font-medium">{appMap[sub.app_id]?.name || sub.app_id}</div>
-                        <div className="text-admin-muted text-[11px]">Plan {sub.plan} · Depuis {new Date(sub.created_at).toLocaleDateString("fr-FR")}</div>
+                        <div className="text-neutral-text dark:text-admin-text text-sm font-medium">{appMap[sub.app_id]?.name || sub.app_id}</div>
+                        <div className="text-neutral-muted dark:text-admin-muted text-[11px]">Plan {sub.plan} · Depuis {new Date(sub.created_at).toLocaleDateString("fr-FR")}</div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-admin-accent text-sm font-mono font-medium">{Number(sub.price_at_subscription).toLocaleString("fr-FR")} FCFA</span>
+                        <span className="text-gold dark:text-admin-accent text-sm font-mono font-medium">{Number(sub.price_at_subscription).toLocaleString("fr-FR")} FCFA</span>
                         <AdminBadge status={sub.status} />
                       </div>
                     </div>
@@ -341,16 +341,16 @@ export default function ClientsPage() {
             )}
 
             {detailTab === "invoices" && (
-              clientInvoices.length === 0 ? <p className="text-admin-muted text-sm py-4">Aucune facture</p> : (
+              clientInvoices.length === 0 ? <p className="text-neutral-muted dark:text-admin-muted text-sm py-4">Aucune facture</p> : (
                 <div className="space-y-2">
                   {clientInvoices.map(inv => (
-                    <div key={inv.id} className="flex items-center justify-between p-4 bg-admin-surface-alt rounded-xl">
+                    <div key={inv.id} className="flex items-center justify-between p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-xl">
                       <div>
-                        <div className="text-admin-text text-sm font-mono">{inv.invoice_number}</div>
-                        <div className="text-admin-muted text-[11px]">{new Date(inv.created_at).toLocaleDateString("fr-FR")}</div>
+                        <div className="text-neutral-text dark:text-admin-text text-sm font-mono">{inv.invoice_number}</div>
+                        <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{new Date(inv.created_at).toLocaleDateString("fr-FR")}</div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-admin-accent text-sm font-semibold">{Number(inv.amount).toLocaleString("fr-FR")} {inv.currency || "FCFA"}</span>
+                        <span className="text-gold dark:text-admin-accent text-sm font-semibold">{Number(inv.amount).toLocaleString("fr-FR")} {inv.currency || "FCFA"}</span>
                         <AdminBadge status={inv.status} />
                       </div>
                     </div>
@@ -364,7 +364,7 @@ export default function ClientsPage() {
 
       {/* Create/Edit form */}
       <AdminModal open={showForm} onClose={() => setShowForm(false)} title={editClient ? "Modifier le client" : "Nouveau client"}
-        footer={<button onClick={handleSaveClient} disabled={saving} className={`bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer"}</button>}>
+        footer={<button onClick={handleSaveClient} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer"}</button>}>
         <div className="space-y-1">
           <Field label="Nom complet"><input value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className={inputClass} /></Field>
           {!editClient && (
@@ -380,7 +380,7 @@ export default function ClientsPage() {
 
       {/* Test access modal */}
       <AdminModal open={!!testAccessClient} onClose={() => setTestAccessClient(null)} title="Accorder un accès test"
-        footer={<button onClick={handleGrantTestAccess} disabled={grantingAccess || !testAccessForm.appId} className={`bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 flex items-center gap-2 ${grantingAccess || !testAccessForm.appId ? "opacity-50" : ""}`}><FlaskConical size={14} />{grantingAccess ? "En cours..." : "Accorder"}</button>}>
+        footer={<button onClick={handleGrantTestAccess} disabled={grantingAccess || !testAccessForm.appId} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 flex items-center gap-2 ${grantingAccess || !testAccessForm.appId ? "opacity-50" : ""}`}><FlaskConical size={14} />{grantingAccess ? "En cours..." : "Accorder"}</button>}>
         {testAccessClient && (
           <div className="space-y-4">
             <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">

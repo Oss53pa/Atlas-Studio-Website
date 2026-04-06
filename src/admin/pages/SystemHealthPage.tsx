@@ -134,21 +134,21 @@ export default function SystemHealthPage() {
   const healthColor = healthScore >= 90 ? "text-emerald-500" : healthScore >= 70 ? "text-amber-500" : "text-red-500";
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-admin-accent" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-gold dark:text-admin-accent" /></div>;
   }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h1 className="text-admin-text text-2xl font-bold mb-1">Santé système</h1>
-          <p className="text-admin-muted text-sm">Monitoring et état des services</p>
+          <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Santé système</h1>
+          <p className="text-neutral-muted dark:text-admin-muted text-sm">Monitoring et état des services</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={checkServices} className="flex items-center gap-2 px-4 py-2.5 border border-admin-surface-alt rounded-lg bg-admin-surface text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors">
+          <button onClick={checkServices} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <RefreshCw size={14} /> Vérifier
           </button>
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-admin-surface-alt rounded-lg bg-admin-surface text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <Download size={14} /> Exporter
           </button>
         </div>
@@ -156,7 +156,7 @@ export default function SystemHealthPage() {
 
       {/* Health score + Services */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8">
-        <div className="lg:col-span-1 bg-admin-surface border border-admin-surface-alt rounded-xl p-6 flex flex-col items-center justify-center">
+        <div className="lg:col-span-1 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 flex flex-col items-center justify-center">
           <div className="relative w-20 h-20 mb-3">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
               <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" strokeWidth="8" />
@@ -167,21 +167,21 @@ export default function SystemHealthPage() {
               <span className={`text-xl font-bold ${healthColor}`}>{healthScore}</span>
             </div>
           </div>
-          <div className="text-admin-text text-sm font-semibold">Score global</div>
+          <div className="text-neutral-text dark:text-admin-text text-sm font-semibold">Score global</div>
           <div className={`text-[12px] font-medium ${healthColor}`}>
             {healthScore >= 90 ? "Excellent" : healthScore >= 70 ? "Correct" : "Dégradé"}
           </div>
         </div>
 
         {services.map(s => (
-          <div key={s.name} className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5">
+          <div key={s.name} className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${STATUS_BG[s.status]} ${STATUS_COLORS[s.status]}`}>
                 {s.icon}
               </div>
               <div>
-                <div className="text-admin-text text-sm font-medium">{s.name}</div>
-                <div className="text-admin-muted text-[11px]">{s.description}</div>
+                <div className="text-neutral-text dark:text-admin-text text-sm font-medium">{s.name}</div>
+                <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{s.description}</div>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -189,7 +189,7 @@ export default function SystemHealthPage() {
                 {STATUS_ICONS[s.status]} {STATUS_LABELS[s.status]}
               </span>
               {s.responseTime > 0 && (
-                <span className="text-admin-muted text-[11px] font-mono">{s.responseTime}ms</span>
+                <span className="text-neutral-muted dark:text-admin-muted text-[11px] font-mono">{s.responseTime}ms</span>
               )}
             </div>
           </div>
@@ -206,8 +206,8 @@ export default function SystemHealthPage() {
 
       {/* Uptime chart + Incidents */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
-          <h2 className="text-admin-text text-sm font-semibold mb-4">Uptime (7 derniers jours)</h2>
+        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Uptime (7 derniers jours)</h2>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={uptimeData}>
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#a3a3a3" }} axisLine={false} tickLine={false} />
@@ -222,12 +222,12 @@ export default function SystemHealthPage() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
-          <h2 className="text-admin-text text-sm font-semibold mb-4">Incidents récents</h2>
+        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Incidents récents</h2>
           {incidents.length === 0 ? (
             <div className="flex items-center gap-3 py-6 justify-center">
               <CheckCircle2 size={20} className="text-emerald-500" />
-              <span className="text-admin-muted text-sm">Aucun incident récent</span>
+              <span className="text-neutral-muted dark:text-admin-muted text-sm">Aucun incident récent</span>
             </div>
           ) : (
             <div className="space-y-3">

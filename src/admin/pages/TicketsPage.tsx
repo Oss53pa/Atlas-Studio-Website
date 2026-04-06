@@ -138,11 +138,11 @@ export default function TicketsPage() {
     <div>
       <div className="flex items-center justify-between mb-7 flex-wrap gap-4">
         <div>
-          <h1 className="text-admin-text text-2xl font-bold mb-1">Tickets Support</h1>
-          <p className="text-admin-muted text-sm">{tickets.length} tickets — {counts.open + counts.in_progress} en attente</p>
+          <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Tickets Support</h1>
+          <p className="text-neutral-muted dark:text-admin-muted text-sm">{tickets.length} tickets — {counts.open + counts.in_progress} en attente</p>
         </div>
         <button onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2.5 border border-admin-surface-alt rounded-lg bg-admin-surface text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
           <Download size={14} /> Export CSV
         </button>
       </div>
@@ -153,16 +153,16 @@ export default function TicketsPage() {
           {statusFilters.map(f => (
             <button key={f.value} onClick={() => setFilter(f.value)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                filter === f.value ? "bg-admin-accent text-onyx" : "bg-admin-surface border border-admin-surface-alt text-admin-text/80 hover:border-admin-accent/40"
+                filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
               }`}>
               {f.label} <span className="ml-1 opacity-60">{f.count}</span>
             </button>
           ))}
         </div>
         <div className="relative flex-1 max-w-xs">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher sujet, client..."
-            className="w-full pl-9 pr-4 py-2.5 bg-admin-surface border border-admin-surface-alt rounded-lg text-sm text-admin-text outline-none focus:border-admin-accent transition-colors" />
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
         </div>
       </div>
 
@@ -180,12 +180,12 @@ export default function TicketsPage() {
         onRowClick={openTicket}
         columns={[
           { key: "subject", label: "Sujet", render: (r: TicketWithProfile) => (
-            <span className="font-medium text-admin-text">{r.subject}</span>
+            <span className="font-medium text-neutral-text dark:text-admin-text">{r.subject}</span>
           )},
           { key: "user", label: "Client", render: (r: TicketWithProfile) => (
             <div>
-              <div className="text-admin-text text-[13px]">{r.profiles?.full_name || "—"}</div>
-              <div className="text-admin-muted text-[11px]">{r.profiles?.email || "—"}</div>
+              <div className="text-neutral-text dark:text-admin-text text-[13px]">{r.profiles?.full_name || "—"}</div>
+              <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{r.profiles?.email || "—"}</div>
             </div>
           )},
           { key: "priority", label: "Priorité", render: (r: TicketWithProfile) => (
@@ -200,12 +200,12 @@ export default function TicketsPage() {
           }},
           { key: "status", label: "Statut", render: (r: TicketWithProfile) => (
             <select value={r.status} onClick={e => e.stopPropagation()} onChange={e => updateStatus(r, e.target.value)}
-              className="px-2 py-1 border border-admin-surface-alt rounded text-[11px] bg-admin-surface outline-none cursor-pointer">
+              className="px-2 py-1 border border-warm-border dark:border-admin-surface-alt rounded text-[11px] bg-white dark:bg-white dark:bg-admin-surface outline-none cursor-pointer">
               {statusOptions.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
           )},
           { key: "created_at", label: "Date", sortable: true, render: (r: TicketWithProfile) =>
-            <span className="text-[12px] text-admin-muted">{new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</span>
+            <span className="text-[12px] text-neutral-muted dark:text-admin-muted">{new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</span>
           },
         ]}
         data={filtered}
@@ -218,11 +218,11 @@ export default function TicketsPage() {
           activeTicket && activeTicket.status !== "closed" ? (
             <>
               <button onClick={() => handleReply(false)} disabled={sending || !reply.trim()}
-                className={`bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 !px-5 !text-[13px] flex items-center gap-2 ${sending || !reply.trim() ? "opacity-50" : ""}`}>
+                className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !px-5 !text-[13px] flex items-center gap-2 ${sending || !reply.trim() ? "opacity-50" : ""}`}>
                 <Send size={14} /> Répondre
               </button>
               <button onClick={() => handleReply(true)} disabled={sending || !reply.trim()}
-                className={`px-5 py-2.5 border border-admin-surface-alt rounded-lg text-[13px] font-medium text-admin-text/80 hover:border-admin-accent/40 transition-colors ${sending || !reply.trim() ? "opacity-50" : ""}`}>
+                className={`px-5 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-medium text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors ${sending || !reply.trim() ? "opacity-50" : ""}`}>
                 Répondre et fermer
               </button>
             </>
@@ -235,21 +235,21 @@ export default function TicketsPage() {
             <div className="flex-1 space-y-4 overflow-y-auto mb-4 min-h-[300px] max-h-[calc(100vh-380px)]">
               {messages.map(m => (
                 <div key={m.id} className={`flex ${m.is_admin ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl ${m.is_admin ? "bg-admin-accent/5 border border-gold/10 rounded-br-md" : "bg-admin-surface-alt border border-admin-surface-alt rounded-bl-md"}`}>
+                  <div className={`max-w-[80%] p-4 rounded-2xl ${m.is_admin ? "bg-gold dark:bg-admin-accent/5 border border-gold/10 rounded-br-md" : "bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-bl-md"}`}>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[11px] font-semibold text-admin-muted">
+                      <span className="text-[11px] font-semibold text-neutral-muted dark:text-admin-muted">
                         {m.is_admin ? "Admin" : activeTicket.profiles?.full_name || "Client"}
                       </span>
-                      <span className="text-[10px] text-admin-muted/60">
+                      <span className="text-[10px] text-neutral-muted dark:text-admin-muted/60">
                         {new Date(m.created_at).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                    <div className="text-admin-text text-[13px] whitespace-pre-wrap leading-relaxed">{m.message}</div>
+                    <div className="text-neutral-text dark:text-admin-text text-[13px] whitespace-pre-wrap leading-relaxed">{m.message}</div>
                   </div>
                 </div>
               ))}
               {messages.length === 0 && (
-                <div className="text-center text-admin-muted text-sm py-8">Aucun message</div>
+                <div className="text-center text-neutral-muted dark:text-admin-muted text-sm py-8">Aucun message</div>
               )}
             </div>
 
@@ -261,7 +261,7 @@ export default function TicketsPage() {
                 onKeyDown={e => { if (e.key === "Enter" && e.ctrlKey) handleReply(); }}
                 placeholder="Répondre... (Ctrl+Enter pour envoyer)"
                 rows={3}
-                className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors resize-y"
+                className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors resize-y"
               />
             )}
           </div>
