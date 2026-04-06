@@ -47,6 +47,7 @@ export default {
       },
       fontFamily: {
         body: ["'Exo 2'", 'sans-serif'],
+        inter: ["'Inter'", 'sans-serif'],
         logo: ["'Grand Hotel'", 'cursive'],
         mono: ["'JetBrains Mono'", 'monospace'],
       },

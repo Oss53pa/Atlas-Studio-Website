@@ -1,289 +1,193 @@
-import { useState, useEffect } from "react";
-import {
-  DollarSign, Clock, CreditCard, ArrowUpDown, Search, Eye, CheckCircle,
-  RotateCcw, AlertTriangle, Filter, Banknote
-} from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { CreditCard, DollarSign, AlertTriangle, CheckCircle2, XCircle, Download } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "../../lib/supabase";
-import { apiCall } from "../../lib/api";
-import { useToast } from "../contexts/ToastContext";
-import { AdminCard } from "../components/AdminCard";
 import { AdminTable } from "../components/AdminTable";
-import { AdminBadge } from "../components/AdminBadge";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { AdminCard } from "../components/AdminCard";
+import { AdminPageHeader } from "../components/AdminPageHeader";
+import { AdminSearch } from "../components/AdminSearch";
+import { AdminFilterPills } from "../components/AdminFilterPills";
+import { AdminButton } from "../components/AdminButton";
+import { AdminModal } from "../components/AdminModal";
+import { useToast } from "../contexts/ToastContext";
+import { useAppFilter } from "../contexts/AppFilterContext";
+import { exportToCSV } from "../../lib/csvExport";
 
-interface Transaction {
+interface Payment {
   id: string;
-  user_id: string;
-  amount: number;
-  currency: string;
-  payment_method: string;
+  invoice_id: string | null;
+  amount_fcfa: number;
+  method: string;
   status: string;
-  reference: string;
+  gateway_ref: string | null;
+  gateway_response: any;
   created_at: string;
-  profiles?: { full_name: string; email: string } | null;
+  invoices?: { invoice_number: string; app_id?: string; profiles?: { full_name: string; email: string } | null } | null;
 }
 
-const STATUS_FILTERS = [
-  { label: "Tous", value: "all" },
-  { label: "Succès", value: "succeeded" },
-  { label: "En attente", value: "pending" },
-  { label: "Échoué", value: "failed" },
-  { label: "Remboursé", value: "refunded" },
-];
-
-const METHOD_FILTERS = [
-  { label: "Tous", value: "all" },
-  { label: "Mobile Money", value: "mobile_money" },
-  { label: "CinetPay", value: "cinetpay" },
-  { label: "Stripe", value: "stripe" },
-  { label: "Virement", value: "wire" },
-];
-
-const PERIOD_FILTERS = [
-  { label: "Tout", value: "all" },
-  { label: "Aujourd'hui", value: "today" },
-  { label: "7 jours", value: "7" },
-  { label: "30 jours", value: "30" },
-  { label: "90 jours", value: "90" },
-];
-
-const METHOD_COLORS: Record<string, string> = {
-  mobile_money: "bg-green-500/20 text-green-400 border-green-500/30",
-  cinetpay: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  stripe: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  wire: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+const METHOD_LABELS: Record<string, string> = {
+  orange_money: "Orange Money", mtn_momo: "MTN MoMo", wave: "Wave",
+  wire_transfer: "Virement bancaire", manual: "Manuel", card: "Carte bancaire",
 };
 
-const CHART_COLORS = ["#22c55e", "#3b82f6", "#a855f7", "#EF9F27", "#ef4444"];
+const METHOD_COLORS: Record<string, string> = {
+  orange_money: "bg-orange-500/20 text-orange-400", mtn_momo: "bg-yellow-500/20 text-yellow-400",
+  wave: "bg-blue-500/20 text-blue-400", wire_transfer: "bg-emerald-500/20 text-emerald-400",
+  manual: "bg-neutral-500/20 text-neutral-400", card: "bg-purple-500/20 text-purple-400",
+};
 
-const fmt = (n: number) => n.toLocaleString("fr-FR");
-const fmtDate = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const STATUS_ICONS: Record<string, React.ReactNode> = {
+  success: <CheckCircle2 size={14} className="text-green-500" />,
+  failed: <XCircle size={14} className="text-red-500" />,
+  pending: <CreditCard size={14} className="text-amber-500" />,
+  refunded: <CreditCard size={14} className="text-purple-500" />,
+};
 
 export default function PaymentsPage() {
-  const { success, error: showError } = useToast();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { success: toastSuccess } = useToast();
+  const { selectedApp } = useAppFilter();
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [methodFilter, setMethodFilter] = useState("all");
-  const [periodFilter, setPeriodFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [confirming, setConfirming] = useState<string | null>(null);
+  const [detailPayment, setDetailPayment] = useState<Payment | null>(null);
 
-  const fetchTransactions = async () => {
-    const { data, error } = await supabase
-      .from("payment_transactions")
-      .select("*, profiles(full_name, email)")
-      .order("created_at", { ascending: false });
-    if (data) setTransactions(data as Transaction[]);
-    if (error) showError("Erreur chargement paiements");
+  const fetchPayments = async () => {
+    const { data } = await supabase.from("payments").select("*, invoices(invoice_number, app_id, profiles(full_name, email))").order("created_at", { ascending: false });
+    setPayments(data as Payment[] || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchTransactions(); }, []);
+  useEffect(() => { fetchPayments(); }, []);
 
-  // KPI calculations
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
-  const todayTx = transactions.filter(t => new Date(t.created_at) >= today);
-  const receivedToday = todayTx.filter(t => t.status === "succeeded").reduce((s, t) => s + t.amount, 0);
-  const txCountToday = todayTx.length;
-  const receivedMonth = transactions.filter(t => t.status === "succeeded" && new Date(t.created_at) >= monthStart).reduce((s, t) => s + t.amount, 0);
-  const pendingWires = transactions.filter(t => t.payment_method === "wire" && t.status === "pending");
-  const pendingWireTotal = pendingWires.reduce((s, t) => s + t.amount, 0);
-
-  // Donut chart data
-  const methodBreakdown = transactions
-    .filter(t => t.status === "succeeded")
-    .reduce((acc, t) => {
-      acc[t.payment_method] = (acc[t.payment_method] || 0) + t.amount;
-      return acc;
-    }, {} as Record<string, number>);
-
-  const chartData = Object.entries(methodBreakdown).map(([name, value]) => ({ name, value }));
-
-  // Filtering
-  const filtered = transactions.filter(t => {
-    if (statusFilter !== "all" && t.status !== statusFilter) return false;
-    if (methodFilter !== "all" && t.payment_method !== methodFilter) return false;
-    if (periodFilter !== "all") {
-      const cutoff = new Date();
-      if (periodFilter === "today") cutoff.setHours(0, 0, 0, 0);
-      else cutoff.setDate(cutoff.getDate() - Number(periodFilter));
-      if (new Date(t.created_at) < cutoff) return false;
-    }
+  const filtered = useMemo(() => payments.filter(p => {
+    if (statusFilter !== "all" && p.status !== statusFilter) return false;
+    if (methodFilter !== "all" && p.method !== methodFilter) return false;
+    if (selectedApp !== "all" && (p.invoices as any)?.app_id !== selectedApp) return false;
     if (search) {
       const q = search.toLowerCase();
-      const name = t.profiles?.full_name?.toLowerCase() || "";
-      const email = t.profiles?.email?.toLowerCase() || "";
-      if (!name.includes(q) && !email.includes(q) && !t.reference?.toLowerCase().includes(q)) return false;
+      if (!(p.gateway_ref || "").toLowerCase().includes(q) && !((p.invoices as any)?.invoice_number || "").toLowerCase().includes(q) && !((p.invoices as any)?.profiles?.full_name || "").toLowerCase().includes(q)) return false;
     }
     return true;
-  });
+  }), [payments, statusFilter, methodFilter, selectedApp, search]);
 
-  const confirmWire = async (tx: Transaction) => {
-    setConfirming(tx.id);
-    try {
-      await supabase.from("payment_transactions").update({ status: "succeeded" }).eq("id", tx.id);
-      success("Virement confirmé");
-      fetchTransactions();
-    } catch { showError("Erreur confirmation"); }
-    setConfirming(null);
+  const totalSuccess = payments.filter(p => p.status === "success").reduce((s, p) => s + p.amount_fcfa, 0);
+  const totalPending = payments.filter(p => p.status === "pending").reduce((s, p) => s + p.amount_fcfa, 0);
+  const totalFailed = payments.filter(p => p.status === "failed").reduce((s, p) => s + p.amount_fcfa, 0);
+  const successRate = payments.length > 0 ? Math.round((payments.filter(p => p.status === "success").length / payments.length) * 100) : 0;
+
+  const methodChart = useMemo(() => {
+    const byMethod: Record<string, number> = {};
+    payments.filter(p => p.status === "success").forEach(p => { byMethod[p.method] = (byMethod[p.method] || 0) + p.amount_fcfa; });
+    return Object.entries(byMethod).map(([method, amount]) => ({ method: METHOD_LABELS[method] || method, amount })).sort((a, b) => b.amount - a.amount);
+  }, [payments]);
+
+  const fmt = (n: number) => n.toLocaleString("fr-FR");
+
+  const handleExport = () => {
+    exportToCSV(filtered, [
+      { key: "gateway_ref", label: "Référence" },
+      { key: "amount_fcfa", label: "Montant FCFA" },
+      { key: "method", label: "Méthode", render: (r: any) => METHOD_LABELS[r.method] || r.method },
+      { key: "status", label: "Statut" },
+      { key: "created_at", label: "Date", render: (r: any) => new Date(r.created_at).toLocaleDateString("fr-FR") },
+    ], "paiements");
+    toastSuccess("Export CSV téléchargé");
   };
 
-  const refundTx = async (tx: Transaction) => {
-    try {
-      await apiCall("admin-refund", { method: "POST", body: { transactionId: tx.id } });
-      success("Remboursement initié");
-      fetchTransactions();
-    } catch { showError("Erreur remboursement"); }
-  };
-
-  const columns = [
-    { key: "date", label: "Date", sortable: true, render: (t: Transaction) => <span className="text-[13px] text-[#F5F5F5]">{fmtDate(t.created_at)}</span> },
-    { key: "tenant", label: "Client", render: (t: Transaction) => (
-      <div>
-        <div className="text-[13px] text-[#F5F5F5]">{t.profiles?.full_name || "—"}</div>
-        <div className="text-[11px] text-[#888]">{t.profiles?.email || ""}</div>
-      </div>
-    )},
-    { key: "amount", label: "Montant", sortable: true, render: (t: Transaction) => (
-      <span className="font-mono text-[14px] font-semibold text-[#EF9F27]">{fmt(t.amount)} FCFA</span>
-    )},
-    { key: "method", label: "Méthode", render: (t: Transaction) => (
-      <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${METHOD_COLORS[t.payment_method] || "bg-[#2A2A3A] text-[#888] border-[#2A2A3A]"}`}>
-        {t.payment_method}
-      </span>
-    )},
-    { key: "status", label: "Statut", render: (t: Transaction) => <AdminBadge status={t.status === "succeeded" ? "paid" : t.status} /> },
-    { key: "reference", label: "Référence", render: (t: Transaction) => <span className="font-mono text-[12px] text-[#888]">{t.reference || "—"}</span> },
-    { key: "actions", label: "", render: (t: Transaction) => (
-      <div className="flex items-center gap-1">
-        <button className="p-1.5 rounded hover:bg-[#2A2A3A] text-[#888] hover:text-[#F5F5F5] transition-colors" title="Voir">
-          <Eye size={14} />
-        </button>
-        {t.payment_method === "wire" && t.status === "pending" && (
-          <button onClick={(e) => { e.stopPropagation(); confirmWire(t); }}
-            disabled={confirming === t.id}
-            className="p-1.5 rounded hover:bg-green-500/20 text-green-400 transition-colors" title="Confirmer virement">
-            <CheckCircle size={14} />
-          </button>
-        )}
-        {t.status === "succeeded" && (
-          <button onClick={(e) => { e.stopPropagation(); refundTx(t); }}
-            className="p-1.5 rounded hover:bg-red-500/20 text-red-400 transition-colors" title="Rembourser">
-            <RotateCcw size={14} />
-          </button>
-        )}
-      </div>
-    )},
+  const statusFilters = [
+    { label: "Tous", value: "all", count: payments.length },
+    { label: "Réussis", value: "success", count: payments.filter(p => p.status === "success").length },
+    { label: "En attente", value: "pending", count: payments.filter(p => p.status === "pending").length },
+    { label: "Échoués", value: "failed", count: payments.filter(p => p.status === "failed").length },
+    { label: "Remboursés", value: "refunded", count: payments.filter(p => p.status === "refunded").length },
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#F5F5F5]">Paiements</h1>
-        <p className="text-[#888] text-sm mt-1">Transactions, virements et encaissements</p>
+    <div>
+      <AdminPageHeader title="Paiements" subtitle={`${payments.length} transactions — Taux de succès ${successRate}%`}>
+        <AdminButton icon={Download} variant="secondary" onClick={handleExport}>Export CSV</AdminButton>
+      </AdminPageHeader>
+
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+        <AdminCard label="Reçus" value={`${fmt(totalSuccess)} FCFA`} icon={CheckCircle2} loading={loading} />
+        <AdminCard label="En attente" value={`${fmt(totalPending)} FCFA`} icon={CreditCard} loading={loading} />
+        <AdminCard label="Échoués" value={`${fmt(totalFailed)} FCFA`} icon={AlertTriangle} loading={loading} />
+        <AdminCard label="Taux de succès" value={`${successRate}%`} icon={DollarSign} loading={loading} />
       </div>
 
-      {/* Pending wires alert */}
-      {pendingWires.length > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center gap-3">
-          <AlertTriangle size={20} className="text-amber-400 shrink-0" />
-          <div className="flex-1">
-            <div className="text-[13px] font-semibold text-amber-300">{pendingWires.length} virement(s) en attente de confirmation</div>
-            <div className="text-[12px] text-amber-400/70 mt-0.5">Montant total : <span className="font-mono font-semibold">{fmt(pendingWireTotal)} FCFA</span></div>
-          </div>
-          <button onClick={() => { setMethodFilter("wire"); setStatusFilter("pending"); }}
-            className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[12px] font-medium rounded-lg transition-colors">
-            Voir les virements
-          </button>
+      {methodChart.length > 0 && (
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-6">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Revenus par méthode de paiement</h2>
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={methodChart} layout="vertical">
+              <XAxis type="number" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} tickFormatter={v => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)} />
+              <YAxis type="category" dataKey="method" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} width={120} />
+              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={(v: number) => [`${fmt(v)} FCFA`, "Revenus"]} />
+              <Bar dataKey="amount" fill="#C8A960" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <AdminCard label="Reçu aujourd'hui" value={`${fmt(receivedToday)} FCFA`} icon={DollarSign} />
-        <AdminCard label="Transactions aujourd'hui" value={txCountToday} icon={CreditCard} />
-        <AdminCard label="Reçu ce mois" value={`${fmt(receivedMonth)} FCFA`} icon={Banknote} />
-        <AdminCard label="Virements en attente" value={pendingWires.length} sub={`${fmt(pendingWireTotal)} FCFA`} icon={Clock} />
+      <div className="flex items-center gap-4 mb-6 flex-wrap">
+        <AdminFilterPills filters={statusFilters} value={statusFilter} onChange={setStatusFilter} />
+        <select value={methodFilter} onChange={e => setMethodFilter(e.target.value)}
+          className="px-3 py-2 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer">
+          <option value="all">Toutes méthodes</option>
+          {[...new Set(payments.map(p => p.method))].map(m => <option key={m} value={m}>{METHOD_LABELS[m] || m}</option>)}
+        </select>
+        <AdminSearch value={search} onChange={setSearch} placeholder="Référence, client..." />
       </div>
 
-      {/* Chart + Filters row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Donut */}
-        <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-5">
-          <h3 className="text-[13px] font-semibold text-[#888] uppercase tracking-wider mb-4">Répartition par méthode</h3>
-          {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={chartData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
-                  {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                </Pie>
-                <Tooltip formatter={(v: number) => `${fmt(v)} FCFA`} contentStyle={{ background: "#1E1E2E", border: "1px solid #2A2A3A", borderRadius: 8, color: "#F5F5F5", fontSize: 12 }} />
-                <Legend formatter={(v) => <span className="text-[12px] text-[#888]">{v}</span>} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-[220px] flex items-center justify-center text-[#888] text-sm">Aucune donnée</div>
-          )}
-        </div>
+      <AdminTable
+        keyExtractor={(r: Payment) => r.id}
+        loading={loading}
+        emptyMessage="Aucun paiement"
+        emptyIcon={<CreditCard size={32} />}
+        onRowClick={setDetailPayment}
+        columns={[
+          { key: "gateway_ref", label: "Référence", render: (r: Payment) => <span className="font-mono text-neutral-text dark:text-admin-text text-[13px]">{r.gateway_ref || "—"}</span> },
+          { key: "client", label: "Client", render: (r: Payment) => {
+            const inv = r.invoices as any;
+            return <div><div className="text-neutral-text dark:text-admin-text text-[13px]">{inv?.profiles?.full_name || "—"}</div><div className="text-neutral-muted dark:text-admin-muted text-[11px]">{inv?.invoice_number || "—"}</div></div>;
+          }},
+          { key: "amount_fcfa", label: "Montant", sortable: true, render: (r: Payment) => <span className="text-gold dark:text-admin-accent font-mono font-semibold">{fmt(r.amount_fcfa)} FCFA</span> },
+          { key: "method", label: "Méthode", render: (r: Payment) => <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${METHOD_COLORS[r.method] || METHOD_COLORS.manual}`}>{METHOD_LABELS[r.method] || r.method}</span> },
+          { key: "status", label: "Statut", render: (r: Payment) => <span className="inline-flex items-center gap-1.5 text-[12px] font-medium">{STATUS_ICONS[r.status]} {r.status === "success" ? "Réussi" : r.status === "pending" ? "En attente" : r.status === "failed" ? "Échoué" : "Remboursé"}</span> },
+          { key: "created_at", label: "Date", sortable: true, render: (r: Payment) => <span className="text-[12px] text-neutral-muted dark:text-admin-muted">{new Date(r.created_at).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</span> },
+        ]}
+        data={filtered}
+      />
 
-        {/* Filters */}
-        <div className="lg:col-span-2 bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-5 space-y-4">
-          <div className="flex items-center gap-2 text-[#888]">
-            <Filter size={14} />
-            <span className="text-[13px] font-semibold uppercase tracking-wider">Filtres</span>
+      <AdminModal open={!!detailPayment} onClose={() => setDetailPayment(null)} title="Détail du paiement" size="md"
+        subtitle={detailPayment ? `${METHOD_LABELS[detailPayment.method] || detailPayment.method} — ${fmt(detailPayment.amount_fcfa)} FCFA` : undefined}>
+        {detailPayment && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Montant</div>
+                <div className="text-gold dark:text-admin-accent text-xl font-mono font-semibold">{fmt(detailPayment.amount_fcfa)} FCFA</div></div>
+              <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Statut</div>
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium">{STATUS_ICONS[detailPayment.status]} {detailPayment.status}</span></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Méthode</div>
+                <span className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold ${METHOD_COLORS[detailPayment.method] || ""}`}>{METHOD_LABELS[detailPayment.method] || detailPayment.method}</span></div>
+              <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Date</div>
+                <div className="text-neutral-text dark:text-admin-text text-sm">{new Date(detailPayment.created_at).toLocaleString("fr-FR")}</div></div>
+            </div>
+            {detailPayment.gateway_ref && (
+              <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Référence gateway</div>
+                <div className="text-neutral-text dark:text-admin-text text-sm font-mono">{detailPayment.gateway_ref}</div></div>
+            )}
+            {detailPayment.gateway_response && (
+              <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Réponse gateway</div>
+                <pre className="bg-warm-bg dark:bg-admin-surface-alt rounded-lg p-4 text-[12px] font-mono text-neutral-text dark:text-admin-text overflow-auto max-h-[200px] whitespace-pre-wrap">{JSON.stringify(detailPayment.gateway_response, null, 2)}</pre></div>
+            )}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] text-[#888] font-medium uppercase mb-1 block">Statut</label>
-              <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                className="w-full bg-[#0A0A0A] border border-[#2A2A3A] rounded-lg px-3 py-2 text-[13px] text-[#F5F5F5] focus:border-[#EF9F27] outline-none">
-                {STATUS_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-[#888] font-medium uppercase mb-1 block">Méthode</label>
-              <select value={methodFilter} onChange={e => setMethodFilter(e.target.value)}
-                className="w-full bg-[#0A0A0A] border border-[#2A2A3A] rounded-lg px-3 py-2 text-[13px] text-[#F5F5F5] focus:border-[#EF9F27] outline-none">
-                {METHOD_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-[#888] font-medium uppercase mb-1 block">Période</label>
-              <select value={periodFilter} onChange={e => setPeriodFilter(e.target.value)}
-                className="w-full bg-[#0A0A0A] border border-[#2A2A3A] rounded-lg px-3 py-2 text-[13px] text-[#F5F5F5] focus:border-[#EF9F27] outline-none">
-                {PERIOD_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] text-[#888] font-medium uppercase mb-1 block">Recherche</label>
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
-                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Nom, email, référence..."
-                  className="w-full bg-[#0A0A0A] border border-[#2A2A3A] rounded-lg pl-8 pr-3 py-2 text-[13px] text-[#F5F5F5] placeholder-[#888] focus:border-[#EF9F27] outline-none" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Transactions table */}
-      <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#2A2A3A] flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold text-[#888] uppercase tracking-wider">Transactions ({filtered.length})</h3>
-        </div>
-        <AdminTable
-          columns={columns}
-          data={filtered}
-          keyExtractor={(t) => t.id}
-          loading={loading}
-          emptyMessage="Aucune transaction trouvée"
-          pageSize={15}
-        />
-      </div>
+        )}
+      </AdminModal>
     </div>
   );
 }
