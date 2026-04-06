@@ -50,6 +50,7 @@ const RolesPage = lazy(() => import('./admin/pages/RolesPage'));
 const CampaignsPage = lazy(() => import('./admin/pages/CampaignsPage'));
 const Proph3tMemoryPage = lazy(() => import('./admin/pages/Proph3tMemoryPage'));
 const Proph3tPlansPage = lazy(() => import('./admin/pages/Proph3tPlansPage'));
+const Proph3tKnowledgePage = lazy(() => import('./admin/pages/Proph3tKnowledgePage'));
 const LicencesPage = lazy(() => import('./admin/pages/LicencesPage'));
 const PaymentsPage = lazy(() => import('./admin/pages/PaymentsPage'));
 const PlansPage = lazy(() => import('./admin/pages/PlansPage'));
@@ -129,6 +130,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="campaigns" element={<Suspense fallback={<AdminLoader />}><CampaignsPage /></Suspense>} />
               <Route path="proph3t-memory" element={<Suspense fallback={<AdminLoader />}><Proph3tMemoryPage /></Suspense>} />
               <Route path="proph3t-plans" element={<Suspense fallback={<AdminLoader />}><Proph3tPlansPage /></Suspense>} />
+              <Route path="proph3t-knowledge" element={<Suspense fallback={<AdminLoader />}><Proph3tKnowledgePage /></Suspense>} />
               <Route path="licences" element={<Suspense fallback={<AdminLoader />}><LicencesPage /></Suspense>} />
               <Route path="payments" element={<Suspense fallback={<AdminLoader />}><PaymentsPage /></Suspense>} />
               <Route path="plans" element={<Suspense fallback={<AdminLoader />}><PlansPage /></Suspense>} />
