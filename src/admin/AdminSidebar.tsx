@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks,
+  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -31,6 +31,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin/proph3t", icon: Brain, label: "Proph3t IA" },
       { to: "/admin/proph3t-memory", icon: Brain, label: "Mémoires IA" },
       { to: "/admin/proph3t-plans", icon: ListChecks, label: "Plans d'action" },
+      { to: "/admin/proph3t-knowledge", icon: Database, label: "Base RAG" },
     ],
   },
   {

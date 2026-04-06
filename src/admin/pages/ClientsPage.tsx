@@ -194,7 +194,7 @@ export default function ClientsPage() {
       {children}
     </div>
   );
-  const inputClass = "w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
+  // inputClass imported from AdminFormField
 
   return (
     <div>
@@ -366,15 +366,15 @@ export default function ClientsPage() {
       <AdminModal open={showForm} onClose={() => setShowForm(false)} title={editClient ? "Modifier le client" : "Nouveau client"}
         footer={<button onClick={handleSaveClient} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer"}</button>}>
         <div className="space-y-1">
-          <Field label="Nom complet"><input value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className={inputClass} /></Field>
+          <Field label="Nom complet"><input value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
           {!editClient && (
             <>
-              <Field label="Email"><input value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} className={inputClass} /></Field>
-              <Field label="Mot de passe"><input type="password" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} className={inputClass} /></Field>
+              <Field label="Email"><input value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+              <Field label="Mot de passe"><input type="password" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
             </>
           )}
-          <Field label="Entreprise"><input value={formData.company_name} onChange={e => setFormData(p => ({ ...p, company_name: e.target.value }))} className={inputClass} /></Field>
-          <Field label="Téléphone"><input value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} className={inputClass} /></Field>
+          <Field label="Entreprise"><input value={formData.company_name} onChange={e => setFormData(p => ({ ...p, company_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+          <Field label="Téléphone"><input value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
         </div>
       </AdminModal>
 
@@ -387,13 +387,13 @@ export default function ClientsPage() {
               <p className="text-emerald-800 text-sm">Accès test pour <strong>{testAccessClient.full_name}</strong></p>
             </div>
             <Field label="Application">
-              <select value={testAccessForm.appId} onChange={e => setTestAccessForm(p => ({ ...p, appId: e.target.value }))} className={inputClass}>
+              <select value={testAccessForm.appId} onChange={e => setTestAccessForm(p => ({ ...p, appId: e.target.value }))} className={ADMIN_INPUT_CLASS}>
                 <option value="">-- Choisir --</option>
                 {appList.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
               </select>
             </Field>
             <Field label="Durée">
-              <select value={testAccessForm.duration} onChange={e => setTestAccessForm(p => ({ ...p, duration: e.target.value }))} className={inputClass}>
+              <select value={testAccessForm.duration} onChange={e => setTestAccessForm(p => ({ ...p, duration: e.target.value }))} className={ADMIN_INPUT_CLASS}>
                 {[3, 7, 14, 30].map(d => <option key={d} value={d}>{d} jours</option>)}
               </select>
             </Field>

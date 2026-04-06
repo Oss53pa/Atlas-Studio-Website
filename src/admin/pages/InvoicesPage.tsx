@@ -136,7 +136,7 @@ export default function InvoicesPage() {
     success("Export CSV téléchargé");
   };
 
-  const inputClass = "w-full px-4 py-3 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
+  // inputClass imported from AdminFormField
 
   return (
     <div>
@@ -233,28 +233,28 @@ export default function InvoicesPage() {
         footer={<button onClick={handleCreate} disabled={saving || !formData.user_id} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors text-[13px] ${saving || !formData.user_id ? "opacity-50" : ""}`}>{saving ? "Création..." : "Créer"}</button>}>
         <div className="space-y-3">
           <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Client</label>
-            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className={inputClass}>
+            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className={ADMIN_INPUT_CLASS}>
               <option value="">Sélectionner</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.full_name} ({c.email})</option>)}
             </select></div>
           <div className="grid grid-cols-2 gap-3">
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Application</label>
-              <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className={inputClass}>
+              <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className={ADMIN_INPUT_CLASS}>
                 <option value="">Aucune</option>
                 {appList.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
               </select></div>
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
-              <input value={formData.plan} onChange={e => setFormData(p => ({ ...p, plan: e.target.value }))} className={inputClass} /></div>
+              <input value={formData.plan} onChange={e => setFormData(p => ({ ...p, plan: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Montant</label>
-              <input type="number" value={formData.amount} onChange={e => setFormData(p => ({ ...p, amount: Number(e.target.value) }))} className={inputClass} /></div>
+              <input type="number" value={formData.amount} onChange={e => setFormData(p => ({ ...p, amount: Number(e.target.value) }))} className={ADMIN_INPUT_CLASS} /></div>
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Devise</label>
-              <select value={formData.currency} onChange={e => setFormData(p => ({ ...p, currency: e.target.value }))} className={inputClass}>
+              <select value={formData.currency} onChange={e => setFormData(p => ({ ...p, currency: e.target.value }))} className={ADMIN_INPUT_CLASS}>
                 <option value="FCFA">FCFA</option><option value="EUR">EUR</option><option value="USD">USD</option>
               </select></div>
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut</label>
-              <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className={inputClass}>
+              <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className={ADMIN_INPUT_CLASS}>
                 <option value="pending">En attente</option><option value="paid">Payée</option>
               </select></div>
           </div>

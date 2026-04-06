@@ -137,11 +137,11 @@ export default function SettingsPage() {
         {tab === "profile" && (
           <div className="space-y-4">
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Nom complet</label>
-              <input value={settings.full_name} onChange={e => setSettings(p => ({ ...p, full_name: e.target.value }))} className={inputClass} /></div>
+              <input value={settings.full_name} onChange={e => setSettings(p => ({ ...p, full_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Email</label>
               <input value={settings.email} disabled className={`${inputClass} opacity-50 cursor-not-allowed`} /></div>
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Téléphone</label>
-              <input value={settings.phone} onChange={e => setSettings(p => ({ ...p, phone: e.target.value }))} className={inputClass} /></div>
+              <input value={settings.phone} onChange={e => setSettings(p => ({ ...p, phone: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
             <button onClick={handleSaveProfile} disabled={saving}
               className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors text-[13px] flex items-center gap-2">
               <Save size={14} /> {saving ? "..." : "Sauvegarder"}
@@ -157,9 +157,9 @@ export default function SettingsPage() {
               <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-3 flex items-center gap-2"><Key size={14} /> Changer le mot de passe</h3>
               <div className="space-y-3">
                 <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Nouveau mot de passe</label>
-                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 caractères" className={inputClass} /></div>
+                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 caractères" className={ADMIN_INPUT_CLASS} /></div>
                 <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Confirmer</label>
-                  <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inputClass} /></div>
+                  <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={ADMIN_INPUT_CLASS} /></div>
                 <button onClick={handleChangePassword} disabled={saving || !newPassword}
                   className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors text-[13px] ${!newPassword ? "opacity-50" : ""}`}>
                   Modifier le mot de passe

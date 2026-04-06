@@ -136,7 +136,7 @@ export default function AppsManagementPage() {
   };
 
   const fmt = (n: number) => n.toLocaleString("fr-FR");
-  const inputClass = "w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
+  // inputClass imported from AdminFormField
 
   return (
     <div>
@@ -238,7 +238,7 @@ export default function AppsManagementPage() {
                 </div>
                 <div>
                   <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Nom</label>
-                  <input value={editApp.name || ""} onChange={e => setEditApp({ ...editApp, name: e.target.value })} className={inputClass} />
+                  <input value={editApp.name || ""} onChange={e => setEditApp({ ...editApp, name: e.target.value })} className={ADMIN_INPUT_CLASS} />
                 </div>
               </div>
             </div>
@@ -247,19 +247,19 @@ export default function AppsManagementPage() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Type</label>
-                <select value={editApp.type || "App"} onChange={e => setEditApp({ ...editApp, type: e.target.value as AppType })} className={inputClass}>
+                <select value={editApp.type || "App"} onChange={e => setEditApp({ ...editApp, type: e.target.value as AppType })} className={ADMIN_INPUT_CLASS}>
                   {appTypes.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut</label>
-                <select value={editApp.status || "available"} onChange={e => setEditApp({ ...editApp, status: e.target.value as AppStatus })} className={inputClass}>
+                <select value={editApp.status || "available"} onChange={e => setEditApp({ ...editApp, status: e.target.value as AppStatus })} className={ADMIN_INPUT_CLASS}>
                   {appStatuses.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Période tarif</label>
-                <select value={editApp.pricing_period || "mois"} onChange={e => setEditApp({ ...editApp, pricing_period: e.target.value })} className={inputClass}>
+                <select value={editApp.pricing_period || "mois"} onChange={e => setEditApp({ ...editApp, pricing_period: e.target.value })} className={ADMIN_INPUT_CLASS}>
                   <option value="mois">Par mois</option><option value="an">Par an</option>
                 </select>
               </div>
@@ -268,14 +268,14 @@ export default function AppsManagementPage() {
             {/* External URL */}
             <div>
               <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">URL externe (landing page)</label>
-              <input value={editApp.external_url || ""} onChange={e => setEditApp({ ...editApp, external_url: e.target.value || null })} placeholder="https://mon-app.atlas-studio.org" className={inputClass} />
+              <input value={editApp.external_url || ""} onChange={e => setEditApp({ ...editApp, external_url: e.target.value || null })} placeholder="https://mon-app.atlas-studio.org" className={ADMIN_INPUT_CLASS} />
               <p className="text-neutral-muted dark:text-admin-muted/60 text-[11px] mt-1">Redirige vers ce site au lieu de la page détail interne.</p>
             </div>
 
             {/* Tagline + Description */}
             <div>
               <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Tagline</label>
-              <input value={editApp.tagline || ""} onChange={e => setEditApp({ ...editApp, tagline: e.target.value })} className={inputClass} />
+              <input value={editApp.tagline || ""} onChange={e => setEditApp({ ...editApp, tagline: e.target.value })} className={ADMIN_INPUT_CLASS} />
             </div>
             <div>
               <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Description</label>
@@ -292,7 +292,7 @@ export default function AppsManagementPage() {
                       placeholder="Nom du plan" className={`flex-1 ${inputClass}`} />
                     <div className="relative flex-1">
                       <input type="number" value={row.price} onChange={e => { const r = [...pricingRows]; r[i] = { ...r[i], price: Number(e.target.value) }; setPricingRows(r); }}
-                        className={inputClass} />
+                        className={ADMIN_INPUT_CLASS} />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted text-[11px]">FCFA</span>
                     </div>
                     <button onClick={() => setPricingRows(pricingRows.filter((_, j) => j !== i))} className="p-2 text-red-400 hover:text-red-600 transition-colors"><Trash2 size={14} /></button>
@@ -318,12 +318,12 @@ export default function AppsManagementPage() {
                 </div>
                 <div>
                   <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Icône Lucide</label>
-                  <input value={editApp.icon || "receipt"} onChange={e => setEditApp({ ...editApp, icon: e.target.value })} placeholder="receipt" className={inputClass} />
+                  <input value={editApp.icon || "receipt"} onChange={e => setEditApp({ ...editApp, icon: e.target.value })} placeholder="receipt" className={ADMIN_INPUT_CLASS} />
                   <p className="text-neutral-muted dark:text-admin-muted/60 text-[11px] mt-1">Nom d'icône lucide-react</p>
                 </div>
                 <div>
                   <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Ordre d'affichage</label>
-                  <input type="number" value={editApp.sort_order || 0} onChange={e => setEditApp({ ...editApp, sort_order: parseInt(e.target.value) || 0 })} className={inputClass} />
+                  <input type="number" value={editApp.sort_order || 0} onChange={e => setEditApp({ ...editApp, sort_order: parseInt(e.target.value) || 0 })} className={ADMIN_INPUT_CLASS} />
                 </div>
               </div>
             </div>
@@ -340,12 +340,12 @@ export default function AppsManagementPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Catégories</label>
-                <input value={categoriesStr} onChange={e => setCategoriesStr(e.target.value)} placeholder="Finance, Comptabilité" className={inputClass} />
+                <input value={categoriesStr} onChange={e => setCategoriesStr(e.target.value)} placeholder="Finance, Comptabilité" className={ADMIN_INPUT_CLASS} />
                 <p className="text-neutral-muted dark:text-admin-muted/60 text-[11px] mt-1">Séparées par des virgules</p>
               </div>
               <div>
                 <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Points forts</label>
-                <input value={highlightsStr} onChange={e => setHighlightsStr(e.target.value)} placeholder="SYSCOHADA natif, Proph3t IA" className={inputClass} />
+                <input value={highlightsStr} onChange={e => setHighlightsStr(e.target.value)} placeholder="SYSCOHADA natif, Proph3t IA" className={ADMIN_INPUT_CLASS} />
                 <p className="text-neutral-muted dark:text-admin-muted/60 text-[11px] mt-1">Séparés par des virgules</p>
               </div>
             </div>

@@ -224,16 +224,16 @@ export default function SubscriptionsPage() {
         footer={<button onClick={handleCreateSub} disabled={saving || !formData.user_id} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors text-[13px] ${saving || !formData.user_id ? "opacity-50" : ""}`}>{saving ? "Création..." : "Créer"}</button>}>
         <div className="space-y-3">
           <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Client</label>
-            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className={inputClass}>
+            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className={ADMIN_INPUT_CLASS}>
               <option value="">Sélectionner un client</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.full_name} ({c.email})</option>)}
             </select></div>
           <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Application</label>
-            <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className={inputClass}>
+            <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className={ADMIN_INPUT_CLASS}>
               {appList.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
             </select></div>
           <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut initial</label>
-            <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className={inputClass}>
+            <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className={ADMIN_INPUT_CLASS}>
               <option value="active">Actif</option><option value="trial">Essai gratuit (14 jours)</option>
             </select></div>
           <div className="grid grid-cols-2 gap-3">
@@ -242,14 +242,14 @@ export default function SubscriptionsPage() {
                 const plan = e.target.value;
                 const price = appMap[formData.app_id] ? (appMap[formData.app_id].pricing as Record<string, number>)[plan] || 0 : 0;
                 setFormData(p => ({ ...p, plan, price }));
-              }} className={inputClass}>
+              }} className={ADMIN_INPUT_CLASS}>
                 <option value="">Sélectionner</option>
                 {formData.app_id && appMap[formData.app_id] && Object.entries(appMap[formData.app_id].pricing as Record<string, number>).map(([p, pr]) => (
                   <option key={p} value={p}>{p} — {pr.toLocaleString("fr-FR")} FCFA</option>
                 ))}
               </select></div>
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Prix (FCFA)</label>
-              <input type="number" value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} className={inputClass} /></div>
+              <input type="number" value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} className={ADMIN_INPUT_CLASS} /></div>
           </div>
         </div>
       </AdminModal>
@@ -262,15 +262,15 @@ export default function SubscriptionsPage() {
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
-                <input value={editData.plan} onChange={e => setEditData(p => ({ ...p, plan: e.target.value }))} className={inputClass} /></div>
+                <input value={editData.plan} onChange={e => setEditData(p => ({ ...p, plan: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
               <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Prix (FCFA)</label>
-                <input type="number" value={editData.price} onChange={e => setEditData(p => ({ ...p, price: Number(e.target.value) }))} className={inputClass} /></div>
+                <input type="number" value={editData.price} onChange={e => setEditData(p => ({ ...p, price: Number(e.target.value) }))} className={ADMIN_INPUT_CLASS} /></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Fin essai</label>
-                <input type="date" value={editData.trial_ends_at} onChange={e => setEditData(p => ({ ...p, trial_ends_at: e.target.value }))} className={inputClass} /></div>
+                <input type="date" value={editData.trial_ends_at} onChange={e => setEditData(p => ({ ...p, trial_ends_at: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
               <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Fin période</label>
-                <input type="date" value={editData.current_period_end} onChange={e => setEditData(p => ({ ...p, current_period_end: e.target.value }))} className={inputClass} /></div>
+                <input type="date" value={editData.current_period_end} onChange={e => setEditData(p => ({ ...p, current_period_end: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
             </div>
           </div>
         )}
