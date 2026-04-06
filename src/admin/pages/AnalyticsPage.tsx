@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
 import { exportToCSV } from "../../lib/csvExport";
+import { AfricaMap } from "../components/AfricaMap";
 
 /* ─── Types ─── */
 interface MonthData {
@@ -347,6 +348,20 @@ export default function AnalyticsPage() {
               <p className="text-neutral-muted dark:text-admin-muted text-sm">Aucune donnée</p>
             )}
           </div>
+        )}
+
+        {/* Africa Map — only in consolidated view */}
+        {selectedApp === "all" && (
+          <AfricaMap
+            data={topClients.slice(0, 20).map((c, i) => ({
+              country: c.full_name,
+              code: "",
+              value: Math.round(c.total / 1000),
+              label: c.full_name,
+            }))}
+            title="Répartition géographique (clients)"
+            valueLabel="K FCFA"
+          />
         )}
 
         {/* Top clients */}
