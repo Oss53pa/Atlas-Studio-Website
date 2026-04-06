@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { DEFAULT_CONTENT, type AppItem } from '../config/content';
+import type { AppItem } from '../config/content';
 import type { AppStatus } from '../lib/database.types';
 
 export interface AppItemWithStatus extends AppItem {
@@ -8,22 +8,24 @@ export interface AppItemWithStatus extends AppItem {
 }
 
 export function useApps() {
-  const [apps, setApps] = useState<AppItemWithStatus[]>(
-    DEFAULT_CONTENT.apps.map(a => ({ ...a, status: 'available' as AppStatus }))
-  );
+  const [apps, setApps] = useState<AppItemWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchApps = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      const { data, error: fetchError } = await supabase
         .from('apps')
         .select('*')
         .order('sort_order', { ascending: true });
 
-      if (error || !data || data.length === 0) {
-        setApps(DEFAULT_CONTENT.apps.map(a => ({ ...a, status: 'available' as AppStatus })));
+      if (fetchError) {
+        console.error('useApps fetch error:', fetchError.message);
+        setError(fetchError.message);
+        setApps([]);
       } else {
-        setApps(data.map(row => ({
+        setApps((data || []).map(row => ({
           id: row.id,
           name: row.name,
           type: row.type as AppItem['type'],
@@ -39,14 +41,17 @@ export function useApps() {
           external_url: row.external_url || undefined,
           status: row.status as AppStatus,
         })));
+        setError(null);
       }
-    } catch {
-      setApps(DEFAULT_CONTENT.apps.map(a => ({ ...a, status: 'available' as AppStatus })));
+    } catch (err) {
+      console.error('useApps unexpected error:', err);
+      setError('Erreur de chargement des applications');
+      setApps([]);
     }
     setLoading(false);
   };
 
   useEffect(() => { fetchApps(); }, []);
 
-  return { apps, loading, refetch: fetchApps };
+  return { apps, loading, error, refetch: fetchApps };
 }
