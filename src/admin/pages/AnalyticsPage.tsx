@@ -49,7 +49,7 @@ function KpiCard({ label, value, sub, icon: Icon }: {
   label: string; value: string | number; sub?: string; icon: React.ComponentType<any>;
 }) {
   return (
-    <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
       <div className="flex items-center justify-between mb-1">
         <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
         <Icon size={18} className="text-neutral-muted dark:text-admin-muted/60" strokeWidth={1.5} />
@@ -252,7 +252,7 @@ export default function AnalyticsPage() {
             <select
               value={selectedApp}
               onChange={e => setSelectedApp(e.target.value)}
-              className="pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors appearance-none cursor-pointer min-w-[220px]"
+              className="pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors appearance-none cursor-pointer min-w-[220px]"
             >
               <option value="all">Consolidé — Toutes les apps</option>
               {appList.map(app => (
@@ -271,7 +271,7 @@ export default function AnalyticsPage() {
         <button
           onClick={() => setSelectedApp("all")}
           className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all ${
-            selectedApp === "all" ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+            selectedApp === "all" ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
           }`}
         >
           Consolidé
@@ -281,7 +281,7 @@ export default function AnalyticsPage() {
             key={app.id}
             onClick={() => setSelectedApp(app.id)}
             className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all flex items-center gap-1.5 ${
-              selectedApp === app.id ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+              selectedApp === app.id ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
             }`}
           >
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: (app as any).color || "#C8A960" }} />
@@ -299,7 +299,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Revenue chart */}
-      <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-6">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-6">
         <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">
           Revenus mensuels — {selectedAppName}
         </h2>
@@ -308,11 +308,11 @@ export default function AnalyticsPage() {
 
       {/* Abonnements chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Nouveaux abonnements par mois</h2>
           <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.newClients }))} color="bg-emerald-400/70" height={130} />
         </div>
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Annulations par mois</h2>
           <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.cancelled }))} color="bg-red-400/70" height={130} />
         </div>
@@ -321,7 +321,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue by app (only in consolidated view) */}
         {selectedApp === "all" && (
-          <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+          <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
             <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Répartition par application</h2>
             {appRevenues.length > 0 ? (
               <div className="space-y-3">
@@ -350,7 +350,7 @@ export default function AnalyticsPage() {
         )}
 
         {/* Top clients */}
-        <div className={`bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 ${selectedApp === "all" ? "" : "lg:col-span-2"}`}>
+        <div className={`bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 ${selectedApp === "all" ? "" : "lg:col-span-2"}`}>
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">
             Top 10 clients {selectedApp !== "all" ? `— ${selectedAppName}` : ""}
           </h2>

@@ -155,7 +155,7 @@ export default function AppsManagementPage() {
       <div className="relative mb-6 max-w-sm">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..."
-          className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+          className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
       </div>
 
       <AdminTable

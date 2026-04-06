@@ -145,11 +145,11 @@ export default function NewsletterPage() {
         <div className="flex items-center gap-2">
           <input ref={importRef} type="file" accept=".csv,.txt" onChange={handleImport} className="hidden" />
           <button onClick={() => importRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <Upload size={14} /> Importer CSV
           </button>
           <button onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <Download size={14} /> Exporter CSV
           </button>
         </div>
@@ -165,7 +165,7 @@ export default function NewsletterPage() {
 
       {/* Growth chart */}
       {chartData.length > 0 && (
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-6">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Croissance des abonnés (12 mois)</h2>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={chartData}>
@@ -190,7 +190,7 @@ export default function NewsletterPage() {
           {statusFilters.map(f => (
             <button key={f.value} onClick={() => setStatusFilter(f.value)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                statusFilter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+                statusFilter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
               }`}>
               {f.label} <span className="ml-1 opacity-60">{f.count}</span>
             </button>
@@ -199,7 +199,7 @@ export default function NewsletterPage() {
         <div className="relative flex-1 max-w-xs">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par email..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
         </div>
       </div>
 

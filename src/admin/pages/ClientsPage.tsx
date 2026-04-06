@@ -204,7 +204,7 @@ export default function ClientsPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">{clients.length} clients — {newThisMonth} nouveaux ce mois</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <Download size={14} /> CSV
           </button>
           <button onClick={openCreateForm} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
@@ -219,7 +219,7 @@ export default function ClientsPage() {
           {statusFilters.map(f => (
             <button key={f.value} onClick={() => setStatusFilter(f.value)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                statusFilter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+                statusFilter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
               }`}>
               {f.label} <span className="ml-1 opacity-60">{f.count}</span>
             </button>
@@ -228,7 +228,7 @@ export default function ClientsPage() {
         <div className="relative flex-1 max-w-sm">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par nom, email, entreprise..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
         </div>
       </div>
 

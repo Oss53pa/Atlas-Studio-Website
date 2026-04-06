@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Search, LayoutDashboard, Users, Repeat, Receipt, MessageSquare,
   FileText, Mail, BarChart3, ClipboardList, CreditCard, Megaphone,
-  ArrowRight, type LucideIcon,
+  ArrowRight, Brain, Activity, Flag, type LucideIcon,
 } from "lucide-react";
 
 interface Command {
@@ -34,6 +34,9 @@ export function CommandPalette() {
     { id: "newsletter", label: "Newsletter", description: "Abonnés newsletter", icon: Mail, action: () => navigate("/admin/newsletter"), keywords: "email marketing" },
     { id: "emails", label: "Templates Email", description: "Modèles de notifications", icon: Megaphone, action: () => navigate("/admin/emails"), keywords: "templates notifications" },
     { id: "activity", label: "Logs & Audit", description: "Journal d'activité", icon: ClipboardList, action: () => navigate("/admin/activity"), keywords: "logs événements historique" },
+    { id: "proph3t", label: "Proph3t IA", description: "Assistant intelligent", icon: Brain, action: () => navigate("/admin/proph3t"), keywords: "ia intelligence assistant chat" },
+    { id: "system", label: "Santé système", description: "Monitoring & uptime", icon: Activity, action: () => navigate("/admin/system"), keywords: "health monitoring services" },
+    { id: "feature-flags", label: "Feature Flags", description: "Toggles & rollout", icon: Flag, action: () => navigate("/admin/feature-flags"), keywords: "flags features toggle rollout" },
     { id: "site", label: "Voir le site", description: "Ouvrir le site vitrine", icon: ArrowRight, action: () => window.open("/", "_blank") },
   ];
 

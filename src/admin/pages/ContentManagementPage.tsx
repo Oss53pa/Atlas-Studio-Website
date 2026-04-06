@@ -242,7 +242,7 @@ export default function ContentManagementPage() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${
-              tab === t ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+              tab === t ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
             }`}
           >
             {t}
@@ -250,7 +250,7 @@ export default function ContentManagementPage() {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-2xl p-6">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-2xl p-6">
 
         {/* ═══ HERO ═══ */}
         {tab === "Hero" && (

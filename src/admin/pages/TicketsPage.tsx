@@ -142,7 +142,7 @@ export default function TicketsPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">{tickets.length} tickets — {counts.open + counts.in_progress} en attente</p>
         </div>
         <button onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
           <Download size={14} /> Export CSV
         </button>
       </div>
@@ -153,7 +153,7 @@ export default function TicketsPage() {
           {statusFilters.map(f => (
             <button key={f.value} onClick={() => setFilter(f.value)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+                filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
               }`}>
               {f.label} <span className="ml-1 opacity-60">{f.count}</span>
             </button>
@@ -162,7 +162,7 @@ export default function TicketsPage() {
         <div className="relative flex-1 max-w-xs">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher sujet, client..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
         </div>
       </div>
 
@@ -200,7 +200,7 @@ export default function TicketsPage() {
           }},
           { key: "status", label: "Statut", render: (r: TicketWithProfile) => (
             <select value={r.status} onClick={e => e.stopPropagation()} onChange={e => updateStatus(r, e.target.value)}
-              className="px-2 py-1 border border-warm-border dark:border-admin-surface-alt rounded text-[11px] bg-white dark:bg-white dark:bg-admin-surface outline-none cursor-pointer">
+              className="px-2 py-1 border border-warm-border dark:border-admin-surface-alt rounded text-[11px] bg-white dark:bg-admin-surface outline-none cursor-pointer">
               {statusOptions.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
           )},

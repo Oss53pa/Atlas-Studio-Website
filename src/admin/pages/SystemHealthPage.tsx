@@ -145,10 +145,10 @@ export default function SystemHealthPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">Monitoring et état des services</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={checkServices} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          <button onClick={checkServices} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <RefreshCw size={14} /> Vérifier
           </button>
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <Download size={14} /> Exporter
           </button>
         </div>
@@ -156,7 +156,7 @@ export default function SystemHealthPage() {
 
       {/* Health score + Services */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8">
-        <div className="lg:col-span-1 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 flex flex-col items-center justify-center">
+        <div className="lg:col-span-1 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 flex flex-col items-center justify-center">
           <div className="relative w-20 h-20 mb-3">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
               <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" strokeWidth="8" />
@@ -174,7 +174,7 @@ export default function SystemHealthPage() {
         </div>
 
         {services.map(s => (
-          <div key={s.name} className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+          <div key={s.name} className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${STATUS_BG[s.status]} ${STATUS_COLORS[s.status]}`}>
                 {s.icon}
@@ -206,7 +206,7 @@ export default function SystemHealthPage() {
 
       {/* Uptime chart + Incidents */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Uptime (7 derniers jours)</h2>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={uptimeData}>
@@ -222,7 +222,7 @@ export default function SystemHealthPage() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Incidents récents</h2>
           {incidents.length === 0 ? (
             <div className="flex items-center gap-3 py-6 justify-center">

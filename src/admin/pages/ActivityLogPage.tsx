@@ -181,7 +181,7 @@ export default function ActivityLogPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">Historique des actions sur la plateforme — {totalCount} événements</p>
         </div>
         <button onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
           <Download size={14} /> Export CSV
         </button>
       </div>
@@ -191,24 +191,24 @@ export default function ActivityLogPage() {
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
         </div>
         <div className="relative">
           <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted pointer-events-none" />
           <select value={dateFilter} onChange={e => { setDateFilter(e.target.value); setPage(0); }}
-            className="pl-9 pr-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors appearance-none cursor-pointer">
+            className="pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors appearance-none cursor-pointer">
             {DATE_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
           </select>
         </div>
         <select value={actionFilter} onChange={e => { setActionFilter(e.target.value); setPage(0); }}
-          className="px-4 py-2.5 bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors appearance-none cursor-pointer">
+          className="px-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors appearance-none cursor-pointer">
           <option value="all">Toutes les actions</option>
           {allActions.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
         </select>
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-2xl overflow-hidden">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X,
+  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X, Flag,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -59,6 +59,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
       { to: "/admin/system", icon: Activity, label: "Santé système" },
+      { to: "/admin/feature-flags", icon: Flag, label: "Feature Flags" },
       { to: "/admin/activity", icon: ClipboardList, label: "Logs & Audit" },
     ],
   },
