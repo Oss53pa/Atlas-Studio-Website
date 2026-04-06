@@ -86,7 +86,7 @@ export function AdminSidebar() {
           <Link to="/"><Logo size={22} color="text-neutral-light" /></Link>
           <NotificationCenter />
         </div>
-        <div className="text-gold text-[10px] font-bold uppercase tracking-widest mt-1.5">Administration</div>
+        <div className="text-admin-accent text-[10px] font-bold uppercase tracking-widest mt-1.5">Administration</div>
       </div>
 
       {/* Quick search hint */}
@@ -101,7 +101,7 @@ export function AdminSidebar() {
       <div className="mb-6 px-1">
         <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-600 mb-2 px-2">Application</div>
         <div className="relative">
-          <Layers size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gold pointer-events-none" />
+          <Layers size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-accent pointer-events-none" />
           <select
             value={selectedApp}
             onChange={e => setSelectedApp(e.target.value)}
@@ -114,7 +114,7 @@ export function AdminSidebar() {
           </select>
         </div>
         {selectedApp !== "all" && (
-          <button onClick={() => setSelectedApp("all")} className="text-[11px] text-neutral-500 hover:text-gold mt-1.5 px-2 transition-colors">
+          <button onClick={() => setSelectedApp("all")} className="text-[11px] text-neutral-500 hover:text-admin-accent mt-1.5 px-2 transition-colors">
             ← Revenir à la vue consolidée
           </button>
         )}
@@ -137,7 +137,7 @@ export function AdminSidebar() {
                     to={n.to}
                     className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                       active
-                        ? "bg-white/10 text-gold"
+                        ? "bg-white/10 text-admin-accent"
                         : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
                     }`}
                   >
@@ -155,12 +155,12 @@ export function AdminSidebar() {
 
       <div className="border-t border-white/10 pt-4 space-y-2">
         <div className="flex items-center gap-2.5 px-2">
-          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-onyx text-[12px] font-bold">
+          <div className="w-8 h-8 rounded-full bg-admin-accent flex items-center justify-center text-onyx text-[12px] font-bold">
             {(profile?.full_name || "A").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-neutral-light text-[13px] font-medium truncate">{profile?.full_name || "Admin"}</div>
-            <div className="text-gold text-[11px]">Super Admin</div>
+            <div className="text-admin-accent text-[11px]">Super Admin</div>
           </div>
         </div>
         <Link

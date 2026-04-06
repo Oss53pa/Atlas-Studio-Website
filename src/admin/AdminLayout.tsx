@@ -13,7 +13,7 @@ export function AdminLayout() {
   return (
     <AppFilterProvider>
       <ToastProvider>
-        <div className="flex min-h-screen bg-warm-bg">
+        <div className="flex min-h-screen bg-admin-bg">
           <AdminSidebar />
           <main className="flex-1 p-8 md:p-10 overflow-y-auto">
             <Outlet />
@@ -22,7 +22,7 @@ export function AdminLayout() {
 
         {/* Floating Proph3t button */}
         <button onClick={() => setChatOpen(true)}
-          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl bg-gold text-onyx shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center group"
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-2xl bg-admin-accent text-black shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center group"
           title="Parler à Proph3t">
           <Zap size={22} className="group-hover:animate-pulse" />
         </button>

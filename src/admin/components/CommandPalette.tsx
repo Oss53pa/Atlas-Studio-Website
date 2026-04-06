@@ -83,19 +83,19 @@ export function CommandPalette() {
   return (
     <div className="fixed inset-0 z-[80] flex items-start justify-center pt-[20vh]">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+      <div className="relative bg-admin-surface rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
         {/* Search input */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-warm-border">
-          <Search size={18} className="text-neutral-muted flex-shrink-0" />
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-admin-surface-alt">
+          <Search size={18} className="text-admin-muted flex-shrink-0" />
           <input
             ref={inputRef}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
             placeholder="Rechercher une page, une action..."
-            className="flex-1 text-neutral-text text-sm outline-none bg-transparent placeholder:text-neutral-placeholder"
+            className="flex-1 text-admin-text text-sm outline-none bg-transparent placeholder:text-neutral-placeholder"
           />
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-1 rounded bg-warm-bg border border-warm-border text-[10px] text-neutral-muted font-mono">
+          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-1 rounded bg-admin-surface-alt border border-admin-surface-alt text-[10px] text-admin-muted font-mono">
             ESC
           </kbd>
         </div>
@@ -103,7 +103,7 @@ export function CommandPalette() {
         {/* Results */}
         <div className="max-h-[320px] overflow-y-auto py-2">
           {filtered.length === 0 ? (
-            <div className="px-5 py-8 text-center text-neutral-muted text-sm">Aucun résultat pour "{query}"</div>
+            <div className="px-5 py-8 text-center text-admin-muted text-sm">Aucun résultat pour "{query}"</div>
           ) : (
             filtered.map((cmd, i) => (
               <button
@@ -111,29 +111,29 @@ export function CommandPalette() {
                 onClick={() => { cmd.action(); setOpen(false); }}
                 onMouseEnter={() => setSelectedIndex(i)}
                 className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors ${
-                  i === selectedIndex ? "bg-gold/5" : "hover:bg-warm-bg"
+                  i === selectedIndex ? "bg-admin-accent/10" : "hover:bg-admin-surface-alt"
                 }`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  i === selectedIndex ? "bg-gold/10 text-gold" : "bg-warm-bg text-neutral-muted"
+                  i === selectedIndex ? "bg-gold/10 text-admin-accent" : "bg-admin-surface-alt text-admin-muted"
                 }`}>
                   <cmd.icon size={16} strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-medium ${i === selectedIndex ? "text-gold" : "text-neutral-text"}`}>{cmd.label}</div>
-                  {cmd.description && <div className="text-[11px] text-neutral-muted truncate">{cmd.description}</div>}
+                  <div className={`text-sm font-medium ${i === selectedIndex ? "text-admin-accent" : "text-admin-text"}`}>{cmd.label}</div>
+                  {cmd.description && <div className="text-[11px] text-admin-muted truncate">{cmd.description}</div>}
                 </div>
-                {i === selectedIndex && <ArrowRight size={14} className="text-gold flex-shrink-0" />}
+                {i === selectedIndex && <ArrowRight size={14} className="text-admin-accent flex-shrink-0" />}
               </button>
             ))
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-warm-border bg-warm-bg/50 flex items-center gap-4 text-[10px] text-neutral-muted">
-          <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-white border border-warm-border rounded font-mono">↑↓</kbd> naviguer</span>
-          <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-white border border-warm-border rounded font-mono">⏎</kbd> ouvrir</span>
-          <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-white border border-warm-border rounded font-mono">esc</kbd> fermer</span>
+        <div className="px-5 py-3 border-t border-admin-surface-alt bg-admin-surface-alt/50 flex items-center gap-4 text-[10px] text-admin-muted">
+          <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-admin-surface border border-admin-surface-alt rounded font-mono">↑↓</kbd> naviguer</span>
+          <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-admin-surface border border-admin-surface-alt rounded font-mono">⏎</kbd> ouvrir</span>
+          <span className="flex items-center gap-1"><kbd className="px-1.5 py-0.5 bg-admin-surface border border-admin-surface-alt rounded font-mono">esc</kbd> fermer</span>
         </div>
       </div>
     </div>

@@ -36,13 +36,13 @@ function Field({ label, value, onChange, multiline, placeholder }: {
 }) {
   return (
     <div className="mb-4">
-      <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       {multiline ? (
         <textarea value={value} onChange={e => onChange(e.target.value)} rows={3} placeholder={placeholder}
-          className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors resize-y" />
+          className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors resize-y" />
       ) : (
         <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-          className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors" />
+          className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors" />
       )}
     </div>
   );
@@ -52,13 +52,13 @@ function Field({ label, value, onChange, multiline, placeholder }: {
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div className="mb-4">
-      <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       <div className="flex items-center gap-3">
         <input type="color" value={value} onChange={e => onChange(e.target.value)}
-          className="w-10 h-10 rounded-lg border border-warm-border cursor-pointer bg-transparent" />
+          className="w-10 h-10 rounded-lg border border-admin-surface-alt cursor-pointer bg-transparent" />
         <input value={value} onChange={e => onChange(e.target.value)}
-          className="flex-1 px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors font-mono" />
-        <div className="w-20 h-10 rounded-lg border border-warm-border" style={{ backgroundColor: value }} />
+          className="flex-1 px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors font-mono" />
+        <div className="w-20 h-10 rounded-lg border border-admin-surface-alt" style={{ backgroundColor: value }} />
       </div>
     </div>
   );
@@ -83,26 +83,26 @@ function ImageField({ label, value, onChange, folder }: {
 
   return (
     <div className="mb-4">
-      <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       <div className="flex items-start gap-3">
         {value ? (
-          <div className="relative w-16 h-16 rounded-lg border border-warm-border overflow-hidden bg-warm-bg flex-shrink-0">
+          <div className="relative w-16 h-16 rounded-lg border border-admin-surface-alt overflow-hidden bg-admin-surface-alt flex-shrink-0">
             <img src={value} alt="" className="w-full h-full object-cover" />
             <button onClick={() => onChange("")} className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center">
               <X size={10} />
             </button>
           </div>
         ) : (
-          <div className="w-16 h-16 rounded-lg border-2 border-dashed border-warm-border bg-warm-bg flex items-center justify-center flex-shrink-0">
-            <Image size={20} className="text-neutral-muted" />
+          <div className="w-16 h-16 rounded-lg border-2 border-dashed border-admin-surface-alt bg-admin-surface-alt flex items-center justify-center flex-shrink-0">
+            <Image size={20} className="text-admin-muted" />
           </div>
         )}
         <div className="flex-1">
           <input value={value} onChange={e => onChange(e.target.value)} placeholder="URL de l'image ou uploader"
-            className="w-full px-4 py-2.5 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors mb-2" />
+            className="w-full px-4 py-2.5 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors mb-2" />
           <input ref={inputRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
           <button onClick={() => inputRef.current?.click()} disabled={uploading}
-            className="inline-flex items-center gap-1.5 text-gold text-[12px] font-semibold hover:underline">
+            className="inline-flex items-center gap-1.5 text-admin-accent text-[12px] font-semibold hover:underline">
             {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
             {uploading ? "Upload..." : "Uploader une image"}
           </button>
@@ -124,7 +124,7 @@ function DeleteBtn({ onClick }: { onClick: () => void }) {
 /* ─── Add button ─── */
 function AddBtn({ onClick, label }: { onClick: () => void; label: string }) {
   return (
-    <button onClick={onClick} className="inline-flex items-center gap-1.5 text-gold text-[13px] font-semibold hover:underline mt-2">
+    <button onClick={onClick} className="inline-flex items-center gap-1.5 text-admin-accent text-[13px] font-semibold hover:underline mt-2">
       <Plus size={14} /> {label}
     </button>
   );
@@ -208,7 +208,7 @@ export default function ContentManagementPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-gold" />
+        <Loader2 size={24} className="animate-spin text-admin-accent" />
       </div>
     );
   }
@@ -219,16 +219,16 @@ export default function ContentManagementPage() {
     <div>
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-neutral-text text-2xl font-bold mb-1">Gestion du contenu</h1>
-          <p className="text-neutral-muted text-sm">Modifiez le contenu du site vitrine — textes, images, couleurs, réseaux sociaux</p>
+          <h1 className="text-admin-text text-2xl font-bold mb-1">Gestion du contenu</h1>
+          <p className="text-admin-muted text-sm">Modifiez le contenu du site vitrine — textes, images, couleurs, réseaux sociaux</p>
         </div>
-        <a href="/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-gold text-[13px] font-semibold hover:underline">
+        <a href="/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-admin-accent text-[13px] font-semibold hover:underline">
           <ExternalLink size={14} /> Voir le site
         </a>
       </div>
 
       {toast && (
-        <div className="mb-6 px-4 py-3 rounded-lg bg-gold/10 border border-gold/20 text-gold text-sm font-medium flex items-center gap-2">
+        <div className="mb-6 px-4 py-3 rounded-lg bg-admin-accent/10 border border-gold/20 text-admin-accent text-sm font-medium flex items-center gap-2">
           <Check size={16} /> {toast}
         </div>
       )}
@@ -239,7 +239,7 @@ export default function ContentManagementPage() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${
-              tab === t ? "bg-gold text-onyx" : "bg-white border border-warm-border text-neutral-body hover:border-gold/40"
+              tab === t ? "bg-admin-accent text-onyx" : "bg-admin-surface border border-admin-surface-alt text-admin-text/80 hover:border-admin-accent/40"
             }`}
           >
             {t}
@@ -247,7 +247,7 @@ export default function ContentManagementPage() {
         ))}
       </div>
 
-      <div className="bg-white border border-warm-border rounded-2xl p-6">
+      <div className="bg-admin-surface border border-admin-surface-alt rounded-2xl p-6">
 
         {/* ═══ HERO ═══ */}
         {tab === "Hero" && (
@@ -282,7 +282,7 @@ export default function ContentManagementPage() {
         {/* ═══ TRUST BAR ═══ */}
         {tab === "Trust Bar" && (
           <>
-            <p className="text-neutral-muted text-[13px] mb-4">Éléments affichés dans la barre de confiance sous le hero.</p>
+            <p className="text-admin-muted text-[13px] mb-4">Éléments affichés dans la barre de confiance sous le hero.</p>
             {(content.trustBar || []).map((item: string, i: number) => (
               <div key={i} className="flex gap-3 mb-3 items-end">
                 <div className="flex-1"><Field label={`Élément ${i + 1}`} value={item} onChange={v => {
@@ -301,9 +301,9 @@ export default function ContentManagementPage() {
             <Field label="Paragraphe 1" value={content.about?.p1 || ""} onChange={v => update("about", { ...content.about, p1: v })} multiline />
             <Field label="Paragraphe 2" value={content.about?.p2 || ""} onChange={v => update("about", { ...content.about, p2: v })} multiline />
             <Field label="Paragraphe 3" value={content.about?.p3 || ""} onChange={v => update("about", { ...content.about, p3: v })} multiline />
-            <h3 className="text-neutral-text text-sm font-bold mb-3 mt-4">Valeurs</h3>
+            <h3 className="text-admin-text text-sm font-bold mb-3 mt-4">Valeurs</h3>
             {(content.about?.values || []).map((val: any, i: number) => (
-              <div key={i} className="mb-3 p-4 bg-warm-bg rounded-lg relative">
+              <div key={i} className="mb-3 p-4 bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3"><DeleteBtn onClick={() => {
                   const vals = [...(content.about?.values || [])]; vals.splice(i, 1); update("about", { ...content.about, values: vals });
                 }} /></div>
@@ -323,7 +323,7 @@ export default function ContentManagementPage() {
         {tab === "Témoignages" && (
           <>
             {(content.testimonials || []).map((t: any, i: number) => (
-              <div key={i} className="mb-4 p-4 bg-warm-bg rounded-lg relative">
+              <div key={i} className="mb-4 p-4 bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3"><DeleteBtn onClick={() => removeItem("testimonials", i)} /></div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Nom" value={t.name} onChange={v => {
@@ -357,7 +357,7 @@ export default function ContentManagementPage() {
         {/* ═══ SECTEURS ═══ */}
         {tab === "Secteurs" && (
           <>
-            <p className="text-neutral-muted text-[13px] mb-4">Noms des secteurs (les icônes sont gérées côté code).</p>
+            <p className="text-admin-muted text-[13px] mb-4">Noms des secteurs (les icônes sont gérées côté code).</p>
             {(content.sectors || []).map((name: string, i: number) => (
               <div key={i} className="flex gap-3 mb-3 items-end">
                 <div className="flex-1"><Field label={`Secteur ${i + 1}`} value={name} onChange={v => {
@@ -373,7 +373,7 @@ export default function ContentManagementPage() {
         {/* ═══ COMPARATIF ═══ */}
         {tab === "Comparatif" && (
           <>
-            <h3 className="text-neutral-text text-sm font-bold mb-3">En-têtes du tableau</h3>
+            <h3 className="text-admin-text text-sm font-bold mb-3">En-têtes du tableau</h3>
             <div className="flex gap-3 mb-6 flex-wrap">
               {(content.comparatif?.headers || []).map((h: string, i: number) => (
                 <div key={i} className="flex-1 min-w-[120px]">
@@ -384,11 +384,11 @@ export default function ContentManagementPage() {
                 </div>
               ))}
             </div>
-            <h3 className="text-neutral-text text-sm font-bold mb-3">Lignes</h3>
+            <h3 className="text-admin-text text-sm font-bold mb-3">Lignes</h3>
             {(content.comparatif?.rows || []).map((row: any, ri: number) => (
-              <div key={ri} className="mb-3 p-4 bg-warm-bg rounded-lg relative">
+              <div key={ri} className="mb-3 p-4 bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3 flex items-center gap-2">
-                  <label className="flex items-center gap-1.5 text-[12px] text-neutral-muted">
+                  <label className="flex items-center gap-1.5 text-[12px] text-admin-muted">
                     <input type="checkbox" checked={row.highlight || false} onChange={e => {
                       const rows = [...(content.comparatif?.rows || [])]; rows[ri] = { ...rows[ri], highlight: e.target.checked };
                       update("comparatif", { ...content.comparatif, rows });
@@ -426,7 +426,7 @@ export default function ContentManagementPage() {
         {tab === "FAQs" && (
           <>
             {(content.faqs || []).map((f: any, i: number) => (
-              <div key={i} className="mb-4 p-4 bg-warm-bg rounded-lg relative">
+              <div key={i} className="mb-4 p-4 bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3"><DeleteBtn onClick={() => removeItem("faqs", i)} /></div>
                 <Field label={`Question ${i + 1}`} value={f.q} onChange={v => {
                   const arr = [...content.faqs]; arr[i] = { ...arr[i], q: v }; update("faqs", arr);
@@ -452,7 +452,7 @@ export default function ContentManagementPage() {
         {/* ═══ RÉSEAUX SOCIAUX ═══ */}
         {tab === "Réseaux sociaux" && (
           <>
-            <p className="text-neutral-muted text-[13px] mb-4">Liens vers vos profils sur les réseaux sociaux. Laissez vide pour masquer.</p>
+            <p className="text-admin-muted text-[13px] mb-4">Liens vers vos profils sur les réseaux sociaux. Laissez vide pour masquer.</p>
             <Field label="Facebook" value={content.social?.facebook || ""} onChange={v => update("social", { ...content.social, facebook: v })} placeholder="https://facebook.com/atlasstudio" />
             <Field label="Instagram" value={content.social?.instagram || ""} onChange={v => update("social", { ...content.social, instagram: v })} placeholder="https://instagram.com/atlasstudio" />
             <Field label="LinkedIn" value={content.social?.linkedin || ""} onChange={v => update("social", { ...content.social, linkedin: v })} placeholder="https://linkedin.com/company/atlasstudio" />
@@ -465,18 +465,18 @@ export default function ContentManagementPage() {
         {/* ═══ APPARENCE ═══ */}
         {tab === "Apparence" && (
           <>
-            <h3 className="text-neutral-text text-sm font-bold mb-3">Couleurs</h3>
+            <h3 className="text-admin-text text-sm font-bold mb-3">Couleurs</h3>
             <div className="grid grid-cols-2 gap-4">
               <ColorField label="Couleur principale (gold)" value={content.appearance?.primaryColor || "#C8A960"} onChange={v => update("appearance", { ...content.appearance, primaryColor: v })} />
               <ColorField label="Couleur accent" value={content.appearance?.accentColor || "#D4BC7C"} onChange={v => update("appearance", { ...content.appearance, accentColor: v })} />
             </div>
             <ColorField label="Fond du hero" value={content.appearance?.heroBackground || "#0A0A0A"} onChange={v => update("appearance", { ...content.appearance, heroBackground: v })} />
 
-            <h3 className="text-neutral-text text-sm font-bold mb-3 mt-6">Logos des entreprises clientes</h3>
-            <p className="text-neutral-muted text-[13px] mb-4">Logos affichés comme preuve sociale sur la landing page.</p>
+            <h3 className="text-admin-text text-sm font-bold mb-3 mt-6">Logos des entreprises clientes</h3>
+            <p className="text-admin-muted text-[13px] mb-4">Logos affichés comme preuve sociale sur la landing page.</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
               {(content.appearance?.clientLogos || []).map((logo: string, i: number) => (
-                <div key={i} className="relative bg-warm-bg border border-warm-border rounded-lg p-3 flex items-center justify-center min-h-[80px]">
+                <div key={i} className="relative bg-admin-surface-alt border border-admin-surface-alt rounded-lg p-3 flex items-center justify-center min-h-[80px]">
                   <img src={logo} alt={`Client ${i + 1}`} className="max-h-12 max-w-full object-contain" />
                   <button onClick={() => {
                     const logos = [...(content.appearance?.clientLogos || [])]; logos.splice(i, 1);
@@ -494,12 +494,12 @@ export default function ContentManagementPage() {
         )}
 
         {/* ═══ SAVE / RESET ═══ */}
-        <div className="flex gap-3 mt-6 pt-4 border-t border-warm-border">
-          <button onClick={() => save(sectionKey)} disabled={saving} className="btn-gold !py-2.5 !text-[13px] flex items-center gap-2">
+        <div className="flex gap-3 mt-6 pt-4 border-t border-admin-surface-alt">
+          <button onClick={() => save(sectionKey)} disabled={saving} className="bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? "Sauvegarde..." : "Sauvegarder"}
           </button>
-          <button onClick={() => reset(sectionKey)} className="px-4 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors flex items-center gap-2">
+          <button onClick={() => reset(sectionKey)} className="px-4 py-2.5 border border-admin-surface-alt rounded-lg text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors flex items-center gap-2">
             <RotateCcw size={14} />
             Réinitialiser
           </button>

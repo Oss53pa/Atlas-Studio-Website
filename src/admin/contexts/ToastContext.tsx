@@ -23,10 +23,10 @@ const ToastContext = createContext<ToastContextType>({
 
 const ICONS = { success: Check, error: AlertTriangle, warning: AlertTriangle, info: Info };
 const COLORS = {
-  success: "bg-emerald-50 border-emerald-200 text-emerald-700",
-  error: "bg-red-50 border-red-200 text-red-700",
-  warning: "bg-amber-50 border-amber-200 text-amber-700",
-  info: "bg-blue-50 border-blue-200 text-blue-700",
+  success: "bg-admin-success/20 border-admin-success/30 text-green-300",
+  error: "bg-admin-error/20 border-admin-error/30 text-red-300",
+  warning: "bg-admin-warning/20 border-admin-warning/30 text-orange-300",
+  info: "bg-admin-info/20 border-admin-info/30 text-blue-300",
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {

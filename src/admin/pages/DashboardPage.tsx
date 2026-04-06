@@ -49,17 +49,17 @@ function ModuleCard({ to, icon: Icon, label, description, stat, color }: {
   to: string; icon: LucideIcon; label: string; description: string; stat?: string | number; color: string;
 }) {
   return (
-    <Link to={to} className="bg-white border border-warm-border rounded-xl p-5 hover:border-gold/30 hover:shadow-sm transition-all group">
+    <Link to={to} className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5 hover:border-gold/30 hover:shadow-sm transition-all group">
       <div className="flex items-start justify-between mb-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
           <Icon size={20} strokeWidth={1.5} />
         </div>
-        <ArrowRight size={14} className="text-neutral-300 group-hover:text-gold group-hover:translate-x-0.5 transition-all mt-1" />
+        <ArrowRight size={14} className="text-neutral-300 group-hover:text-admin-accent group-hover:translate-x-0.5 transition-all mt-1" />
       </div>
-      <div className="text-neutral-text text-sm font-semibold mb-0.5">{label}</div>
-      <div className="text-neutral-muted text-[12px] font-light leading-relaxed">{description}</div>
+      <div className="text-admin-text text-sm font-semibold mb-0.5">{label}</div>
+      <div className="text-admin-muted text-[12px] font-light leading-relaxed">{description}</div>
       {stat !== undefined && (
-        <div className="text-gold text-lg font-semibold mt-2">{stat}</div>
+        <div className="text-admin-accent text-lg font-semibold mt-2">{stat}</div>
       )}
     </Link>
   );
@@ -70,13 +70,13 @@ function KpiCard({ label, value, icon: Icon, trend }: {
   label: string; value: string | number; icon: LucideIcon; trend?: string;
 }) {
   return (
-    <div className="bg-white border border-warm-border rounded-xl p-5">
+    <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
-        <Icon size={18} className="text-neutral-placeholder" strokeWidth={1.5} />
+        <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
+        <Icon size={18} className="text-admin-muted/60" strokeWidth={1.5} />
       </div>
-      <div className="text-gold text-2xl font-semibold">{value}</div>
-      {trend && <div className="text-neutral-muted text-[11px] mt-0.5">{trend}</div>}
+      <div className="text-admin-accent text-2xl font-semibold">{value}</div>
+      {trend && <div className="text-admin-muted text-[11px] mt-0.5">{trend}</div>}
     </div>
   );
 }
@@ -186,7 +186,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-gold" />
+        <Loader2 size={24} className="animate-spin text-admin-accent" />
       </div>
     );
   }
@@ -197,8 +197,8 @@ export default function DashboardPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-neutral-text text-2xl font-bold mb-1">Console Atlas Studio</h1>
-        <p className="text-neutral-muted text-sm">
+        <h1 className="text-admin-text text-2xl font-bold mb-1">Console Atlas Studio</h1>
+        <p className="text-admin-muted text-sm">
           {selectedApp === "all"
             ? "Centre de commande unifié — vue d'ensemble de la plateforme"
             : `Filtré par : ${appMap[selectedApp]?.name || selectedApp}`}
@@ -228,7 +228,7 @@ export default function DashboardPage() {
 
       {/* Modules en accès rapide */}
       <div className="mb-8">
-        <h2 className="text-neutral-text text-base font-semibold mb-4">Accès rapide</h2>
+        <h2 className="text-admin-text text-base font-semibold mb-4">Accès rapide</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <ModuleCard to="/admin/clients" icon={Users} label="Utilisateurs" description="Comptes, rôles, accès" stat={stats?.total_users || 0} color="bg-blue-50 text-blue-600" />
           <ModuleCard to="/admin/subscriptions" icon={Repeat} label="Abonnements" description="Actifs, essais, résiliés" stat={stats?.active_subscriptions || 0} color="bg-emerald-50 text-emerald-600" />
@@ -245,95 +245,95 @@ export default function DashboardPage() {
 
       {/* Revenue chart + Top clients */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white border border-warm-border rounded-xl p-6">
+        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-neutral-text text-sm font-semibold">Revenus (6 derniers mois)</h2>
-            <Link to="/admin/analytics" className="text-gold text-[12px] font-medium hover:underline">Détails →</Link>
+            <h2 className="text-admin-text text-sm font-semibold">Revenus (6 derniers mois)</h2>
+            <Link to="/admin/analytics" className="text-admin-accent text-[12px] font-medium hover:underline">Détails →</Link>
           </div>
           <div className="flex items-end gap-3 h-40">
             {monthlyRevenues.map(m => {
               const pct = Math.max((m.amount / maxMonthly) * 100, 2);
               return (
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] text-neutral-muted">{m.amount > 0 ? fmt(m.amount) : ""}</span>
-                  <div className="w-full bg-warm-bg rounded-t-md overflow-hidden" style={{ height: "120px" }}>
-                    <div className="w-full bg-gold/80 rounded-t-md transition-all" style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
+                  <span className="text-[10px] text-admin-muted">{m.amount > 0 ? fmt(m.amount) : ""}</span>
+                  <div className="w-full bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: "120px" }}>
+                    <div className="w-full bg-admin-accent/80 rounded-t-md transition-all" style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
                   </div>
-                  <span className="text-[11px] text-neutral-muted font-medium capitalize">{m.label}</span>
+                  <span className="text-[11px] text-admin-muted font-medium capitalize">{m.label}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className="bg-white border border-warm-border rounded-xl p-6">
+        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-neutral-text text-sm font-semibold">Top clients par revenu</h2>
+            <h2 className="text-admin-text text-sm font-semibold">Top clients par revenu</h2>
           </div>
           {topClients.length > 0 ? (
             <div className="space-y-3">
               {topClients.map((c, i) => (
                 <div key={c.email} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold/10 flex items-center justify-center text-gold text-[11px] font-bold">{i + 1}</div>
+                    <div className="w-6 h-6 rounded bg-admin-accent/10 flex items-center justify-center text-admin-accent text-[11px] font-bold">{i + 1}</div>
                     <div>
-                      <span className="text-neutral-text text-sm font-medium">{c.full_name}</span>
-                      <div className="text-neutral-muted text-[11px]">{c.email}</div>
+                      <span className="text-admin-text text-sm font-medium">{c.full_name}</span>
+                      <div className="text-admin-muted text-[11px]">{c.email}</div>
                     </div>
                   </div>
-                  <span className="text-gold text-sm font-semibold">{fmt(c.total)} FCFA</span>
+                  <span className="text-admin-accent text-sm font-mono font-semibold">{fmt(c.total)} FCFA</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-neutral-muted text-sm">Aucune donnée</p>
+            <p className="text-admin-muted text-sm">Aucune donnée</p>
           )}
         </div>
       </div>
 
       {/* Apps populaires + Factures en attente */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-warm-border rounded-xl p-6">
-          <h2 className="text-neutral-text text-sm font-semibold mb-4">Apps populaires</h2>
+        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
+          <h2 className="text-admin-text text-sm font-semibold mb-4">Apps populaires</h2>
           {stats?.popular_apps && stats.popular_apps.length > 0 ? (
             <div className="space-y-3">
               {stats.popular_apps.map((app, i) => (
                 <div key={app.app_id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold/10 flex items-center justify-center text-gold text-[11px] font-bold">{i + 1}</div>
-                    <span className="text-neutral-text text-sm font-medium">{appMap[app.app_id]?.name || app.app_id}</span>
+                    <div className="w-6 h-6 rounded bg-admin-accent/10 flex items-center justify-center text-admin-accent text-[11px] font-bold">{i + 1}</div>
+                    <span className="text-admin-text text-sm font-medium">{appMap[app.app_id]?.name || app.app_id}</span>
                   </div>
-                  <span className="text-neutral-muted text-sm">{app.sub_count} abonnés</span>
+                  <span className="text-admin-muted text-sm">{app.sub_count} abonnés</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-neutral-muted text-sm">Aucune donnée</p>
+            <p className="text-admin-muted text-sm">Aucune donnée</p>
           )}
         </div>
 
-        <div className="bg-white border border-warm-border rounded-xl p-6">
+        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-neutral-text text-sm font-semibold">Factures en attente</h2>
-            <Link to="/admin/invoices" className="text-gold text-[12px] font-medium hover:underline">Tout voir →</Link>
+            <h2 className="text-admin-text text-sm font-semibold">Factures en attente</h2>
+            <Link to="/admin/invoices" className="text-admin-accent text-[12px] font-medium hover:underline">Tout voir →</Link>
           </div>
           {pendingInvoices.length > 0 ? (
             <div className="space-y-3">
               {pendingInvoices.map(inv => (
                 <div key={inv.id} className="flex items-center justify-between py-1">
                   <div>
-                    <span className="text-neutral-text text-sm font-medium">{inv.invoice_number}</span>
-                    <div className="text-neutral-muted text-[11px]">{(inv.profiles as any)?.full_name || "—"}</div>
+                    <span className="text-admin-text text-sm font-medium">{inv.invoice_number}</span>
+                    <div className="text-admin-muted text-[11px]">{(inv.profiles as any)?.full_name || "—"}</div>
                   </div>
                   <div className="text-right">
-                    <span className="text-amber-600 text-sm font-semibold">{fmt(Number(inv.amount))} {inv.currency || "FCFA"}</span>
-                    <div className="text-neutral-placeholder text-[10px]">{new Date(inv.created_at).toLocaleDateString("fr-FR")}</div>
+                    <span className="text-amber-600 text-sm font-mono font-semibold">{fmt(Number(inv.amount))} {inv.currency || "FCFA"}</span>
+                    <div className="text-admin-muted/60 text-[10px]">{new Date(inv.created_at).toLocaleDateString("fr-FR")}</div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-neutral-muted text-sm">Aucune facture en attente</p>
+            <p className="text-admin-muted text-sm">Aucune facture en attente</p>
           )}
         </div>
       </div>

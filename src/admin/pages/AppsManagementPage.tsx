@@ -129,23 +129,23 @@ export default function AppsManagementPage() {
   };
 
   const fmt = (n: number) => n.toLocaleString("fr-FR");
-  const inputClass = "w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors";
+  const inputClass = "w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none focus:border-admin-accent transition-colors";
 
   return (
     <div>
       <div className="flex items-center justify-between mb-7 flex-wrap gap-4">
         <div>
-          <h1 className="text-neutral-text text-2xl font-bold mb-1">Grille Tarifaire & Applications</h1>
-          <p className="text-neutral-muted text-sm">{apps.length} applications configurées</p>
+          <h1 className="text-admin-text text-2xl font-bold mb-1">Grille Tarifaire & Applications</h1>
+          <p className="text-admin-muted text-sm">{apps.length} applications configurées</p>
         </div>
         <div className="flex gap-2">
           {apps.length === 0 && (
             <button onClick={seedFromDefaults} disabled={saving}
-              className="flex items-center gap-2 px-4 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">
+              className="flex items-center gap-2 px-4 py-2.5 border border-admin-surface-alt rounded-lg text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors">
               Importer par défaut
             </button>
           )}
-          <button onClick={openCreate} className="btn-gold !py-2.5 !text-[13px] flex items-center gap-2">
+          <button onClick={openCreate} className="bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <Plus size={14} /> Nouvelle app
           </button>
         </div>
@@ -153,9 +153,9 @@ export default function AppsManagementPage() {
 
       {/* Search */}
       <div className="relative mb-6 max-w-sm">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted" />
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..."
-          className="w-full pl-9 pr-4 py-2.5 bg-white border border-warm-border rounded-lg text-sm text-neutral-text outline-none focus:border-gold transition-colors" />
+          className="w-full pl-9 pr-4 py-2.5 bg-admin-surface border border-admin-surface-alt rounded-lg text-sm text-admin-text outline-none focus:border-admin-accent transition-colors" />
       </div>
 
       <AdminTable
@@ -168,42 +168,42 @@ export default function AppsManagementPage() {
                 {r.name.slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <div className="font-medium text-neutral-text flex items-center gap-1.5">
+                <div className="font-medium text-admin-text flex items-center gap-1.5">
                   {r.name}
-                  {r.external_url && <ExternalLink size={11} className="text-neutral-muted" />}
+                  {r.external_url && <ExternalLink size={11} className="text-admin-muted" />}
                 </div>
-                <div className="text-neutral-muted text-[11px]">{r.tagline}</div>
+                <div className="text-admin-muted text-[11px]">{r.tagline}</div>
               </div>
             </div>
           )},
           { key: "type", label: "Type", sortable: true, render: (r: AppRow) => (
-            <span className="text-[12px] text-neutral-body">{r.type}</span>
+            <span className="text-[12px] text-admin-text/80">{r.type}</span>
           )},
           { key: "status", label: "Statut", render: (r: AppRow) => <AdminBadge status={r.status} /> },
           { key: "subs", label: "Abonnés", render: (r: AppRow) => (
-            <span className="text-gold font-medium">{subCounts[r.id] || 0}</span>
+            <span className="text-admin-accent font-medium">{subCounts[r.id] || 0}</span>
           )},
           { key: "pricing", label: "Tarifs", render: (r: AppRow) => {
             const prices = Object.entries(r.pricing as Record<string, number>);
-            if (prices.length === 0) return <span className="text-neutral-muted">—</span>;
+            if (prices.length === 0) return <span className="text-admin-muted">—</span>;
             return (
               <div className="space-y-0.5">
                 {prices.map(([plan, price]) => (
                   <div key={plan} className="text-[11px]">
-                    <span className="text-neutral-muted">{plan}:</span>{" "}
-                    <span className="text-neutral-text font-medium">{fmt(price)} FCFA/{r.pricing_period || "mois"}</span>
+                    <span className="text-admin-muted">{plan}:</span>{" "}
+                    <span className="text-admin-text font-medium">{fmt(price)} FCFA/{r.pricing_period || "mois"}</span>
                   </div>
                 ))}
               </div>
             );
           }},
           { key: "sort_order", label: "Ordre", sortable: true, render: (r: AppRow) => (
-            <span className="text-neutral-muted text-[12px] font-mono">{r.sort_order}</span>
+            <span className="text-admin-muted text-[12px] font-mono">{r.sort_order}</span>
           )},
           { key: "actions", label: "", render: (r: AppRow) => (
             <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-              <button onClick={() => openEdit(r)} className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors" title="Modifier"><Pencil size={14} /></button>
-              <button onClick={() => handleDelete(r)} className="p-1.5 rounded hover:bg-red-50 text-neutral-muted hover:text-red-500 transition-colors" title="Supprimer"><Trash2 size={14} /></button>
+              <button onClick={() => openEdit(r)} className="p-1.5 rounded hover:bg-admin-surface-alt text-admin-muted hover:text-admin-accent transition-colors" title="Modifier"><Pencil size={14} /></button>
+              <button onClick={() => handleDelete(r)} className="p-1.5 rounded hover:bg-red-50 text-admin-muted hover:text-red-500 transition-colors" title="Supprimer"><Trash2 size={14} /></button>
             </div>
           )},
         ]}
@@ -215,22 +215,22 @@ export default function AppsManagementPage() {
       <AdminModal open={!!editApp} onClose={() => setEditApp(null)} title={isNew ? "Nouvelle application" : `Modifier ${editApp?.name || ""}`} size="xl"
         footer={
           <>
-            <button onClick={() => setEditApp(null)} className="px-4 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-medium hover:border-gold/40 transition-colors">Annuler</button>
-            <button onClick={handleSave} disabled={saving} className={`btn-gold !py-2.5 !text-[13px] ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : isNew ? "Créer" : "Sauvegarder"}</button>
+            <button onClick={() => setEditApp(null)} className="px-4 py-2.5 border border-admin-surface-alt rounded-lg text-admin-text/80 text-[13px] font-medium hover:border-admin-accent/40 transition-colors">Annuler</button>
+            <button onClick={handleSave} disabled={saving} className={`bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : isNew ? "Créer" : "Sauvegarder"}</button>
           </>
         }>
         {editApp && (
           <div className="space-y-5">
             {/* Identity */}
             <div>
-              <h3 className="text-neutral-text text-sm font-semibold mb-3">Identité</h3>
+              <h3 className="text-admin-text text-sm font-semibold mb-3">Identité</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">ID (slug)</label>
+                  <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">ID (slug)</label>
                   <input value={editApp.id || ""} onChange={e => setEditApp({ ...editApp, id: e.target.value })} disabled={!isNew} placeholder="mon-app" className={`${inputClass} ${!isNew ? "opacity-50" : ""}`} />
                 </div>
                 <div>
-                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Nom</label>
+                  <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Nom</label>
                   <input value={editApp.name || ""} onChange={e => setEditApp({ ...editApp, name: e.target.value })} className={inputClass} />
                 </div>
               </div>
@@ -239,19 +239,19 @@ export default function AppsManagementPage() {
             {/* Type, Status, Period */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Type</label>
+                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Type</label>
                 <select value={editApp.type || "App"} onChange={e => setEditApp({ ...editApp, type: e.target.value as AppType })} className={inputClass}>
                   {appTypes.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Statut</label>
+                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut</label>
                 <select value={editApp.status || "available"} onChange={e => setEditApp({ ...editApp, status: e.target.value as AppStatus })} className={inputClass}>
                   {appStatuses.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Période tarif</label>
+                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Période tarif</label>
                 <select value={editApp.pricing_period || "mois"} onChange={e => setEditApp({ ...editApp, pricing_period: e.target.value })} className={inputClass}>
                   <option value="mois">Par mois</option><option value="an">Par an</option>
                 </select>
@@ -260,24 +260,24 @@ export default function AppsManagementPage() {
 
             {/* External URL */}
             <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">URL externe (landing page)</label>
+              <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">URL externe (landing page)</label>
               <input value={editApp.external_url || ""} onChange={e => setEditApp({ ...editApp, external_url: e.target.value || null })} placeholder="https://mon-app.atlas-studio.org" className={inputClass} />
-              <p className="text-neutral-placeholder text-[11px] mt-1">Redirige vers ce site au lieu de la page détail interne.</p>
+              <p className="text-admin-muted/60 text-[11px] mt-1">Redirige vers ce site au lieu de la page détail interne.</p>
             </div>
 
             {/* Tagline + Description */}
             <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Tagline</label>
+              <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Tagline</label>
               <input value={editApp.tagline || ""} onChange={e => setEditApp({ ...editApp, tagline: e.target.value })} className={inputClass} />
             </div>
             <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Description</label>
+              <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Description</label>
               <textarea value={editApp.description || ""} onChange={e => setEditApp({ ...editApp, description: e.target.value })} rows={3} className={`${inputClass} resize-y`} />
             </div>
 
             {/* Structured Pricing */}
             <div>
-              <h3 className="text-neutral-text text-sm font-semibold mb-3">Tarification</h3>
+              <h3 className="text-admin-text text-sm font-semibold mb-3">Tarification</h3>
               <div className="space-y-2">
                 {pricingRows.map((row, i) => (
                   <div key={i} className="flex gap-3 items-center">
@@ -286,36 +286,36 @@ export default function AppsManagementPage() {
                     <div className="relative flex-1">
                       <input type="number" value={row.price} onChange={e => { const r = [...pricingRows]; r[i] = { ...r[i], price: Number(e.target.value) }; setPricingRows(r); }}
                         className={inputClass} />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-muted text-[11px]">FCFA</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-admin-muted text-[11px]">FCFA</span>
                     </div>
                     <button onClick={() => setPricingRows(pricingRows.filter((_, j) => j !== i))} className="p-2 text-red-400 hover:text-red-600 transition-colors"><Trash2 size={14} /></button>
                   </div>
                 ))}
               </div>
               <button onClick={() => setPricingRows([...pricingRows, { plan: "", price: 0 }])}
-                className="text-gold text-[12px] font-semibold mt-2 hover:underline">+ Ajouter un plan</button>
+                className="text-admin-accent text-[12px] font-semibold mt-2 hover:underline">+ Ajouter un plan</button>
             </div>
 
             {/* Appearance */}
             <div>
-              <h3 className="text-neutral-text text-sm font-semibold mb-3">Apparence</h3>
+              <h3 className="text-admin-text text-sm font-semibold mb-3">Apparence</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Couleur</label>
+                  <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Couleur</label>
                   <div className="flex items-center gap-2">
                     <input type="color" value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
-                      className="w-10 h-10 rounded border border-warm-border cursor-pointer bg-transparent" />
+                      className="w-10 h-10 rounded border border-admin-surface-alt cursor-pointer bg-transparent" />
                     <input value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
                       className={`flex-1 ${inputClass} font-mono`} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Icône Lucide</label>
+                  <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Icône Lucide</label>
                   <input value={editApp.icon || "receipt"} onChange={e => setEditApp({ ...editApp, icon: e.target.value })} placeholder="receipt" className={inputClass} />
-                  <p className="text-neutral-placeholder text-[11px] mt-1">Nom d'icône lucide-react</p>
+                  <p className="text-admin-muted/60 text-[11px] mt-1">Nom d'icône lucide-react</p>
                 </div>
                 <div>
-                  <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Ordre d'affichage</label>
+                  <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Ordre d'affichage</label>
                   <input type="number" value={editApp.sort_order || 0} onChange={e => setEditApp({ ...editApp, sort_order: parseInt(e.target.value) || 0 })} className={inputClass} />
                 </div>
               </div>
@@ -323,23 +323,23 @@ export default function AppsManagementPage() {
 
             {/* Features */}
             <div>
-              <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Fonctionnalités (une par ligne)</label>
+              <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Fonctionnalités (une par ligne)</label>
               <textarea value={featuresStr} onChange={e => setFeaturesStr(e.target.value)} rows={5}
                 className={`${inputClass} resize-y font-mono text-[12px]`} />
-              <p className="text-neutral-placeholder text-[11px] mt-1">{featuresStr.split("\n").filter(Boolean).length} fonctionnalités</p>
+              <p className="text-admin-muted/60 text-[11px] mt-1">{featuresStr.split("\n").filter(Boolean).length} fonctionnalités</p>
             </div>
 
             {/* Categories + Highlights */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Catégories</label>
+                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Catégories</label>
                 <input value={categoriesStr} onChange={e => setCategoriesStr(e.target.value)} placeholder="Finance, Comptabilité" className={inputClass} />
-                <p className="text-neutral-placeholder text-[11px] mt-1">Séparées par des virgules</p>
+                <p className="text-admin-muted/60 text-[11px] mt-1">Séparées par des virgules</p>
               </div>
               <div>
-                <label className="block text-neutral-body text-[13px] font-semibold mb-1.5">Points forts</label>
+                <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">Points forts</label>
                 <input value={highlightsStr} onChange={e => setHighlightsStr(e.target.value)} placeholder="SYSCOHADA natif, Proph3t IA" className={inputClass} />
-                <p className="text-neutral-placeholder text-[11px] mt-1">Séparés par des virgules</p>
+                <p className="text-admin-muted/60 text-[11px] mt-1">Séparés par des virgules</p>
               </div>
             </div>
           </div>

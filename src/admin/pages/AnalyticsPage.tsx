@@ -49,19 +49,19 @@ function KpiCard({ label, value, sub, icon: Icon }: {
   label: string; value: string | number; sub?: string; icon: React.ComponentType<any>;
 }) {
   return (
-    <div className="bg-white border border-warm-border rounded-xl p-5">
+    <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-5">
       <div className="flex items-center justify-between mb-1">
-        <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
-        <Icon size={18} className="text-neutral-placeholder" strokeWidth={1.5} />
+        <div className="text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
+        <Icon size={18} className="text-admin-muted/60" strokeWidth={1.5} />
       </div>
-      <div className="text-gold text-2xl font-semibold">{value}</div>
-      {sub && <div className="text-neutral-muted text-[11px] mt-0.5">{sub}</div>}
+      <div className="text-admin-accent text-2xl font-semibold">{value}</div>
+      {sub && <div className="text-admin-muted text-[11px] mt-0.5">{sub}</div>}
     </div>
   );
 }
 
 /* ─── Bar Chart ─── */
-function BarChart({ data, color = "bg-gold/80", height = 140 }: {
+function BarChart({ data, color = "bg-admin-accent/80", height = 140 }: {
   data: { label: string; value: number }[]; color?: string; height?: number;
 }) {
   const max = Math.max(...data.map(d => d.value), 1);
@@ -72,11 +72,11 @@ function BarChart({ data, color = "bg-gold/80", height = 140 }: {
         const pct = Math.max((d.value / max) * 100, 2);
         return (
           <div key={d.label} className="flex-1 flex flex-col items-center gap-1">
-            <span className="text-[9px] text-neutral-muted">{d.value > 0 ? fmt(d.value) : ""}</span>
-            <div className="w-full bg-warm-bg rounded-t-md overflow-hidden" style={{ height: height - 30 }}>
+            <span className="text-[9px] text-admin-muted">{d.value > 0 ? fmt(d.value) : ""}</span>
+            <div className="w-full bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: height - 30 }}>
               <div className={`w-full ${color} rounded-t-md transition-all`} style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
             </div>
-            <span className="text-[10px] text-neutral-muted capitalize">{d.label}</span>
+            <span className="text-[10px] text-admin-muted capitalize">{d.label}</span>
           </div>
         );
       })}
@@ -229,7 +229,7 @@ export default function AnalyticsPage() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-gold" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-admin-accent" /></div>;
   }
 
   const totalAppRevenue = appRevenues.reduce((s, a) => s + a.total, 0) || 1;
@@ -240,19 +240,19 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-7 flex-wrap gap-4">
         <div>
-          <h1 className="text-neutral-text text-2xl font-bold mb-1">Analytics</h1>
-          <p className="text-neutral-muted text-sm">
+          <h1 className="text-admin-text text-2xl font-bold mb-1">Analytics</h1>
+          <p className="text-admin-muted text-sm">
             {selectedApp === "all" ? "Vue consolidée — toutes les applications" : `Métriques de ${selectedAppName}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {/* App selector */}
           <div className="relative">
-            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted pointer-events-none" />
+            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted pointer-events-none" />
             <select
               value={selectedApp}
               onChange={e => setSelectedApp(e.target.value)}
-              className="pl-9 pr-4 py-2.5 bg-white border border-warm-border rounded-lg text-sm text-neutral-text outline-none focus:border-gold transition-colors appearance-none cursor-pointer min-w-[220px]"
+              className="pl-9 pr-4 py-2.5 bg-admin-surface border border-admin-surface-alt rounded-lg text-sm text-admin-text outline-none focus:border-admin-accent transition-colors appearance-none cursor-pointer min-w-[220px]"
             >
               <option value="all">Consolidé — Toutes les apps</option>
               {appList.map(app => (
@@ -260,7 +260,7 @@ export default function AnalyticsPage() {
               ))}
             </select>
           </div>
-          <button onClick={handleExport} className="px-4 py-2.5 border border-warm-border rounded-lg text-[13px] font-semibold text-neutral-body hover:border-gold/40 transition-colors flex items-center gap-2">
+          <button onClick={handleExport} className="px-4 py-2.5 border border-admin-surface-alt rounded-lg text-[13px] font-semibold text-admin-text/80 hover:border-admin-accent/40 transition-colors flex items-center gap-2">
             <Download size={14} /> Export CSV
           </button>
         </div>
@@ -271,7 +271,7 @@ export default function AnalyticsPage() {
         <button
           onClick={() => setSelectedApp("all")}
           className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all ${
-            selectedApp === "all" ? "bg-gold text-onyx" : "bg-white border border-warm-border text-neutral-body hover:border-gold/40"
+            selectedApp === "all" ? "bg-admin-accent text-onyx" : "bg-admin-surface border border-admin-surface-alt text-admin-text/80 hover:border-admin-accent/40"
           }`}
         >
           Consolidé
@@ -281,7 +281,7 @@ export default function AnalyticsPage() {
             key={app.id}
             onClick={() => setSelectedApp(app.id)}
             className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all flex items-center gap-1.5 ${
-              selectedApp === app.id ? "bg-gold text-onyx" : "bg-white border border-warm-border text-neutral-body hover:border-gold/40"
+              selectedApp === app.id ? "bg-admin-accent text-onyx" : "bg-admin-surface border border-admin-surface-alt text-admin-text/80 hover:border-admin-accent/40"
             }`}
           >
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: (app as any).color || "#C8A960" }} />
@@ -299,21 +299,21 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Revenue chart */}
-      <div className="bg-white border border-warm-border rounded-xl p-6 mb-6">
-        <h2 className="text-neutral-text text-sm font-semibold mb-4">
+      <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6 mb-6">
+        <h2 className="text-admin-text text-sm font-semibold mb-4">
           Revenus mensuels — {selectedAppName}
         </h2>
-        <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.revenue }))} color="bg-gold/80" height={160} />
+        <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.revenue }))} color="bg-admin-accent/80" height={160} />
       </div>
 
       {/* Abonnements chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white border border-warm-border rounded-xl p-6">
-          <h2 className="text-neutral-text text-sm font-semibold mb-4">Nouveaux abonnements par mois</h2>
+        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
+          <h2 className="text-admin-text text-sm font-semibold mb-4">Nouveaux abonnements par mois</h2>
           <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.newClients }))} color="bg-emerald-400/70" height={130} />
         </div>
-        <div className="bg-white border border-warm-border rounded-xl p-6">
-          <h2 className="text-neutral-text text-sm font-semibold mb-4">Annulations par mois</h2>
+        <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
+          <h2 className="text-admin-text text-sm font-semibold mb-4">Annulations par mois</h2>
           <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.cancelled }))} color="bg-red-400/70" height={130} />
         </div>
       </div>
@@ -321,22 +321,22 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue by app (only in consolidated view) */}
         {selectedApp === "all" && (
-          <div className="bg-white border border-warm-border rounded-xl p-6">
-            <h2 className="text-neutral-text text-sm font-semibold mb-4">Répartition par application</h2>
+          <div className="bg-admin-surface border border-admin-surface-alt rounded-xl p-6">
+            <h2 className="text-admin-text text-sm font-semibold mb-4">Répartition par application</h2>
             {appRevenues.length > 0 ? (
               <div className="space-y-3">
                 {appRevenues.map(app => {
                   const pct = Math.round((app.total / totalAppRevenue) * 100);
                   return (
-                    <button key={app.app_id} onClick={() => setSelectedApp(app.app_id)} className="w-full text-left hover:bg-warm-bg rounded-lg p-1 -m-1 transition-colors">
+                    <button key={app.app_id} onClick={() => setSelectedApp(app.app_id)} className="w-full text-left hover:bg-admin-surface-alt rounded-lg p-1 -m-1 transition-colors">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: app.color }} />
-                          <span className="text-neutral-text text-sm font-medium">{app.name}</span>
+                          <span className="text-admin-text text-sm font-medium">{app.name}</span>
                         </div>
-                        <span className="text-gold text-sm font-semibold">{fmt(app.total)} FCFA ({pct}%)</span>
+                        <span className="text-admin-accent text-sm font-mono font-semibold">{fmt(app.total)} FCFA ({pct}%)</span>
                       </div>
-                      <div className="w-full h-2 bg-warm-bg rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-admin-surface-alt rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: app.color }} />
                       </div>
                     </button>
@@ -344,14 +344,14 @@ export default function AnalyticsPage() {
                 })}
               </div>
             ) : (
-              <p className="text-neutral-muted text-sm">Aucune donnée</p>
+              <p className="text-admin-muted text-sm">Aucune donnée</p>
             )}
           </div>
         )}
 
         {/* Top clients */}
-        <div className={`bg-white border border-warm-border rounded-xl p-6 ${selectedApp === "all" ? "" : "lg:col-span-2"}`}>
-          <h2 className="text-neutral-text text-sm font-semibold mb-4">
+        <div className={`bg-admin-surface border border-admin-surface-alt rounded-xl p-6 ${selectedApp === "all" ? "" : "lg:col-span-2"}`}>
+          <h2 className="text-admin-text text-sm font-semibold mb-4">
             Top 10 clients {selectedApp !== "all" ? `— ${selectedAppName}` : ""}
           </h2>
           {topClients.length > 0 ? (
@@ -359,18 +359,18 @@ export default function AnalyticsPage() {
               {topClients.map((c, i) => (
                 <div key={c.email} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold/10 flex items-center justify-center text-gold text-[11px] font-bold">{i + 1}</div>
+                    <div className="w-6 h-6 rounded bg-admin-accent/10 flex items-center justify-center text-admin-accent text-[11px] font-bold">{i + 1}</div>
                     <div>
-                      <span className="text-neutral-text text-sm font-medium">{c.full_name}</span>
-                      <div className="text-neutral-muted text-[11px]">{c.email}</div>
+                      <span className="text-admin-text text-sm font-medium">{c.full_name}</span>
+                      <div className="text-admin-muted text-[11px]">{c.email}</div>
                     </div>
                   </div>
-                  <span className="text-gold text-sm font-semibold">{fmt(c.total)} FCFA</span>
+                  <span className="text-admin-accent text-sm font-mono font-semibold">{fmt(c.total)} FCFA</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-neutral-muted text-sm">Aucune donnée</p>
+            <p className="text-admin-muted text-sm">Aucune donnée</p>
           )}
         </div>
       </div>
