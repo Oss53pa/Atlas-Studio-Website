@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X, Flag, Bell, Tag, Rocket,
+  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X, Flag, Bell, Tag, Rocket, BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -53,6 +53,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin/content", icon: FileText, label: "Landing Page" },
       { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
       { to: "/admin/emails", icon: Megaphone, label: "Templates Email" },
+      { to: "/admin/knowledge-base", icon: BookOpen, label: "Base de connaissances" },
     ],
   },
   {

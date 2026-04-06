@@ -43,6 +43,7 @@ const FeatureFlagsPage = lazy(() => import('./admin/pages/FeatureFlagsPage'));
 const AlertsPage = lazy(() => import('./admin/pages/AlertsPage'));
 const PromoCodesPage = lazy(() => import('./admin/pages/PromoCodesPage'));
 const DeploymentsPage = lazy(() => import('./admin/pages/DeploymentsPage'));
+const KnowledgeBasePage = lazy(() => import('./admin/pages/KnowledgeBasePage'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -110,6 +111,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="alerts" element={<Suspense fallback={<AdminLoader />}><AlertsPage /></Suspense>} />
               <Route path="promo-codes" element={<Suspense fallback={<AdminLoader />}><PromoCodesPage /></Suspense>} />
               <Route path="deployments" element={<Suspense fallback={<AdminLoader />}><DeploymentsPage /></Suspense>} />
+              <Route path="knowledge-base" element={<Suspense fallback={<AdminLoader />}><KnowledgeBasePage /></Suspense>} />
             </Route>
           </Route>
 

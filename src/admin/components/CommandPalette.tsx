@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   Search, LayoutDashboard, Users, Repeat, Receipt, MessageSquare,
   FileText, Mail, BarChart3, ClipboardList, CreditCard, Megaphone,
-  ArrowRight, Brain, Activity, Flag, type LucideIcon,
+  ArrowRight, Brain, Activity, Flag, Bell, Tag, Rocket, BookOpen,
+  type LucideIcon,
 } from "lucide-react";
 
 interface Command {
@@ -37,6 +38,10 @@ export function CommandPalette() {
     { id: "proph3t", label: "Proph3t IA", description: "Assistant intelligent", icon: Brain, action: () => navigate("/admin/proph3t"), keywords: "ia intelligence assistant chat" },
     { id: "system", label: "Santé système", description: "Monitoring & uptime", icon: Activity, action: () => navigate("/admin/system"), keywords: "health monitoring services" },
     { id: "feature-flags", label: "Feature Flags", description: "Toggles & rollout", icon: Flag, action: () => navigate("/admin/feature-flags"), keywords: "flags features toggle rollout" },
+    { id: "alerts", label: "Alertes", description: "Alertes et anomalies", icon: Bell, action: () => navigate("/admin/alerts"), keywords: "alertes notifications anomalies" },
+    { id: "promo-codes", label: "Codes Promo", description: "Réductions et offres", icon: Tag, action: () => navigate("/admin/promo-codes"), keywords: "promo codes réductions coupons" },
+    { id: "deployments", label: "Déploiements", description: "Versions et releases", icon: Rocket, action: () => navigate("/admin/deployments"), keywords: "deploy version release rollback" },
+    { id: "knowledge-base", label: "Base de connaissances", description: "Articles FAQ et guides", icon: BookOpen, action: () => navigate("/admin/knowledge-base"), keywords: "kb articles faq guide documentation" },
     { id: "site", label: "Voir le site", description: "Ouvrir le site vitrine", icon: ArrowRight, action: () => window.open("/", "_blank") },
   ];
 
