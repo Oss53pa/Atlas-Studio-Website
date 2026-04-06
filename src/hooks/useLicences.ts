@@ -8,7 +8,7 @@ export function useLicences(tenantId?: string) {
 
   const fetchLicences = useCallback(async () => {
     setLoading(true)
-    let query = supabase.from('licences').select('*, tenants(name, email, country), products(name, slug), plans(name, price_monthly_fcfa, max_seats)').order('created_at', { ascending: false })
+    let query = supabase.from('licences').select('*, tenants(name, billing_email, country), products(name, slug), plans(name, price_monthly_fcfa, max_seats)').order('created_at', { ascending: false })
     if (tenantId) query = query.eq('tenant_id', tenantId)
     const { data, error } = await query
     if (error) console.error('useLicences error:', error)

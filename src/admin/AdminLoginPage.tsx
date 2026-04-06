@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Shield, Zap, Loader2 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -13,11 +13,13 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (user) {
-    supabase.from('profiles').select('role').eq('id', user.id).single().then(({ data }) => {
-      if (data?.role === 'admin') navigate('/admin', { replace: true });
-    });
-  }
+  useEffect(() => {
+    if (user) {
+      supabase.from('profiles').select('role').eq('id', user.id).single().then(({ data }) => {
+        if (data?.role === 'admin') navigate('/admin', { replace: true });
+      });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async () => {
     setError("");

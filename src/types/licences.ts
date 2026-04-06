@@ -22,7 +22,7 @@ export interface Licence {
   created_at: string
   updated_at: string
   // Joined
-  tenants?: { name: string; email: string; country?: string }
+  tenants?: { name: string; billing_email?: string; country?: string }
   products?: { name: string; slug: string }
   plans?: { name: string; price_monthly_fcfa: number; max_seats: number }
 }
