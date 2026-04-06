@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   try {
     const user = await requireUser(req);
     const { appId, plan, priceAmount } = await req.json();
-    const frontendUrl = Deno.env.get("FRONTEND_URL")!;
+    const frontendUrl = Deno.env.get("FRONTEND_URL") || "https://atlas-studio.org";
 
     // Get or create Stripe customer
     const { data: profile } = await supabaseAdmin
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
     // Create an ad-hoc price
     const price = await stripe.prices.create({
-      unit_amount: Math.round(priceAmount * 100),
+      unit_amount: Math.round(priceAmount), // XOF has no decimals
       currency: "xof",
       recurring: { interval: "month" },
       product_data: { name: `Atlas Studio - ${appId} (${plan})` },

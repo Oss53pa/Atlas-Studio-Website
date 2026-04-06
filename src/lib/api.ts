@@ -15,7 +15,9 @@ export async function apiCall<T = any>(
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (!raw) headers["Content-Type"] = "application/json";
 

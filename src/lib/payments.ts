@@ -4,16 +4,18 @@ export async function createCheckoutSession(appId: string, plan: string, priceAm
   if (paymentMethod === "cinetpay") {
     const { url } = await apiCall<{ url: string }>("cinetpay-checkout", {
       method: "POST",
-      body: { appId, plan, priceAmount },
+      body: { appId, plan, priceAmount, paymentMethod },
     });
+    if (!url) throw new Error("Aucune URL de paiement retournée par CinetPay");
     window.location.href = url;
     return;
   }
 
   const { url } = await apiCall<{ url: string }>("create-checkout", {
     method: "POST",
-    body: { appId, plan, priceAmount },
+    body: { appId, plan, priceAmount, paymentMethod },
   });
+  if (!url) throw new Error("Aucune URL de paiement retournée par Stripe");
   window.location.href = url;
 }
 
@@ -22,6 +24,7 @@ export async function createRegularizationSession(subscriptionId: string, paymen
     method: "POST",
     body: { subscriptionId, paymentMethod },
   });
+  if (!url) throw new Error("Aucune URL de paiement retournée");
   window.location.href = url;
 }
 
@@ -30,10 +33,12 @@ export async function createReactivationSession(subscriptionId: string, paymentM
     method: "POST",
     body: { subscriptionId, paymentMethod },
   });
+  if (!url) throw new Error("Aucune URL de paiement retournée");
   window.location.href = url;
 }
 
 export async function openPaymentMethodPortal() {
   const { url } = await apiCall<{ url: string }>("portal-session");
+  if (!url) throw new Error("Aucune URL de portail retournée");
   window.location.href = url;
 }
