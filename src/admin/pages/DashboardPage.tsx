@@ -6,6 +6,7 @@ import {
   MessageSquare, Receipt, Mail, CreditCard, ClipboardList, Megaphone,
   type LucideIcon,
 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "../../lib/supabase";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
@@ -49,7 +50,7 @@ function ModuleCard({ to, icon: Icon, label, description, stat, color }: {
   to: string; icon: LucideIcon; label: string; description: string; stat?: string | number; color: string;
 }) {
   return (
-    <Link to={to} className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 hover:border-gold/30 hover:shadow-sm transition-all group">
+    <Link to={to} className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 hover:border-gold/30 hover:shadow-sm transition-all group">
       <div className="flex items-start justify-between mb-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
           <Icon size={20} strokeWidth={1.5} />
@@ -70,7 +71,7 @@ function KpiCard({ label, value, icon: Icon, trend }: {
   label: string; value: string | number; icon: LucideIcon; trend?: string;
 }) {
   return (
-    <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
       <div className="flex items-center justify-between mb-2">
         <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
         <Icon size={18} className="text-neutral-muted dark:text-admin-muted/60" strokeWidth={1.5} />
@@ -245,28 +246,22 @@ export default function DashboardPage() {
 
       {/* Revenue chart + Top clients */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold">Revenus (6 derniers mois)</h2>
             <Link to="/admin/analytics" className="text-gold dark:text-admin-accent text-[12px] font-medium hover:underline">Détails →</Link>
           </div>
-          <div className="flex items-end gap-3 h-40">
-            {monthlyRevenues.map(m => {
-              const pct = Math.max((m.amount / maxMonthly) * 100, 2);
-              return (
-                <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] text-neutral-muted dark:text-admin-muted">{m.amount > 0 ? fmt(m.amount) : ""}</span>
-                  <div className="w-full bg-white dark:bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: "120px" }}>
-                    <div className="w-full bg-gold dark:bg-admin-accent/80 rounded-t-md transition-all" style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
-                  </div>
-                  <span className="text-[11px] text-neutral-muted dark:text-admin-muted font-medium capitalize">{m.label}</span>
-                </div>
-              );
-            })}
-          </div>
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={monthlyRevenues}>
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} width={50} tickFormatter={v => v >= 1000 ? `${Math.round(v / 1000)}k` : v} />
+              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e5e5" }} formatter={(v: number) => [`${fmt(v)} FCFA`, "Revenus"]} />
+              <Bar dataKey="amount" fill="#C8A960" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold">Top clients par revenu</h2>
           </div>
@@ -293,7 +288,7 @@ export default function DashboardPage() {
 
       {/* Apps populaires + Factures en attente */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Apps populaires</h2>
           {stats?.popular_apps && stats.popular_apps.length > 0 ? (
             <div className="space-y-3">
@@ -312,7 +307,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold">Factures en attente</h2>
             <Link to="/admin/invoices" className="text-gold dark:text-admin-accent text-[12px] font-medium hover:underline">Tout voir →</Link>

@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Mail, Eye, X, Code, FileText, Send, Copy, Check } from "lucide-react";
+import { Mail, Eye, X, Code, FileText, Send, Copy, Check, Loader2 } from "lucide-react";
+import { apiCall } from "../../lib/api";
+import { useToast } from "../contexts/ToastContext";
 
 // ── Template HTML premium (mirroring SQL inserts) ────────────────────
 
@@ -208,8 +210,24 @@ const templates: TemplateDefinition[] = [
 // ── Component ────────────────────────────────────────────────────────
 
 export default function EmailTemplatesPage() {
+  const { success, error: showError } = useToast();
   const [previewTpl, setPreviewTpl] = useState<TemplateDefinition | null>(null);
   const [copied, setCopied] = useState(false);
+  const [testEmail, setTestEmail] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
+
+  const handleSendTest = async () => {
+    if (!previewTpl || !preview || !testEmail) return;
+    setSendingTest(true);
+    try {
+      await apiCall("send-email", {
+        method: "POST",
+        body: { appId: "core", to: testEmail, subject: `[TEST] ${preview.subject}`, html: preview.html },
+      });
+      success(`Email test envoyé à ${testEmail}`);
+    } catch { showError("Erreur d'envoi"); }
+    setSendingTest(false);
+  };
 
   const preview = previewTpl ? previewTpl.render(previewTpl.samplePayload) : null;
 
@@ -235,7 +253,7 @@ export default function EmailTemplatesPage() {
         {templates.map((tpl) => (
           <div
             key={tpl.id}
-            className="bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 flex flex-col hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors"
+            className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 flex flex-col hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors"
           >
             <div className="flex items-start gap-3 mb-3">
               <div
@@ -282,7 +300,7 @@ export default function EmailTemplatesPage() {
 
             <button
               onClick={() => { setPreviewTpl(tpl); setCopied(false); }}
-              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 hover:text-gold dark:text-admin-accent transition-colors"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 hover:text-gold dark:text-admin-accent transition-colors"
             >
               <Eye size={14} />
               Aper&ccedil;u
@@ -297,7 +315,7 @@ export default function EmailTemplatesPage() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
           onClick={(e) => { if (e.target === e.currentTarget) setPreviewTpl(null); }}
         >
-          <div className="bg-white dark:bg-white dark:bg-admin-surface rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="bg-white dark:bg-admin-surface rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border dark:border-admin-surface-alt">
               <div className="flex items-center gap-3">
@@ -317,6 +335,15 @@ export default function EmailTemplatesPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <input value={testEmail} onChange={e => setTestEmail(e.target.value)} placeholder="test@email.com"
+                    className="px-3 py-1.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[12px] text-neutral-text dark:text-admin-text w-40 outline-none focus:border-gold dark:focus:border-admin-accent bg-white dark:bg-admin-surface-alt" />
+                  <button onClick={handleSendTest} disabled={sendingTest || !testEmail}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium bg-gold dark:bg-admin-accent text-black hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors disabled:opacity-50">
+                    {sendingTest ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                    Envoyer test
+                  </button>
+                </div>
                 <button
                   onClick={handleCopyHtml}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium border border-warm-border dark:border-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:border-gold/40 dark:hover:border-admin-accent/40 hover:text-gold dark:text-admin-accent transition-colors"
@@ -353,7 +380,7 @@ export default function EmailTemplatesPage() {
                 <iframe
                   srcDoc={preview.html}
                   title={`Aperçu - ${previewTpl.name}`}
-                  className="w-full border-0 bg-white dark:bg-white dark:bg-admin-surface"
+                  className="w-full border-0 bg-white dark:bg-admin-surface"
                   style={{ minHeight: "650px" }}
                   sandbox="allow-same-origin"
                 />
