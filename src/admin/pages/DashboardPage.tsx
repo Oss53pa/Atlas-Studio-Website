@@ -4,6 +4,7 @@ import {
   Users, Repeat, DollarSign, TrendingUp, Loader2, AlertTriangle,
   UserPlus, BarChart3, ArrowDownRight, ArrowRight, FileText,
   MessageSquare, Receipt, Mail, CreditCard, ClipboardList, Megaphone,
+  Brain, Activity, Flag, Bell, Tag, Rocket, BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -231,16 +232,22 @@ export default function DashboardPage() {
       <div className="mb-8">
         <h2 className="text-neutral-text dark:text-admin-text text-base font-semibold mb-4">Accès rapide</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <ModuleCard to="/admin/clients" icon={Users} label="Utilisateurs" description="Comptes, rôles, accès" stat={stats?.total_users || 0} color="bg-blue-50 text-blue-600" />
-          <ModuleCard to="/admin/subscriptions" icon={Repeat} label="Abonnements" description="Actifs, essais, résiliés" stat={stats?.active_subscriptions || 0} color="bg-emerald-50 text-emerald-600" />
-          <ModuleCard to="/admin/invoices" icon={Receipt} label="Facturation" description="Factures, paiements" stat={`${fmt(revenue?.monthly_revenue || 0)} FCFA`} color="bg-amber-50 text-amber-600" />
-          <ModuleCard to="/admin/tickets" icon={MessageSquare} label="Support" description="Tickets, demandes" stat={openTickets} color="bg-purple-50 text-purple-600" />
-          <ModuleCard to="/admin/content" icon={FileText} label="Landing Page" description="Contenu, images, couleurs" color="bg-pink-50 text-pink-600" />
-          <ModuleCard to="/admin/apps" icon={CreditCard} label="Grille Tarifaire" description="Apps, plans, pricing" color="bg-cyan-50 text-cyan-600" />
-          <ModuleCard to="/admin/analytics" icon={BarChart3} label="Analytics" description="Revenus, tendances" color="bg-indigo-50 text-indigo-600" />
-          <ModuleCard to="/admin/newsletter" icon={Mail} label="Newsletter" description="Abonnés, campagnes" color="bg-orange-50 text-orange-600" />
-          <ModuleCard to="/admin/emails" icon={Megaphone} label="Templates Email" description="Modèles de notifications" color="bg-teal-50 text-teal-600" />
-          <ModuleCard to="/admin/activity" icon={ClipboardList} label="Logs & Audit" description="Événements, historique" color="bg-slate-50 text-slate-600" />
+          <ModuleCard to="/admin/proph3t" icon={Brain} label="Proph3t IA" description="Insights, chat, recommandations" color="bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400" />
+          <ModuleCard to="/admin/clients" icon={Users} label="Utilisateurs" description="Comptes, rôles, accès" stat={stats?.total_users || 0} color="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" />
+          <ModuleCard to="/admin/subscriptions" icon={Repeat} label="Abonnements" description="Actifs, essais, résiliés" stat={stats?.active_subscriptions || 0} color="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" />
+          <ModuleCard to="/admin/invoices" icon={Receipt} label="Facturation" description="Factures, paiements" stat={`${fmt(revenue?.monthly_revenue || 0)} FCFA`} color="bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400" />
+          <ModuleCard to="/admin/tickets" icon={MessageSquare} label="Support" description="Tickets, demandes" stat={openTickets} color="bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400" />
+          <ModuleCard to="/admin/content" icon={FileText} label="Landing Page" description="Contenu, images, couleurs" color="bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400" />
+          <ModuleCard to="/admin/apps" icon={CreditCard} label="Grille Tarifaire" description="Apps, plans, pricing" color="bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10 dark:text-cyan-400" />
+          <ModuleCard to="/admin/promo-codes" icon={Tag} label="Codes Promo" description="Réductions, coupons" color="bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400" />
+          <ModuleCard to="/admin/analytics" icon={BarChart3} label="Analytics" description="Revenus, tendances" color="bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400" />
+          <ModuleCard to="/admin/system" icon={Activity} label="Santé système" description="Monitoring, uptime" color="bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400" />
+          <ModuleCard to="/admin/alerts" icon={Bell} label="Alertes" description="Anomalies, incidents" color="bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400" />
+          <ModuleCard to="/admin/feature-flags" icon={Flag} label="Feature Flags" description="Toggles, rollout" color="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400" />
+          <ModuleCard to="/admin/deployments" icon={Rocket} label="Déploiements" description="Versions, releases" color="bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400" />
+          <ModuleCard to="/admin/newsletter" icon={Mail} label="Newsletter" description="Abonnés, campagnes" color="bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400" />
+          <ModuleCard to="/admin/knowledge-base" icon={BookOpen} label="Base de connaissances" description="Articles, FAQ" color="bg-lime-50 text-lime-600 dark:bg-lime-500/10 dark:text-lime-400" />
+          <ModuleCard to="/admin/activity" icon={ClipboardList} label="Logs & Audit" description="Événements, historique" color="bg-slate-50 text-slate-600 dark:bg-slate-500/10 dark:text-slate-400" />
         </div>
       </div>
 
