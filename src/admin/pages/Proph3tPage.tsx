@@ -259,11 +259,11 @@ export default function Proph3tPage() {
         </div>
         <div className="flex gap-2">
           <button onClick={() => setChatOpen(true)}
-            className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
+            className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <MessageSquare size={14} /> Parler à <span className="font-logo">Proph3t</span>
           </button>
           <button onClick={handleRefresh} disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} /> Actualiser
           </button>
         </div>
@@ -367,7 +367,7 @@ export default function Proph3tPage() {
                     <div className="text-neutral-text dark:text-admin-text text-sm font-medium mb-0.5">{rec.title}</div>
                     <p className="text-neutral-muted dark:text-admin-muted text-[12px] leading-relaxed">{rec.description}</p>
                   </div>
-                  <Link to={rec.to} className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-semibold text-gold dark:text-admin-accent bg-gold dark:bg-admin-accent/5 hover:bg-gold dark:bg-admin-accent/10 transition-colors">
+                  <Link to={rec.to} className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-semibold text-gold dark:text-admin-accent bg-gold dark:bg-admin-accent/5 hover:bg-gold/10 dark:bg-admin-accent/10 transition-colors">
                     {rec.actionLabel} <ArrowRight size={12} />
                   </Link>
                 </div>

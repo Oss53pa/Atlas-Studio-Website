@@ -181,7 +181,7 @@ export default function ActivityLogPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">Historique des actions sur la plateforme — {totalCount} événements</p>
         </div>
         <button onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
           <Download size={14} /> Export CSV
         </button>
       </div>
@@ -212,7 +212,7 @@ export default function ActivityLogPage() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-warm-border dark:border-admin-surface-alt bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt/30">
+              <tr className="border-b border-warm-border dark:border-admin-surface-alt bg-white dark:bg-admin-surface-alt/30">
                 <th className="text-neutral-muted dark:text-admin-muted text-[11px] font-bold uppercase tracking-wider p-4 text-left">Date</th>
                 <th className="text-neutral-muted dark:text-admin-muted text-[11px] font-bold uppercase tracking-wider p-4 text-left">Action</th>
                 <th className="text-neutral-muted dark:text-admin-muted text-[11px] font-bold uppercase tracking-wider p-4 text-left">Utilisateur</th>
@@ -226,8 +226,8 @@ export default function ActivityLogPage() {
                 <tr><td colSpan={4} className="p-12 text-center text-neutral-muted dark:text-admin-muted text-sm">Aucun événement</td></tr>
               ) : filtered.map(log => (
                 <tr key={log.id} onClick={() => setDetailLog(log)}
-                  className="border-b border-warm-bg last:border-b-0 hover:bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt/50 transition-colors cursor-pointer">
-                  <td className="p-4 text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] whitespace-nowrap">
+                  className="border-b border-warm-bg last:border-b-0 hover:bg-white dark:bg-admin-surface-alt/50 transition-colors cursor-pointer">
+                  <td className="p-4 text-neutral-text dark:text-admin-text/80 text-[13px] whitespace-nowrap">
                     {new Date(log.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </td>
                   <td className="p-4">{getActionBadge(log.action)}</td>
@@ -248,10 +248,10 @@ export default function ActivityLogPage() {
           </span>
           <div className="flex items-center gap-1">
             <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
-              className="p-1.5 rounded hover:bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt disabled:opacity-30 transition-colors"><ChevronLeft size={16} /></button>
+              className="p-1.5 rounded hover:bg-white dark:bg-admin-surface-alt disabled:opacity-30 transition-colors"><ChevronLeft size={16} /></button>
             <span className="text-[12px] text-neutral-muted dark:text-admin-muted px-2">{page + 1} / {Math.max(totalPages, 1)}</span>
             <button onClick={() => setPage(p => p + 1)} disabled={page >= totalPages - 1}
-              className="p-1.5 rounded hover:bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt disabled:opacity-30 transition-colors"><ChevronRight size={16} /></button>
+              className="p-1.5 rounded hover:bg-white dark:bg-admin-surface-alt disabled:opacity-30 transition-colors"><ChevronRight size={16} /></button>
           </div>
         </div>
       </div>
@@ -279,7 +279,7 @@ export default function ActivityLogPage() {
             </div>
             <div>
               <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Metadata</div>
-              <pre className="bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-lg p-4 text-[12px] text-neutral-text dark:text-admin-text font-mono overflow-auto max-h-[300px] whitespace-pre-wrap">
+              <pre className="bg-white dark:bg-admin-surface-alt rounded-lg p-4 text-[12px] text-neutral-text dark:text-admin-text font-mono overflow-auto max-h-[300px] whitespace-pre-wrap">
                 {JSON.stringify(detailLog.metadata || {}, null, 2)}
               </pre>
             </div>

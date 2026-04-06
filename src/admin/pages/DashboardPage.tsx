@@ -256,7 +256,7 @@ export default function DashboardPage() {
               return (
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
                   <span className="text-[10px] text-neutral-muted dark:text-admin-muted">{m.amount > 0 ? fmt(m.amount) : ""}</span>
-                  <div className="w-full bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: "120px" }}>
+                  <div className="w-full bg-white dark:bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: "120px" }}>
                     <div className="w-full bg-gold dark:bg-admin-accent/80 rounded-t-md transition-all" style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
                   </div>
                   <span className="text-[11px] text-neutral-muted dark:text-admin-muted font-medium capitalize">{m.label}</span>
@@ -275,7 +275,7 @@ export default function DashboardPage() {
               {topClients.map((c, i) => (
                 <div key={c.email} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
+                    <div className="w-6 h-6 rounded bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
                     <div>
                       <span className="text-neutral-text dark:text-admin-text text-sm font-medium">{c.full_name}</span>
                       <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{c.email}</div>
@@ -300,7 +300,7 @@ export default function DashboardPage() {
               {stats.popular_apps.map((app, i) => (
                 <div key={app.app_id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
+                    <div className="w-6 h-6 rounded bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
                     <span className="text-neutral-text dark:text-admin-text text-sm font-medium">{appMap[app.app_id]?.name || app.app_id}</span>
                   </div>
                   <span className="text-neutral-muted dark:text-admin-muted text-sm">{app.sub_count} abonnés</span>

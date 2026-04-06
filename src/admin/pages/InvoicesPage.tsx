@@ -180,17 +180,17 @@ export default function InvoicesPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">{invoices.length} factures</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleExport} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-semibold text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
+          <button onClick={handleExport} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-semibold text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
             <Download size={14} /> Export CSV
           </button>
-          <button onClick={openCreateForm} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
+          <button onClick={openCreateForm} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <Plus size={14} /> Nouvelle facture
           </button>
         </div>
       </div>
 
       {toast && (
-        <div className="mb-6 px-4 py-3 rounded-lg bg-gold dark:bg-admin-accent/10 border border-gold/20 text-gold dark:text-admin-accent text-sm font-medium flex items-center gap-2">
+        <div className="mb-6 px-4 py-3 rounded-lg bg-gold/10 dark:bg-admin-accent/10 border border-gold/20 text-gold dark:text-admin-accent text-sm font-medium flex items-center gap-2">
           <Check size={16} /> {toast}
         </div>
       )}
@@ -211,7 +211,7 @@ export default function InvoicesPage() {
           { label: "Remboursees", value: "refunded" },
         ].map(f => (
           <button key={f.value} onClick={() => setFilter(f.value)}
-            className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"}`}>
+            className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"}`}>
             {f.label}
           </button>
         ))}
@@ -220,7 +220,7 @@ export default function InvoicesPage() {
       <div className="flex gap-2 flex-wrap mb-6">
         {dateFilters.map(f => (
           <button key={f.value} onClick={() => setDateFilter(f.value)}
-            className={`px-3 py-1.5 rounded text-[12px] font-medium transition-all ${dateFilter === f.value ? "bg-neutral-200 text-neutral-700" : "bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:bg-neutral-100"}`}>
+            className={`px-3 py-1.5 rounded text-[12px] font-medium transition-all ${dateFilter === f.value ? "bg-neutral-200 text-neutral-700" : "bg-white dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:bg-neutral-100"}`}>
             {f.label}
           </button>
         ))}
@@ -257,7 +257,7 @@ export default function InvoicesPage() {
               <button onClick={(e) => { e.stopPropagation(); handleSendEmail(r); }} className="p-1.5 rounded hover:bg-blue-50 text-neutral-muted dark:text-admin-muted hover:text-blue-600 transition-colors" title="Envoyer par email">
                 <Mail size={13} />
               </button>
-              <button onClick={(e) => { e.stopPropagation(); handleDownloadPDF(r.id, r.invoice_number); }} className="p-1.5 rounded hover:bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-gold dark:text-admin-accent transition-colors" title="Telecharger PDF">
+              <button onClick={(e) => { e.stopPropagation(); handleDownloadPDF(r.id, r.invoice_number); }} className="p-1.5 rounded hover:bg-white dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-gold dark:text-admin-accent transition-colors" title="Telecharger PDF">
                 <Download size={13} />
               </button>
             </div>
@@ -270,47 +270,47 @@ export default function InvoicesPage() {
       <AdminModal open={showForm} onClose={() => setShowForm(false)} title="Nouvelle facture">
         <div className="space-y-3">
           <div>
-            <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Client</label>
-            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
+            <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Client</label>
+            <select value={formData.user_id} onChange={e => setFormData(p => ({ ...p, user_id: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
               <option value="">Selectionner un client</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.full_name} ({c.email})</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Application</label>
-              <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
+              <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Application</label>
+              <select value={formData.app_id} onChange={e => setFormData(p => ({ ...p, app_id: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
                 <option value="">Aucune</option>
                 {appList.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
-              <input value={formData.plan} onChange={e => setFormData(p => ({ ...p, plan: e.target.value }))} placeholder="ex: pro" className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+              <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Plan</label>
+              <input value={formData.plan} onChange={e => setFormData(p => ({ ...p, plan: e.target.value }))} placeholder="ex: pro" className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Montant</label>
-              <input type="number" value={formData.amount} onChange={e => setFormData(p => ({ ...p, amount: Number(e.target.value) }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+              <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Montant</label>
+              <input type="number" value={formData.amount} onChange={e => setFormData(p => ({ ...p, amount: Number(e.target.value) }))} className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
             </div>
             <div>
-              <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Devise</label>
-              <select value={formData.currency} onChange={e => setFormData(p => ({ ...p, currency: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
+              <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Devise</label>
+              <select value={formData.currency} onChange={e => setFormData(p => ({ ...p, currency: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
                 <option value="FCFA">FCFA</option>
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
               </select>
             </div>
             <div>
-              <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut</label>
-              <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
+              <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Statut</label>
+              <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors">
                 <option value="pending">En attente</option>
                 <option value="paid">Payee</option>
               </select>
             </div>
           </div>
-          <button onClick={handleCreate} disabled={saving || !formData.user_id} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors w-full mt-4 ${saving || !formData.user_id ? "opacity-50" : ""}`}>
+          <button onClick={handleCreate} disabled={saving || !formData.user_id} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors w-full mt-4 ${saving || !formData.user_id ? "opacity-50" : ""}`}>
             {saving ? "Creation..." : "Creer la facture"}
           </button>
         </div>

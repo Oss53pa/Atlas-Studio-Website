@@ -282,7 +282,7 @@ export default function EmailTemplatesPage() {
 
             <button
               onClick={() => { setPreviewTpl(tpl); setCopied(false); }}
-              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 hover:text-gold dark:text-admin-accent transition-colors"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 hover:text-gold dark:text-admin-accent transition-colors"
             >
               <Eye size={14} />
               Aper&ccedil;u
@@ -312,7 +312,7 @@ export default function EmailTemplatesPage() {
                   <p className="text-neutral-muted dark:text-admin-muted text-[12px] flex items-center gap-1">
                     <Send size={10} />
                     <span className="font-mono">{previewTpl.sender}</span>
-                    &middot; Sujet : <span className="font-medium text-neutral-text dark:text-neutral-body dark:text-admin-text/80">{preview.subject}</span>
+                    &middot; Sujet : <span className="font-medium text-neutral-text dark:text-admin-text/80">{preview.subject}</span>
                   </p>
                 </div>
               </div>

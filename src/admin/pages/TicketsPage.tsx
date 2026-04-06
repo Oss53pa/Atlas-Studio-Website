@@ -142,7 +142,7 @@ export default function TicketsPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">{tickets.length} tickets — {counts.open + counts.in_progress} en attente</p>
         </div>
         <button onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
           <Download size={14} /> Export CSV
         </button>
       </div>
@@ -153,7 +153,7 @@ export default function TicketsPage() {
           {statusFilters.map(f => (
             <button key={f.value} onClick={() => setFilter(f.value)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+                filter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
               }`}>
               {f.label} <span className="ml-1 opacity-60">{f.count}</span>
             </button>
@@ -218,11 +218,11 @@ export default function TicketsPage() {
           activeTicket && activeTicket.status !== "closed" ? (
             <>
               <button onClick={() => handleReply(false)} disabled={sending || !reply.trim()}
-                className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !px-5 !text-[13px] flex items-center gap-2 ${sending || !reply.trim() ? "opacity-50" : ""}`}>
+                className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 !px-5 !text-[13px] flex items-center gap-2 ${sending || !reply.trim() ? "opacity-50" : ""}`}>
                 <Send size={14} /> Répondre
               </button>
               <button onClick={() => handleReply(true)} disabled={sending || !reply.trim()}
-                className={`px-5 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-medium text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors ${sending || !reply.trim() ? "opacity-50" : ""}`}>
+                className={`px-5 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-medium text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors ${sending || !reply.trim() ? "opacity-50" : ""}`}>
                 Répondre et fermer
               </button>
             </>
@@ -235,7 +235,7 @@ export default function TicketsPage() {
             <div className="flex-1 space-y-4 overflow-y-auto mb-4 min-h-[300px] max-h-[calc(100vh-380px)]">
               {messages.map(m => (
                 <div key={m.id} className={`flex ${m.is_admin ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] p-4 rounded-2xl ${m.is_admin ? "bg-gold dark:bg-admin-accent/5 border border-gold/10 rounded-br-md" : "bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-bl-md"}`}>
+                  <div className={`max-w-[80%] p-4 rounded-2xl ${m.is_admin ? "bg-gold dark:bg-admin-accent/5 border border-gold/10 rounded-br-md" : "bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-bl-md"}`}>
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="text-[11px] font-semibold text-neutral-muted dark:text-admin-muted">
                         {m.is_admin ? "Admin" : activeTicket.profiles?.full_name || "Client"}
@@ -261,7 +261,7 @@ export default function TicketsPage() {
                 onKeyDown={e => { if (e.key === "Enter" && e.ctrlKey) handleReply(); }}
                 placeholder="Répondre... (Ctrl+Enter pour envoyer)"
                 rows={3}
-                className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors resize-y"
+                className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors resize-y"
               />
             )}
           </div>

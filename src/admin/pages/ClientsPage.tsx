@@ -190,11 +190,11 @@ export default function ClientsPage() {
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="mb-3">
-      <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       {children}
     </div>
   );
-  const inputClass = "w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
+  const inputClass = "w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
 
   return (
     <div>
@@ -204,10 +204,10 @@ export default function ClientsPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">{clients.length} clients — {newThisMonth} nouveaux ce mois</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <Download size={14} /> CSV
           </button>
-          <button onClick={openCreateForm} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
+          <button onClick={openCreateForm} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <Plus size={14} /> Nouveau client
           </button>
         </div>
@@ -219,7 +219,7 @@ export default function ClientsPage() {
           {statusFilters.map(f => (
             <button key={f.value} onClick={() => setStatusFilter(f.value)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                statusFilter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+                statusFilter === f.value ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
               }`}>
               {f.label} <span className="ml-1 opacity-60">{f.count}</span>
             </button>
@@ -245,7 +245,7 @@ export default function ClientsPage() {
         columns={[
           { key: "full_name", label: "Client", sortable: true, render: (r: Profile) => (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gold dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-semibold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-semibold flex-shrink-0">
                 {getInitials(r.full_name || "?")}
               </div>
               <div>
@@ -263,7 +263,7 @@ export default function ClientsPage() {
           },
           { key: "actions", label: "", render: (r: Profile) => (
             <div className="flex items-center gap-0.5" onClick={e => e.stopPropagation()}>
-              <button onClick={() => openEditForm(r)} className="p-1.5 rounded hover:bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-gold dark:text-admin-accent transition-colors" title="Modifier"><Pencil size={14} /></button>
+              <button onClick={() => openEditForm(r)} className="p-1.5 rounded hover:bg-white dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-gold dark:text-admin-accent transition-colors" title="Modifier"><Pencil size={14} /></button>
               <button onClick={() => handleResetPassword(r)} className="p-1.5 rounded hover:bg-blue-50 text-neutral-muted dark:text-admin-muted hover:text-blue-600 transition-colors" title="Reset mot de passe"><KeyRound size={14} /></button>
               <button onClick={() => openTestAccess(r)} className="p-1.5 rounded hover:bg-emerald-50 text-neutral-muted dark:text-admin-muted hover:text-emerald-600 transition-colors" title="Accès test"><FlaskConical size={14} /></button>
               <button onClick={() => toggleActive(r)} className={`p-1.5 rounded transition-colors ${r.is_active ? "hover:bg-red-50 text-red-400" : "hover:bg-green-50 text-green-600"}`} title={r.is_active ? "Suspendre" : "Réactiver"}>
@@ -325,7 +325,7 @@ export default function ClientsPage() {
               clientSubs.length === 0 ? <p className="text-neutral-muted dark:text-admin-muted text-sm py-4">Aucun abonnement</p> : (
                 <div className="space-y-2">
                   {clientSubs.map(sub => (
-                    <div key={sub.id} className="flex items-center justify-between p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-xl">
+                    <div key={sub.id} className="flex items-center justify-between p-4 bg-white dark:bg-admin-surface-alt rounded-xl">
                       <div>
                         <div className="text-neutral-text dark:text-admin-text text-sm font-medium">{appMap[sub.app_id]?.name || sub.app_id}</div>
                         <div className="text-neutral-muted dark:text-admin-muted text-[11px]">Plan {sub.plan} · Depuis {new Date(sub.created_at).toLocaleDateString("fr-FR")}</div>
@@ -344,7 +344,7 @@ export default function ClientsPage() {
               clientInvoices.length === 0 ? <p className="text-neutral-muted dark:text-admin-muted text-sm py-4">Aucune facture</p> : (
                 <div className="space-y-2">
                   {clientInvoices.map(inv => (
-                    <div key={inv.id} className="flex items-center justify-between p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-xl">
+                    <div key={inv.id} className="flex items-center justify-between p-4 bg-white dark:bg-admin-surface-alt rounded-xl">
                       <div>
                         <div className="text-neutral-text dark:text-admin-text text-sm font-mono">{inv.invoice_number}</div>
                         <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{new Date(inv.created_at).toLocaleDateString("fr-FR")}</div>
@@ -364,7 +364,7 @@ export default function ClientsPage() {
 
       {/* Create/Edit form */}
       <AdminModal open={showForm} onClose={() => setShowForm(false)} title={editClient ? "Modifier le client" : "Nouveau client"}
-        footer={<button onClick={handleSaveClient} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer"}</button>}>
+        footer={<button onClick={handleSaveClient} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer"}</button>}>
         <div className="space-y-1">
           <Field label="Nom complet"><input value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className={inputClass} /></Field>
           {!editClient && (
@@ -380,7 +380,7 @@ export default function ClientsPage() {
 
       {/* Test access modal */}
       <AdminModal open={!!testAccessClient} onClose={() => setTestAccessClient(null)} title="Accorder un accès test"
-        footer={<button onClick={handleGrantTestAccess} disabled={grantingAccess || !testAccessForm.appId} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 flex items-center gap-2 ${grantingAccess || !testAccessForm.appId ? "opacity-50" : ""}`}><FlaskConical size={14} />{grantingAccess ? "En cours..." : "Accorder"}</button>}>
+        footer={<button onClick={handleGrantTestAccess} disabled={grantingAccess || !testAccessForm.appId} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 flex items-center gap-2 ${grantingAccess || !testAccessForm.appId ? "opacity-50" : ""}`}><FlaskConical size={14} />{grantingAccess ? "En cours..." : "Accorder"}</button>}>
         {testAccessClient && (
           <div className="space-y-4">
             <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">

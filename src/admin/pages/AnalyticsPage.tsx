@@ -73,7 +73,7 @@ function BarChart({ data, color = "bg-gold dark:bg-admin-accent/80", height = 14
         return (
           <div key={d.label} className="flex-1 flex flex-col items-center gap-1">
             <span className="text-[9px] text-neutral-muted dark:text-admin-muted">{d.value > 0 ? fmt(d.value) : ""}</span>
-            <div className="w-full bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: height - 30 }}>
+            <div className="w-full bg-white dark:bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: height - 30 }}>
               <div className={`w-full ${color} rounded-t-md transition-all`} style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
             </div>
             <span className="text-[10px] text-neutral-muted dark:text-admin-muted capitalize">{d.label}</span>
@@ -260,7 +260,7 @@ export default function AnalyticsPage() {
               ))}
             </select>
           </div>
-          <button onClick={handleExport} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-semibold text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
+          <button onClick={handleExport} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-semibold text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
             <Download size={14} /> Export CSV
           </button>
         </div>
@@ -271,7 +271,7 @@ export default function AnalyticsPage() {
         <button
           onClick={() => setSelectedApp("all")}
           className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all ${
-            selectedApp === "all" ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+            selectedApp === "all" ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
           }`}
         >
           Consolidé
@@ -281,7 +281,7 @@ export default function AnalyticsPage() {
             key={app.id}
             onClick={() => setSelectedApp(app.id)}
             className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all flex items-center gap-1.5 ${
-              selectedApp === app.id ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+              selectedApp === app.id ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
             }`}
           >
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: (app as any).color || "#C8A960" }} />
@@ -328,7 +328,7 @@ export default function AnalyticsPage() {
                 {appRevenues.map(app => {
                   const pct = Math.round((app.total / totalAppRevenue) * 100);
                   return (
-                    <button key={app.app_id} onClick={() => setSelectedApp(app.app_id)} className="w-full text-left hover:bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-lg p-1 -m-1 transition-colors">
+                    <button key={app.app_id} onClick={() => setSelectedApp(app.app_id)} className="w-full text-left hover:bg-white dark:bg-admin-surface-alt rounded-lg p-1 -m-1 transition-colors">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: app.color }} />
@@ -336,7 +336,7 @@ export default function AnalyticsPage() {
                         </div>
                         <span className="text-gold dark:text-admin-accent text-sm font-mono font-semibold">{fmt(app.total)} FCFA ({pct}%)</span>
                       </div>
-                      <div className="w-full h-2 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-white dark:bg-admin-surface-alt rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: app.color }} />
                       </div>
                     </button>
@@ -359,7 +359,7 @@ export default function AnalyticsPage() {
               {topClients.map((c, i) => (
                 <div key={c.email} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
+                    <div className="w-6 h-6 rounded bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
                     <div>
                       <span className="text-neutral-text dark:text-admin-text text-sm font-medium">{c.full_name}</span>
                       <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{c.email}</div>

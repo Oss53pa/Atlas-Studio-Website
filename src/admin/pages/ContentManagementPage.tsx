@@ -36,13 +36,13 @@ function Field({ label, value, onChange, multiline, placeholder }: {
 }) {
   return (
     <div className="mb-4">
-      <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       {multiline ? (
         <textarea value={value} onChange={e => onChange(e.target.value)} rows={3} placeholder={placeholder}
-          className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors resize-y" />
+          className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors resize-y" />
       ) : (
         <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-          className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+          className="w-full px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
       )}
     </div>
   );
@@ -52,12 +52,12 @@ function Field({ label, value, onChange, multiline, placeholder }: {
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div className="mb-4">
-      <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       <div className="flex items-center gap-3">
         <input type="color" value={value} onChange={e => onChange(e.target.value)}
           className="w-10 h-10 rounded-lg border border-warm-border dark:border-admin-surface-alt cursor-pointer bg-transparent" />
         <input value={value} onChange={e => onChange(e.target.value)}
-          className="flex-1 px-4 py-3 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors font-mono" />
+          className="flex-1 px-4 py-3 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors font-mono" />
         <div className="w-20 h-10 rounded-lg border border-warm-border dark:border-admin-surface-alt" style={{ backgroundColor: value }} />
       </div>
     </div>
@@ -83,23 +83,23 @@ function ImageField({ label, value, onChange, folder }: {
 
   return (
     <div className="mb-4">
-      <label className="block text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       <div className="flex items-start gap-3">
         {value ? (
-          <div className="relative w-16 h-16 rounded-lg border border-warm-border dark:border-admin-surface-alt overflow-hidden bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt flex-shrink-0">
+          <div className="relative w-16 h-16 rounded-lg border border-warm-border dark:border-admin-surface-alt overflow-hidden bg-white dark:bg-admin-surface-alt flex-shrink-0">
             <img src={value} alt="" className="w-full h-full object-cover" />
             <button onClick={() => onChange("")} className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center">
               <X size={10} />
             </button>
           </div>
         ) : (
-          <div className="w-16 h-16 rounded-lg border-2 border-dashed border-warm-border dark:border-admin-surface-alt bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt flex items-center justify-center flex-shrink-0">
+          <div className="w-16 h-16 rounded-lg border-2 border-dashed border-warm-border dark:border-admin-surface-alt bg-white dark:bg-admin-surface-alt flex items-center justify-center flex-shrink-0">
             <Image size={20} className="text-neutral-muted dark:text-admin-muted" />
           </div>
         )}
         <div className="flex-1">
           <input value={value} onChange={e => onChange(e.target.value)} placeholder="URL de l'image ou uploader"
-            className="w-full px-4 py-2.5 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors mb-2" />
+            className="w-full px-4 py-2.5 bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors mb-2" />
           <input ref={inputRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
           <button onClick={() => inputRef.current?.click()} disabled={uploading}
             className="inline-flex items-center gap-1.5 text-gold dark:text-admin-accent text-[12px] font-semibold hover:underline">
@@ -228,7 +228,7 @@ export default function ContentManagementPage() {
       </div>
 
       {toast && (
-        <div className="mb-6 px-4 py-3 rounded-lg bg-gold dark:bg-admin-accent/10 border border-gold/20 text-gold dark:text-admin-accent text-sm font-medium flex items-center gap-2">
+        <div className="mb-6 px-4 py-3 rounded-lg bg-gold/10 dark:bg-admin-accent/10 border border-gold/20 text-gold dark:text-admin-accent text-sm font-medium flex items-center gap-2">
           <Check size={16} /> {toast}
         </div>
       )}
@@ -239,7 +239,7 @@ export default function ContentManagementPage() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all ${
-              tab === t ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-neutral-body dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+              tab === t ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
             }`}
           >
             {t}
@@ -303,7 +303,7 @@ export default function ContentManagementPage() {
             <Field label="Paragraphe 3" value={content.about?.p3 || ""} onChange={v => update("about", { ...content.about, p3: v })} multiline />
             <h3 className="text-neutral-text dark:text-admin-text text-sm font-bold mb-3 mt-4">Valeurs</h3>
             {(content.about?.values || []).map((val: any, i: number) => (
-              <div key={i} className="mb-3 p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-lg relative">
+              <div key={i} className="mb-3 p-4 bg-white dark:bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3"><DeleteBtn onClick={() => {
                   const vals = [...(content.about?.values || [])]; vals.splice(i, 1); update("about", { ...content.about, values: vals });
                 }} /></div>
@@ -323,7 +323,7 @@ export default function ContentManagementPage() {
         {tab === "Témoignages" && (
           <>
             {(content.testimonials || []).map((t: any, i: number) => (
-              <div key={i} className="mb-4 p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-lg relative">
+              <div key={i} className="mb-4 p-4 bg-white dark:bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3"><DeleteBtn onClick={() => removeItem("testimonials", i)} /></div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Nom" value={t.name} onChange={v => {
@@ -386,7 +386,7 @@ export default function ContentManagementPage() {
             </div>
             <h3 className="text-neutral-text dark:text-admin-text text-sm font-bold mb-3">Lignes</h3>
             {(content.comparatif?.rows || []).map((row: any, ri: number) => (
-              <div key={ri} className="mb-3 p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-lg relative">
+              <div key={ri} className="mb-3 p-4 bg-white dark:bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3 flex items-center gap-2">
                   <label className="flex items-center gap-1.5 text-[12px] text-neutral-muted dark:text-admin-muted">
                     <input type="checkbox" checked={row.highlight || false} onChange={e => {
@@ -426,7 +426,7 @@ export default function ContentManagementPage() {
         {tab === "FAQs" && (
           <>
             {(content.faqs || []).map((f: any, i: number) => (
-              <div key={i} className="mb-4 p-4 bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt rounded-lg relative">
+              <div key={i} className="mb-4 p-4 bg-white dark:bg-admin-surface-alt rounded-lg relative">
                 <div className="absolute top-3 right-3"><DeleteBtn onClick={() => removeItem("faqs", i)} /></div>
                 <Field label={`Question ${i + 1}`} value={f.q} onChange={v => {
                   const arr = [...content.faqs]; arr[i] = { ...arr[i], q: v }; update("faqs", arr);
@@ -476,7 +476,7 @@ export default function ContentManagementPage() {
             <p className="text-neutral-muted dark:text-admin-muted text-[13px] mb-4">Logos affichés comme preuve sociale sur la landing page.</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
               {(content.appearance?.clientLogos || []).map((logo: string, i: number) => (
-                <div key={i} className="relative bg-white dark:bg-white dark:bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg p-3 flex items-center justify-center min-h-[80px]">
+                <div key={i} className="relative bg-white dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg p-3 flex items-center justify-center min-h-[80px]">
                   <img src={logo} alt={`Client ${i + 1}`} className="max-h-12 max-w-full object-contain" />
                   <button onClick={() => {
                     const logos = [...(content.appearance?.clientLogos || [])]; logos.splice(i, 1);
@@ -495,11 +495,11 @@ export default function ContentManagementPage() {
 
         {/* ═══ SAVE / RESET ═══ */}
         <div className="flex gap-3 mt-6 pt-4 border-t border-warm-border dark:border-admin-surface-alt">
-          <button onClick={() => save(sectionKey)} disabled={saving} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold dark:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
+          <button onClick={() => save(sectionKey)} disabled={saving} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? "Sauvegarde..." : "Sauvegarder"}
           </button>
-          <button onClick={() => reset(sectionKey)} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-neutral-body dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
+          <button onClick={() => reset(sectionKey)} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
             <RotateCcw size={14} />
             Réinitialiser
           </button>
