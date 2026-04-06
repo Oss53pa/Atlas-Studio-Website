@@ -29,10 +29,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('id', userId)
       .single();
-    if (data?.role_id) {
-      const { data: role } = await supabase.from('roles').select('code, name').eq('id', data.role_id).single();
-      (data as any).roles = role;
-    }
     setProfile(data as Profile | null);
   };
 
@@ -80,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   };
 
-  const isAdmin = profile?.roles?.code === 'admin';
+  const isAdmin = profile?.role === 'admin';
 
   return (
     <AuthContext.Provider value={{ user, session, profile, isAdmin, loading, signIn, signUp, signOut, refreshProfile }}>

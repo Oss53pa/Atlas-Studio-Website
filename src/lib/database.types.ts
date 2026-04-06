@@ -8,16 +8,14 @@ export interface Profile {
   id: string;
   full_name: string;
   email: string;
-  username: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  role_id: string;
-  company_id: string | null;
-  organization_id: string | null;
+  company_name: string | null;
+  phone: string | null;
+  role: 'client' | 'admin';
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  roles?: { code: string; name: string } | null;
+  stripe_customer_id?: string | null;
+  preferred_payment_method?: string | null;
 }
 
 export interface AppRow {
@@ -33,6 +31,7 @@ export interface AppRow {
   color: string;
   icon: string;
   highlights: string[];
+  external_url: string | null;
   status: AppStatus;
   sort_order: number;
   created_at: string;

@@ -18,7 +18,11 @@ export function useAppCatalog() {
         .select('*')
         .order('sort_order', { ascending: true });
 
-      if (!error && data && data.length > 0) {
+      if (error) {
+        console.error('useAppCatalog fetch error:', error.message);
+      }
+
+      if (data && data.length > 0) {
         const map: Record<string, AppRow> = {};
         for (const row of data) {
           map[row.id] = row as AppRow;
@@ -26,8 +30,8 @@ export function useAppCatalog() {
         setAppMap(map);
         setAppList(data as AppRow[]);
       }
-    } catch {
-      // silent fail — pages use fallback "|| app_id"
+    } catch (err) {
+      console.error('useAppCatalog unexpected error:', err);
     }
     setLoading(false);
   };

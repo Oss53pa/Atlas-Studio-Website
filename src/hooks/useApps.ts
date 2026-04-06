@@ -36,6 +36,7 @@ export function useApps() {
           color: (row as any).color || '#C8A960',
           icon: (row as any).icon || 'receipt',
           highlights: (row as any).highlights || [],
+          external_url: row.external_url || undefined,
           status: row.status as AppStatus,
         })));
       }

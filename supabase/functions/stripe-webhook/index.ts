@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
           const { data: admins } = await supabaseAdmin
             .from("profiles")
             .select("email")
-            .eq("role_id", "b0000000-0000-0000-0000-000000000001");
+            .eq("role", "admin");
           const amount = ((session.amount_total || 0) / 100).toLocaleString("fr-FR");
           const clientName = profile?.full_name || profile?.email || "Client";
           const subject = type === "reactivation"
@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
           try {
             const { data: sub } = await supabaseAdmin.from("subscriptions").select("user_id, app_id, profiles(full_name, email)").eq("stripe_subscription_id", subId).single();
             if (sub) {
-              const { data: admins } = await supabaseAdmin.from("profiles").select("email").eq("role_id", "b0000000-0000-0000-0000-000000000001");
+              const { data: admins } = await supabaseAdmin.from("profiles").select("email").eq("role", "admin");
               const clientName = (sub.profiles as any)?.full_name || "Client";
               if (admins) {
                 for (const admin of admins) {

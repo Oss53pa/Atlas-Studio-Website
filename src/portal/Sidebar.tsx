@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, type LucideIcon } from "lucide-react";
+import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, Users, KeyRound, type LucideIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { NotificationBell } from "../components/ui/NotificationBell";
 import type { Profile } from "../lib/database.types";
@@ -14,8 +14,10 @@ interface SidebarProps {
 const nav: { id: string; icon: LucideIcon; label: string }[] = [
   { id: "apps", icon: Zap, label: "Mes Applications" },
   { id: "catalog", icon: ShoppingCart, label: "Catalogue" },
+  { id: "team", icon: Users, label: "Licences & Équipe" },
   { id: "billing", icon: CreditCard, label: "Facturation" },
   { id: "support", icon: LifeBuoy, label: "Support" },
+  { id: "activate", icon: KeyRound, label: "Activer une licence" },
   { id: "settings", icon: Settings, label: "Paramètres" },
 ];
 

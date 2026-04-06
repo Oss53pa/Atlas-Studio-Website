@@ -42,7 +42,14 @@ export default function AppsManagementPage() {
       supabase.from("apps").select("*").order("sort_order"),
       supabase.from("subscriptions").select("app_id").in("status", ["active", "trial"]),
     ]);
+    if (appsRes.error) {
+      console.error("Erreur chargement apps:", appsRes.error);
+      showError?.(`Erreur chargement apps: ${appsRes.error.message}`);
+    }
     if (appsRes.data) setApps(appsRes.data as AppRow[]);
+    if (subsRes.error) {
+      console.error("Erreur chargement subscriptions:", subsRes.error);
+    }
     if (subsRes.data) {
       const counts: Record<string, number> = {};
       subsRes.data.forEach((s: any) => { counts[s.app_id] = (counts[s.app_id] || 0) + 1; });

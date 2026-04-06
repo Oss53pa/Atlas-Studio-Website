@@ -1,5 +1,4 @@
 import { supabaseAdmin } from "./supabase.ts";
-import { errorResponse } from "./cors.ts";
 
 interface AuthUser {
   id: string;
@@ -28,12 +27,11 @@ export async function requireAdmin(req: Request): Promise<AuthUser> {
 
   const { data: profile } = await supabaseAdmin
     .from("profiles")
-    .select("role_id, roles(code)")
+    .select("role")
     .eq("id", user.id)
     .single();
 
-  const roleCode = (profile?.roles as any)?.code;
-  if (!profile || roleCode !== "admin") {
+  if (!profile || profile.role !== "admin") {
     throw new AuthError("Acces refuse", 403);
   }
 

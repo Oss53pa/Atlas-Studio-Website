@@ -49,6 +49,8 @@ const SettingsPage = lazy(() => import('./admin/pages/SettingsPage'));
 const RolesPage = lazy(() => import('./admin/pages/RolesPage'));
 const CampaignsPage = lazy(() => import('./admin/pages/CampaignsPage'));
 const LicencesPage = lazy(() => import('./admin/pages/LicencesPage'));
+const PaymentsPage = lazy(() => import('./admin/pages/PaymentsPage'));
+const PlansPage = lazy(() => import('./admin/pages/PlansPage'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const AdminAccessPage = lazy(() => import('./pages/AdminAccessPage'));
 
@@ -124,6 +126,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="roles" element={<Suspense fallback={<AdminLoader />}><RolesPage /></Suspense>} />
               <Route path="campaigns" element={<Suspense fallback={<AdminLoader />}><CampaignsPage /></Suspense>} />
               <Route path="licences" element={<Suspense fallback={<AdminLoader />}><LicencesPage /></Suspense>} />
+              <Route path="payments" element={<Suspense fallback={<AdminLoader />}><PaymentsPage /></Suspense>} />
+              <Route path="plans" element={<Suspense fallback={<AdminLoader />}><PlansPage /></Suspense>} />
             </Route>
           </Route>
 

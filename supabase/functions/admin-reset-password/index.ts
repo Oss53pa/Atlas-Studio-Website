@@ -7,7 +7,7 @@
  * Body: { userId, email, fullName }
  */
 import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
-import { requireUser } from "../_shared/auth.ts";
+import { requireAdmin } from "../_shared/auth.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { sendMail } from "../_shared/mailer.ts";
 
@@ -26,27 +26,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const admin = await requireUser(req);
-
-    // Verify admin role
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("role_id")
-      .eq("id", admin.id)
-      .single();
-
-    if (profile?.role_id) {
-      const { data: role } = await supabaseAdmin
-        .from("roles")
-        .select("code")
-        .eq("id", profile.role_id)
-        .single();
-      if (role?.code !== "admin") {
-        return errorResponse("Acces refuse", 403);
-      }
-    } else {
-      return errorResponse("Acces refuse", 403);
-    }
+    await requireAdmin(req);
 
     const { userId, email, fullName } = await req.json();
     if (!userId || !email) {
