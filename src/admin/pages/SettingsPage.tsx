@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Shield, Globe, Bell, Key, Loader2 } from "lucide-react";
+import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../lib/auth";
 import { useToast } from "../contexts/ToastContext";

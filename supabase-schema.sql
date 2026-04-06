@@ -59,6 +59,7 @@ CREATE TABLE public.apps (
   color TEXT NOT NULL DEFAULT '#C8A960',
   icon TEXT NOT NULL DEFAULT 'receipt',
   highlights TEXT[] NOT NULL DEFAULT '{}',
+  external_url TEXT DEFAULT NULL,
   status app_status NOT NULL DEFAULT 'available',
   sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

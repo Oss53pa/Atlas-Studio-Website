@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Download, Pencil, Search } from "lucide-react";
+import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";

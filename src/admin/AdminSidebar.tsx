@@ -48,7 +48,6 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/admin/invoices", icon: Receipt, label: "Facturation" },
       { to: "/admin/payments", icon: CreditCard, label: "Paiements" },
-      { to: "/admin/payments", icon: CreditCard, label: "Paiements" },
       { to: "/admin/plans", icon: Layers, label: "Plans & Tarifs" },
       { to: "/admin/apps", icon: CreditCard, label: "Grille Tarifaire" },
       { to: "/admin/promo-codes", icon: Tag, label: "Codes Promo" },

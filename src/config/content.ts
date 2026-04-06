@@ -55,15 +55,15 @@ export interface SiteContent {
 
 export const DEFAULT_CONTENT: SiteContent = {
   hero: {
-    title: "Simplifiez le quotidien de vos équipes",
-    subtitle: "Une suite d'applications SaaS pour les professionnels qui veulent aller plus vite. ERP modulaire, apps métier, outils mobiles — des solutions simples et puissantes, adaptées aux réalités africaines.",
+    title: "Vos outils de gestion vous ralentissent. On change ça.",
+    subtitle: "Comptabilité SYSCOHADA, liasse fiscale, signature électronique — des apps SaaS prêtes à emploi, pensées pour les entreprises africaines. Déjà adoptées par 500+ entreprises dans 10 pays.",
     cta1: "Démarrer gratuitement",
     cta2: "Découvrir les apps",
   },
   stats: [
-    { value: "500+", label: "entreprises" },
+    { value: "500+", label: "entreprises clientes" },
+    { value: "10+", label: "pays couverts" },
     { value: "3", label: "produits" },
-    { value: "10+", label: "pays" },
     { value: "99.9%", label: "disponibilité" },
   ],
   trustBar: [

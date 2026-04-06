@@ -147,16 +147,16 @@ export default function LicencesPage() {
   const renderSummary = (l: Licence) => (
     <div className="grid grid-cols-2 gap-4 text-sm">
       {[
-        ["Tenant", l.tenants?.name || l.tenant_id],
+        ["Client", l.tenants?.name || l.tenant_id],
         ["Email", l.tenants?.email || "—"],
         ["Produit", l.products?.name || l.product_id],
         ["Plan", l.plans?.name || l.plan_id],
         ["Statut", null],
         ["Si\u00e8ges", `${l.used_seats} / ${l.max_seats}`],
-        ["Activ\u00e9e le", fmtDate(l.activated_at)],
-        ["Expire le", fmtDate(l.expires_at)],
-        ["Cr\u00e9\u00e9e le", fmtDate(l.created_at)],
-        ["Offline (jours)", String(l.offline_valid_days)],
+        ["Date d'activation", fmtDate(l.activated_at)],
+        ["Date d'expiration", fmtDate(l.expires_at)],
+        ["Date de création", fmtDate(l.created_at)],
+        ["Validité hors-ligne (jours)", String(l.offline_valid_days)],
       ].map(([label, val], i) => (
         <div key={i}>
           <div className="text-[#888] text-xs mb-1">{label}</div>
@@ -297,7 +297,7 @@ export default function LicencesPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par cl\u00e9, tenant, produit..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par clé, client, produit..."
             className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#1E1E2E] border border-[#2A2A3A] text-[#F5F5F5] text-sm placeholder-[#888] focus:border-[#EF9F27] focus:outline-none" />
         </div>
         <div className="relative">
@@ -321,12 +321,12 @@ export default function LicencesPage() {
             <thead>
               <tr className="text-left text-xs text-[#888] border-b border-[#2A2A3A]">
                 <th className="px-4 py-3">Cl\u00e9</th>
-                <th className="px-4 py-3">Tenant</th>
+                <th className="px-4 py-3">Client</th>
                 <th className="px-4 py-3">Produit / Plan</th>
                 <th className="px-4 py-3">Si\u00e8ges</th>
                 <th className="px-4 py-3">Statut</th>
-                <th className="px-4 py-3">Activ\u00e9e</th>
-                <th className="px-4 py-3">Expire</th>
+                <th className="px-4 py-3">Activation</th>
+                <th className="px-4 py-3">Expiration</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -411,9 +411,9 @@ export default function LicencesPage() {
           </div>
         }>
         <div className="space-y-4">
-          <Input label="Tenant ID" value={genForm.tenant_id} onChange={v => setGenForm(f => ({ ...f, tenant_id: v }))} placeholder="uuid du tenant" />
-          <Input label="Product ID" value={genForm.product_id} onChange={v => setGenForm(f => ({ ...f, product_id: v }))} placeholder="uuid du produit" />
-          <Input label="Plan ID" value={genForm.plan_id} onChange={v => setGenForm(f => ({ ...f, plan_id: v }))} placeholder="uuid du plan" />
+          <Input label="Client (Tenant ID)" value={genForm.tenant_id} onChange={v => setGenForm(f => ({ ...f, tenant_id: v }))} placeholder="UUID du client" />
+          <Input label="Produit (Product ID)" value={genForm.product_id} onChange={v => setGenForm(f => ({ ...f, product_id: v }))} placeholder="UUID du produit" />
+          <Input label="Plan (Plan ID)" value={genForm.plan_id} onChange={v => setGenForm(f => ({ ...f, plan_id: v }))} placeholder="UUID du plan" />
         </div>
       </AdminModal>
 

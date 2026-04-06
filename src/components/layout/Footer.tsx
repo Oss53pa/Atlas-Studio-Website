@@ -163,7 +163,7 @@ export function Footer() {
           &copy; 2026 Atlas Studio<Link to="/admin/login" className="text-neutral-muted/60 hover:text-neutral-muted/60 cursor-default">.</Link> Abidjan, Côte d'Ivoire
         </p>
         <p className="text-neutral-muted/60 text-[11px]">
-          Paiement sécurisé · Données hébergées · Supabase
+          Données chiffrées AES-256 — traitement IA 100% local sur nos serveurs dédiés
         </p>
       </div>
     </footer>

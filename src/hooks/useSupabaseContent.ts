@@ -1,23 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { DEFAULT_CONTENT } from '../config/content';
 import type { SiteContent } from '../config/content';
 
-const EMPTY_CONTENT: SiteContent = {
-  hero: { title: '', subtitle: '', cta: '', ctaSecondary: '' },
-  stats: [],
-  trustBar: [],
-  steps: [],
-  apps: [],
-  about: { title: '', paragraphs: [] },
-  sectors: [],
-  testimonials: [],
-  comparatif: { columns: [], rows: [] },
-  faqs: [],
-  contact: { email: '', phone: '', address: '' },
-};
-
 export function useSupabaseContent() {
-  const [content, setContent] = useState<SiteContent>(EMPTY_CONTENT);
+  const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,17 +67,17 @@ export function useSupabaseContent() {
           : DEFAULT_CONTENT.sectors;
 
         setContent({
-          hero: contentMap.hero || EMPTY_CONTENT.hero,
-          stats: contentMap.stats || [],
-          trustBar: contentMap.trustBar || EMPTY_CONTENT.trustBar,
-          steps: contentMap.steps || [],
-          apps: dbApps,
-          about: contentMap.about || EMPTY_CONTENT.about,
+          hero: contentMap.hero || DEFAULT_CONTENT.hero,
+          stats: contentMap.stats || DEFAULT_CONTENT.stats,
+          trustBar: contentMap.trustBar || DEFAULT_CONTENT.trustBar,
+          steps: contentMap.steps || DEFAULT_CONTENT.steps,
+          apps: dbApps.length > 0 ? dbApps : DEFAULT_CONTENT.apps,
+          about: contentMap.about || DEFAULT_CONTENT.about,
           sectors: dbSectors,
-          testimonials: contentMap.testimonials || [],
-          comparatif: contentMap.comparatif || EMPTY_CONTENT.comparatif,
-          faqs: contentMap.faqs || [],
-          contact: contentMap.contact || EMPTY_CONTENT.contact,
+          testimonials: contentMap.testimonials || DEFAULT_CONTENT.testimonials,
+          comparatif: contentMap.comparatif || DEFAULT_CONTENT.comparatif,
+          faqs: contentMap.faqs || DEFAULT_CONTENT.faqs,
+          contact: contentMap.contact || DEFAULT_CONTENT.contact,
           social: contentMap.social || undefined,
           appearance: contentMap.appearance || undefined,
         });
