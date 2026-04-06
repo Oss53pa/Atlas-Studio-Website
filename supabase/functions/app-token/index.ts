@@ -63,6 +63,10 @@ Deno.serve(async (req) => {
     const appSubdomains: Record<string, string> = {
       "atlas-compta": "atlas-fna",
       "taxpilot": "liasspilot",
+      "advist": "advist",
+      "scrutix": "scrutix",
+      "tablesmart": "tablesmart",
+      "atlas-crm": "atlas-crm",
     };
     const subdomain = appSubdomains[appId] || appId;
     const redirectUrl = `https://${subdomain}.atlasstudio.app/auth?token=${token}`;
