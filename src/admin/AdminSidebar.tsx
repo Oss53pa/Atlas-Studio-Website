@@ -87,6 +87,7 @@ export function AdminSidebar() {
       : location.pathname.startsWith(to);
 
   const sidebarContent = (
+    <div className="w-64 min-h-screen bg-onyx border-r border-white/10 p-6 flex flex-col flex-shrink-0">
       <div className="px-2 mb-6">
         <div className="flex items-center justify-between">
           <Link to="/"><Logo size={22} color="text-neutral-light" /></Link>
