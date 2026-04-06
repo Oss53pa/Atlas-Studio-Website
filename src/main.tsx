@@ -40,6 +40,9 @@ const AnalyticsPage = lazy(() => import('./admin/pages/AnalyticsPage'));
 const Proph3tPage = lazy(() => import('./admin/pages/Proph3tPage'));
 const SystemHealthPage = lazy(() => import('./admin/pages/SystemHealthPage'));
 const FeatureFlagsPage = lazy(() => import('./admin/pages/FeatureFlagsPage'));
+const AlertsPage = lazy(() => import('./admin/pages/AlertsPage'));
+const PromoCodesPage = lazy(() => import('./admin/pages/PromoCodesPage'));
+const DeploymentsPage = lazy(() => import('./admin/pages/DeploymentsPage'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -104,6 +107,9 @@ createRoot(document.getElementById('root')!).render(
               <Route path="proph3t" element={<Suspense fallback={<AdminLoader />}><Proph3tPage /></Suspense>} />
               <Route path="system" element={<Suspense fallback={<AdminLoader />}><SystemHealthPage /></Suspense>} />
               <Route path="feature-flags" element={<Suspense fallback={<AdminLoader />}><FeatureFlagsPage /></Suspense>} />
+              <Route path="alerts" element={<Suspense fallback={<AdminLoader />}><AlertsPage /></Suspense>} />
+              <Route path="promo-codes" element={<Suspense fallback={<AdminLoader />}><PromoCodesPage /></Suspense>} />
+              <Route path="deployments" element={<Suspense fallback={<AdminLoader />}><DeploymentsPage /></Suspense>} />
             </Route>
           </Route>
 
