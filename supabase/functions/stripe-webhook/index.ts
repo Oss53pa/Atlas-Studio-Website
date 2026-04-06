@@ -75,6 +75,31 @@ Deno.serve(async (req) => {
           metadata: { appId, plan, amount: (session.amount_total || 0) / 100, provider: "stripe" },
         });
 
+        // ── TRIGGER LICENCE GENERATION ──
+        // This is the critical link between payment and licence
+        if (userId && appId && plan) {
+          try {
+            const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+            const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+            await fetch(`${supabaseUrl}/functions/v1/generate-licence`, {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${serviceKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                tenant_id: userId,
+                product_id: appId,
+                plan_id: plan,
+                subscription_id: session.subscription,
+              }),
+            });
+            console.log("Licence generation triggered for:", appId, plan, userId);
+          } catch (licErr) {
+            console.error("Licence generation trigger error (non-blocking):", licErr);
+          }
+        }
+
         // Send confirmation email to client
         try {
           const { data: clientProfile } = await supabaseAdmin.from("profiles").select("full_name, email").eq("id", userId).single();
