@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './lib/auth';
 import { Layout } from './components/layout/Layout';
+import { RequireAuth } from './components/guards/RequireAuth';
 import { RequireAdmin } from './components/guards/RequireAdmin';
 import { AdminLayout } from './admin/AdminLayout';
 import AdminLoginPage from './admin/AdminLoginPage';
@@ -44,6 +45,12 @@ const AlertsPage = lazy(() => import('./admin/pages/AlertsPage'));
 const PromoCodesPage = lazy(() => import('./admin/pages/PromoCodesPage'));
 const DeploymentsPage = lazy(() => import('./admin/pages/DeploymentsPage'));
 const KnowledgeBasePage = lazy(() => import('./admin/pages/KnowledgeBasePage'));
+const SettingsPage = lazy(() => import('./admin/pages/SettingsPage'));
+const RolesPage = lazy(() => import('./admin/pages/RolesPage'));
+const CampaignsPage = lazy(() => import('./admin/pages/CampaignsPage'));
+const LicencesPage = lazy(() => import('./admin/pages/LicencesPage'));
+const InvitePage = lazy(() => import('./pages/InvitePage'));
+const AdminAccessPage = lazy(() => import('./pages/AdminAccessPage'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -84,8 +91,9 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/confidentialite" element={<PrivacyPage />} />
           </Route>
 
-          {/* Portal — own layout */}
-          <Route path="/portal/*" element={<Portal />} />
+          {/* Portal — protected */}
+          <Route path="/portal/login" element={<Portal />} />
+          <Route path="/portal/*" element={<RequireAuth><Portal /></RequireAuth>} />
 
           {/* Admin */}
           <Route path="/admin">
@@ -112,8 +120,16 @@ createRoot(document.getElementById('root')!).render(
               <Route path="promo-codes" element={<Suspense fallback={<AdminLoader />}><PromoCodesPage /></Suspense>} />
               <Route path="deployments" element={<Suspense fallback={<AdminLoader />}><DeploymentsPage /></Suspense>} />
               <Route path="knowledge-base" element={<Suspense fallback={<AdminLoader />}><KnowledgeBasePage /></Suspense>} />
+              <Route path="settings" element={<Suspense fallback={<AdminLoader />}><SettingsPage /></Suspense>} />
+              <Route path="roles" element={<Suspense fallback={<AdminLoader />}><RolesPage /></Suspense>} />
+              <Route path="campaigns" element={<Suspense fallback={<AdminLoader />}><CampaignsPage /></Suspense>} />
+              <Route path="licences" element={<Suspense fallback={<AdminLoader />}><LicencesPage /></Suspense>} />
             </Route>
           </Route>
+
+          {/* Public pages — invitation & admin access */}
+          <Route path="/invite/:token" element={<Suspense fallback={<div />}><InvitePage /></Suspense>} />
+          <Route path="/admin-access/:token" element={<Suspense fallback={<div />}><AdminAccessPage /></Suspense>} />
 
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />

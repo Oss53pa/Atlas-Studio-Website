@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
-  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X, Flag, Bell, Tag, Rocket, BookOpen,
+  CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, X, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -36,6 +36,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/admin/clients", icon: Users, label: "Utilisateurs" },
       { to: "/admin/subscriptions", icon: Repeat, label: "Abonnements" },
+      { to: "/admin/licences", icon: KeyRound, label: "Licences" },
       { to: "/admin/tickets", icon: MessageSquare, label: "Support Client" },
     ],
   },
@@ -52,6 +53,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/admin/content", icon: FileText, label: "Landing Page" },
       { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
+      { to: "/admin/campaigns", icon: Send, label: "Campagnes" },
       { to: "/admin/emails", icon: Megaphone, label: "Templates Email" },
       { to: "/admin/knowledge-base", icon: BookOpen, label: "Base de connaissances" },
     ],
@@ -64,7 +66,9 @@ const navGroups: NavGroup[] = [
       { to: "/admin/alerts", icon: Bell, label: "Alertes" },
       { to: "/admin/feature-flags", icon: Flag, label: "Feature Flags" },
       { to: "/admin/deployments", icon: Rocket, label: "Déploiements" },
+      { to: "/admin/roles", icon: ShieldCheck, label: "Rôles & Permissions" },
       { to: "/admin/activity", icon: ClipboardList, label: "Logs & Audit" },
+      { to: "/admin/settings", icon: Settings, label: "Paramètres" },
     ],
   },
 ];
