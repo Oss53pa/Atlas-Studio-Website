@@ -15,8 +15,11 @@ import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { UpgradePage } from "./pages/UpgradePage";
 
 function PortalDashboard() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, loading } = useAuth();
   const [page, setPage] = useState("apps");
+
+  // Double guard — never render dashboard without user
+  if (!user || loading) return null;
 
   const handleOpenApp = async (appId: string) => {
     try {

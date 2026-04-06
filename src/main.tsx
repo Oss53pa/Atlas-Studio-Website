@@ -99,9 +99,8 @@ root.render(
             <Route path="/confidentialite" element={<PrivacyPage />} />
           </Route>
 
-          {/* Portal — protected */}
-          <Route path="/portal/login" element={<Portal />} />
-          <Route path="/portal/*" element={<RequireAuth><Portal /></RequireAuth>} />
+          {/* Portal — login public, rest protected */}
+          <Route path="/portal/*" element={<Portal />} />
 
           {/* Admin */}
           <Route path="/admin">
