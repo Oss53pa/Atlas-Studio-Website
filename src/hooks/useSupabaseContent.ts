@@ -63,11 +63,21 @@ export function useSupabaseContent() {
           external_url: row.external_url || undefined,
         }));
 
-        // Sectors from DB
+        // Sectors from DB — map names to Lucide icons from defaults
         const sectorData = contentMap.sectors;
-        const dbSectors = Array.isArray(sectorData)
-          ? sectorData.map((s: any) => typeof s === 'string' ? { icon: '🏢', name: s } : s)
-          : [];
+        const sectorIconMap = new Map(DEFAULT_CONTENT.sectors.map(s => [s.name, s.icon]));
+        const fallbackIcon = DEFAULT_CONTENT.sectors[0]?.icon;
+        const dbSectors = Array.isArray(sectorData) && sectorData.length > 0
+          ? sectorData.map((s: any) => {
+              if (typeof s === 'string') {
+                return { icon: sectorIconMap.get(s) || fallbackIcon, name: s };
+              }
+              if (s.name && !s.icon) {
+                return { icon: sectorIconMap.get(s.name) || fallbackIcon, name: s.name };
+              }
+              return s;
+            })
+          : DEFAULT_CONTENT.sectors;
 
         setContent({
           hero: contentMap.hero || EMPTY_CONTENT.hero,
