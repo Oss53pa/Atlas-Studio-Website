@@ -38,8 +38,8 @@ export default function HomePage() {
             <Link to="/applications" className="btn-outline-light">{t("home.seeApps")}</Link>
           </div>
           <div className="flex justify-center border-t border-dark-border pt-12 max-w-[700px] mx-auto">
-            {content.stats.map((s, i) => (
-              <div key={i} className={`flex-1 px-6 ${i < content.stats.length - 1 ? "border-r border-dark-border" : ""}`}>
+            {(content.stats || []).map((s, i) => (
+              <div key={i} className={`flex-1 px-6 ${i < (content.stats || []).length - 1 ? "border-r border-dark-border" : ""}`}>
                 <StatCounter value={s.value} label={s.label} />
               </div>
             ))}
@@ -50,8 +50,8 @@ export default function HomePage() {
       {/* ===== TRUST BAR ===== */}
       <div className="bg-dark-bg2 border-b border-dark-border py-4 px-5 md:px-8">
         <div className="flex items-center justify-center gap-0 flex-wrap trust-anim">
-          {content.trustBar.map((item, i) => (
-            <div key={i} className={`text-xs text-neutral-muted px-5 py-1.5 ${i < content.trustBar.length - 1 ? "border-r border-dark-border" : ""}`}>
+          {(Array.isArray(content.trustBar) ? content.trustBar : []).map((item, i) => (
+            <div key={i} className={`text-xs text-neutral-muted px-5 py-1.5 ${i < (content.trustBar || []).length - 1 ? "border-r border-dark-border" : ""}`}>
               <span className="trust-dot" /><StyledText>{item}</StyledText>
             </div>
           ))}
@@ -69,7 +69,7 @@ export default function HomePage() {
             </p>
           </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {content.apps.map((app, i) => (
+            {(content.apps || []).map((app, i) => (
               <ScrollReveal key={app.id} delay={i * 100}>
                 <AppCard app={app} index={i} />
               </ScrollReveal>
@@ -96,9 +96,9 @@ export default function HomePage() {
             </p>
           </ScrollReveal>
           <div className="steps-grid">
-            {content.steps.map((step, i) => (
+            {(content.steps || []).map((step, i) => (
               <ScrollReveal key={i} delay={i * 150}>
-                <div className={`p-6 md:p-8 ${i < content.steps.length - 1 ? "border-r border-dark-border" : ""}`}>
+                <div className={`p-6 md:p-8 ${i < (content.steps || []).length - 1 ? "border-r border-dark-border" : ""}`}>
                   <div className="h-0.5 bg-dark-border mb-6"><div className="h-0.5 bg-gold w-full reveal-line" /></div>
                   <div className="font-mono text-[11px] font-medium text-gold mb-4 tracking-wide">{step.num}</div>
                   <div className="text-[15px] font-medium text-neutral-light mb-2"><StyledText>{step.title}</StyledText></div>
@@ -118,13 +118,13 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-normal text-neutral-light mb-5">
               <span className="font-logo text-gold">Atlas Studio</span>
             </h2>
-            <p className="text-neutral-muted text-[15px] leading-relaxed mb-4 font-light">{content.about.p1}</p>
-            <p className="text-neutral-muted text-[15px] leading-relaxed font-light">{content.about.p2}</p>
+            <p className="text-neutral-muted text-[15px] leading-relaxed mb-4 font-light">{content.about?.p1}</p>
+            <p className="text-neutral-muted text-[15px] leading-relaxed font-light">{content.about?.p2}</p>
           </ScrollReveal>
           <ScrollReveal className="flex-1 min-w-[280px] reveal-right" delay={200}>
             <div className="bg-dark-bg2 border border-dark-border rounded-xl p-8">
               <h3 className="text-neutral-light text-lg font-normal mb-5">{t("home.whyChooseUs")}</h3>
-              {content.about.values.map((v, i) => (
+              {(content.about?.values || []).map((v, i) => (
                 <div key={i} className="mb-5 last:mb-0">
                   <div className="text-gold text-sm font-normal mb-1">{v.title}</div>
                   <div className="text-neutral-muted text-[13px] leading-relaxed font-light">{v.desc}</div>
@@ -146,7 +146,7 @@ export default function HomePage() {
             </p>
           </ScrollReveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {content.sectors.map((s, i) => (
+            {(content.sectors || []).map((s, i) => (
               <ScrollReveal key={i} delay={i * 60}>
                 <SectorBadge icon={s.icon} name={s.name} />
               </ScrollReveal>
@@ -165,9 +165,9 @@ export default function HomePage() {
           <ScrollReveal>
             <div className="overflow-x-auto">
               <table className="comp-table">
-                <thead><tr>{content.comparatif.headers.map((h, i) => <th key={i}>{h}</th>)}</tr></thead>
+                <thead><tr>{(content.comparatif?.headers || []).map((h, i) => <th key={i}>{h}</th>)}</tr></thead>
                 <tbody>
-                  {content.comparatif.rows.map((row, ri) => (
+                  {(content.comparatif?.rows || []).map((row, ri) => (
                     <tr key={ri} className={row.highlight ? "comp-hl" : ""}>
                       <td>{row.name}</td>
                       {row.values.map((v, vi) => (
@@ -192,7 +192,7 @@ export default function HomePage() {
             <h2 className="text-[34px] font-normal text-neutral-light leading-tight mb-12">{t("home.trustedBy")}</h2>
           </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {content.testimonials.map((tm, i) => (
+            {(content.testimonials || []).map((tm, i) => (
               <ScrollReveal key={i} delay={i * 120}>
                 <div className="bg-dark-bg3 border border-dark-border rounded-xl p-6 hover:border-gold/20 transition-colors duration-300">
                   <div className="text-gold text-[13px] mb-3 tracking-wider">★★★★★</div>
@@ -252,7 +252,7 @@ export default function HomePage() {
             <h2 className="text-[34px] font-normal text-neutral-light leading-tight mb-12">{t("home.faqTitle")}</h2>
           </ScrollReveal>
           <ScrollReveal>
-            {content.faqs.map((faq, i) => (
+            {(content.faqs || []).map((faq, i) => (
               <FAQItem key={i} question={faq.q} answer={faq.a} isOpen={faqOpen === i} onToggle={() => setFaqOpen(faqOpen === i ? null : i)} />
             ))}
           </ScrollReveal>
