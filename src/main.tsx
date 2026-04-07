@@ -53,6 +53,7 @@ const Proph3tPlansPage = lazy(() => import('./admin/pages/Proph3tPlansPage'));
 const Proph3tKnowledgePage = lazy(() => import('./admin/pages/Proph3tKnowledgePage'));
 const LicencesPage = lazy(() => import('./admin/pages/LicencesPage'));
 const PaymentsPage = lazy(() => import('./admin/pages/PaymentsPage'));
+const LandingPagesPage = lazy(() => import('./admin/pages/LandingPagesPage'));
 const PlansPage = lazy(() => import('./admin/pages/PlansPage'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const AdminAccessPage = lazy(() => import('./pages/AdminAccessPage'));
@@ -136,6 +137,7 @@ root.render(
               <Route path="licences" element={<Suspense fallback={<AdminLoader />}><LicencesPage /></Suspense>} />
               <Route path="payments" element={<Suspense fallback={<AdminLoader />}><PaymentsPage /></Suspense>} />
               <Route path="plans" element={<Suspense fallback={<AdminLoader />}><PlansPage /></Suspense>} />
+              <Route path="landing-pages" element={<Suspense fallback={<AdminLoader />}><LandingPagesPage /></Suspense>} />
             </Route>
           </Route>
 

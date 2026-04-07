@@ -56,7 +56,8 @@ const navGroups: NavGroup[] = [
   {
     label: "Contenu & Marketing",
     items: [
-      { to: "/admin/content", icon: FileText, label: "Landing Page" },
+      { to: "/admin/content", icon: FileText, label: "Site Atlas Studio" },
+      { to: "/admin/landing-pages", icon: Layers, label: "Landing Pages Apps" },
       { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
       { to: "/admin/campaigns", icon: Send, label: "Campagnes" },
       { to: "/admin/emails", icon: Megaphone, label: "Templates Email" },
