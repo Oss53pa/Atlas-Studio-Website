@@ -43,7 +43,8 @@ export default function FeatureFlagsPage() {
     : flags;
 
   const toggleGlobal = async (flag: FeatureFlag) => {
-    await supabase.from("feature_flags").update({ enabled_global: !flag.enabled_global, updated_at: new Date().toISOString() }).eq("id", flag.id);
+    const { error } = await supabase.from("feature_flags").update({ enabled_global: !flag.enabled_global, updated_at: new Date().toISOString() }).eq("id", flag.id);
+    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
     fetchFlags();
     success(`${flag.name} ${flag.enabled_global ? "désactivé" : "activé"} globalement`);
   };

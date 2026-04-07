@@ -78,9 +78,11 @@ export default function DeploymentsPage() {
     setConfirmDialog({
       open: true, title: "Rollback ce déploiement ?", message: `v${deploy.version} sera marqué comme "rolled_back".`,
       onConfirm: async () => {
-        await supabase.from("deployments").update({ status: "rolled_back", rolled_back_at: new Date().toISOString() } as any).eq("id", deploy.id);
+        const { error } = await supabase.from("deployments").update({ status: "rolled_back", rolled_back_at: new Date().toISOString() } as any).eq("id", deploy.id);
         setConfirmDialog(prev => ({ ...prev, open: false }));
-        success("Déploiement rollbacké"); fetchDeployments();
+        if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
+        else { success("Déploiement rollbacké"); }
+        fetchDeployments();
       },
     });
   };

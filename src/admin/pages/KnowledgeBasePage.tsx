@@ -89,7 +89,8 @@ export default function KnowledgeBasePage() {
 
   const toggleStatus = async (article: KBArticle) => {
     const newStatus = article.status === "published" ? "draft" : "published";
-    await supabase.from("kb_articles").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", article.id);
+    const { error } = await supabase.from("kb_articles").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", article.id);
+    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
     fetchArticles();
     success(newStatus === "published" ? "Article publié" : "Article dépublié");
   };

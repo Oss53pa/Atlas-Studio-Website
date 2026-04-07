@@ -78,7 +78,8 @@ export default function ClientsPage() {
 
   // ─── Actions ───
   const toggleActive = async (client: Profile) => {
-    await supabase.from("profiles").update({ is_active: !client.is_active, updated_at: new Date().toISOString() }).eq("id", client.id);
+    const { error } = await supabase.from("profiles").update({ is_active: !client.is_active, updated_at: new Date().toISOString() }).eq("id", client.id);
+    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
     fetchClients();
     success(client.is_active ? "Client suspendu" : "Client réactivé");
   };

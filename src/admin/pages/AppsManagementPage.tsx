@@ -131,9 +131,11 @@ export default function AppsManagementPage() {
       icon: a.icon || "receipt", highlights: a.highlights || [],
       status: "available" as AppStatus, sort_order: i,
     }));
-    await supabase.from("apps").upsert(rows);
+    const { error } = await supabase.from("apps").upsert(rows, { onConflict: "id" });
     setSaving(false);
-    success(`${rows.length} applications importées`); fetchApps();
+    if (error) { console.error("Upsert error:", error); showError?.(`Erreur: ${error.message}`); }
+    else { success(`${rows.length} applications importées`); }
+    fetchApps();
   };
 
   const fmt = (n: number) => n.toLocaleString("fr-FR");

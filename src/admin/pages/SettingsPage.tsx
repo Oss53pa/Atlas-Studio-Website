@@ -96,13 +96,14 @@ export default function SettingsPage() {
     const channels = [];
     if (settings.notification_email) channels.push("email");
     if (settings.notification_dashboard) channels.push("dashboard");
-    await supabase.from("proph3t_preferences").upsert({
+    const { error } = await supabase.from("proph3t_preferences").upsert({
       preference_key: "notification_channels",
       preference_value: JSON.stringify(channels),
       updated_at: new Date().toISOString(),
-    }).catch(() => {});
+    }, { onConflict: "preference_key" });
     setSaving(false);
-    success("Notifications mises à jour");
+    if (error) { console.error("Upsert error:", error); showError?.(`Erreur: ${error.message}`); }
+    else { success("Notifications mises à jour"); }
   };
 
   const inputClass = "w-full px-4 py-3 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";

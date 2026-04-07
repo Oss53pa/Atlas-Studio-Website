@@ -66,20 +66,23 @@ export default function AlertsPage() {
   const criticalCount = alerts.filter(a => !a.resolved_at && a.severity === "critical").length;
 
   const resolveAlert = async (alert: Alert) => {
-    await supabase.from("alerts").update({ resolved_at: new Date().toISOString() }).eq("id", alert.id);
+    const { error } = await supabase.from("alerts").update({ resolved_at: new Date().toISOString() }).eq("id", alert.id);
+    if (error) { console.error("Update error:", error); }
     fetchAlerts();
     success("Alerte résolue");
   };
 
   const bulkResolve = async (ids: string[]) => {
-    await supabase.from("alerts").update({ resolved_at: new Date().toISOString() }).in("id", ids);
+    const { error } = await supabase.from("alerts").update({ resolved_at: new Date().toISOString() }).in("id", ids);
+    if (error) { console.error("Update error:", error); }
     fetchAlerts();
     success(`${ids.length} alerte(s) résolue(s)`);
   };
 
   const markRead = async (alert: Alert) => {
     if (!alert.read_at) {
-      await supabase.from("alerts").update({ read_at: new Date().toISOString() }).eq("id", alert.id);
+      const { error } = await supabase.from("alerts").update({ read_at: new Date().toISOString() }).eq("id", alert.id);
+      if (error) { console.error("Update error:", error); }
       fetchAlerts();
     }
     setDetailAlert(alert);

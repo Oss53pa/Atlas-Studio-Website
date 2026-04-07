@@ -47,7 +47,8 @@ export default function PromoCodesPage() {
   };
 
   const toggleActive = async (code: PromoCode) => {
-    await supabase.from("promo_codes").update({ active: !code.active }).eq("id", code.id);
+    const { error } = await supabase.from("promo_codes").update({ active: !code.active }).eq("id", code.id);
+    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
     fetchCodes();
     success(code.active ? "Code désactivé" : "Code activé");
   };

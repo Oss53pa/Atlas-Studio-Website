@@ -78,13 +78,15 @@ export default function InvoicesPage() {
   const setStatus = async (inv: InvoiceWithProfile, status: InvoiceStatus) => {
     const updates: Record<string, any> = { status };
     if (status === "paid") updates.paid_at = new Date().toISOString();
-    await supabase.from("invoices").update(updates).eq("id", inv.id);
+    const { error } = await supabase.from("invoices").update(updates).eq("id", inv.id);
+    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
     fetchInvoices();
     success(`Facture ${status === "paid" ? "marquée payée" : status === "refunded" ? "remboursée" : "mise à jour"}`);
   };
 
   const bulkMarkPaid = async (ids: string[]) => {
-    await supabase.from("invoices").update({ status: "paid", paid_at: new Date().toISOString() }).in("id", ids);
+    const { error } = await supabase.from("invoices").update({ status: "paid", paid_at: new Date().toISOString() }).in("id", ids);
+    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
     fetchInvoices();
     success(`${ids.length} facture(s) marquée(s) payée(s)`);
   };

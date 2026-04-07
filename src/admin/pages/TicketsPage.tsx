@@ -69,7 +69,8 @@ export default function TicketsPage() {
 
   // ─── Actions ───
   const updateStatus = async (ticket: TicketWithProfile, status: string) => {
-    await supabase.from("tickets").update({ status, updated_at: new Date().toISOString() }).eq("id", ticket.id);
+    const { error } = await supabase.from("tickets").update({ status, updated_at: new Date().toISOString() }).eq("id", ticket.id);
+    if (error) { console.error("Update error:", error); }
     fetchTickets();
     if (activeTicket?.id === ticket.id) setActiveTicket({ ...activeTicket, status: status as any });
     toastSuccess(`Ticket ${STATUS_LABELS[status] || status}`);
@@ -84,7 +85,8 @@ export default function TicketsPage() {
   const handleReply = async (andClose = false) => {
     if (!user || !activeTicket || !reply.trim()) return;
     setSending(true);
-    await supabase.from("ticket_messages").insert({ ticket_id: activeTicket.id, user_id: user.id, message: reply, is_admin: true });
+    const { error: insertError } = await supabase.from("ticket_messages").insert({ ticket_id: activeTicket.id, user_id: user.id, message: reply, is_admin: true });
+    if (insertError) { console.error("Insert error:", insertError); }
     const newStatus = andClose ? "closed" : activeTicket.status === "open" ? "in_progress" : activeTicket.status;
     if (newStatus !== activeTicket.status) {
       await supabase.from("tickets").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", activeTicket.id);

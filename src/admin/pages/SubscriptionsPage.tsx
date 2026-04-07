@@ -122,9 +122,10 @@ export default function SubscriptionsPage() {
     const updates: Record<string, any> = { plan: editData.plan, price_at_subscription: editData.price, updated_at: new Date().toISOString() };
     if (editData.trial_ends_at) updates.trial_ends_at = new Date(editData.trial_ends_at).toISOString();
     if (editData.current_period_end) updates.current_period_end = new Date(editData.current_period_end).toISOString();
-    await supabase.from("subscriptions").update(updates).eq("id", editSub.id);
+    const { error } = await supabase.from("subscriptions").update(updates).eq("id", editSub.id);
     setSaving(false);
-    success("Abonnement mis à jour");
+    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
+    else { success("Abonnement mis à jour"); }
     setShowEditForm(false);
     fetchSubs();
   };
