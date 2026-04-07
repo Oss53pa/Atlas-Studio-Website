@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Save, RotateCcw, Loader2, Check, Trash2, Plus, Upload, X, Image, ExternalLink } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { useAuth } from "../../lib/auth";
 import { DEFAULT_CONTENT } from "../../config/content";
 
 const tabs = ["Hero", "Stats", "Trust Bar", "Steps", "About", "Témoignages", "Secteurs", "Comparatif", "FAQs", "Contact", "Réseaux sociaux", "Apparence"] as const;
@@ -133,6 +134,7 @@ function AddBtn({ onClick, label }: { onClick: () => void; label: string }) {
 
 /* ═══════════════════════════════════════════════════════════ */
 export default function ContentManagementPage() {
+  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("Hero");
   const [content, setContent] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
@@ -178,8 +180,10 @@ export default function ContentManagementPage() {
       key,
       data: content[key],
       updated_at: new Date().toISOString(),
-    });
+      updated_by: user?.id || null,
+    }, { onConflict: "key" });
     setSaving(false);
+    if (error) console.error("Save error:", error);
     setToast(error ? `Erreur: ${error.message}` : "Contenu sauvegardé");
     setTimeout(() => setToast(null), 3000);
   };
