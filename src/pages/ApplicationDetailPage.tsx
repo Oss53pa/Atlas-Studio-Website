@@ -149,7 +149,7 @@ export default function ApplicationDetailPage() {
                   Voir les tarifs
                 </a>
                 <Link to={`/portal?app=${app.id}`} className="btn-outline-light">
-                  Essai gratuit 14 jours
+                  Souscrire maintenant
                 </Link>
               </div>
             )}
@@ -338,7 +338,7 @@ export default function ApplicationDetailPage() {
           {isAvailable && (
             <ScrollReveal>
               <p className="text-center text-neutral-muted text-[13px] mt-8">
-                14 jours d'essai gratuit &middot; Sans carte bancaire &middot; Annulation à tout moment
+                Sans engagement &middot; Annulation à tout moment
               </p>
             </ScrollReveal>
           )}
@@ -456,7 +456,7 @@ export default function ApplicationDetailPage() {
               Prêt à essayer {app.name} ?
             </h2>
             <p className="text-neutral-400 text-[15px] mb-8 max-w-md mx-auto leading-relaxed">
-              Démarrez votre essai gratuit de 14 jours. Sans engagement, sans
+              Démarrez maintenant. Sans engagement, sans
               carte bancaire.
             </p>
             {isAvailable ? (

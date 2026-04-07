@@ -129,7 +129,7 @@ export function Footer() {
                 { to: "/tarifs", label: "Tarifs" },
                 { to: "/blog", label: "Blog" },
                 { to: "/faq", label: "FAQ" },
-                { to: "/portal", label: "Essai gratuit" },
+                { to: "/portal", label: "Souscrire" },
               ].map((l) => (
                 <li key={l.to}>
                   <Link to={l.to} className="hover:text-gold transition-colors">{l.label}</Link>

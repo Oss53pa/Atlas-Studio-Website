@@ -238,7 +238,7 @@ export default function HomePage() {
           <ScrollReveal>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link to="/tarifs" className="btn-gold">{t("home.seeAllPricingCta")}</Link>
-              <Link to="/portal" className="btn-outline-light">{t("home.freeTrial")}</Link>
+              <Link to="/tarifs" className="btn-outline-light">Voir les tarifs</Link>
             </div>
           </ScrollReveal>
         </div>

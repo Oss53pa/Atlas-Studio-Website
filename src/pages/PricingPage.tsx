@@ -107,7 +107,7 @@ export default function PricingPage() {
       <section className="bg-dark-bg2 py-16 md:py-20 px-5 md:px-8 text-center">
         <ScrollReveal>
           <h2 className="text-3xl md:text-4xl font-normal text-neutral-light mb-4">Prêt à démarrer ?</h2>
-          <p className="text-neutral-muted text-[15px] font-light mb-8 max-w-md mx-auto">Essai gratuit 14 jours. Sans engagement, sans carte bancaire.</p>
+          <p className="text-neutral-muted text-[15px] font-light mb-8 max-w-md mx-auto">Souscrivez maintenant. Sans engagement, annulation à tout moment.</p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link to="/portal" className="btn-gold">Créer mon compte</Link>
             <Link to="/contact" className="btn-outline-light">Nous contacter</Link>
