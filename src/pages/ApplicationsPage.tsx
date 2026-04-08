@@ -69,7 +69,7 @@ export default function ApplicationsPage() {
           <h2 className="text-3xl md:text-4xl font-normal text-neutral-light mb-4">Prêt à digitaliser votre gestion ?</h2>
           <p className="text-neutral-muted text-[15px] font-light mb-8 max-w-md mx-auto">Souscrivez maintenant. Sans engagement, annulation à tout moment.</p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link to="/portal" className="btn-gold">Démarrer gratuitement</Link>
+            <Link to="/portal" className="btn-gold">Créer un compte</Link>
             <Link to="/contact" className="btn-outline-light">Nous contacter</Link>
           </div>
         </ScrollReveal>

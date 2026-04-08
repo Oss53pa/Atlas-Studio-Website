@@ -4,11 +4,19 @@ export const LEGAL_CONTENT = {
     sections: [
       {
         heading: "Éditeur du site",
-        content: "Atlas Studio SAS\nSiège social : Abidjan, Côte d'Ivoire\nEmail : contact@atlasstudio.com\nDirecteur de la publication : Atlas Studio",
+        content: "Atlas Studio\nSiège social : Abidjan, Côte d'Ivoire\nEmail : contact@atlas-studio.org\nDirectrice de la publication : Pamela Atokouna",
       },
       {
-        heading: "Hébergement",
-        content: "Le site est hébergé par Vercel Inc.\n340 S Lemon Ave #4133, Walnut, CA 91789, USA\nSite web : https://vercel.com",
+        heading: "Hébergement frontend",
+        content: "Vercel Inc.\n340 S Lemon Ave #4133, Walnut, CA 91789, USA\nSite web : vercel.com",
+      },
+      {
+        heading: "Hébergement des données",
+        content: "Les données sont hébergées en région Europe de l'Ouest (EU-West), sur une infrastructure cloud sécurisée conforme aux standards internationaux de protection des données.",
+      },
+      {
+        heading: "Traitement IA",
+        content: "Le traitement par intelligence artificielle est effectué sur des serveurs dédiés Atlas Studio situés à Abidjan, Côte d'Ivoire. Les données chiffrées AES-256 ne quittent jamais nos infrastructures pour le traitement IA.",
       },
       {
         heading: "Propriété intellectuelle",

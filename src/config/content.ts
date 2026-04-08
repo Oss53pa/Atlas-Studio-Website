@@ -57,7 +57,7 @@ export const DEFAULT_CONTENT: SiteContent = {
   hero: {
     title: "Vos outils de gestion vous ralentissent. On change ça.",
     subtitle: "Comptabilité SYSCOHADA, liasse fiscale, signature électronique — des apps SaaS prêtes à emploi, pensées pour les entreprises africaines. Déjà adoptées par 500+ entreprises dans 10 pays.",
-    cta1: "Démarrer gratuitement",
+    cta1: "Créer un compte",
     cta2: "Découvrir les apps",
   },
   stats: [
