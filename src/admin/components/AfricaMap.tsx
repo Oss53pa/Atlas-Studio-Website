@@ -45,27 +45,27 @@ export function AfricaMap({ data, title = "Clients par pays", valueLabel = "clie
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const width = svgRef.current.clientWidth;
-    const height = 400;
+    // Fixed viewBox for consistent rendering regardless of container size
+    const width = 800;
+    const height = 600;
 
-    // Africa-centered projection
-    const projection = d3.geoMercator()
-      .center([20, 2])
-      .scale(width * 0.55)
-      .translate([width / 2, height / 2]);
-
-    const path = d3.geoPath().projection(projection);
-
-    // Data lookup by country name
-    const dataMap = new Map(data.map(d => [d.code, d]));
+    // Data lookup
     const maxValue = Math.max(...data.map(d => d.value), 1);
     const color = d3.scaleLinear<string>().domain([0, maxValue]).range(colorScale);
 
-    // Filter to African countries (rough bounding box)
+    // Tight filter for Africa only (exclude Middle East, Europe, Asia)
     const africanFeatures = geoData.features.filter((f: any) => {
       const centroid = d3.geoCentroid(f);
-      return centroid[0] > -25 && centroid[0] < 55 && centroid[1] > -40 && centroid[1] < 40;
+      return centroid[0] > -20 && centroid[0] < 52 && centroid[1] > -36 && centroid[1] < 38;
     });
+
+    const africaCollection = { type: "FeatureCollection", features: africanFeatures } as any;
+
+    // Auto-fit projection to the SVG viewBox
+    const projection = d3.geoMercator()
+      .fitSize([width, height], africaCollection);
+
+    const path = d3.geoPath().projection(projection);
 
     // Draw countries
     svg.append("g")
@@ -106,13 +106,21 @@ export function AfricaMap({ data, title = "Clients par pays", valueLabel = "clie
     <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 relative">
       <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">{title}</h2>
 
-      <div className="relative">
-        <svg ref={svgRef} width="100%" height="400" className="overflow-visible" />
+      <div className="relative w-full" style={{ aspectRatio: "4 / 3", maxHeight: 520 }}>
+        <svg
+          ref={svgRef}
+          viewBox="0 0 800 600"
+          preserveAspectRatio="xMidYMid meet"
+          className="w-full h-full"
+        />
 
         {/* Tooltip */}
         {tooltip && (
-          <div className="absolute pointer-events-none bg-onyx text-white text-[12px] font-medium px-3 py-2 rounded-lg shadow-lg border border-white/10 z-10"
-            style={{ left: tooltip.x + 10, top: tooltip.y - 30 }}>
+          <div className="absolute pointer-events-none bg-onyx text-white text-[12px] font-medium px-3 py-2 rounded-lg shadow-lg border border-white/10 z-10 whitespace-nowrap"
+            style={{
+              left: `min(${tooltip.x + 10}px, calc(100% - 180px))`,
+              top: Math.max(tooltip.y - 30, 0),
+            }}>
             {tooltip.content}
           </div>
         )}
