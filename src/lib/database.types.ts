@@ -124,6 +124,36 @@ export interface NewsletterSubscriber {
   is_active: boolean;
 }
 
+export type ErrorSeverityDb = 'critical' | 'error' | 'warning' | 'info';
+export type ErrorStatusDb = 'open' | 'in_progress' | 'resolved' | 'ignored';
+export type ErrorEnvironmentDb = 'production' | 'staging' | 'dev';
+
+export interface ErrorLogRow {
+  id: string;
+  app_id: string;
+  app_version: string | null;
+  environment: ErrorEnvironmentDb;
+  severity: ErrorSeverityDb;
+  message: string;
+  stack_trace: string | null;
+  component_name: string | null;
+  action_context: string | null;
+  fingerprint: string;
+  occurrence_count: number;
+  first_seen_at: string;
+  last_seen_at: string;
+  user_id: string | null;
+  tenant_id: string | null;
+  url: string | null;
+  user_agent: string | null;
+  metadata: Record<string, unknown>;
+  status: ErrorStatusDb;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  resolution_note: string | null;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -177,11 +207,39 @@ export interface Database {
         Insert: Partial<NewsletterSubscriber> & { email: string };
         Update: Partial<NewsletterSubscriber>;
       };
+      error_logs: {
+        Row: ErrorLogRow;
+        Insert: Partial<ErrorLogRow> & {
+          app_id: string;
+          severity: ErrorSeverityDb;
+          message: string;
+          fingerprint: string;
+          environment: ErrorEnvironmentDb;
+        };
+        Update: Partial<ErrorLogRow>;
+      };
     };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       admin_revenue_summary: { Args: Record<string, never>; Returns: Record<string, any> };
       admin_dashboard_stats: { Args: Record<string, never>; Returns: Record<string, any> };
+      upsert_error_log: {
+        Args: {
+          p_app_id: string;
+          p_fingerprint: string;
+          p_severity: ErrorSeverityDb;
+          p_message: string;
+          p_stack_trace?: string | null;
+          p_component?: string | null;
+          p_context?: string | null;
+          p_metadata?: Record<string, unknown>;
+          p_environment?: ErrorEnvironmentDb;
+          p_app_version?: string | null;
+          p_url?: string | null;
+          p_user_agent?: string | null;
+        };
+        Returns: string;
+      };
     };
   };
 }

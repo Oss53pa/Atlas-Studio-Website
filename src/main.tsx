@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './lib/auth';
+import { initErrorMonitor, AtlasErrorBoundary } from './lib/error-sdk';
 import { Layout } from './components/layout/Layout';
 import { RequireAuth } from './components/guards/RequireAuth';
 import { RequireAdmin } from './components/guards/RequireAdmin';
@@ -55,6 +56,9 @@ const LicencesPage = lazy(() => import('./admin/pages/LicencesPage'));
 const PaymentsPage = lazy(() => import('./admin/pages/PaymentsPage'));
 const LandingPagesPage = lazy(() => import('./admin/pages/LandingPagesPage'));
 const PlansPage = lazy(() => import('./admin/pages/PlansPage'));
+const ErrorMonitorIndexPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorIndexPage'));
+const ErrorMonitorAppPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorAppPage'));
+const ErrorMonitorDetailPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorDetailPage'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const AdminAccessPage = lazy(() => import('./pages/AdminAccessPage'));
 
@@ -74,11 +78,16 @@ function AdminLoader() {
   );
 }
 
+const ATLAS_APP_ID = 'atlas-studio';
+
+initErrorMonitor(ATLAS_APP_ID);
+
 const container = document.getElementById('root')!;
 const root = (container as any).__root ?? createRoot(container);
 (container as any).__root = root;
 root.render(
   <StrictMode>
+    <AtlasErrorBoundary appId={ATLAS_APP_ID}>
     <HelmetProvider>
     <BrowserRouter>
       <AuthProvider>
@@ -138,6 +147,9 @@ root.render(
               <Route path="payments" element={<Suspense fallback={<AdminLoader />}><PaymentsPage /></Suspense>} />
               <Route path="plans" element={<Suspense fallback={<AdminLoader />}><PlansPage /></Suspense>} />
               <Route path="landing-pages" element={<Suspense fallback={<AdminLoader />}><LandingPagesPage /></Suspense>} />
+              <Route path="error-monitor" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorIndexPage /></Suspense>} />
+              <Route path="error-monitor/:appSlug" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorAppPage /></Suspense>} />
+              <Route path="error-monitor/:appSlug/:errorId" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorDetailPage /></Suspense>} />
             </Route>
           </Route>
 
@@ -151,5 +163,6 @@ root.render(
       </AuthProvider>
     </BrowserRouter>
     </HelmetProvider>
+    </AtlasErrorBoundary>
   </StrictMode>
 );

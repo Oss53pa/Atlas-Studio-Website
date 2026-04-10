@@ -80,8 +80,19 @@ export default function AppsManagementPage() {
     setPricingRows([{ plan: "", price: 0 }]);
   };
 
+  // Reserved IDs that cannot be used for apps (site vitrine, etc.)
+  const RESERVED_APP_IDS = ["atlas-studio", "atlasstudio", "admin", "portal", "site"];
+
   const handleSave = async () => {
     if (!editApp || !editApp.id || !editApp.name) return;
+
+    // Protect against creating the site vitrine as an app
+    const normalizedId = editApp.id.toLowerCase().trim();
+    if (isNew && RESERVED_APP_IDS.includes(normalizedId)) {
+      showError(`L'identifiant "${editApp.id}" est réservé. Le site vitrine Atlas Studio n'est pas une application vendable.`);
+      return;
+    }
+
     setSaving(true);
 
     const pricing: Record<string, number> = {};
