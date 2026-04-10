@@ -19,6 +19,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
   const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [subscribing, setSubscribing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [promoCode, setPromoCode] = useState("");
 
   const loading = subsLoading || appsLoading;
   const subscribedIds = subscriptions.map(s => s.app_id);
@@ -32,7 +33,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
     try {
       const pricing = selectedApp.pricing as Record<string, number>;
       const price = pricing[selectedPlan] || 0;
-      await createCheckoutSession(selectedApp.id, selectedPlan, price, paymentMethod);
+      await createCheckoutSession(selectedApp.id, selectedPlan, price, paymentMethod, promoCode || undefined);
     } catch (err: any) {
       setToast(`Erreur: ${err.message}`);
       setSubscribing(false);
@@ -106,9 +107,21 @@ export function CatalogPage({ userId }: CatalogPageProps) {
             </div>
 
             {selectedPlan && (
-              <div className="mb-6">
-                <PaymentMethodSelector selected={paymentMethod} onChange={setPaymentMethod} />
-              </div>
+              <>
+                <div className="mb-4">
+                  <label className="block text-[11px] font-semibold text-neutral-muted uppercase tracking-wider mb-1.5">Code promo (optionnel)</label>
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                    placeholder="ATLAS2026"
+                    className="w-full px-3 py-2 bg-white border border-warm-border rounded-lg text-sm font-mono tracking-wider uppercase focus:border-gold outline-none"
+                  />
+                </div>
+                <div className="mb-6">
+                  <PaymentMethodSelector selected={paymentMethod} onChange={setPaymentMethod} />
+                </div>
+              </>
             )}
 
             <button

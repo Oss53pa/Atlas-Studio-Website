@@ -23,24 +23,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     const { data } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
-    setProfile(data as Profile | null);
+    const p = (data as Profile | null);
+    setProfile(p);
+    return p;
   };
 
   const refreshProfile = async () => {
     if (user) await fetchProfile(user.id);
   };
 
+  // Auto-create a missing profile (orphan auth user → create row)
+  const ensureProfile = async (u: User): Promise<Profile | null> => {
+    const existing = await fetchProfile(u.id);
+    if (existing) return existing;
+    // No profile — create one from user metadata
+    const meta = (u.user_metadata || {}) as { full_name?: string; company_name?: string };
+    const { data: created } = await supabase.from('profiles').insert({
+      id: u.id,
+      email: u.email || '',
+      full_name: meta.full_name || '',
+      company_name: meta.company_name || '',
+      role: 'client',
+      is_active: true,
+    }).select().single();
+    const p = (created as Profile | null);
+    setProfile(p);
+    return p;
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
-      if (s?.user) fetchProfile(s.user.id);
+      if (s?.user) ensureProfile(s.user);
       setLoading(false);
     });
 
@@ -48,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
-        fetchProfile(s.user.id);
+        ensureProfile(s.user);
       } else {
         setProfile(null);
       }
@@ -63,12 +84,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, meta: { full_name: string; company_name: string }) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: meta },
     });
-    return { error: error?.message ?? null };
+    if (error) return { error: error.message };
+    // Explicitly create profile row (don't rely on triggers)
+    if (data.user) {
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: data.user.id,
+        email,
+        full_name: meta.full_name,
+        company_name: meta.company_name,
+        role: 'client',
+        is_active: true,
+      });
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        return { error: `Compte créé mais profil manquant: ${profileError.message}` };
+      }
+    }
+    return { error: null };
   };
 
   const signOut = async () => {

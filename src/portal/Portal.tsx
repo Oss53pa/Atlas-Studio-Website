@@ -18,8 +18,8 @@ function PortalDashboard() {
   const { user, profile, signOut, loading } = useAuth();
   const [page, setPage] = useState("apps");
 
-  // Double guard — never render dashboard without user
-  if (!user || loading) return null;
+  // Double guard — never render dashboard without user AND profile
+  if (!user || !profile || loading) return null;
 
   const handleOpenApp = async (appId: string) => {
     try {
@@ -52,7 +52,7 @@ function PortalDashboard() {
 }
 
 export default function Portal() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -62,10 +62,13 @@ export default function Portal() {
     );
   }
 
+  // Auth = user + valid profile (not orphan)
+  const isAuthed = Boolean(user && profile);
+
   return (
     <Routes>
-      <Route path="login" element={user ? <Navigate to="/portal" replace /> : <LoginPage />} />
-      <Route path="*" element={user ? <PortalDashboard /> : <Navigate to="/portal/login" replace />} />
+      <Route path="login" element={isAuthed ? <Navigate to="/portal" replace /> : <LoginPage />} />
+      <Route path="*" element={isAuthed ? <PortalDashboard /> : <Navigate to="/portal/login" replace />} />
     </Routes>
   );
 }

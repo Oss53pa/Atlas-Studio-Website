@@ -1,10 +1,16 @@
 import { apiCall } from "./api";
 
-export async function createCheckoutSession(appId: string, plan: string, priceAmount: number, paymentMethod: string = "stripe") {
+export async function createCheckoutSession(
+  appId: string,
+  plan: string,
+  priceAmount: number,
+  paymentMethod: string = "stripe",
+  promoCode?: string,
+) {
   if (paymentMethod === "cinetpay") {
     const { url } = await apiCall<{ url: string }>("cinetpay-checkout", {
       method: "POST",
-      body: { appId, plan, priceAmount, paymentMethod },
+      body: { appId, plan, priceAmount, paymentMethod, promoCode },
     });
     if (!url) throw new Error("Aucune URL de paiement retournée par CinetPay");
     window.location.href = url;
@@ -13,7 +19,7 @@ export async function createCheckoutSession(appId: string, plan: string, priceAm
 
   const { url } = await apiCall<{ url: string }>("create-checkout", {
     method: "POST",
-    body: { appId, plan, priceAmount, paymentMethod },
+    body: { appId, plan, priceAmount, paymentMethod, promoCode },
   });
   if (!url) throw new Error("Aucune URL de paiement retournée par Stripe");
   window.location.href = url;
