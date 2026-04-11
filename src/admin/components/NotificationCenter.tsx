@@ -86,7 +86,37 @@ export function NotificationCenter() {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<UnifiedNotif[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(getReadIds);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Compute dropdown position based on button's real DOM position
+  const updatePosition = useCallback(() => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    // Sidebar width is ~240px, dropdown width is 380px
+    // Position: to the right of the button, or adjust if would overflow
+    const dropdownWidth = 380;
+    const gap = 12;
+    let left = rect.right + gap;
+    // If dropdown would overflow right edge, anchor to right side of button instead
+    if (left + dropdownWidth > window.innerWidth - 12) {
+      left = Math.max(12, window.innerWidth - dropdownWidth - 12);
+    }
+    setDropdownPos({ top: rect.top, left });
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+    const handleResize = () => updatePosition();
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleResize, true);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleResize, true);
+    };
+  }, [open, updatePosition]);
 
   const unreadCount = items.filter(n => !readIds.has(n.id)).length;
 
@@ -193,6 +223,7 @@ export function NotificationCenter() {
   return (
     <div ref={panelRef} className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setOpen(o => !o)}
         className="relative p-1.5 rounded-md text-neutral-400 hover:text-neutral-light hover:bg-white/5 transition-colors"
         aria-label="Notifications"
@@ -205,13 +236,18 @@ export function NotificationCenter() {
         )}
       </button>
 
-      {open && (
+      {open && dropdownPos && (
         <>
           {/* Backdrop to close on click outside */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
-            className="fixed md:absolute left-2 right-2 md:left-auto md:right-0 md:w-[380px] top-16 md:top-full md:mt-2 bg-[#0F0F15] border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden"
-            style={{ maxHeight: "80vh" }}
+            className="fixed bg-[#0F0F15] border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col"
+            style={{
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              width: 380,
+              maxHeight: `calc(100vh - ${dropdownPos.top + 20}px)`,
+            }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#1A1A22]">
@@ -234,7 +270,7 @@ export function NotificationCenter() {
             </div>
 
             {/* Items */}
-            <div className="overflow-y-auto" style={{ maxHeight: "calc(80vh - 110px)" }}>
+            <div className="flex-1 overflow-y-auto min-h-0">
               {items.length === 0 ? (
                 <div className="px-4 py-12 text-center">
                   <Bell size={28} className="mx-auto text-white/20 mb-2" />
