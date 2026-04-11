@@ -36,14 +36,14 @@ VALUES (
   'tablesmart',
   'TableSmart',
   'Plateforme SaaS tout-en-un pour restaurants, bars, hôtels et food courts.',
-  'active',
+  'live',
   '#C9A84C',
   'https://tablesmart.atlas-studio.org'
 )
 ON CONFLICT (slug) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
-  status = 'active',
+  status = 'live',
   color_accent = EXCLUDED.color_accent,
   app_url = EXCLUDED.app_url,
   updated_at = NOW();
