@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
   CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database, AlertTriangle,
-  ChevronDown, ChevronRight,
+  ChevronDown, ChevronRight, Crown,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -93,7 +93,7 @@ const NAV_GROUPS: NavGroup[] = [
 export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, isSuperAdmin } = useAuth();
   const { selectedApp, setSelectedApp } = useAppFilter();
   const { toggleTheme, isDark } = useTheme();
   const { appList } = useAppCatalog();
@@ -243,6 +243,21 @@ export function AdminSidebar() {
 
       {/* Footer */}
       <div className="border-t border-white/5 px-3 py-2.5 space-y-1">
+        {/* Super Admin only: Manage Admins */}
+        {isSuperAdmin && (
+          <Link
+            to="/admin/admins"
+            className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-all ${
+              isActive("/admin/admins")
+                ? "bg-purple-500/15 text-purple-400 font-medium"
+                : "text-neutral-500 hover:text-purple-400 hover:bg-white/5"
+            }`}
+          >
+            <Crown size={12} />
+            Gérer les Admins
+          </Link>
+        )}
+
         <button
           onClick={toggleTheme}
           className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-neutral-500 text-[11px] hover:text-neutral-300 hover:bg-white/5 transition-all"
@@ -252,12 +267,15 @@ export function AdminSidebar() {
         </button>
 
         <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className="w-7 h-7 rounded-full bg-admin-accent flex items-center justify-center text-onyx text-[10px] font-bold">
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${isSuperAdmin ? "bg-purple-500 text-white" : "bg-admin-accent text-onyx"}`}>
             {(profile?.full_name || "A").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-neutral-light text-[11px] font-medium truncate">{profile?.full_name || "Admin"}</div>
-            <div className="text-admin-accent text-[9px]">Super Admin</div>
+            <div className={`text-[9px] flex items-center gap-1 ${isSuperAdmin ? "text-purple-400" : "text-admin-accent"}`}>
+              {isSuperAdmin && <Crown size={9} />}
+              {isSuperAdmin ? "Super Admin" : "Admin"}
+            </div>
           </div>
         </div>
 

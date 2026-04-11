@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Zap } from "lucide-react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AppFilterProvider } from "./contexts/AppFilterContext";
@@ -7,13 +7,19 @@ import { ToastProvider, useToast } from "./contexts/ToastContext";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { CommandPalette } from "./components/CommandPalette";
 import { Proph3tChat } from "./components/Proph3tChat";
+import { LockScreen } from "./components/LockScreen";
 import { useRealtimeAlerts } from "./hooks/useRealtimeAlerts";
+import { useIdleLock } from "./hooks/useIdleLock";
+import { useAuth } from "../lib/auth";
 
 function AdminShell() {
   const [chatOpen, setChatOpen] = useState(false);
   const { isDark } = useTheme();
   const { alerts, unreadCount } = useRealtimeAlerts();
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { locked, unlock } = useIdleLock(!!user);
 
   // Show toast for realtime alerts
   useEffect(() => {
@@ -22,6 +28,11 @@ function AdminShell() {
       toast(latest.message, latest.type === "payment" ? "success" : "info");
     }
   }, [alerts.length]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/admin/login");
+  };
 
   return (
     <div className={isDark ? "dark" : ""}>
@@ -45,6 +56,9 @@ function AdminShell() {
 
       <Proph3tChat open={chatOpen} onClose={() => setChatOpen(false)} />
       <CommandPalette />
+
+      {/* Idle lock screen — appears after 5 min of inactivity */}
+      {locked && <LockScreen onUnlock={unlock} onSignOut={handleSignOut} />}
     </div>
   );
 }

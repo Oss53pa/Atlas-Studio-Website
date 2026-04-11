@@ -8,6 +8,7 @@ interface AuthContextValue {
   session: Session | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, meta: { full_name: string; company_name: string }) => Promise<{ error: string | null }>;
@@ -113,10 +114,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   };
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+  const isSuperAdmin = profile?.role === 'super_admin';
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, isAdmin, loading, signIn, signUp, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, isAdmin, isSuperAdmin, loading, signIn, signUp, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

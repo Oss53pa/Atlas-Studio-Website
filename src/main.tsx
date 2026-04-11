@@ -8,6 +8,7 @@ import { initErrorMonitor, AtlasErrorBoundary } from './lib/error-sdk';
 import { Layout } from './components/layout/Layout';
 import { RequireAuth } from './components/guards/RequireAuth';
 import { RequireAdmin } from './components/guards/RequireAdmin';
+import { RequireSuperAdmin } from './components/guards/RequireSuperAdmin';
 import { AdminLayout } from './admin/AdminLayout';
 import AdminLoginPage from './admin/AdminLoginPage';
 import HomePage from './pages/HomePage';
@@ -56,6 +57,7 @@ const LicencesPage = lazy(() => import('./admin/pages/LicencesPage'));
 const PaymentsPage = lazy(() => import('./admin/pages/PaymentsPage'));
 const LandingPagesPage = lazy(() => import('./admin/pages/LandingPagesPage'));
 const PlansPage = lazy(() => import('./admin/pages/PlansPage'));
+const AdminsPage = lazy(() => import('./admin/pages/AdminsPage'));
 const ErrorMonitorIndexPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorIndexPage'));
 const ErrorMonitorAppPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorAppPage'));
 const ErrorMonitorDetailPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorDetailPage'));
@@ -146,6 +148,7 @@ root.render(
               <Route path="licences" element={<Suspense fallback={<AdminLoader />}><LicencesPage /></Suspense>} />
               <Route path="payments" element={<Suspense fallback={<AdminLoader />}><PaymentsPage /></Suspense>} />
               <Route path="plans" element={<Suspense fallback={<AdminLoader />}><PlansPage /></Suspense>} />
+              <Route path="admins" element={<RequireSuperAdmin><Suspense fallback={<AdminLoader />}><AdminsPage /></Suspense></RequireSuperAdmin>} />
               <Route path="landing-pages" element={<Suspense fallback={<AdminLoader />}><LandingPagesPage /></Suspense>} />
               <Route path="error-monitor" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorIndexPage /></Suspense>} />
               <Route path="error-monitor/:appSlug" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorAppPage /></Suspense>} />
