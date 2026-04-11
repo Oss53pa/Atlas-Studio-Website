@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import {
   Package, Star, Users, TrendingUp, AlertTriangle, Clock, Crown, RefreshCw, DollarSign,
-  Check, X, Building2, Sparkles
+  Check, X, Building2, Sparkles, Briefcase
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useToast } from "../contexts/ToastContext";
 import { AdminCard } from "../components/AdminCard";
+import { ProductPlanComparison, type PlanRow as ComparisonPlanRow } from "../components/ProductPlanComparison";
 
 interface Plan {
   id: string;
@@ -509,10 +510,82 @@ export default function PlansPage() {
         );
       })()}
 
+      {/* LiassPilot — Vue dédiée Entreprise vs Cabinet */}
+      {(() => {
+        const liassPilot = products.find(p => p.slug === "taxpilot");
+        if (!liassPilot) return null;
+        const lpPlans: ComparisonPlanRow[] = plans
+          .filter(p => p.product_id === liassPilot.id && (p as any).active !== false)
+          .sort((a, b) => (a.price_monthly || 0) - (b.price_monthly || 0))
+          .map(p => ({
+            id: p.id,
+            product_id: p.product_id,
+            name: p.name,
+            display_name: p.display_name,
+            description: p.description,
+            price_monthly: p.price_monthly,
+            price_annual: p.price_annual,
+            max_seats: p.max_seats,
+            max_companies: p.max_companies,
+            is_popular: p.is_popular,
+          }));
+        if (lpPlans.length === 0) return null;
+        return (
+          <ProductPlanComparison
+            productName={liassPilot.name}
+            productIcon={liassPilot.icon || "📊"}
+            plans={lpPlans}
+            planFeatures={planFeatures.filter(pf =>
+              lpPlans.some(p => p.id === pf.plan_id)
+            )}
+            subsByPlan={subsByPlan}
+            companyLabel="société"
+            premiumBadge={{ label: "Cabinet illimité", icon: Crown }}
+          />
+        );
+      })()}
+
+      {/* ADVIST — Vue dédiée Business vs Entreprise */}
+      {(() => {
+        const advist = products.find(p => p.slug === "advist");
+        if (!advist) return null;
+        const adPlans: ComparisonPlanRow[] = plans
+          .filter(p => p.product_id === advist.id && (p as any).active !== false)
+          .sort((a, b) => (a.price_monthly || 0) - (b.price_monthly || 0))
+          .map(p => ({
+            id: p.id,
+            product_id: p.product_id,
+            name: p.name,
+            display_name: p.display_name,
+            description: p.description,
+            price_monthly: p.price_monthly,
+            price_annual: p.price_annual,
+            max_seats: p.max_seats,
+            max_companies: p.max_companies,
+            is_popular: p.is_popular,
+          }));
+        if (adPlans.length === 0) return null;
+        return (
+          <ProductPlanComparison
+            productName={advist.name}
+            productIcon={advist.icon || "📝"}
+            plans={adPlans}
+            planFeatures={planFeatures.filter(pf =>
+              adPlans.some(p => p.id === pf.plan_id)
+            )}
+            subsByPlan={subsByPlan}
+            premiumBadge={{ label: "Multi-équipes", icon: Briefcase }}
+          />
+        );
+      })()}
+
       {/* Plans grouped by product (autres produits) */}
       {Object.entries(grouped).filter(([prodId]) => {
         const product = productMap[prodId];
-        return product?.slug !== "atlas-fa" && product?.slug !== "tablesmart";
+        return product?.slug !== "atlas-fa"
+          && product?.slug !== "tablesmart"
+          && product?.slug !== "taxpilot"
+          && product?.slug !== "advist";
       }).map(([prodId, prodPlans]) => {
         const product = productMap[prodId];
         return (
