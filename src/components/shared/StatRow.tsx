@@ -4,34 +4,18 @@ export interface Stat {
 }
 
 /**
- * StatRow — rangée de statistiques avec valeurs en JetBrains Mono amber
- * et labels discrets.
+ * StatRow — rangée de statistiques (JetBrains Mono gold) séparées par une ligne.
+ * Design aligné sur la section stats de HomePage.
  */
 export function StatRow({ stats }: { stats: Stat[] }) {
   return (
-    <div
-      className="flex gap-10 md:gap-8 sm:grid sm:grid-cols-2 sm:gap-5 flex-wrap"
-      style={{
-        paddingTop: 28,
-        marginTop: 32,
-        borderTop: '0.5px solid #1E1E2E',
-      }}
-    >
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 pt-10 mt-12 border-t border-dark-border">
       {stats.map((s) => (
         <div key={s.label}>
-          <div
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 26,
-              fontWeight: 500,
-              color: '#EF9F27',
-              lineHeight: 1.1,
-              marginBottom: 6,
-            }}
-          >
+          <div className="font-mono text-gold text-2xl md:text-3xl font-normal leading-none mb-2">
             {s.value}
           </div>
-          <div style={{ fontSize: 11, color: '#666666', lineHeight: 1.4 }}>
+          <div className="text-neutral-muted text-xs md:text-[13px] font-light leading-snug">
             {s.label}
           </div>
         </div>

@@ -1,19 +1,10 @@
 /**
- * SectionLabel — label uppercase amber utilisé en tête de chaque section
- * du design system vitrine Atlas Studio.
+ * SectionLabel — petit label uppercase gold au-dessus de chaque titre de section.
+ * Cohérent avec le reste du site vitrine (HomePage, etc.).
  */
 export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      style={{
-        fontSize: 11,
-        letterSpacing: '2px',
-        textTransform: 'uppercase',
-        color: '#EF9F27',
-        fontWeight: 500,
-        marginBottom: 16,
-      }}
-    >
+    <div className="text-[11px] font-medium text-gold uppercase tracking-[0.1em] mb-3">
       {children}
     </div>
   );
