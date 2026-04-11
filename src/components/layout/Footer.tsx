@@ -99,22 +99,15 @@ export function Footer() {
             )}
           </div>
 
-          {/* Applications */}
+          {/* Applications — sourced from content catalog to stay in sync */}
           <div>
             <h4 className="text-[10px] font-normal uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Applications</h4>
             <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
-              {[
-                { to: "/applications/atlas-finance", label: "Atlas Finance" },
-                { to: "/applications/taxpilot", label: "Liass'Pilot" },
-                { to: "/applications/cashpilot", label: "CashPilot" },
-                { to: "/applications/wisehr", label: "WiseHR" },
-                { to: "/applications/scrutix", label: "Scrutix" },
-                { to: "/applications/advist", label: "ADVIST" },
-                { to: "/applications/docjourney", label: "DocJourney" },
-                { to: "/applications/cockpit", label: "COCKPIT" },
-              ].map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="hover:text-gold transition-colors">{l.label}</Link>
+              {(content.apps || []).map((app) => (
+                <li key={app.id}>
+                  <Link to={`/applications/${app.id}`} className="hover:text-gold transition-colors">
+                    {app.name}
+                  </Link>
                 </li>
               ))}
             </ul>
