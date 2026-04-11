@@ -6,7 +6,7 @@ import {
   LayoutDashboard, UserCheck, Megaphone, BarChart3,
   Wrench, Home, Hammer, Building2, FileCheck,
   FolderOpen, Banknote, CreditCard, ArrowLeftRight,
-  FileText, Search, Gauge,
+  FileText, Search, Gauge, UtensilsCrossed,
   type LucideIcon,
 } from "lucide-react";
 import { useContentContext } from "../components/layout/Layout";
@@ -40,6 +40,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   "file-text": FileText,
   search: Search,
   gauge: Gauge,
+  utensils: UtensilsCrossed,
 };
 
 export default function ApplicationDetailPage() {
