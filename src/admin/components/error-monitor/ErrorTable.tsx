@@ -172,7 +172,7 @@ export function ErrorTable({
   return (
     <div>
       {/* Toolbar filtres */}
-      <div className="flex items-center gap-3 mb-5 flex-wrap">
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
           <input

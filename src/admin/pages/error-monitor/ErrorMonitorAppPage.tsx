@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { AlertTriangle } from 'lucide-react';
 import { ErrorMonitorNav } from '../../components/error-monitor/ErrorMonitorNav';
 import { ErrorStatsCards } from '../../components/error-monitor/ErrorStatsCards';
 import { ErrorTable } from '../../components/error-monitor/ErrorTable';
@@ -31,15 +31,19 @@ export default function ErrorMonitorAppPage() {
 
   return (
     <div>
-      <AdminPageHeader
-        title={currentApp ? `Error Monitor — ${currentApp.name}` : 'Error Monitor'}
-        subtitle={currentApp?.tagline || 'Erreurs de l\'application'}
-      />
+      {/* Header compact */}
+      <div className="flex items-center gap-2 mb-3">
+        <AlertTriangle size={18} className="text-gold dark:text-admin-accent" />
+        <h1 className="text-neutral-text dark:text-admin-text text-lg font-bold">
+          Error Monitor
+        </h1>
+        <span className="text-neutral-muted dark:text-admin-muted text-[12px]">
+          · {currentApp?.name || appSlug}
+        </span>
+      </div>
 
       <ErrorMonitorNav apps={activeApps} loading={appsLoading} currentAppSlug={appSlug} />
-
       <ErrorStatsCards appId={appSlug} />
-
       <ErrorTable
         logs={logs}
         loading={loading}
