@@ -102,7 +102,7 @@ export function LoginPage() {
         const now = new Date().toISOString();
         await supabase.from("profiles").update({
           terms_accepted_at: now,
-          terms_version: "v1.0",
+          terms_version: "v2.0",
           marketing_opt_in: marketingOptIn,
           marketing_opt_in_at: marketingOptIn ? now : null,
         }).eq("id", session.user.id);
