@@ -146,6 +146,18 @@ export function initErrorMonitor(
 
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
+
+    // Skip AbortError — these are expected when navigating away mid-fetch
+    // and should not be tracked as real errors.
+    if (
+      (reason instanceof DOMException && reason.name === 'AbortError') ||
+      (reason && typeof reason === 'object' &&
+        ((reason as { name?: string }).name === 'AbortError' ||
+          String((reason as { message?: string }).message || '').includes('signal is aborted')))
+    ) {
+      return;
+    }
+
     const message = reason instanceof Error
       ? reason.message
       : typeof reason === 'string' ? reason : 'Unhandled promise rejection';

@@ -20,8 +20,14 @@ export function useSupabaseContent() {
         if (signal.cancelled) return;
 
         if (fetchError) {
-          console.error('useSupabaseContent error:', fetchError.message);
-          setError(fetchError.message);
+          // supabase-js catches underlying AbortError and returns it here —
+          // silence it because it just means the user navigated away mid-fetch
+          const msg = fetchError.message || '';
+          if (msg.includes('AbortError') || msg.includes('signal is aborted')) {
+            return;
+          }
+          console.error('useSupabaseContent error:', msg);
+          setError(msg);
           setLoaded(true);
           return;
         }

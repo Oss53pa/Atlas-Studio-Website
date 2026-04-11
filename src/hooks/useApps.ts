@@ -23,8 +23,14 @@ export function useApps() {
       if (signal?.cancelled) return;
 
       if (fetchError) {
-        console.error('useApps fetch error:', fetchError.message);
-        setError(fetchError.message);
+        // supabase-js catches underlying AbortError and returns it here —
+        // silence it because it just means the user navigated away mid-fetch
+        const msg = fetchError.message || '';
+        if (msg.includes('AbortError') || msg.includes('signal is aborted')) {
+          return;
+        }
+        console.error('useApps fetch error:', msg);
+        setError(msg);
         setApps([]);
       } else {
         setApps((data || []).map(row => ({

@@ -82,6 +82,23 @@ function AdminLoader() {
 
 const ATLAS_APP_ID = 'atlas-studio';
 
+// Silently swallow AbortError unhandled rejections.
+// These happen when a fetch (often from supabase-js) is cancelled because
+// the user navigated away mid-request — it's expected, not a real error.
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event.reason;
+    const isAbort =
+      (reason instanceof DOMException && reason.name === 'AbortError') ||
+      (reason && typeof reason === 'object' &&
+        ((reason as { name?: string }).name === 'AbortError' ||
+          String((reason as { message?: string }).message || '').includes('signal is aborted')));
+    if (isAbort) {
+      event.preventDefault();
+    }
+  });
+}
+
 initErrorMonitor(ATLAS_APP_ID);
 
 const container = document.getElementById('root')!;
