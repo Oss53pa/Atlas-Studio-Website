@@ -100,8 +100,8 @@ export function BillingPage({ userId }: BillingPageProps) {
           <p className="text-neutral-muted text-sm">Aucune facture pour le moment.</p>
         </div>
       ) : (
-        <div className="bg-white border border-warm-border rounded-2xl overflow-hidden">
-          <table className="w-full border-collapse">
+        <div className="bg-white border border-warm-border rounded-2xl overflow-x-auto">
+          <table className="w-full border-collapse min-w-[640px]">
             <thead>
               <tr className="border-b border-warm-border">
                 {["Facture", "Date", "Application", "Montant", "Statut", "PDF"].map(h => (

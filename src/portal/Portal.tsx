@@ -36,7 +36,7 @@ function PortalDashboard() {
   return (
     <div className="flex min-h-screen bg-warm-bg">
       <Sidebar page={page} setPage={setPage} profile={profile} onLogout={signOut} />
-      <main className="flex-1 p-8 md:p-10 overflow-y-auto">
+      <main className="flex-1 px-4 pt-20 pb-8 sm:px-6 lg:p-10 overflow-y-auto min-w-0">
         {page === "apps" && <MyAppsPage userId={user?.id} onOpenApp={handleOpenApp} onNavigate={setPage} />}
         {page === "catalog" && <CatalogPage userId={user?.id} />}
         {page === "billing" && <BillingPage userId={user?.id} />}
