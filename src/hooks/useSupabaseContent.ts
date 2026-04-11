@@ -9,11 +9,15 @@ export function useSupabaseContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const signal = { cancelled: false };
+
     async function fetchContent() {
       try {
         const { data, error: fetchError } = await supabase
           .from('site_content')
           .select('key, data');
+
+        if (signal.cancelled) return;
 
         if (fetchError) {
           console.error('useSupabaseContent error:', fetchError.message);
@@ -33,6 +37,8 @@ export function useSupabaseContent() {
           .select('*')
           .eq('status', 'available')
           .order('sort_order', { ascending: true });
+
+        if (signal.cancelled) return;
 
         const dbApps = (appsData || []).map((row: any) => ({
           id: row.id,
@@ -82,12 +88,18 @@ export function useSupabaseContent() {
           appearance: contentMap.appearance || undefined,
         });
       } catch (err) {
+        if (signal.cancelled) return;
+        // Silence les AbortError : le user a navigué avant la fin du fetch
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        if (err && typeof err === 'object' && (err as { name?: string }).name === 'AbortError') return;
         console.error('useSupabaseContent unexpected error:', err);
         setError('Erreur de chargement du contenu');
       }
-      setLoaded(true);
+      if (!signal.cancelled) setLoaded(true);
     }
-    fetchContent();
+    void fetchContent();
+
+    return () => { signal.cancelled = true; };
   }, []);
 
   return { content, loaded, error };

@@ -12,13 +12,15 @@ export function useApps() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchApps = async () => {
+  const fetchApps = async (signal?: { cancelled: boolean }) => {
     try {
       setLoading(true);
       const { data, error: fetchError } = await supabase
         .from('apps')
         .select('*')
         .order('sort_order', { ascending: true });
+
+      if (signal?.cancelled) return;
 
       if (fetchError) {
         console.error('useApps fetch error:', fetchError.message);
@@ -44,14 +46,22 @@ export function useApps() {
         setError(null);
       }
     } catch (err) {
+      if (signal?.cancelled) return;
+      // Silence les AbortError : le user a navigué avant la fin du fetch
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      if (err && typeof err === 'object' && (err as { name?: string }).name === 'AbortError') return;
       console.error('useApps unexpected error:', err);
       setError('Erreur de chargement des applications');
       setApps([]);
     }
-    setLoading(false);
+    if (!signal?.cancelled) setLoading(false);
   };
 
-  useEffect(() => { fetchApps(); }, []);
+  useEffect(() => {
+    const signal = { cancelled: false };
+    void fetchApps(signal);
+    return () => { signal.cancelled = true; };
+  }, []);
 
-  return { apps, loading, error, refetch: fetchApps };
+  return { apps, loading, error, refetch: () => fetchApps() };
 }
