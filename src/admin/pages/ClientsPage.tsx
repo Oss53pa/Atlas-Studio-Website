@@ -260,6 +260,20 @@ export default function ClientsPage() {
           { key: "is_active", label: "Statut", render: (r: Profile) => (
             <AdminBadge status={r.is_active ? "active" : "suspended"} label={r.is_active ? "Actif" : "Suspendu"} />
           )},
+          { key: "consents", label: "Consentements", render: (r: Profile) => {
+            const terms = (r as any).terms_accepted_at;
+            const marketing = (r as any).marketing_opt_in;
+            return (
+              <div className="flex flex-col gap-0.5 text-[11px]">
+                <span className={terms ? "text-green-500" : "text-red-400"}>
+                  {terms ? "✓ CGU acceptées" : "✗ CGU manquantes"}
+                </span>
+                <span className={marketing ? "text-blue-500" : "text-neutral-muted dark:text-admin-muted"}>
+                  {marketing ? "✓ Newsletter opt-in" : "— Pas de newsletter"}
+                </span>
+              </div>
+            );
+          }},
           { key: "created_at", label: "Inscrit le", sortable: true, render: (r: Profile) =>
             <span className="text-[12px] text-neutral-muted dark:text-admin-muted">{new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}</span>
           },

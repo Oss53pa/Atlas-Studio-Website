@@ -23,6 +23,8 @@ export function LoginPage() {
   const [info, setInfo] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(true);
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -84,6 +86,7 @@ export function LoginPage() {
   const handleRegister = async () => {
     setError("");
     if (!email || !password || !name) { setError("Tous les champs sont requis"); return; }
+    if (!acceptTerms) { setError("Vous devez accepter les conditions generales d'utilisation"); return; }
     setLoading(true);
     try {
       const { error: err } = await signUp(email, password, { full_name: name, company_name: company });
@@ -92,6 +95,29 @@ export function LoginPage() {
         setLoading(false);
         return;
       }
+
+      // Save consents to profile (user was just created and is signed in)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const now = new Date().toISOString();
+        await supabase.from("profiles").update({
+          terms_accepted_at: now,
+          terms_version: "v1.0",
+          marketing_opt_in: marketingOptIn,
+          marketing_opt_in_at: marketingOptIn ? now : null,
+        }).eq("id", session.user.id);
+
+        // If opted in, also add to newsletter_subscribers
+        if (marketingOptIn) {
+          await supabase.from("newsletter_subscribers").upsert({
+            email: email.toLowerCase().trim(),
+            full_name: name,
+            status: "active",
+            source: "signup",
+          }, { onConflict: "email" }).catch(() => { /* best-effort */ });
+        }
+      }
+
       // Sign out and require OTP verification
       await supabase.auth.signOut();
       await sendOtp("first_login");
@@ -261,13 +287,49 @@ export function LoginPage() {
             <InputField label="Mot de passe" value={password} onChange={setPassword} placeholder="••••••••" type="password" />
           )}
 
+          {/* Consents — only for registration */}
+          {mode === "register" && (
+            <div className="mt-4 space-y-2.5">
+              <label className="flex items-start gap-2.5 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={acceptTerms}
+                  onChange={e => setAcceptTerms(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-gold cursor-pointer flex-shrink-0"
+                />
+                <span className="text-neutral-300 text-[12px] leading-snug">
+                  J'accepte les{" "}
+                  <Link to="/cgu" target="_blank" className="text-gold hover:underline font-semibold">
+                    conditions générales d'utilisation
+                  </Link>
+                  {" "}et la{" "}
+                  <Link to="/confidentialite" target="_blank" className="text-gold hover:underline font-semibold">
+                    politique de confidentialité
+                  </Link>
+                  <span className="text-red-400 ml-0.5">*</span>
+                </span>
+              </label>
+              <label className="flex items-start gap-2.5 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={marketingOptIn}
+                  onChange={e => setMarketingOptIn(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-gold cursor-pointer flex-shrink-0"
+                />
+                <span className="text-neutral-400 text-[12px] leading-snug">
+                  Je souhaite recevoir par email les actualités d'Atlas Studio, les nouvelles fonctionnalités et les offres spéciales. <span className="text-neutral-500">(Facultatif, révocable à tout moment)</span>
+                </span>
+              </label>
+            </div>
+          )}
+
           {error && <p className="text-red-500 text-[13px] mt-2">{error}</p>}
 
           <button
             onClick={mode === "register" ? handleRegister : mode === "forgot" ? handleForgot : handleLogin}
-            disabled={loading}
+            disabled={loading || (mode === "register" && !acceptTerms)}
             className="btn-gold w-full mt-5"
-            style={{ opacity: loading ? 0.6 : 1 }}
+            style={{ opacity: loading || (mode === "register" && !acceptTerms) ? 0.6 : 1 }}
           >
             {loading
               ? "Chargement..."
