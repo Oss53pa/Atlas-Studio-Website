@@ -12,7 +12,7 @@ import { useToast } from "../contexts/ToastContext";
 const APPS = [
   { id: "advist", label: "Advist", url: "https://advist.atlas-studio.io" },
   { id: "taxpilot", label: "Liass'Pilot", url: "https://taxpilot.atlas-studio.io" },
-  { id: "atlas-compta", label: "Atlas F&A", url: "https://compta.atlas-studio.io" },
+  { id: "atlas-fa", label: "Atlas F&A", url: "https://atlas-fna.atlas-studio.org" },
 ] as const;
 
 const SECTIONS = [
@@ -253,7 +253,7 @@ export default function LandingPagesPage() {
   const { user } = useAuth();
   const { success, error: toastErr } = useToast();
   const [app, setApp] = useState<AppId>("advist");
-  const [content, setContent] = useState<Record<AppId, ContentMap>>({ advist: {}, taxpilot: {}, "atlas-compta": {} });
+  const [content, setContent] = useState<Record<AppId, ContentMap>>({ advist: {}, taxpilot: {}, "atlas-fa": {} });
   const [open, setOpen] = useState<SectionKey | null>("hero");
   const [saving, setSaving] = useState<SectionKey | null>(null);
   const [loading, setLoading] = useState(true);
@@ -263,7 +263,7 @@ export default function LandingPagesPage() {
     setLoading(true);
     const { data, error } = await supabase.from("app_landing_content").select("*").order("sort_order");
     if (error) { toastErr("Failed to load content"); setLoading(false); return; }
-    const map: Record<AppId, ContentMap> = { advist: {}, taxpilot: {}, "atlas-compta": {} };
+    const map: Record<AppId, ContentMap> = { advist: {}, taxpilot: {}, "atlas-fa": {} };
     for (const row of data ?? []) {
       const aid = row.app_id as AppId;
       if (map[aid]) map[aid][row.section as SectionKey] = { data: row.data ?? {}, updated_at: row.updated_at };

@@ -9,7 +9,7 @@ export function useFeatureAccess(productId: string, tenantId?: string) {
   useEffect(() => {
     if (!productId || !tenantId) return
     supabase.from('subscriptions')
-      .select('status, plan_id, plans(name, max_seats, plan_features(enabled, limit_value, limit_unit, features(key, name, feature_type, is_core)))')
+      .select('status, plan_id, plans(name, max_seats, max_companies, plan_features(enabled, limit_value, limit_unit, features(key, name, feature_type, is_core)))')
       .eq('tenant_id', tenantId).eq('product_id', productId)
       .in('status', ['active', 'trial', 'past_due', 'degraded'])
       .order('created_at', { ascending: false }).limit(1).single()
@@ -17,7 +17,15 @@ export function useFeatureAccess(productId: string, tenantId?: string) {
         if (data?.plans?.plan_features) {
           const map: FeatureMap = {}
           for (const pf of data.plans.plan_features as any[]) {
-            map[pf.features.key] = { enabled: pf.enabled || pf.features.is_core, limit: pf.limit_value, limitUnit: pf.limit_unit, isDegraded: data.status === 'degraded', isCore: pf.features.is_core }
+            // A feature is accessible if it's core OR explicitly enabled in plan_features.
+            // is_core features are always granted regardless of plan_features.enabled.
+            map[pf.features.key] = {
+              enabled: pf.features.is_core ? true : (pf.enabled === true),
+              limit: pf.limit_value,
+              limitUnit: pf.limit_unit,
+              isDegraded: data.status === 'degraded',
+              isCore: pf.features.is_core
+            }
           }
           setFeatures(map)
         }
@@ -33,5 +41,22 @@ export function useFeatureAccess(productId: string, tenantId?: string) {
     return { allowed: true, reason: 'ok' }
   }, [features])
 
-  return { canAccess, features, loading }
+  /**
+   * Simplified boolean feature check.
+   * Returns true only if the feature is enabled in the tenant's current plan
+   * AND the subscription is not in degraded mode.
+   *
+   * Prefer this for conditional rendering:
+   *   if (hasFeature('proph3t_ia')) { ... }
+   *
+   * Use canAccess() when you need the reason for a denial (upgrade prompt, etc.).
+   */
+  const hasFeature = useCallback((key: string): boolean => {
+    const f = features[key]
+    if (!f) return false
+    if (f.isDegraded) return false
+    return f.enabled === true
+  }, [features])
+
+  return { canAccess, hasFeature, features, loading }
 }

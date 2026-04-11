@@ -186,18 +186,18 @@ INSERT INTO app_landing_content (app_id, section, sort_order, data) VALUES
 ON CONFLICT (app_id, section) DO UPDATE SET data = EXCLUDED.data, updated_at = now();
 
 -- ═══════════════════════════════════════════════════
--- SEED: ATLAS F&A (atlas-compta)
+-- SEED: ATLAS F&A (atlas-fa)
 -- ═══════════════════════════════════════════════════
 
 INSERT INTO app_landing_content (app_id, section, sort_order, data) VALUES
-('atlas-compta', 'hero', 1, '{
+('atlas-fa', 'hero', 1, '{
   "title": "Finance & Administration — Comptabilité SYSCOHADA complète",
   "subtitle": "Saisie des écritures, grand livre, balance, lettrage, rapprochement bancaire, immobilisations, stocks, fiscalité, clôture et états financiers.",
-  "cta_primary": {"text": "Souscrire maintenant", "url": "https://atlas-studio.org/portal?app=atlas-compta"},
+  "cta_primary": {"text": "Souscrire maintenant", "url": "https://atlas-studio.org/portal?app=atlas-fa"},
   "cta_secondary": {"text": "Voir la démo", "url": "/demo"}
 }'::jsonb),
 
-('atlas-compta', 'stats', 2, '{
+('atlas-fa', 'stats', 2, '{
   "items": [
     {"value": "500+", "label": "ENTREPRISES"},
     {"value": "3", "label": "PRODUITS"},
@@ -206,7 +206,7 @@ INSERT INTO app_landing_content (app_id, section, sort_order, data) VALUES
   ]
 }'::jsonb),
 
-('atlas-compta', 'pricing', 4, '{
+('atlas-fa', 'pricing', 4, '{
   "title": "Choisissez votre plan",
   "subtitle": "Comptabilité complète SYSCOHADA.",
   "plans": [
@@ -217,7 +217,7 @@ INSERT INTO app_landing_content (app_id, section, sort_order, data) VALUES
       "currency": "FCFA",
       "is_popular": false,
       "cta_text": "Souscrire",
-      "cta_url": "https://atlas-studio.org/portal?app=atlas-compta&plan=PME",
+      "cta_url": "https://atlas-studio.org/portal?app=atlas-fa&plan=PME",
       "features": ["Saisie des écritures & journaux", "Grand livre & balance", "Lettrage automatique", "Rapprochement bancaire", "Immobilisations", "Stocks (CUMP/FIFO)", "Fiscalité (TVA, IS)", "Clôture & états financiers", "1-5 utilisateurs", "Support email"]
     },
     {
@@ -227,13 +227,13 @@ INSERT INTO app_landing_content (app_id, section, sort_order, data) VALUES
       "currency": "FCFA",
       "is_popular": true,
       "cta_text": "Souscrire",
-      "cta_url": "https://atlas-studio.org/portal?app=atlas-compta&plan=Premium",
+      "cta_url": "https://atlas-studio.org/portal?app=atlas-fa&plan=Premium",
       "features": ["Tout le plan PME/TPE", "Multi-sociétés illimité", "Multi-pays OHADA 17 pays", "Opérations en devises", "Proph3t IA avancé LLM", "Workflow & RBAC", "Audit trail OHADA", "API REST", "Utilisateurs illimités", "Support prioritaire & SLA"]
     }
   ]
 }'::jsonb),
 
-('atlas-compta', 'faq', 6, '{
+('atlas-fa', 'faq', 6, '{
   "items": [
     {"question": "Atlas F&A est-il conforme SYSCOHADA ?", "answer": "Oui, 100% natif SYSCOHADA révisé avec plan comptable complet."},
     {"question": "Puis-je gérer plusieurs sociétés ?", "answer": "Oui avec le plan Premium. Multi-sociétés illimité + multi-pays OHADA."},
@@ -242,11 +242,11 @@ INSERT INTO app_landing_content (app_id, section, sort_order, data) VALUES
   ]
 }'::jsonb),
 
-('atlas-compta', 'cta', 7, '{
+('atlas-fa', 'cta', 7, '{
   "title": "Prêt à digitaliser votre comptabilité ?",
   "subtitle": "Souscrivez maintenant. Sans engagement.",
   "cta_text": "Souscrire maintenant",
-  "cta_url": "https://atlas-studio.org/portal?app=atlas-compta"
+  "cta_url": "https://atlas-studio.org/portal?app=atlas-fa"
 }'::jsonb)
 
 ON CONFLICT (app_id, section) DO UPDATE SET data = EXCLUDED.data, updated_at = now();

@@ -1,35 +1,52 @@
 -- ═══════════════════════════════════════════════════
 -- TABLESMART — Configuration des plans Starter / Pro / Enterprise
 -- ═══════════════════════════════════════════════════
--- Objectif :
---  1. S'assurer que le produit `tablesmart` existe dans `products`
---  2. Insérer les 46 features TableSmart dans `features`
---  3. Insérer / mettre à jour les 3 plans : Starter, Pro, Enterprise
---  4. Reset + reconfigurer les `plan_features` pour différencier les 3 plans
---
--- Cohérent avec le pattern utilisé pour Atlas F&A
--- (cf. supabase_migration_atlas_fa_plans.sql).
---
--- Conventions :
---  - max_seats / max_companies : -1 = illimité (compatible PlansPage existante)
---  - is_core = true => feature toujours disponible (pas surchargeable par plan_features)
---  - is_core = false => contrôlée par plan_features.enabled
---
 -- Idempotent : peut être rejoué sans effet de bord.
+-- Cohérent avec le pattern Atlas F&A (cf. supabase_migration_atlas_fa_plans.sql).
+--
+-- Étapes :
+--   0. Pré-requis schéma (colonne max_companies + index uniques manquants)
+--   1. Upsert produit `tablesmart`
+--   2. Insérer / mettre à jour les 46 features TableSmart
+--   3. Upsert les 3 plans (Starter / Pro / Enterprise)
+--   4. Reset + reseed les plan_features (23 / 36 / 46 incluses)
 -- ═══════════════════════════════════════════════════
 
 BEGIN;
 
 -- ─────────────────────────────────────────
--- 1. S'assurer que le produit TableSmart existe
+-- 0. Pré-requis schéma
 -- ─────────────────────────────────────────
-INSERT INTO products (slug, name, icon, color, active, sort_order)
-VALUES ('tablesmart', 'TableSmart', 'utensils', '#C9A84C', true, 30)
+-- Colonne max_companies (équivalent max_establishments) — utilisée aussi par Atlas F&A
+ALTER TABLE plans ADD COLUMN IF NOT EXISTS max_companies INTEGER DEFAULT -1;
+COMMENT ON COLUMN plans.max_companies IS 'Nombre max de sociétés / établissements par tenant. -1 = illimité.';
+
+-- Index uniques nécessaires pour les ON CONFLICT ci-dessous
+CREATE UNIQUE INDEX IF NOT EXISTS features_product_key_unique
+  ON public.features (product_id, key);
+
+CREATE UNIQUE INDEX IF NOT EXISTS plans_product_name_unique
+  ON public.plans (product_id, name);
+
+-- ─────────────────────────────────────────
+-- 1. Upsert produit TableSmart
+-- ─────────────────────────────────────────
+INSERT INTO products (slug, name, description, status, color_accent, app_url)
+VALUES (
+  'tablesmart',
+  'TableSmart',
+  'Plateforme SaaS tout-en-un pour restaurants, bars, hôtels et food courts.',
+  'active',
+  '#C9A84C',
+  'https://tablesmart.atlas-studio.org'
+)
 ON CONFLICT (slug) DO UPDATE SET
   name = EXCLUDED.name,
-  icon = EXCLUDED.icon,
-  color = EXCLUDED.color,
-  active = true;
+  description = EXCLUDED.description,
+  status = 'active',
+  color_accent = EXCLUDED.color_accent,
+  app_url = EXCLUDED.app_url,
+  updated_at = NOW();
 
 -- ─────────────────────────────────────────
 -- 2. Insérer les 46 features TableSmart
@@ -37,69 +54,69 @@ ON CONFLICT (slug) DO UPDATE SET
 INSERT INTO features (product_id, key, name, category, feature_type, is_core, sort_order)
 SELECT p.id, v.key, v.name, v.category, 'boolean', false, v.sort
 FROM products p, (VALUES
-  -- ── Service client & paiements (10-90) ──
-  ('qr_menu_commande',                'Menu digital QR code & commande client',                  'Service client',          10),
-  ('paiement_mobile_money',           'Paiement Mobile Money (Orange, Wave, MTN, M-Pesa, Airtel)','Paiement',                20),
-  ('paiement_carte',                  'Paiement carte bancaire (Visa, Mastercard, Stripe)',      'Paiement',                30),
-  ('paiement_especes',                'Paiement espèces avec rendu monnaie',                     'Paiement',                40),
-  ('split_bill_pourboire',            'Split bill & pourboire ajustable',                        'Paiement',                50),
-  ('menu_layouts_3',                  'Menu — 3 layouts de base',                                'Service client',          60),
-  ('multi_langues',                   'Multi-langues (FR, EN, AR, Wolof, Dyula)',                'Service client',          70),
-  ('pwa_hors_ligne',                  'PWA hors-ligne (KDS + serveur)',                          'Plateforme',              80),
-  ('sso_atlas_studio',                'SSO Atlas Studio inclus',                                 'Plateforme',              90),
+  -- Service client & paiements
+  ('qr_menu_commande',                'Menu digital QR code & commande client',                  'Service client',     10),
+  ('paiement_mobile_money',           'Paiement Mobile Money (Orange, Wave, MTN, M-Pesa, Airtel)','Paiement',           20),
+  ('paiement_carte',                  'Paiement carte bancaire (Visa, Mastercard, Stripe)',      'Paiement',           30),
+  ('paiement_especes',                'Paiement espèces avec rendu monnaie',                     'Paiement',           40),
+  ('split_bill_pourboire',            'Split bill & pourboire ajustable',                        'Paiement',           50),
+  ('menu_layouts_3',                  'Menu — 3 layouts de base',                                'Service client',     60),
+  ('multi_langues',                   'Multi-langues (FR, EN, AR, Wolof, Dyula)',                'Service client',     70),
+  ('pwa_hors_ligne',                  'PWA hors-ligne (KDS + serveur)',                          'Plateforme',         80),
+  ('sso_atlas_studio',                'SSO Atlas Studio inclus',                                 'Plateforme',         90),
 
-  -- ── Cuisine & opérations (100-180) ──
-  ('kds_cuisine',                     'KDS cuisine temps réel',                                  'Cuisine',                100),
-  ('app_serveur_notifications',       'App serveur (plan de salle, notifications)',              'Service salle',          110),
-  ('commandes_manuelles',             'Commandes manuelles & saisie verbale',                    'Service salle',          120),
-  ('rupture_stock_cascade',           'Rupture stock cascade (menu + serveur + client)',         'Cuisine',                130),
-  ('filtre_poste',                    'Filtre par poste (chaud / froid / grill / bar)',          'Cuisine',                140),
-  ('mode_rush_basic',                 'Mode rush (seuils réduits automatiques)',                 'Cuisine',                150),
-  ('impression_thermique',            'Impression thermique ESC/POS (cuisine + caisse)',         'Matériel',               160),
+  -- Cuisine & opérations
+  ('kds_cuisine',                     'KDS cuisine temps réel',                                  'Cuisine',           100),
+  ('app_serveur_notifications',       'App serveur (plan de salle, notifications)',              'Service salle',     110),
+  ('commandes_manuelles',             'Commandes manuelles & saisie verbale',                    'Service salle',     120),
+  ('rupture_stock_cascade',           'Rupture stock cascade (menu + serveur + client)',         'Cuisine',           130),
+  ('filtre_poste',                    'Filtre par poste (chaud / froid / grill / bar)',          'Cuisine',           140),
+  ('mode_rush_basic',                 'Mode rush (seuils réduits automatiques)',                 'Cuisine',           150),
+  ('impression_thermique',            'Impression thermique ESC/POS (cuisine + caisse)',         'Matériel',          160),
 
-  -- ── Consoles de gestion (190-220) ──
-  ('console_manager',                 'Console manager (service, stocks, rapports)',             'Console',                190),
-  ('console_proprietaire',            'Console propriétaire (finances, clients, fiscalité)',     'Console',                200),
-  ('console_superadmin',              'Console SuperAdmin (multi-tenant, métriques SaaS)',       'Console',                210),
+  -- Consoles
+  ('console_manager',                 'Console manager (service, stocks, rapports)',             'Console',           190),
+  ('console_proprietaire',            'Console propriétaire (finances, clients, fiscalité)',     'Console',           200),
+  ('console_superadmin',              'Console SuperAdmin (multi-tenant, métriques SaaS)',       'Console',           210),
 
-  -- ── Fiscalité (230-280) ──
-  ('fiscalite_syscohada',             'Conformité fiscale SYSCOHADA',                            'Fiscalité',              230),
-  ('tickets_fiscaux',                 'Tickets fiscaux séquentiels immuables',                   'Fiscalité',              240),
-  ('tva_dynamique_basic',             'TVA dynamique (pays principal)',                          'Fiscalité',              250),
-  ('tva_dynamique_multipays',         'TVA dynamique multi-pays (CI, CM, GH, MA)',               'Fiscalité',              260),
+  -- Fiscalité
+  ('fiscalite_syscohada',             'Conformité fiscale SYSCOHADA',                            'Fiscalité',         230),
+  ('tickets_fiscaux',                 'Tickets fiscaux séquentiels immuables',                   'Fiscalité',         240),
+  ('tva_dynamique_basic',             'TVA dynamique (pays principal)',                          'Fiscalité',         250),
+  ('tva_dynamique_multipays',         'TVA dynamique multi-pays (CI, CM, GH, MA)',               'Fiscalité',         260),
 
-  -- ── Conformité & support (290-330) ──
-  ('rgpd_export',                     'RGPD : export & anonymisation 1-clic',                    'Conformité',             290),
-  ('audit_trail_complet',             'Audit trail complet & logs immutables',                   'Sécurité',               300),
-  ('support_email',                   'Support email',                                           'Support',                310),
-  ('support_prioritaire',             'Support prioritaire',                                     'Support',                320),
-  ('account_manager',                 'Account manager dédié',                                   'Support',                330),
-  ('onboarding_session',              'Onboarding accompagné (1 session)',                       'Support',                340),
-  ('formation_sessions',              'Formation incluse (2 sessions / an)',                     'Support',                350),
+  -- Conformité & support
+  ('rgpd_export',                     'RGPD : export & anonymisation 1-clic',                    'Conformité',        290),
+  ('audit_trail_complet',             'Audit trail complet & logs immutables',                   'Sécurité',          300),
+  ('support_email',                   'Support email',                                           'Support',           310),
+  ('support_prioritaire',             'Support prioritaire',                                     'Support',           320),
+  ('account_manager',                 'Account manager dédié',                                   'Support',           330),
+  ('onboarding_session',              'Onboarding accompagné (1 session)',                       'Support',           340),
+  ('formation_sessions',              'Formation incluse (2 sessions / an)',                     'Support',           350),
 
-  -- ── Apps spécialisées (360-380) ──
-  ('app_barman',                      'App barman (tabs, bottle service, happy hour)',           'Service salle',          360),
-  ('app_hotesse',                     'App hôtesse (réservations, file d''attente, check-in)',   'Service salle',          370),
+  -- Apps spécialisées
+  ('app_barman',                      'App barman (tabs, bottle service, happy hour)',           'Service salle',     360),
+  ('app_hotesse',                     'App hôtesse (réservations, file d''attente, check-in)',   'Service salle',     370),
 
-  -- ── Réservations & commandes avancées (390-420) ──
-  ('reservations_acompte',            'Réservations avec acompte déductible',                    'Réservations',           390),
-  ('precommandes_resa',               'Pré-commandes liées aux réservations',                    'Réservations',           400),
-  ('commandes_groupees',              'Commandes groupées (multi-participants)',                 'Réservations',           410),
+  -- Réservations & commandes avancées
+  ('reservations_acompte',            'Réservations avec acompte déductible',                    'Réservations',      390),
+  ('precommandes_resa',               'Pré-commandes liées aux réservations',                    'Réservations',      400),
+  ('commandes_groupees',              'Commandes groupées (multi-participants)',                 'Réservations',      410),
 
-  -- ── Marketing, fidélité, IA (430-490) ──
-  ('cartes_cadeaux_abonnements',      'Cartes cadeaux & abonnements repas',                      'Marketing',              430),
-  ('fidelite_gamification',           'Programme fidélité & badges gamification',                'Marketing',              440),
-  ('campagnes_whatsapp_sms',          'Campagnes WhatsApp / SMS ciblées (RFM)',                  'Marketing',              450),
-  ('nps_enquetes',                    'NPS & enquêtes satisfaction automatiques',                'Marketing',              460),
-  ('proph3t_ia',                      'IA Proph3t (recommandations menu, alertes stock)',        'IA',                     470),
-  ('studio_personnalisation_15layouts','Studio personnalisation menu — 15 layouts premium',      'Personnalisation',       480),
-  ('google_maps_instagram_api',       'Google Maps & Instagram Graph API',                       'Intégrations',           490),
+  -- Marketing, fidélité, IA
+  ('cartes_cadeaux_abonnements',      'Cartes cadeaux & abonnements repas',                      'Marketing',         430),
+  ('fidelite_gamification',           'Programme fidélité & badges gamification',                'Marketing',         440),
+  ('campagnes_whatsapp_sms',          'Campagnes WhatsApp / SMS ciblées (RFM)',                  'Marketing',         450),
+  ('nps_enquetes',                    'NPS & enquêtes satisfaction automatiques',                'Marketing',         460),
+  ('proph3t_ia',                      'IA Proph3t (recommandations menu, alertes stock)',        'IA',                470),
+  ('studio_personnalisation_15layouts','Studio personnalisation menu — 15 layouts premium',      'Personnalisation',  480),
+  ('google_maps_instagram_api',       'Google Maps & Instagram Graph API',                       'Intégrations',      490),
 
-  -- ── Multi-établissements & intégrations enterprise (500-560) ──
-  ('multi_etablissements',            'Multi-établissements & food courts',                      'Multi-tenant',           500),
-  ('integrations_pos',                'Intégrations POS (Lightspeed, Square, Odoo)',             'Intégrations',           510),
-  ('opera_pms',                       'Opera PMS hôtel (facturation chambre)',                   'Intégrations',           520),
-  ('api_rest',                        'API REST pour intégrations sur mesure',                   'Intégrations',           530)
+  -- Multi-établissements & intégrations enterprise
+  ('multi_etablissements',            'Multi-établissements & food courts',                      'Multi-tenant',      500),
+  ('integrations_pos',                'Intégrations POS (Lightspeed, Square, Odoo)',             'Intégrations',      510),
+  ('opera_pms',                       'Opera PMS hôtel (facturation chambre)',                   'Intégrations',      520),
+  ('api_rest',                        'API REST pour intégrations sur mesure',                   'Intégrations',      530)
 ) AS v(key, name, category, sort)
 WHERE p.slug = 'tablesmart'
 ON CONFLICT (product_id, key) DO UPDATE SET
@@ -108,9 +125,9 @@ ON CONFLICT (product_id, key) DO UPDATE SET
   sort_order = EXCLUDED.sort_order;
 
 -- ─────────────────────────────────────────
--- 3. Insérer / mettre à jour les 3 plans
+-- 3. Upsert les 3 plans
 -- ─────────────────────────────────────────
--- Plan Starter — 25 000 FCFA / mois
+-- Starter — 25 000 FCFA / mois
 INSERT INTO plans (
   product_id, name, display_name, description,
   is_popular, is_custom, active, sort_order,
@@ -131,9 +148,10 @@ ON CONFLICT (product_id, name) DO UPDATE SET
   price_monthly_fcfa = EXCLUDED.price_monthly_fcfa,
   price_annual_fcfa = EXCLUDED.price_annual_fcfa,
   max_seats = EXCLUDED.max_seats,
-  max_companies = EXCLUDED.max_companies;
+  max_companies = EXCLUDED.max_companies,
+  sort_order = EXCLUDED.sort_order;
 
--- Plan Pro — 75 000 FCFA / mois (populaire)
+-- Pro — 75 000 FCFA / mois (populaire)
 INSERT INTO plans (
   product_id, name, display_name, description,
   is_popular, is_custom, active, sort_order,
@@ -154,9 +172,10 @@ ON CONFLICT (product_id, name) DO UPDATE SET
   price_monthly_fcfa = EXCLUDED.price_monthly_fcfa,
   price_annual_fcfa = EXCLUDED.price_annual_fcfa,
   max_seats = EXCLUDED.max_seats,
-  max_companies = EXCLUDED.max_companies;
+  max_companies = EXCLUDED.max_companies,
+  sort_order = EXCLUDED.sort_order;
 
--- Plan Enterprise — 200 000 FCFA / mois
+-- Enterprise — 200 000 FCFA / mois
 INSERT INTO plans (
   product_id, name, display_name, description,
   is_popular, is_custom, active, sort_order,
@@ -177,7 +196,8 @@ ON CONFLICT (product_id, name) DO UPDATE SET
   price_monthly_fcfa = EXCLUDED.price_monthly_fcfa,
   price_annual_fcfa = EXCLUDED.price_annual_fcfa,
   max_seats = EXCLUDED.max_seats,
-  max_companies = EXCLUDED.max_companies;
+  max_companies = EXCLUDED.max_companies,
+  sort_order = EXCLUDED.sort_order;
 
 -- ─────────────────────────────────────────
 -- 4. Reset des plan_features TableSmart
@@ -199,7 +219,6 @@ FROM plans pl
 JOIN products p ON pl.product_id = p.id
 JOIN features f ON f.product_id = p.id,
 (VALUES
-  -- Incluses dans Starter
   ('qr_menu_commande',                 true),
   ('paiement_mobile_money',            true),
   ('paiement_carte',                   true),
@@ -223,7 +242,6 @@ JOIN features f ON f.product_id = p.id,
   ('sso_atlas_studio',                 true),
   ('support_email',                    true),
   ('menu_layouts_3',                   true),
-  -- Locked dans Starter
   ('app_barman',                       false),
   ('app_hotesse',                      false),
   ('reservations_acompte',             false),
@@ -260,7 +278,6 @@ FROM plans pl
 JOIN products p ON pl.product_id = p.id
 JOIN features f ON f.product_id = p.id,
 (VALUES
-  -- Tout ce qui est inclus dans Starter
   ('qr_menu_commande',                 true),
   ('paiement_mobile_money',            true),
   ('paiement_carte',                   true),
@@ -284,7 +301,6 @@ JOIN features f ON f.product_id = p.id,
   ('sso_atlas_studio',                 true),
   ('support_email',                    true),
   ('menu_layouts_3',                   true),
-  -- Ajouts Pro (13)
   ('app_barman',                       true),
   ('app_hotesse',                      true),
   ('reservations_acompte',             true),
@@ -298,7 +314,6 @@ JOIN features f ON f.product_id = p.id,
   ('studio_personnalisation_15layouts',true),
   ('google_maps_instagram_api',        true),
   ('onboarding_session',               true),
-  -- Locked dans Pro (10)
   ('multi_etablissements',             false),
   ('console_superadmin',               false),
   ('integrations_pos',                 false),

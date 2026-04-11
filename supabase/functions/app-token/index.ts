@@ -61,7 +61,8 @@ Deno.serve(async (req) => {
 
     // Map appId to custom subdomain (when subdomain differs from appId)
     const appSubdomains: Record<string, string> = {
-      "atlas-compta": "atlas-fna",
+      "atlas-fa": "atlas-fna",
+      "atlas-compta": "atlas-fna", // legacy alias, kept for backwards compat
       "taxpilot": "liasspilot",
       "advist": "advist",
       "scrutix": "scrutix",

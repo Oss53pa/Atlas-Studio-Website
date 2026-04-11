@@ -102,41 +102,92 @@ WHERE p.slug = 'advist' AND pl.name = 'Enterprise' AND f.is_core = false
 ON CONFLICT (plan_id, feature_id) DO NOTHING;
 
 -- ══════════════════════════════════════════
--- Reproduire pour Atlas F&A (atlas-compta)
+-- Atlas F&A (slug: atlas-fa)
+-- Starter — PME / TPE : 49k FCFA/mois, 1 société, 3 utilisateurs
+-- Premium — Groupes & Holdings : 250k FCFA/mois, illimité
 -- ══════════════════════════════════════════
 
-INSERT INTO plans (product_id, name, display_name, description, is_popular, price_monthly_fcfa, price_annual_fcfa, annual_discount_pct, max_seats, storage_gb, sort_order, active)
-SELECT p.id, v.name, v.display_name, v.description, v.is_popular, v.monthly, v.annual, v.discount, v.seats, v.storage, v.sort, true
+INSERT INTO plans (product_id, name, display_name, description, is_popular, price_monthly_fcfa, price_annual_fcfa, annual_discount_pct, max_seats, max_companies, storage_gb, sort_order, active)
+SELECT p.id, v.name, v.display_name, v.description, v.is_popular, v.monthly, v.annual, v.discount, v.seats, v.companies, v.storage, v.sort, true
 FROM products p, (VALUES
-  ('Starter', 'PME / TPE', 'Pour les petites structures', false, 49000, 499800, 15, 5, 5, 1),
-  ('Pro', 'Premium', 'Le plus complet', true, 250000, 2520000, 16, -1, 100, 2)
-) AS v(name, display_name, description, is_popular, monthly, annual, discount, seats, storage, sort)
-WHERE p.slug = 'atlas-compta'
+  ('Starter', 'Starter — PME / TPE',            'Pour les petites et moyennes entreprises', true,  49000,  499800,  15,  3,  1,   5, 1),
+  ('Premium', 'Premium — Groupes & Holdings',  'Multi-sociétés illimité pour holdings et groupes', false, 250000, 2520000, 16, -1, -1, 100, 2)
+) AS v(name, display_name, description, is_popular, monthly, annual, discount, seats, companies, storage, sort)
+WHERE p.slug = 'atlas-fa'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO features (product_id, key, name, category, feature_type, is_core, sort_order)
-SELECT p.id, v.key, v.name, v.category, v.ftype, v.is_core, v.sort
+SELECT p.id, v.key, v.name, v.category, 'boolean', v.is_core, v.sort
 FROM products p, (VALUES
-  ('saisie_ecritures', 'Saisie des écritures & journaux', 'Comptabilité', 'boolean', true, 1),
-  ('grand_livre', 'Grand livre & balance générale', 'Comptabilité', 'boolean', true, 2),
-  ('lettrage', 'Lettrage automatique', 'Comptabilité', 'boolean', true, 3),
-  ('rapprochement', 'Rapprochement bancaire', 'Comptabilité', 'boolean', true, 4),
-  ('immobilisations', 'Immobilisations & amortissements', 'Immobilisations', 'boolean', true, 5),
-  ('stocks', 'Gestion des stocks', 'Stocks', 'boolean', true, 6),
-  ('tresorerie', 'Position de trésorerie', 'Trésorerie', 'boolean', true, 7),
-  ('fiscalite', 'Fiscalité (TVA, IS, IMF)', 'Fiscalité', 'boolean', true, 8),
-  ('cloture', 'Clôture & états financiers', 'Comptabilité', 'boolean', true, 9),
-  ('multi_societes', 'Multi-sociétés illimité', 'Configuration', 'boolean', false, 20),
-  ('multi_pays', 'Multi-pays OHADA 17 pays', 'Configuration', 'boolean', false, 21),
-  ('devises', 'Opérations en devises', 'Comptabilité', 'boolean', false, 22),
-  ('proph3t_ai_advanced', 'Proph3t IA avancé LLM + prédictif', 'IA', 'boolean', false, 23),
-  ('workflow_validation', 'Workflow de validation & RBAC', 'Workflow', 'boolean', false, 24),
-  ('audit_trail_complet', 'Audit trail complet OHADA', 'Sécurité', 'boolean', false, 25),
-  ('api_rest', 'API REST & intégrations', 'API', 'boolean', false, 26),
-  ('support_prioritaire', 'Support prioritaire & account manager', 'Support', 'boolean', false, 27)
-) AS v(key, name, category, ftype, is_core, sort)
-WHERE p.slug = 'atlas-compta'
+  -- Features core (incluses dans Starter)
+  ('saisie_journaux',                'Saisie des journaux & écritures',     'Comptabilité',     true,  1),
+  ('grand_livre_balance',            'Grand livre & balance générale',      'Comptabilité',     true,  2),
+  ('lettrage_automatique',           'Lettrage automatique (4 algorithmes)', 'Comptabilité',    true,  3),
+  ('rapprochement_bancaire',         'Rapprochement bancaire',              'Trésorerie',       true,  4),
+  ('immobilisations_amortissements', 'Immobilisations & amortissements',    'Immobilisations',  true,  5),
+  ('stocks_cump_fifo',               'Gestion des stocks (CUMP / FIFO)',    'Stocks',           true,  6),
+  ('position_tresorerie',            'Position de trésorerie',              'Trésorerie',       true,  7),
+  ('fiscalite_tva_is_imf',           'Fiscalité (TVA, IS, IMF)',            'Fiscalité',        true,  8),
+  ('cloture_etats_financiers',       'Clôture & états financiers',          'Comptabilité',     true,  9),
+  ('audit_trail_basic',              'Audit trail basique',                 'Sécurité',         true, 10),
+  -- Features locked (Premium uniquement)
+  ('budget_analytique',              'Budget & comptabilité analytique',    'Analytique',       false, 20),
+  ('recouvrement_balance_agee',      'Recouvrement & balance âgée',         'Trésorerie',       false, 21),
+  ('proph3t_ia',                     'Proph3t IA avancé (LLM + prédictif)', 'IA',               false, 22),
+  ('multi_societes',                 'Multi-sociétés illimité',             'Configuration',    false, 23),
+  ('multi_pays',                     'Multi-pays OHADA 17 pays',            'Configuration',    false, 24),
+  ('devises',                        'Opérations en devises',               'Comptabilité',     false, 25),
+  ('workflow_validation',            'Workflow de validation & RBAC',       'Workflow',         false, 26),
+  ('consolidation_groupe',           'Consolidation groupe',                'Consolidation',    false, 27),
+  ('audit_trail_ohada_certifie',     'Audit trail OHADA certifié',          'Sécurité',         false, 28),
+  ('tableaux_bord_groupe',           'Tableaux de bord groupe',             'Reporting',        false, 29),
+  ('api_integrations',               'API REST & intégrations',             'API',              false, 30),
+  ('support_dedie',                  'Support dédié & account manager',     'Support',          false, 31)
+) AS v(key, name, category, is_core, sort)
+WHERE p.slug = 'atlas-fa'
 ON CONFLICT (product_id, key) DO NOTHING;
+
+-- ── PLAN_FEATURES ATLAS F&A — Starter ──
+INSERT INTO plan_features (plan_id, feature_id, enabled, display_value)
+SELECT pl.id, f.id, v.enabled, CASE WHEN v.enabled THEN '✓' ELSE NULL END
+FROM plans pl
+JOIN products p ON pl.product_id = p.id
+JOIN features f ON f.product_id = p.id,
+(VALUES
+  ('saisie_journaux',                true),
+  ('grand_livre_balance',            true),
+  ('lettrage_automatique',           true),
+  ('rapprochement_bancaire',         true),
+  ('immobilisations_amortissements', true),
+  ('stocks_cump_fifo',               true),
+  ('position_tresorerie',            true),
+  ('fiscalite_tva_is_imf',           true),
+  ('cloture_etats_financiers',       true),
+  ('audit_trail_basic',              true),
+  ('budget_analytique',              false),
+  ('recouvrement_balance_agee',      false),
+  ('proph3t_ia',                     false),
+  ('multi_societes',                 false),
+  ('multi_pays',                     false),
+  ('devises',                        false),
+  ('workflow_validation',            false),
+  ('consolidation_groupe',           false),
+  ('audit_trail_ohada_certifie',     false),
+  ('tableaux_bord_groupe',           false),
+  ('api_integrations',               false),
+  ('support_dedie',                  false)
+) AS v(fkey, enabled)
+WHERE p.slug = 'atlas-fa' AND pl.name = 'Starter' AND f.key = v.fkey
+ON CONFLICT (plan_id, feature_id) DO NOTHING;
+
+-- ── PLAN_FEATURES ATLAS F&A — Premium (tout activé) ──
+INSERT INTO plan_features (plan_id, feature_id, enabled, display_value)
+SELECT pl.id, f.id, true, '✓'
+FROM plans pl
+JOIN products p ON pl.product_id = p.id
+JOIN features f ON f.product_id = p.id
+WHERE p.slug = 'atlas-fa' AND pl.name = 'Premium'
+ON CONFLICT (plan_id, feature_id) DO NOTHING;
 
 -- ══════════════════════════════════════════
 -- Liass'Pilot (taxpilot)

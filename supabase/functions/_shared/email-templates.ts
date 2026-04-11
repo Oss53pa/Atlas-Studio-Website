@@ -1,6 +1,7 @@
 // ── Subdomain mapping ────────────────────────────────────────────────
 const APP_SUBDOMAINS: Record<string, string> = {
-  "atlas-compta": "atlas-fna",
+  "atlas-fa": "atlas-fna",
+  "atlas-compta": "atlas-fna", // legacy alias
   "taxpilot": "liasspilot",
   "advist": "advist",
 };
