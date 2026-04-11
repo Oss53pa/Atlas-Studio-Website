@@ -62,8 +62,16 @@ export default function Portal() {
     );
   }
 
-  // Auth = user + valid profile (not orphan)
-  const isAuthed = Boolean(user && profile);
+  // Auth requirements, in order:
+  //   1. Valid Supabase session (user)
+  //   2. Existing profile row (blocks orphan auth.users inserts)
+  //   3. Profile is active (blocks disabled/suspended accounts)
+  //   4. First-login OTP completed (blocks accounts that never verified email)
+  //   5. Must be a client role — admins/super_admins belong in /admin
+  const isClient = profile?.role === 'client';
+  const isVerified = profile?.first_login_completed === true;
+  const isActive = profile?.is_active !== false;
+  const isAuthed = Boolean(user && profile && isClient && isActive && isVerified);
 
   return (
     <Routes>

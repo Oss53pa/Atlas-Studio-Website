@@ -39,44 +39,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchProfile(user.id);
   };
 
-  // Auto-create a missing profile (orphan auth user → create row)
-  const ensureProfile = async (u: User): Promise<Profile | null> => {
-    const existing = await fetchProfile(u.id);
-    if (existing) return existing;
-    // No profile — create one from user metadata
-    const meta = (u.user_metadata || {}) as { full_name?: string; company_name?: string };
-    const { data: created } = await supabase.from('profiles').insert({
-      id: u.id,
-      email: u.email || '',
-      full_name: meta.full_name || '',
-      company_name: meta.company_name || '',
-      role: 'client',
-      is_active: true,
-    }).select().single();
-    const p = (created as Profile | null);
-    setProfile(p);
-    return p;
-  };
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) ensureProfile(s.user);
-      setLoading(false);
-    });
+    let mounted = true;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+    // Initial session load — await profile fetch so `loading` accurately
+    // reflects that we know both user AND profile state before flipping false.
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      if (!mounted) return;
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
-        ensureProfile(s.user);
+        await fetchProfile(s.user.id);
+      } else {
+        setProfile(null);
+      }
+      if (mounted) setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, s) => {
+      if (!mounted) return;
+      setSession(s);
+      setUser(s?.user ?? null);
+      if (s?.user) {
+        await fetchProfile(s.user.id);
       } else {
         setProfile(null);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -91,20 +85,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: { data: meta },
     });
     if (error) return { error: error.message };
-    // Explicitly create profile row (don't rely on triggers)
+    // The handle_new_user trigger auto-creates the profile row. We just
+    // update the metadata to match what the user typed (trigger uses
+    // raw_user_meta_data which Supabase populates from `options.data`).
     if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        full_name: meta.full_name,
-        company_name: meta.company_name,
-        role: 'client',
-        is_active: true,
-      });
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        return { error: `Compte créé mais profil manquant: ${profileError.message}` };
-      }
+      // Best-effort update: if the trigger already ran, UPDATE the row;
+      // if RLS blocks the update, we continue silently — the OTP flow
+      // is the actual gate before any portal access.
+      await supabase.from('profiles')
+        .update({
+          full_name: meta.full_name,
+          company_name: meta.company_name,
+        })
+        .eq('id', data.user.id);
     }
     return { error: null };
   };

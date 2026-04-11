@@ -9,6 +9,8 @@ interface AtlasErrorBoundaryProps {
 
 interface AtlasErrorBoundaryState {
   hasError: boolean;
+  error?: Error;
+  componentStack?: string;
 }
 
 /**
@@ -22,11 +24,12 @@ interface AtlasErrorBoundaryState {
 export class AtlasErrorBoundary extends Component<AtlasErrorBoundaryProps, AtlasErrorBoundaryState> {
   state: AtlasErrorBoundaryState = { hasError: false };
 
-  static getDerivedStateFromError(): AtlasErrorBoundaryState {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): AtlasErrorBoundaryState {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    this.setState({ error, componentStack: errorInfo.componentStack || undefined });
     void captureError(this.props.appId, {
       message: error.message || 'React render error',
       stack: error.stack,
@@ -47,8 +50,24 @@ export class AtlasErrorBoundary extends Component<AtlasErrorBoundaryProps, Atlas
   }
 
   private handleRetry = (): void => {
-    this.setState({ hasError: false });
+    this.setState({ hasError: false, error: undefined, componentStack: undefined });
   };
+
+  /**
+   * Show full error details when running on the admin console (always),
+   * on localhost, or when ?debug=1 is set. Otherwise, the generic fallback
+   * hides technical info from end users.
+   */
+  private shouldShowDetails(): boolean {
+    if (typeof window === 'undefined') return false;
+    try {
+      const { pathname, hostname, search } = window.location;
+      if (pathname.startsWith('/admin')) return true;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+      if (new URLSearchParams(search).has('debug')) return true;
+    } catch { /* noop */ }
+    return false;
+  }
 
   render(): ReactNode {
     if (!this.state.hasError) {
@@ -90,6 +109,42 @@ export class AtlasErrorBoundary extends Component<AtlasErrorBoundaryProps, Atlas
         <p className="text-sm text-neutral-muted dark:text-admin-muted mb-6 max-w-sm">
           Nos équipes ont été notifiées. Vous pouvez réessayer ou revenir à la page d'accueil.
         </p>
+
+        {this.shouldShowDetails() && this.state.error && (
+          <details
+            className="mt-2 mb-6 max-w-2xl w-full text-left bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-lg p-4"
+            open
+          >
+            <summary className="text-red-700 dark:text-red-300 text-sm font-semibold cursor-pointer mb-2">
+              Détails techniques (visible aux admins)
+            </summary>
+            <div className="mt-3 space-y-2">
+              <div>
+                <div className="text-[11px] uppercase tracking-wider text-red-600/70 dark:text-red-400/70 font-semibold mb-1">Message</div>
+                <code className="block text-[12px] text-red-800 dark:text-red-200 font-mono break-words whitespace-pre-wrap">
+                  {this.state.error.message || String(this.state.error)}
+                </code>
+              </div>
+              {this.state.error.stack && (
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-red-600/70 dark:text-red-400/70 font-semibold mb-1">Stack</div>
+                  <pre className="block text-[11px] text-red-700/90 dark:text-red-300/80 font-mono overflow-auto max-h-60 whitespace-pre-wrap">
+                    {this.state.error.stack}
+                  </pre>
+                </div>
+              )}
+              {this.state.componentStack && (
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-red-600/70 dark:text-red-400/70 font-semibold mb-1">Composant</div>
+                  <pre className="block text-[11px] text-red-700/90 dark:text-red-300/80 font-mono overflow-auto max-h-40 whitespace-pre-wrap">
+                    {this.state.componentStack}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </details>
+        )}
+
         <button
           type="button"
           onClick={this.handleRetry}
