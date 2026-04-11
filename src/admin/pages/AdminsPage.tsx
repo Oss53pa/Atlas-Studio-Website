@@ -138,6 +138,25 @@ export default function AdminsPage() {
     setConfirmDelete(null);
   };
 
+  const handlePromoteSuperAdmin = async (admin: AdminProfile) => {
+    if (admin.role === "super_admin") return;
+    if (!confirm(`⚠️ ATTENTION : Promouvoir ${admin.full_name || admin.email} en SUPER ADMIN lui donnera les memes pouvoirs que vous (gerer les autres admins, etc.). Cette action est sensible. Confirmer ?`)) {
+      return;
+    }
+    setActionLoading(admin.id);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: "super_admin", is_active: true, updated_at: new Date().toISOString() })
+      .eq("id", admin.id);
+    if (error) {
+      showError(`Erreur: ${error.message}`);
+    } else {
+      success(`${admin.full_name || admin.email} promu Super Admin`);
+      fetchAdmins();
+    }
+    setActionLoading(null);
+  };
+
   const handleToggleActive = async (admin: AdminProfile) => {
     if (admin.id === currentUser?.id) {
       showError("Vous ne pouvez pas vous désactiver vous-même");
@@ -261,12 +280,20 @@ export default function AdminsPage() {
                         ) : (
                           <>
                             <button
+                              onClick={() => handlePromoteSuperAdmin(admin)}
+                              disabled={isLoading}
+                              title="Promouvoir Super Admin"
+                              className="p-1.5 rounded hover:bg-purple-500/10 text-neutral-muted dark:text-admin-muted hover:text-purple-400 transition-colors"
+                            >
+                              {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Crown size={14} />}
+                            </button>
+                            <button
                               onClick={() => handleToggleActive(admin)}
                               disabled={isLoading}
                               title={admin.is_active ? "Désactiver" : "Réactiver"}
                               className="p-1.5 rounded hover:bg-warm-bg dark:hover:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-[#EF9F27] transition-colors"
                             >
-                              {isLoading ? <Loader2 size={14} className="animate-spin" /> : admin.is_active ? <ShieldOff size={14} /> : <ShieldCheck size={14} />}
+                              {admin.is_active ? <ShieldOff size={14} /> : <ShieldCheck size={14} />}
                             </button>
                             <button
                               onClick={() => setConfirmDelete(admin)}

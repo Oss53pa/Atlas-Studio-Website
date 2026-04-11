@@ -31,6 +31,7 @@ export default function SettingsPage() {
     notification_email: true, notification_dashboard: true,
     session_duration_hours: 8,
   });
+  const [recoveryEmail, setRecoveryEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [ipInput, setIpInput] = useState("");
@@ -43,6 +44,7 @@ export default function SettingsPage() {
         email: profile.email || "",
         phone: profile.phone || "",
       }));
+      setRecoveryEmail((profile as any).recovery_email || "");
     }
     // Load proph3t preferences for notifications
     supabase.from("proph3t_preferences").select("*").then(({ data }) => {
@@ -69,6 +71,25 @@ export default function SettingsPage() {
     }).eq("id", user?.id);
     setSaving(false);
     success("Profil mis à jour");
+  };
+
+  const handleSaveRecoveryEmail = async () => {
+    if (recoveryEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recoveryEmail)) {
+      showError("Adresse email invalide");
+      return;
+    }
+    if (recoveryEmail && recoveryEmail.toLowerCase() === user?.email?.toLowerCase()) {
+      showError("L'email de recuperation doit etre different de votre email principal");
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from("profiles").update({
+      recovery_email: recoveryEmail || null,
+      updated_at: new Date().toISOString(),
+    }).eq("id", user?.id);
+    setSaving(false);
+    if (error) showError(`Erreur: ${error.message}`);
+    else success(recoveryEmail ? "Email de recuperation enregistre" : "Email de recuperation supprime");
   };
 
   const handleChangePassword = async () => {
@@ -209,8 +230,45 @@ export default function SettingsPage() {
         {/* Security */}
         {tab === "security" && (
           <div className="space-y-6">
-            {/* Password */}
+            {/* Recovery email */}
             <div>
+              <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-3 flex items-center gap-2">
+                <Shield size={14} /> Email de recuperation
+              </h3>
+              <div className="p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-lg mb-3">
+                <p className="text-amber-800 dark:text-amber-300 text-[12px] leading-relaxed">
+                  En cas de perte d'acces a votre email principal, un lien de reinitialisation de mot de passe sera envoye a cette adresse de secours.
+                  <strong className="block mt-1">Choisissez une adresse a laquelle vous avez toujours acces (email perso, professionnel alternatif).</strong>
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">
+                    Email de recuperation
+                  </label>
+                  <input
+                    type="email"
+                    value={recoveryEmail}
+                    onChange={e => setRecoveryEmail(e.target.value)}
+                    placeholder="recovery@example.com"
+                    className={ADMIN_INPUT_CLASS}
+                  />
+                  <p className="text-neutral-muted dark:text-admin-muted text-[11px] mt-1">
+                    Doit etre different de votre email de connexion ({user?.email})
+                  </p>
+                </div>
+                <button
+                  onClick={handleSaveRecoveryEmail}
+                  disabled={saving}
+                  className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors text-[13px] flex items-center gap-2"
+                >
+                  <Save size={14} /> {saving ? "..." : "Enregistrer l'email de recuperation"}
+                </button>
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="border-t border-warm-border dark:border-admin-surface-alt pt-6">
               <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-3 flex items-center gap-2"><Key size={14} /> Changer le mot de passe</h3>
               <div className="space-y-3">
                 <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Nouveau mot de passe</label>

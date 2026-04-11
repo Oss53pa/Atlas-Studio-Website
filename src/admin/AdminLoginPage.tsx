@@ -12,6 +12,9 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [recoverySent, setRecoverySent] = useState<string | null>(null);
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -42,6 +45,31 @@ export default function AdminLoginPage() {
     navigate("/admin");
   };
 
+  const handleForgotPassword = async () => {
+    setError("");
+    setRecoverySent(null);
+    if (!email) { setError("Entrez votre email"); return; }
+    setRecoveryLoading(true);
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const res = await fetch(`${supabaseUrl}/functions/v1/password-reset-via-recovery`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: supabaseAnonKey },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.recovery_hint) {
+        setRecoverySent(`Un lien de réinitialisation a été envoyé à ${data.recovery_hint}`);
+      } else {
+        setRecoverySent(data.message || "Si un compte existe, un lien a été envoyé.");
+      }
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de la demande");
+    }
+    setRecoveryLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-admin-bg flex items-center justify-center px-5 relative overflow-hidden">
       {/* Background decoration */}
@@ -59,7 +87,7 @@ export default function AdminLoginPage() {
         <div className="bg-admin-surface border border-admin-surface-alt rounded-2xl p-8">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Zap size={18} className="text-admin-accent" />
-            <h2 className="text-admin-text text-lg font-bold">Connexion</h2>
+            <h2 className="text-admin-text text-lg font-bold">{forgotMode ? "Mot de passe oublié" : "Connexion"}</h2>
           </div>
 
           <div className="mb-4">
@@ -67,20 +95,22 @@ export default function AdminLoginPage() {
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
               placeholder="admin@atlasstudio.com"
-              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              onKeyDown={e => e.key === 'Enter' && (forgotMode ? handleForgotPassword() : handleSubmit())}
               className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none transition-colors focus:border-admin-accent placeholder:text-admin-muted/40"
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-admin-muted text-[13px] font-semibold mb-1.5">Mot de passe</label>
-            <input
-              type="password" value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-              className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none transition-colors focus:border-admin-accent placeholder:text-admin-muted/40"
-            />
-          </div>
+          {!forgotMode && (
+            <div className="mb-4">
+              <label className="block text-admin-muted text-[13px] font-semibold mb-1.5">Mot de passe</label>
+              <input
+                type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                className="w-full px-4 py-3 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-sm outline-none transition-colors focus:border-admin-accent placeholder:text-admin-muted/40"
+              />
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[13px]">
@@ -88,11 +118,44 @@ export default function AdminLoginPage() {
             </div>
           )}
 
-          <button onClick={handleSubmit} disabled={loading}
-            className="w-full py-3.5 bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors flex items-center justify-center gap-2"
-            style={{ opacity: loading ? 0.6 : 1 }}>
-            {loading ? <><Loader2 size={16} className="animate-spin" /> Vérification...</> : "Se connecter"}
-          </button>
+          {recoverySent && (
+            <div className="mb-4 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[13px]">
+              ✓ {recoverySent}
+            </div>
+          )}
+
+          {forgotMode ? (
+            <>
+              <div className="mb-4 px-4 py-3 rounded-lg bg-amber-500/5 border border-amber-500/15 text-amber-300 text-[12px] leading-relaxed">
+                Un lien de réinitialisation sera envoyé à votre <strong>email de récupération</strong> configuré dans vos paramètres.
+              </div>
+              <button onClick={handleForgotPassword} disabled={recoveryLoading || !email}
+                className="w-full py-3.5 bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {recoveryLoading ? <><Loader2 size={16} className="animate-spin" /> Envoi...</> : "Envoyer le lien"}
+              </button>
+              <button
+                onClick={() => { setForgotMode(false); setRecoverySent(null); setError(""); }}
+                className="w-full mt-2 py-2 text-admin-muted text-[12px] hover:text-admin-accent transition-colors"
+              >
+                ← Retour à la connexion
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={handleSubmit} disabled={loading}
+                className="w-full py-3.5 bg-admin-accent text-black font-semibold rounded-lg hover:bg-admin-accent-dark transition-colors flex items-center justify-center gap-2"
+                style={{ opacity: loading ? 0.6 : 1 }}>
+                {loading ? <><Loader2 size={16} className="animate-spin" /> Vérification...</> : "Se connecter"}
+              </button>
+              <button
+                onClick={() => { setForgotMode(true); setError(""); }}
+                className="w-full mt-3 py-1 text-admin-muted text-[12px] hover:text-admin-accent transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
+            </>
+          )}
         </div>
 
         <p className="text-center mt-6">
