@@ -23,7 +23,15 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Force the new SW to activate immediately and take over all open tabs
+        // so users don't stay stuck on a cached old bundle after a deploy.
+        skipWaiting: true,
+        clientsClaim: true,
+        // Remove any previously cached files on SW activation
+        cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
+        // Never serve the cached index.html for these paths — always hit network
+        navigateFallbackDenylist: [/^\/admin/, /^\/portal/, /^\/api/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
