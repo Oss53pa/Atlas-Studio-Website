@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
   useEffect(() => {
     if (user) {
       supabase.from('profiles').select('role').eq('id', user.id).single().then(({ data }) => {
-        if (data?.role === 'admin') navigate('/admin', { replace: true });
+        if (data?.role === 'admin' || data?.role === 'super_admin') navigate('/admin', { replace: true });
       });
     }
   }, [user, navigate]);
@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
     const { data: session } = await supabase.auth.getSession();
     if (session?.session?.user) {
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.session.user.id).single();
-      if (profile?.role !== 'admin') {
+      if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
         setError("Accès refusé. Ce compte n'a pas les droits administrateur.");
         await supabase.auth.signOut();
         setLoading(false);
