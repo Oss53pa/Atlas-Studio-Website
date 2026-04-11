@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Logo } from "../components/ui/Logo";
 import { InputField } from "./components/InputField";
 import { OTPVerification } from "./components/OTPVerification";
+import { PasswordStrength } from "./components/PasswordStrength";
+import {
+  COUNTRIES,
+  validateEmail,
+  validatePhone,
+  passwordErrorMessage,
+} from "./components/signupHelpers";
 import { useAuth } from "../lib/auth";
 import { supabase } from "../lib/supabase";
 
@@ -15,8 +22,12 @@ export function LoginPage() {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [country, setCountry] = useState("CI"); // Côte d'Ivoire par défaut
+  const [phone, setPhone] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [emailHint, setEmailHint] = useState("");
@@ -25,6 +36,60 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(true);
+
+  // Per-field errors for register form
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string | null;
+    company?: string | null;
+    jobTitle?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    password?: string | null;
+    passwordConfirm?: string | null;
+    country?: string | null;
+  }>({});
+
+  // Email availability check (Supabase)
+  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
+  const [emailChecking, setEmailChecking] = useState(false);
+
+  const selectedCountry = useMemo(
+    () => COUNTRIES.find((c) => c.code === country),
+    [country]
+  );
+
+  // Clear field error as user types
+  const clearFieldError = (key: keyof typeof fieldErrors) => {
+    setFieldErrors((prev) => ({ ...prev, [key]: null }));
+  };
+
+  // Realtime email check: format + existence in profiles table
+  const checkEmailExists = async (value: string) => {
+    const formatErr = validateEmail(value);
+    if (formatErr) {
+      setFieldErrors((prev) => ({ ...prev, email: formatErr }));
+      setEmailAvailable(null);
+      return;
+    }
+    setEmailChecking(true);
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", value.toLowerCase().trim())
+        .maybeSingle();
+      if (data) {
+        setFieldErrors((prev) => ({ ...prev, email: "Cet email est déjà utilisé" }));
+        setEmailAvailable(false);
+      } else {
+        setFieldErrors((prev) => ({ ...prev, email: null }));
+        setEmailAvailable(true);
+      }
+    } catch {
+      setEmailAvailable(null);
+    }
+    setEmailChecking(false);
+  };
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -85,36 +150,86 @@ export function LoginPage() {
   // Register flow: signUp → directly require OTP first_login
   const handleRegister = async () => {
     setError("");
-    if (!email || !password || !name) { setError("Tous les champs sont requis"); return; }
-    if (!acceptTerms) { setError("Vous devez accepter les conditions generales d'utilisation"); return; }
+
+    // Per-field validation
+    const errs: typeof fieldErrors = {};
+    if (!name.trim()) errs.name = "Nom complet requis";
+    if (!company.trim()) errs.company = "Nom de l'entreprise requis";
+    if (!jobTitle.trim()) errs.jobTitle = "Fonction requise";
+    if (!country) errs.country = "Pays requis";
+
+    const emailErr = validateEmail(email);
+    if (emailErr) errs.email = emailErr;
+    else if (emailAvailable === false) errs.email = "Cet email est déjà utilisé";
+
+    const phoneErr = validatePhone(phone);
+    if (phoneErr) errs.phone = phoneErr;
+
+    const pwdErr = passwordErrorMessage(password);
+    if (pwdErr) errs.password = pwdErr;
+
+    if (!passwordConfirm) errs.passwordConfirm = "Confirmation requise";
+    else if (password !== passwordConfirm)
+      errs.passwordConfirm = "Les mots de passe ne correspondent pas";
+
+    setFieldErrors(errs);
+
+    if (Object.values(errs).some((v) => v)) {
+      setError("Veuillez corriger les erreurs du formulaire");
+      return;
+    }
+    if (!acceptTerms) {
+      setError("Vous devez accepter les conditions générales d'utilisation");
+      return;
+    }
+
     setLoading(true);
     try {
-      const { error: err } = await signUp(email, password, { full_name: name, company_name: company });
+      const { error: err } = await signUp(email, password, {
+        full_name: name,
+        company_name: company,
+      });
       if (err) {
         setError(err);
         setLoading(false);
         return;
       }
 
-      // Save consents to profile (user was just created and is signed in)
+      // Save all profile fields + consents (user was just created and is signed in)
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         const now = new Date().toISOString();
-        await supabase.from("profiles").update({
-          terms_accepted_at: now,
-          terms_version: "v2.0",
-          marketing_opt_in: marketingOptIn,
-          marketing_opt_in_at: marketingOptIn ? now : null,
-        }).eq("id", session.user.id);
+        const fullPhone = selectedCountry
+          ? `${selectedCountry.dial} ${phone.trim()}`
+          : phone.trim();
+        await supabase
+          .from("profiles")
+          .update({
+            full_name: name,
+            company_name: company,
+            phone: fullPhone,
+            country,
+            job_title: jobTitle,
+            terms_accepted_at: now,
+            terms_version: "v2.0",
+            marketing_opt_in: marketingOptIn,
+            marketing_opt_in_at: marketingOptIn ? now : null,
+          })
+          .eq("id", session.user.id);
 
         // If opted in, also add to newsletter_subscribers
         if (marketingOptIn) {
-          await supabase.from("newsletter_subscribers").upsert({
-            email: email.toLowerCase().trim(),
-            full_name: name,
-            status: "active",
-            source: "signup",
-          }, { onConflict: "email" }).catch(() => { /* best-effort */ });
+          await supabase
+            .from("newsletter_subscribers")
+            .upsert(
+              {
+                email: email.toLowerCase().trim(),
+                full_name: name,
+                status: "active",
+                source: "signup",
+              },
+              { onConflict: "email" }
+            );
         }
       }
 
@@ -124,7 +239,7 @@ export function LoginPage() {
       setMode("otp_first_login");
       setInfo("Compte créé. Un code de vérification a été envoyé à votre email.");
     } catch (e: any) {
-      setError(e.message || "Erreur de creation");
+      setError(e.message || "Erreur de création");
     }
     setLoading(false);
   };
@@ -278,13 +393,137 @@ export function LoginPage() {
 
           {mode === "register" && (
             <>
-              <InputField label="Nom complet" value={name} onChange={setName} placeholder="Votre nom" />
-              <InputField label="Entreprise" value={company} onChange={setCompany} placeholder="Nom de votre entreprise" />
+              <InputField
+                label="Nom complet"
+                value={name}
+                onChange={(v) => { setName(v); clearFieldError("name"); }}
+                placeholder="Prénom Nom"
+                required
+                autoComplete="name"
+                error={fieldErrors.name}
+              />
+              <InputField
+                label="Entreprise"
+                value={company}
+                onChange={(v) => { setCompany(v); clearFieldError("company"); }}
+                placeholder="Nom de votre entreprise"
+                required
+                autoComplete="organization"
+                error={fieldErrors.company}
+              />
+              <InputField
+                label="Fonction"
+                value={jobTitle}
+                onChange={(v) => { setJobTitle(v); clearFieldError("jobTitle"); }}
+                placeholder="CEO, DAF, Comptable, Gérant..."
+                required
+                autoComplete="organization-title"
+                error={fieldErrors.jobTitle}
+              />
+
+              {/* Pays */}
+              <div className="mb-4">
+                <label className="block text-neutral-400 text-[13px] font-semibold mb-1.5">
+                  Pays<span className="text-red-400 ml-0.5">*</span>
+                </label>
+                <select
+                  value={country}
+                  onChange={(e) => { setCountry(e.target.value); clearFieldError("country"); }}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-neutral-light text-sm outline-none transition-colors focus:border-gold"
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code} className="bg-onyx">
+                      {c.flag} {c.name} ({c.dial})
+                    </option>
+                  ))}
+                </select>
+                {fieldErrors.country && (
+                  <p className="mt-1 text-red-400 text-[11px]">{fieldErrors.country}</p>
+                )}
+              </div>
+
+              {/* Téléphone avec préfixe pays */}
+              <div className="mb-4">
+                <label className="block text-neutral-400 text-[13px] font-semibold mb-1.5">
+                  Téléphone<span className="text-red-400 ml-0.5">*</span>
+                </label>
+                <div className={`flex items-stretch rounded-lg bg-white/5 border transition-colors overflow-hidden ${
+                  fieldErrors.phone ? "border-red-500/60" : "border-white/10 focus-within:border-gold"
+                }`}>
+                  <span className="px-3 py-3 bg-white/5 text-neutral-400 text-sm font-mono border-r border-white/10 shrink-0">
+                    {selectedCountry?.dial || "+"}
+                  </span>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(e) => { setPhone(e.target.value); clearFieldError("phone"); }}
+                    placeholder="01 23 45 67 89"
+                    autoComplete="tel-national"
+                    className="flex-1 px-4 py-3 bg-transparent text-neutral-light text-sm outline-none placeholder:text-neutral-600"
+                  />
+                </div>
+                {fieldErrors.phone && (
+                  <p className="mt-1 text-red-400 text-[11px]">{fieldErrors.phone}</p>
+                )}
+              </div>
             </>
           )}
-          <InputField label="Email" value={email} onChange={setEmail} placeholder="vous@entreprise.com" type="email" />
+
+          <InputField
+            label="Email"
+            value={email}
+            onChange={(v) => {
+              setEmail(v);
+              clearFieldError("email");
+              setEmailAvailable(null);
+            }}
+            onBlur={() => {
+              if (mode === "register" && email) checkEmailExists(email);
+            }}
+            placeholder="vous@entreprise.com"
+            type="email"
+            required={mode !== "forgot"}
+            autoComplete="email"
+            inputMode="email"
+            error={fieldErrors.email}
+            hint={
+              mode === "register" && email && !fieldErrors.email
+                ? emailChecking
+                  ? "Vérification..."
+                  : emailAvailable === true
+                  ? "✓ Email disponible"
+                  : undefined
+                : undefined
+            }
+          />
+
           {mode !== "forgot" && (
-            <InputField label="Mot de passe" value={password} onChange={setPassword} placeholder="••••••••" type="password" />
+            <>
+              <InputField
+                label="Mot de passe"
+                value={password}
+                onChange={(v) => { setPassword(v); clearFieldError("password"); }}
+                placeholder="••••••••••••"
+                type="password"
+                required={mode === "register"}
+                autoComplete={mode === "register" ? "new-password" : "current-password"}
+                error={fieldErrors.password}
+              />
+              {mode === "register" && <PasswordStrength password={password} />}
+              {mode === "register" && (
+                <InputField
+                  label="Confirmer le mot de passe"
+                  value={passwordConfirm}
+                  onChange={(v) => { setPasswordConfirm(v); clearFieldError("passwordConfirm"); }}
+                  placeholder="••••••••••••"
+                  type="password"
+                  required
+                  autoComplete="new-password"
+                  error={fieldErrors.passwordConfirm}
+                />
+              )}
+            </>
           )}
 
           {/* Consents — only for registration */}

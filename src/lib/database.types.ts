@@ -10,8 +10,12 @@ export interface Profile {
   email: string;
   company_name: string | null;
   phone: string | null;
-  role: 'client' | 'admin';
+  country: string | null;
+  job_title: string | null;
+  role: 'client' | 'admin' | 'super_admin';
   is_active: boolean;
+  first_login_completed?: boolean;
+  email_verified_at?: string | null;
   created_at: string;
   updated_at: string;
   stripe_customer_id?: string | null;
