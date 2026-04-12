@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { Logo } from "../../components/ui/Logo";
 import { useAuth } from "../../lib/auth";
+import { supabase } from "../../lib/supabase";
 
 interface LockScreenProps {
   onUnlock: () => void;
@@ -9,7 +10,7 @@ interface LockScreenProps {
 }
 
 export function LockScreen({ onUnlock, onSignOut }: LockScreenProps) {
-  const { user, profile, signIn } = useAuth();
+  const { user, profile } = useAuth();
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -27,16 +28,29 @@ export function LockScreen({ onUnlock, onSignOut }: LockScreenProps) {
     }
     setError("");
     setLoading(true);
-    const { error: err } = await signIn(user.email, password);
-    setLoading(false);
-    if (err) {
-      setError("Mot de passe incorrect");
-      setPassword("");
-      inputRef.current?.focus();
-    } else {
-      setPassword("");
-      onUnlock();
+
+    // Verify password WITHOUT triggering a full re-sign-in.
+    // The user already has an active session — we just need to confirm
+    // they know the password. We use signInWithPassword then immediately
+    // check the result without waiting for onAuthStateChange to propagate,
+    // which avoids the race condition that causes the "ram" effect.
+    try {
+      const { error: authErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password,
+      });
+      if (authErr) {
+        setError("Mot de passe incorrect");
+        setPassword("");
+        inputRef.current?.focus();
+      } else {
+        setPassword("");
+        onUnlock();
+      }
+    } catch {
+      setError("Erreur de vérification");
     }
+    setLoading(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

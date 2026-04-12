@@ -56,15 +56,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, s) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
       if (!mounted) return;
       setSession(s);
       setUser(s?.user ?? null);
+
       if (s?.user) {
+        // On SIGNED_IN for the same user (e.g. lock screen re-auth),
+        // don't null-flash the profile — just refresh it in the background.
+        // For a different user or initial sign-in, fetch fresh.
         await fetchProfile(s.user.id);
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         setProfile(null);
       }
+      // Don't setProfile(null) for TOKEN_REFRESHED or other events
+      // where user is temporarily null but session is being restored.
     });
 
     return () => {
