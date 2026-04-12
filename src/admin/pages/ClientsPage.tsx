@@ -110,7 +110,7 @@ export default function ClientsPage() {
   };
 
   const openCreateForm = () => { setEditClient(null); setFormData({ email: "", password: "", full_name: "", company_name: "", phone: "" }); setShowForm(true); };
-  const openEditForm = (client: Profile) => { setEditClient(client); setFormData({ email: client.email, password: "", full_name: client.full_name, company_name: client.company_name || "", phone: client.phone || "" }); setShowForm(true); };
+  const openEditForm = (client: Profile) => { setEditClient(client); setFormData({ email: client.email || "", password: "", full_name: client.full_name || "", company_name: client.company_name || "", phone: client.phone || "" }); setShowForm(true); };
 
   const handleSaveClient = async () => {
     setSaving(true);
