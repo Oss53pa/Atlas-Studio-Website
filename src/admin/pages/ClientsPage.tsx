@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, UserX, UserCheck, Plus, Pencil, Trash2, Download, KeyRound, FileText, FlaskConical } from "lucide-react";
+import { Search, UserX, UserCheck, Plus, Pencil, Trash2, Download, KeyRound, FileText, FlaskConical, Gift, Check } from "lucide-react";
 import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { apiCall } from "../../lib/api";
@@ -11,15 +11,26 @@ import { AdminCard } from "../components/AdminCard";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
 import { useAppFilter } from "../contexts/AppFilterContext";
+import { useAuth } from "../../lib/auth";
 import type { Profile, Subscription, Invoice } from "../../lib/database.types";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 
 type DetailTab = "profile" | "subscriptions" | "invoices";
 
+// Durées d'abonnement offert
+const GRANT_DURATIONS = [
+  { label: "1 mois", days: 30 },
+  { label: "3 mois", days: 90 },
+  { label: "6 mois", days: 180 },
+  { label: "1 an", days: 365 },
+  { label: "Illimité (10 ans)", days: 3650 },
+];
+
 export default function ClientsPage() {
   const { appMap, appList } = useAppCatalog();
   const { success, error: showError } = useToast();
   const { selectedApp } = useAppFilter();
+  const { user: adminUser, isSuperAdmin } = useAuth();
   const [clients, setClients] = useState<Profile[]>([]);
   const [allSubs, setAllSubs] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +49,13 @@ export default function ClientsPage() {
   const [testAccessClient, setTestAccessClient] = useState<Profile | null>(null);
   const [testAccessForm, setTestAccessForm] = useState({ appId: "", duration: "7" });
   const [grantingAccess, setGrantingAccess] = useState(false);
+
+  // ── Grant free subscription state ──
+  const [grantClient, setGrantClient] = useState<Profile | null>(null);
+  const [grantApps, setGrantApps] = useState<Record<string, { selected: boolean; plan: string }>>({});
+  const [grantDuration, setGrantDuration] = useState(365);
+  const [grantNote, setGrantNote] = useState("");
+  const [grantingSubs, setGrantingSubs] = useState(false);
 
   const fetchClients = async () => {
     const [profilesRes, subsRes] = await Promise.all([
@@ -167,6 +185,79 @@ export default function ClientsPage() {
     setGrantingAccess(false);
   };
 
+  // ── Grant free subscription ──
+  const openGrantModal = (client: Profile) => {
+    setGrantClient(client);
+    setGrantDuration(365);
+    setGrantNote("");
+    // Initialize checkbox state per app, default unchecked; detect already-subscribed apps
+    const activeSubs = allSubs.filter(s => s.user_id === client.id && (s.status === "active" || s.status === "trial"));
+    const activeAppIds = new Set(activeSubs.map(s => s.app_id));
+    const init: Record<string, { selected: boolean; plan: string }> = {};
+    for (const app of appList) {
+      const plans = Object.keys((app.pricing as Record<string, number>) || {});
+      const alreadyActive = activeAppIds.has(app.id);
+      init[app.id] = { selected: false, plan: plans[plans.length - 1] || "" };
+      if (alreadyActive) init[app.id].selected = false; // Can't select already-active apps
+    }
+    setGrantApps(init);
+  };
+
+  const handleGrantSubscriptions = async () => {
+    if (!grantClient || !adminUser) return;
+    const selectedApps = Object.entries(grantApps).filter(([, v]) => v.selected);
+    if (selectedApps.length === 0) { showError("Sélectionnez au moins une application"); return; }
+
+    setGrantingSubs(true);
+    try {
+      const now = new Date().toISOString();
+      const endDate = new Date(Date.now() + grantDuration * 86400000).toISOString();
+
+      for (const [appId, { plan }] of selectedApps) {
+        const { error: err } = await supabase.from("subscriptions").insert({
+          user_id: grantClient.id,
+          app_id: appId,
+          plan,
+          status: "active",
+          price_at_subscription: 0,
+          is_granted: true,
+          granted_by: adminUser.id,
+          current_period_start: now,
+          current_period_end: endDate,
+        });
+        if (err) throw new Error(`${appMap[appId]?.name || appId}: ${err.message}`);
+
+        // Activity log
+        await supabase.from("activity_log").insert({
+          user_id: grantClient.id,
+          action: "subscription_granted",
+          metadata: {
+            app_id: appId,
+            plan,
+            duration_days: grantDuration,
+            granted_by: adminUser.id,
+            note: grantNote || undefined,
+          },
+        });
+      }
+
+      success(`${selectedApps.length} abonnement(s) offert(s) à ${grantClient.full_name}`);
+      setGrantClient(null);
+      fetchClients();
+    } catch (err: any) {
+      showError(err.message || "Erreur lors de l'attribution");
+    }
+    setGrantingSubs(false);
+  };
+
+  const grantSelectedCount = Object.values(grantApps).filter(v => v.selected).length;
+
+  // Already-active app ids for the grant client
+  const grantClientActiveApps = useMemo(() => {
+    if (!grantClient) return new Set<string>();
+    return new Set(allSubs.filter(s => s.user_id === grantClient.id && (s.status === "active" || s.status === "trial")).map(s => s.app_id));
+  }, [grantClient, allSubs]);
+
   const handleExport = () => {
     exportToCSV(filtered, [
       { key: "full_name", label: "Nom" }, { key: "email", label: "Email" }, { key: "company_name", label: "Entreprise" },
@@ -282,6 +373,7 @@ export default function ClientsPage() {
               <button onClick={() => openEditForm(r)} className="p-1.5 rounded hover:bg-white dark:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-gold dark:text-admin-accent transition-colors" title="Modifier"><Pencil size={14} /></button>
               <button onClick={() => handleResetPassword(r)} className="p-1.5 rounded hover:bg-blue-50 text-neutral-muted dark:text-admin-muted hover:text-blue-600 transition-colors" title="Reset mot de passe"><KeyRound size={14} /></button>
               <button onClick={() => openTestAccess(r)} className="p-1.5 rounded hover:bg-emerald-50 text-neutral-muted dark:text-admin-muted hover:text-emerald-600 transition-colors" title="Accès test"><FlaskConical size={14} /></button>
+              {isSuperAdmin && <button onClick={() => openGrantModal(r)} className="p-1.5 rounded hover:bg-purple-500/10 text-neutral-muted dark:text-admin-muted hover:text-purple-400 transition-colors" title="Offrir un abonnement"><Gift size={14} /></button>}
               <button onClick={() => toggleActive(r)} className={`p-1.5 rounded transition-colors ${r.is_active ? "hover:bg-red-50 text-red-400" : "hover:bg-green-50 text-green-600"}`} title={r.is_active ? "Suspendre" : "Réactiver"}>
                 {r.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
               </button>
@@ -412,6 +504,140 @@ export default function ClientsPage() {
               <select value={testAccessForm.duration} onChange={e => setTestAccessForm(p => ({ ...p, duration: e.target.value }))} className={ADMIN_INPUT_CLASS}>
                 {[3, 7, 14, 30].map(d => <option key={d} value={d}>{d} jours</option>)}
               </select>
+            </Field>
+          </div>
+        )}
+      </AdminModal>
+
+      {/* Grant free subscription modal (super_admin only) */}
+      <AdminModal
+        open={!!grantClient}
+        onClose={() => setGrantClient(null)}
+        title="Offrir un abonnement gratuit"
+        subtitle={grantClient ? `${grantClient.full_name} — ${grantClient.email}` : undefined}
+        footer={
+          <button
+            onClick={handleGrantSubscriptions}
+            disabled={grantingSubs || grantSelectedCount === 0}
+            className={`bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-5 py-2.5 transition-colors text-[13px] flex items-center gap-2 ${grantingSubs || grantSelectedCount === 0 ? "opacity-50" : ""}`}
+          >
+            <Gift size={14} />
+            {grantingSubs ? "Attribution..." : `Accorder ${grantSelectedCount} abonnement${grantSelectedCount > 1 ? "s" : ""}`}
+          </button>
+        }
+      >
+        {grantClient && (
+          <div className="space-y-5">
+            {/* Client info */}
+            <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-300 text-[13px] font-bold shrink-0">
+                {(grantClient.full_name || "?").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-admin-text text-sm font-medium">{grantClient.full_name}</p>
+                <p className="text-admin-muted text-[11px]">{grantClient.email}{grantClient.company_name ? ` · ${grantClient.company_name}` : ""}</p>
+              </div>
+            </div>
+
+            {/* App selection */}
+            <div>
+              <label className="block text-admin-text/80 text-[13px] font-semibold mb-2">
+                Applications à offrir
+              </label>
+              <div className="space-y-2">
+                {appList.map(app => {
+                  const isAlreadyActive = grantClientActiveApps.has(app.id);
+                  const state = grantApps[app.id];
+                  if (!state) return null;
+                  const plans = Object.entries((app.pricing as Record<string, number>) || {});
+                  const selectedPlan = plans.find(([p]) => p === state.plan);
+                  const planPrice = selectedPlan ? selectedPlan[1] : 0;
+
+                  return (
+                    <div
+                      key={app.id}
+                      className={`border rounded-xl p-3 transition-all ${
+                        isAlreadyActive
+                          ? "border-admin-surface-alt opacity-50"
+                          : state.selected
+                          ? "border-purple-500/40 bg-purple-500/5"
+                          : "border-admin-surface-alt hover:border-admin-surface-alt/80"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-3 cursor-pointer flex-1">
+                          <input
+                            type="checkbox"
+                            checked={state.selected}
+                            disabled={isAlreadyActive}
+                            onChange={() =>
+                              setGrantApps(prev => ({
+                                ...prev,
+                                [app.id]: { ...prev[app.id], selected: !prev[app.id].selected },
+                              }))
+                            }
+                            className="w-4 h-4 accent-purple-500 cursor-pointer"
+                          />
+                          <div>
+                            <span className="text-admin-text text-sm font-medium">{app.name}</span>
+                            {isAlreadyActive && (
+                              <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <Check size={9} className="inline mr-0.5" />Déjà abonné
+                              </span>
+                            )}
+                          </div>
+                        </label>
+                        {state.selected && plans.length > 0 && (
+                          <select
+                            value={state.plan}
+                            onChange={e =>
+                              setGrantApps(prev => ({
+                                ...prev,
+                                [app.id]: { ...prev[app.id], plan: e.target.value },
+                              }))
+                            }
+                            className="px-2 py-1.5 bg-admin-surface-alt border border-admin-surface-alt rounded-lg text-admin-text text-[12px] outline-none focus:border-purple-500 transition-colors"
+                          >
+                            {plans.map(([p]) => (
+                              <option key={p} value={p}>{p}</option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                      {state.selected && (
+                        <div className="mt-2 ml-7 flex items-center gap-2">
+                          <span className="text-admin-muted text-[12px] line-through">{planPrice.toLocaleString("fr-FR")} FCFA/mois</span>
+                          <span className="text-emerald-400 text-[12px] font-semibold">Gratuit</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Duration */}
+            <Field label="Durée de l'abonnement offert">
+              <select
+                value={grantDuration}
+                onChange={e => setGrantDuration(Number(e.target.value))}
+                className={ADMIN_INPUT_CLASS}
+              >
+                {GRANT_DURATIONS.map(d => (
+                  <option key={d.days} value={d.days}>{d.label}</option>
+                ))}
+              </select>
+            </Field>
+
+            {/* Note */}
+            <Field label="Note interne (optionnel)">
+              <textarea
+                value={grantNote}
+                onChange={e => setGrantNote(e.target.value)}
+                placeholder="Raison de l'offre, contexte commercial..."
+                rows={3}
+                className={ADMIN_INPUT_CLASS + " resize-none"}
+              />
             </Field>
           </div>
         )}

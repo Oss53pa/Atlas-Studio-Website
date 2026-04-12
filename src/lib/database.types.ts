@@ -61,6 +61,8 @@ export interface Subscription {
   current_period_end: string;
   cancelled_at: string | null;
   stripe_subscription_id: string | null;
+  is_granted: boolean;
+  granted_by: string | null;
   created_at: string;
   updated_at: string;
 }

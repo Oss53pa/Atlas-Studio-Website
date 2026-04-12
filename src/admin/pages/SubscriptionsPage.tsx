@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Download, Pencil, Search } from "lucide-react";
+import { Plus, Download, Pencil, Search, Gift } from "lucide-react";
 import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
@@ -203,9 +203,20 @@ export default function SubscriptionsPage() {
           )},
           { key: "plan", label: "Plan", sortable: true, render: (r: SubWithProfile) => <span className="capitalize">{r.plan || "—"}</span> },
           { key: "price_at_subscription", label: "Prix", sortable: true, render: (r: SubWithProfile) => (
-            <span className="font-mono">{Number(r.price_at_subscription || 0).toLocaleString("fr-FR")} FCFA</span>
+            (r as any).is_granted
+              ? <span className="text-purple-400 text-[12px] font-semibold">Gratuit</span>
+              : <span className="font-mono">{Number(r.price_at_subscription || 0).toLocaleString("fr-FR")} FCFA</span>
           )},
-          { key: "status", label: "Statut", render: (r: SubWithProfile) => <AdminBadge status={r.status} /> },
+          { key: "status", label: "Statut", render: (r: SubWithProfile) => (
+          <div className="flex items-center gap-1.5">
+            <AdminBadge status={r.status} />
+            {(r as any).is_granted && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] font-semibold" title="Abonnement offert par un super_admin">
+                <Gift size={10} /> Offert
+              </span>
+            )}
+          </div>
+        )},
           { key: "current_period_end", label: "Fin période", sortable: true, render: (r: SubWithProfile) => (
             <span className="text-[12px] text-neutral-muted dark:text-admin-muted">{r.current_period_end ? new Date(r.current_period_end).toLocaleDateString("fr-FR") : "—"}</span>
           )},
