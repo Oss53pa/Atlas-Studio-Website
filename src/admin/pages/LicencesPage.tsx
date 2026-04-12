@@ -83,7 +83,7 @@ export default function LicencesPage() {
   /* ── Actions ── */
   const handleSuspend = (l: Licence) => setConfirm({
     open: true, title: "Suspendre la licence", variant: "warning",
-    message: `Suspendre la licence de ${l.tenants?.name || l.tenant_id} ? L'acc\u00e8s sera coup\u00e9 imm\u00e9diatement.`,
+    message: `Suspendre la licence de ${l.tenants?.name || l.tenant_id} ? L'accès sera coupé immédiatement.`,
     onConfirm: async () => {
       setActionLoading(true);
       try {
@@ -97,13 +97,13 @@ export default function LicencesPage() {
   });
 
   const handleRevoke = (l: Licence) => setConfirm({
-    open: true, title: "R\u00e9voquer la licence", variant: "danger",
-    message: `R\u00e9voquer d\u00e9finitivement la licence de ${l.tenants?.name || l.tenant_id} ? Cette action est irr\u00e9versible.`,
+    open: true, title: "Révoquer la licence", variant: "danger",
+    message: `Révoquer définitivement la licence de ${l.tenants?.name || l.tenant_id} ? Cette action est irréversible.`,
     onConfirm: async () => {
       setActionLoading(true);
       try {
         await apiCall("licence-action", { method: "POST", body: { licence_id: l.id, action: "revoke" } });
-        success("Licence r\u00e9voqu\u00e9e");
+        success("Licence révoquée");
         fetchLicences();
       } catch (e: any) { showError(e.message); }
       setActionLoading(false);
@@ -116,7 +116,7 @@ export default function LicencesPage() {
     setGenLoading(true);
     try {
       await apiCall("licence-generate", { method: "POST", body: genForm });
-      success("Licence g\u00e9n\u00e9r\u00e9e avec succ\u00e8s");
+      success("Licence générée avec succès");
       setShowGenerate(false);
       setGenForm({ tenant_id: "", product_id: "", plan_id: "" });
       fetchLicences();
@@ -125,7 +125,7 @@ export default function LicencesPage() {
   };
 
   const openDetail = (l: Licence) => { setSelected(l); setDetailTab("summary"); };
-  const copyKey = (key: string) => { navigator.clipboard.writeText(key); success("Cl\u00e9 copi\u00e9e"); };
+  const copyKey = (key: string) => { navigator.clipboard.writeText(key); success("Clé copiée"); };
 
   /* Status badge */
   const Badge = ({ status }: { status: string }) => {
@@ -152,7 +152,7 @@ export default function LicencesPage() {
         ["Produit", l.products?.name || l.product_id],
         ["Plan", l.plans?.name || l.plan_id],
         ["Statut", null],
-        ["Si\u00e8ges", `${l.used_seats} / ${l.max_seats}`],
+        ["Sièges", `${l.used_seats} / ${l.max_seats}`],
         ["Date d'activation", fmtDate(l.activated_at)],
         ["Date d'expiration", fmtDate(l.expires_at)],
         ["Date de création", fmtDate(l.created_at)],
@@ -164,7 +164,7 @@ export default function LicencesPage() {
         </div>
       ))}
       <div className="col-span-2">
-        <div className="text-[#888] text-xs mb-1">Cl\u00e9 d'activation</div>
+        <div className="text-[#888] text-xs mb-1">Clé d'activation</div>
         <div className="flex items-center gap-2">
           <code className="font-mono text-[#EF9F27] text-sm bg-[#2A2A3A] px-2 py-1 rounded">{l.activation_key}</code>
           <button onClick={() => copyKey(l.activation_key)} className="p-1 rounded hover:bg-[#2A2A3A]"><Copy size={14} className="text-[#888]" /></button>
@@ -175,9 +175,9 @@ export default function LicencesPage() {
 
   const renderSeats = () => (
     <div className="space-y-2">
-      {seats.length === 0 ? <p className="text-[#888] text-sm">Aucun si\u00e8ge attribu\u00e9.</p> : (
+      {seats.length === 0 ? <p className="text-[#888] text-sm">Aucun siège attribué.</p> : (
         <table className="w-full text-sm"><thead><tr className="text-left text-[#888] text-xs border-b border-[#2A2A3A]">
-          <th className="pb-2">Email</th><th className="pb-2">Nom</th><th className="pb-2">R\u00f4le</th><th className="pb-2">Statut</th><th className="pb-2">Dernier login</th>
+          <th className="pb-2">Email</th><th className="pb-2">Nom</th><th className="pb-2">Rôle</th><th className="pb-2">Statut</th><th className="pb-2">Dernier login</th>
         </tr></thead><tbody>
           {seats.map(s => (
             <tr key={s.id} className="border-b border-[#2A2A3A]/50 hover:bg-[#2A2A3A]/30">
@@ -197,7 +197,7 @@ export default function LicencesPage() {
     <div className="space-y-2">
       {activations.length === 0 ? <p className="text-[#888] text-sm">Aucune tentative d'activation.</p> : (
         <table className="w-full text-sm"><thead><tr className="text-left text-[#888] text-xs border-b border-[#2A2A3A]">
-          <th className="pb-2">Date</th><th className="pb-2">IP</th><th className="pb-2">Succ\u00e8s</th><th className="pb-2">Raison</th>
+          <th className="pb-2">Date</th><th className="pb-2">IP</th><th className="pb-2">Succès</th><th className="pb-2">Raison</th>
         </tr></thead><tbody>
           {activations.map(a => (
             <tr key={a.id} className="border-b border-[#2A2A3A]/50">
@@ -214,7 +214,7 @@ export default function LicencesPage() {
 
   const renderAdminLinks = () => (
     <div className="space-y-2">
-      {adminLinks.length === 0 ? <p className="text-[#888] text-sm">Aucun lien admin d\u00e9l\u00e9gu\u00e9.</p> : adminLinks.map(link => (
+      {adminLinks.length === 0 ? <p className="text-[#888] text-sm">Aucun lien admin délégué.</p> : adminLinks.map(link => (
         <div key={link.id} className="p-3 rounded-lg border border-[#2A2A3A] bg-[#2A2A3A]/30 space-y-2">
           <div className="flex items-center justify-between">
             <Badge status={link.status} />
@@ -222,13 +222,13 @@ export default function LicencesPage() {
           </div>
           <div className="flex items-center gap-2">
             <code className="font-mono text-xs text-[#EF9F27] bg-[#1E1E2E] px-2 py-1 rounded flex-1 truncate">{link.token}</code>
-            <button onClick={() => { navigator.clipboard.writeText(link.token); success("Token copi\u00e9"); }} className="p-1 rounded hover:bg-[#2A2A3A]"><Copy size={14} className="text-[#888]" /></button>
+            <button onClick={() => { navigator.clipboard.writeText(link.token); success("Token copié"); }} className="p-1 rounded hover:bg-[#2A2A3A]"><Copy size={14} className="text-[#888]" /></button>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
             {link.can_invite_users && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Inviter</span>}
-            {link.can_manage_roles && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">R\u00f4les</span>}
+            {link.can_manage_roles && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Rôles</span>}
             {link.can_view_billing && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Facturation</span>}
-            {link.can_revoke_users && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">R\u00e9voquer</span>}
+            {link.can_revoke_users && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Révoquer</span>}
           </div>
         </div>
       ))}
@@ -237,7 +237,7 @@ export default function LicencesPage() {
 
   const renderAudit = () => (
     <div className="space-y-1 max-h-[360px] overflow-y-auto">
-      {auditLog.length === 0 ? <p className="text-[#888] text-sm">Aucune entr\u00e9e.</p> : auditLog.map(e => (
+      {auditLog.length === 0 ? <p className="text-[#888] text-sm">Aucune entrée.</p> : auditLog.map(e => (
         <div key={e.id} className="flex items-start gap-3 py-2 border-b border-[#2A2A3A]/50 text-sm">
           <Activity size={14} className="text-[#EF9F27] mt-0.5 shrink-0" />
           <div className="flex-1 min-w-0">
@@ -252,8 +252,8 @@ export default function LicencesPage() {
   );
 
   const TABS: { key: DetailTab; label: string; icon: typeof Key }[] = [
-    { key: "summary", label: "R\u00e9sum\u00e9", icon: FileText },
-    { key: "seats", label: "Si\u00e8ges", icon: Users },
+    { key: "summary", label: "Résumé", icon: FileText },
+    { key: "seats", label: "Sièges", icon: Users },
     { key: "activations", label: "Activations", icon: Key },
     { key: "admin_link", label: "Lien admin", icon: Link2 },
     { key: "audit", label: "Audit", icon: Activity },
@@ -275,12 +275,12 @@ export default function LicencesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#F5F5F5]">Licences</h1>
-          <p className="text-sm text-[#888]">Gestion des licences, si\u00e8ges et activations</p>
+          <p className="text-sm text-[#888]">Gestion des licences, sièges et activations</p>
         </div>
         <button onClick={() => setShowGenerate(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#0A0A0A] transition-colors"
           style={{ background: "#EF9F27" }}>
-          <Plus size={16} /> G\u00e9n\u00e9rer manuellement
+          <Plus size={16} /> Générer manuellement
         </button>
       </div>
 
@@ -289,8 +289,8 @@ export default function LicencesPage() {
         <AdminCard label="Total" value={kpis.total_licences} icon={Key} loading={loading} />
         <AdminCard label="Actives" value={kpis.active_licences} icon={Shield} loading={loading} />
         <AdminCard label="En attente" value={kpis.pending_activation} icon={Clock} loading={loading} />
-        <AdminCard label="Expirent bient\u00f4t" value={kpis.expiring_soon} icon={ShieldAlert} loading={loading} />
-        <AdminCard label="Si\u00e8ges" value={`${kpis.total_seats_used} / ${kpis.total_seats_max}`} sub={`${pct(kpis.total_seats_used, kpis.total_seats_max)}% utilis\u00e9s`} icon={Users} loading={loading} />
+        <AdminCard label="Expirent bientôt" value={kpis.expiring_soon} icon={ShieldAlert} loading={loading} />
+        <AdminCard label="Sièges" value={`${kpis.total_seats_used} / ${kpis.total_seats_max}`} sub={`${pct(kpis.total_seats_used, kpis.total_seats_max)}% utilisés`} icon={Users} loading={loading} />
       </div>
 
       {/* Filter bar */}
@@ -307,8 +307,8 @@ export default function LicencesPage() {
             <option value="active">Active</option>
             <option value="pending">En attente</option>
             <option value="suspended">Suspendue</option>
-            <option value="revoked">R\u00e9voqu\u00e9e</option>
-            <option value="expired">Expir\u00e9e</option>
+            <option value="revoked">Révoquée</option>
+            <option value="expired">Expirée</option>
           </select>
           <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#888] pointer-events-none" />
         </div>
@@ -320,10 +320,10 @@ export default function LicencesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-[#888] border-b border-[#2A2A3A]">
-                <th className="px-4 py-3">Cl\u00e9</th>
+                <th className="px-4 py-3">Clé</th>
                 <th className="px-4 py-3">Client</th>
                 <th className="px-4 py-3">Produit / Plan</th>
-                <th className="px-4 py-3">Si\u00e8ges</th>
+                <th className="px-4 py-3">Sièges</th>
                 <th className="px-4 py-3">Statut</th>
                 <th className="px-4 py-3">Activation</th>
                 <th className="px-4 py-3">Expiration</th>
@@ -340,7 +340,7 @@ export default function LicencesPage() {
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-12 text-center text-[#888]">Aucune licence trouv\u00e9e.</td></tr>
+                <tr><td colSpan={8} className="px-4 py-12 text-center text-[#888]">Aucune licence trouvée.</td></tr>
               ) : filtered.map(l => (
                 <tr key={l.id} className="border-b border-[#2A2A3A]/50 hover:bg-[#2A2A3A]/20 transition-colors">
                   <td className="px-4 py-3">
@@ -357,12 +357,12 @@ export default function LicencesPage() {
                   <td className="px-4 py-3 text-[#888] text-xs">{fmtDate(l.expires_at)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => openDetail(l)} title="D\u00e9tails" className="p-1.5 rounded-lg hover:bg-[#2A2A3A] text-[#888] hover:text-[#F5F5F5] transition-colors"><Eye size={15} /></button>
+                      <button onClick={() => openDetail(l)} title="Détails" className="p-1.5 rounded-lg hover:bg-[#2A2A3A] text-[#888] hover:text-[#F5F5F5] transition-colors"><Eye size={15} /></button>
                       {l.status === "active" && (
                         <button onClick={() => handleSuspend(l)} title="Suspendre" className="p-1.5 rounded-lg hover:bg-orange-500/10 text-[#888] hover:text-orange-400 transition-colors"><ShieldOff size={15} /></button>
                       )}
                       {(l.status === "active" || l.status === "suspended") && (
-                        <button onClick={() => handleRevoke(l)} title="R\u00e9voquer" className="p-1.5 rounded-lg hover:bg-red-500/10 text-[#888] hover:text-red-400 transition-colors"><Ban size={15} /></button>
+                        <button onClick={() => handleRevoke(l)} title="Révoquer" className="p-1.5 rounded-lg hover:bg-red-500/10 text-[#888] hover:text-red-400 transition-colors"><Ban size={15} /></button>
                       )}
                     </div>
                   </td>
@@ -375,7 +375,7 @@ export default function LicencesPage() {
       </div>
 
       {/* ── Detail Modal ── */}
-      <AdminModal open={!!selected} onClose={() => setSelected(null)} title={selected ? `Licence \u2014 ${selected.tenants?.name || ""}` : ""} size="lg">
+      <AdminModal open={!!selected} onClose={() => setSelected(null)} title={selected ? `Licence \— ${selected.tenants?.name || ""}` : ""} size="lg">
         {selected && (
           <div className="space-y-4">
             {/* Tabs */}
@@ -400,13 +400,13 @@ export default function LicencesPage() {
       </AdminModal>
 
       {/* ── Generate Modal ── */}
-      <AdminModal open={showGenerate} onClose={() => setShowGenerate(false)} title="G\u00e9n\u00e9rer une licence"
+      <AdminModal open={showGenerate} onClose={() => setShowGenerate(false)} title="Générer une licence"
         footer={
           <div className="flex justify-end gap-2">
             <button onClick={() => setShowGenerate(false)} className="px-4 py-2 rounded-lg text-sm text-[#888] hover:text-[#F5F5F5] border border-[#2A2A3A] hover:bg-[#2A2A3A] transition-colors">Annuler</button>
             <button onClick={handleGenerate} disabled={genLoading}
               className="px-4 py-2 rounded-lg text-sm font-medium text-[#0A0A0A] disabled:opacity-50 transition-colors" style={{ background: "#EF9F27" }}>
-              {genLoading ? "G\u00e9n\u00e9ration..." : "G\u00e9n\u00e9rer"}
+              {genLoading ? "Génération..." : "Générer"}
             </button>
           </div>
         }>
