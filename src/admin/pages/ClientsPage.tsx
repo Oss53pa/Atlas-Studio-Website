@@ -192,7 +192,7 @@ export default function ClientsPage() {
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="mb-3">
-      <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
+      <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
       {children}
     </div>
   );
@@ -399,8 +399,8 @@ export default function ClientsPage() {
         footer={<button onClick={handleGrantTestAccess} disabled={grantingAccess || !testAccessForm.appId} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 flex items-center gap-2 ${grantingAccess || !testAccessForm.appId ? "opacity-50" : ""}`}><FlaskConical size={14} />{grantingAccess ? "En cours..." : "Accorder"}</button>}>
         {testAccessClient && (
           <div className="space-y-4">
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <p className="text-emerald-800 text-sm">Accès test pour <strong>{testAccessClient.full_name}</strong></p>
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+              <p className="text-emerald-400 text-sm">Accès test pour <strong>{testAccessClient.full_name}</strong></p>
             </div>
             <Field label="Application">
               <select value={testAccessForm.appId} onChange={e => setTestAccessForm(p => ({ ...p, appId: e.target.value }))} className={ADMIN_INPUT_CLASS}>

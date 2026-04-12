@@ -34,9 +34,12 @@ function AdminShell() {
     navigate("/admin/login");
   };
 
+  // Admin console is ALWAYS dark — all admin-* colors assume dark bg.
+  // Without the "dark" class, the 38+ files that use dark: prefixes
+  // (labels, inputs, modals) become unreadable (dark text on dark bg).
   return (
-    <div className={isDark ? "dark" : ""}>
-      <div className={`flex min-h-screen ${isDark ? "bg-admin-bg" : "bg-warm-bg"}`}>
+    <div className="dark">
+      <div className="flex min-h-screen bg-admin-bg">
         <AdminSidebar />
         <main className="flex-1 p-8 md:p-10 overflow-y-auto">
           <Outlet />
