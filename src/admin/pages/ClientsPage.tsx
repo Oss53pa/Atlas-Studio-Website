@@ -71,7 +71,7 @@ export default function ClientsPage() {
 
   const fetchClients = async () => {
     const [profilesRes, subsRes] = await Promise.all([
-      supabase.from("profiles").select("*").neq("role", "admin").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("*").not("role", "in", "(admin,super_admin)").order("created_at", { ascending: false }),
       supabase.from("subscriptions").select("user_id, app_id, status"),
     ]);
     if (profilesRes.data) setClients(profilesRes.data as Profile[]);

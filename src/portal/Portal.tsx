@@ -67,11 +67,13 @@ export default function Portal() {
   //   2. Existing profile row (blocks orphan auth.users inserts)
   //   3. Profile is active (blocks disabled/suspended accounts)
   //   4. First-login OTP completed (blocks accounts that never verified email)
-  //   5. Must be a client role — admins/super_admins belong in /admin
-  const isClient = profile?.role === 'client';
+  //   5. Role must be client, admin or super_admin — all three can consume apps.
+  //      Admins voient leurs propres subs/licences comme un client normal.
+  const role = profile?.role;
+  const hasPortalAccess = role === 'client' || role === 'admin' || role === 'super_admin';
   const isVerified = profile?.first_login_completed === true;
   const isActive = profile?.is_active !== false;
-  const isAuthed = Boolean(user && profile && isClient && isActive && isVerified);
+  const isAuthed = Boolean(user && profile && hasPortalAccess && isActive && isVerified);
 
   return (
     <Routes>
