@@ -83,7 +83,7 @@ export default function ClientsPage() {
       if (appClientIds && !appClientIds.has(c.id)) return false;
       if (search) {
         const q = search.toLowerCase();
-        if (!c.full_name.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q) && !(c.company_name || "").toLowerCase().includes(q)) return false;
+        if (!(c.full_name || "").toLowerCase().includes(q) && !(c.email || "").toLowerCase().includes(q) && !(c.company_name || "").toLowerCase().includes(q)) return false;
       }
       return true;
     });
@@ -132,13 +132,19 @@ export default function ClientsPage() {
   const openEditForm = (client: Profile) => { setEditClient(client); setFormData({ email: client.email || "", password: "", full_name: client.full_name || "", company_name: client.company_name || "", phone: client.phone || "" }); setShowForm(true); };
 
   const handleSaveClient = async () => {
+    const fullName = formData.full_name.trim();
+    if (!fullName) { showError("Le nom complet est obligatoire."); return; }
+    if (!editClient) {
+      if (!formData.email.trim()) { showError("L'email est obligatoire."); return; }
+      if (!formData.password.trim()) { showError("Le mot de passe est obligatoire."); return; }
+    }
     setSaving(true);
     try {
       if (editClient) {
-        await supabase.from("profiles").update({ full_name: formData.full_name, company_name: formData.company_name, phone: formData.phone, updated_at: new Date().toISOString() }).eq("id", editClient.id);
+        await supabase.from("profiles").update({ full_name: fullName, company_name: formData.company_name, phone: formData.phone, updated_at: new Date().toISOString() }).eq("id", editClient.id);
         success("Client modifié");
       } else {
-        await apiCall("admin-clients", { method: "POST", body: formData });
+        await apiCall("admin-clients", { method: "POST", body: { ...formData, full_name: fullName } });
         success("Client créé");
       }
       setShowForm(false);
@@ -481,11 +487,11 @@ export default function ClientsPage() {
       <AdminModal open={showForm} onClose={() => setShowForm(false)} title={editClient ? "Modifier le client" : "Nouveau client"}
         footer={<button onClick={handleSaveClient} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer"}</button>}>
         <div className="space-y-1">
-          <Field label="Nom complet"><input value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+          <Field label="Nom complet *"><input required value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
           {!editClient && (
             <>
-              <Field label="Email"><input value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
-              <Field label="Mot de passe"><input type="password" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+              <Field label="Email *"><input required type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+              <Field label="Mot de passe *"><input required type="password" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
             </>
           )}
           <Field label="Entreprise"><input value={formData.company_name} onChange={e => setFormData(p => ({ ...p, company_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
@@ -521,12 +527,12 @@ export default function ClientsPage() {
         open={!!grantClient}
         onClose={() => setGrantClient(null)}
         title="Offrir un abonnement gratuit"
-        subtitle={grantClient ? `${grantClient.full_name} — ${grantClient.email}` : undefined}
+        subtitle={grantClient ? `${grantClient.full_name || "— Profil incomplet —"} · ${grantClient.email}` : undefined}
         footer={
           <button
             onClick={handleGrantSubscriptions}
-            disabled={grantingSubs || grantSelectedCount === 0}
-            className={`bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-5 py-2.5 transition-colors text-[13px] flex items-center gap-2 ${grantingSubs || grantSelectedCount === 0 ? "opacity-50" : ""}`}
+            disabled={grantingSubs || grantSelectedCount === 0 || !grantClient?.full_name}
+            className={`bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-5 py-2.5 transition-colors text-[13px] flex items-center gap-2 ${grantingSubs || grantSelectedCount === 0 || !grantClient?.full_name ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <Gift size={14} />
             {grantingSubs ? "Attribution..." : `Accorder ${grantSelectedCount} abonnement${grantSelectedCount > 1 ? "s" : ""}`}
@@ -541,10 +547,15 @@ export default function ClientsPage() {
                 {(grantClient.full_name || "?").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <p className="text-admin-text text-sm font-medium">{grantClient.full_name}</p>
+                <p className="text-admin-text text-sm font-medium">{grantClient.full_name || <span className="text-amber-400">Profil incomplet — à compléter</span>}</p>
                 <p className="text-admin-muted text-[11px]">{grantClient.email}{grantClient.company_name ? ` · ${grantClient.company_name}` : ""}</p>
               </div>
             </div>
+            {!grantClient.full_name && (
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-300 text-[12px]">
+                Ce client n'a pas de nom renseigné. Ferme ce modal, clique sur "Modifier" (crayon) pour compléter sa fiche avant d'offrir un abonnement.
+              </div>
+            )}
 
             {/* App selection */}
             <div>
