@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     const [{ data: product }, { data: plan }, { data: tenant }] = await Promise.all([
       supabaseAdmin.from("products").select("name, slug").eq("id", product_id).single(),
       supabaseAdmin.from("plans").select("name, max_seats, price_monthly_fcfa").eq("id", plan_id).single(),
-      supabaseAdmin.from("tenants").select("name, email").eq("id", tenant_id).single(),
+      supabaseAdmin.from("tenants").select("name, billing_email").eq("id", tenant_id).single(),
     ]);
 
     if (!product || !plan || !tenant) return new Response(JSON.stringify({ error: "Missing data" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
 
     // Create super admin seat
     await supabaseAdmin.from("licence_seats").insert({
-      licence_id: licence.id, tenant_id, email: tenant.email,
+      licence_id: licence.id, tenant_id, email: tenant.billing_email,
       role: "app_super_admin", status: "active",
       invitation_accepted_at: new Date().toISOString(),
     });
@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
         headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           from: "Pamela — Atlas Studio <notifications@atlasstudio.org>",
-          to: [tenant.email],
+          to: [tenant.billing_email],
           subject: `Votre licence ${product.name} est prête — activez maintenant`,
           html: `<div style="font-family:sans-serif;max-width:580px;margin:0 auto;background:#fff;padding:32px;">
             <h2 style="color:#EF9F27;">Votre licence est prête</h2>

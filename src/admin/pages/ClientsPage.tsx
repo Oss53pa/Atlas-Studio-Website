@@ -13,6 +13,7 @@ import { useToast } from "../contexts/ToastContext";
 import { useAppFilter } from "../contexts/AppFilterContext";
 import { useAuth } from "../../lib/auth";
 import { formatSupabaseError } from "../../lib/errorMessages";
+import { loadProductsMap, resolvePlanId, ensureTenantForProfile, createGrantedLicence, type ProductsMap } from "../../lib/licenceGeneration";
 import type { Profile, Subscription, Invoice } from "../../lib/database.types";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 
@@ -66,6 +67,7 @@ export default function ClientsPage() {
   const [grantDuration, setGrantDuration] = useState(365);
   const [grantNote, setGrantNote] = useState("");
   const [grantingSubs, setGrantingSubs] = useState(false);
+  const [productsMap, setProductsMap] = useState<ProductsMap | null>(null);
 
   const fetchClients = async () => {
     const [profilesRes, subsRes] = await Promise.all([
@@ -202,7 +204,7 @@ export default function ClientsPage() {
   };
 
   // ── Grant free subscription ──
-  const openGrantModal = (client: Profile) => {
+  const openGrantModal = async (client: Profile) => {
     setGrantClient(client);
     setGrantDuration(365);
     setGrantNote("");
@@ -217,6 +219,10 @@ export default function ClientsPage() {
       if (alreadyActive) init[app.id].selected = false; // Can't select already-active apps
     }
     setGrantApps(init);
+    // Load products/plans for licence generation (cached for session)
+    if (!productsMap) {
+      loadProductsMap().then(setProductsMap).catch(e => console.warn("loadProductsMap failed", e));
+    }
   };
 
   const handleGrantSubscriptions = async () => {
@@ -225,13 +231,26 @@ export default function ClientsPage() {
     if (selectedApps.length === 0) { showError("Sélectionnez au moins une application"); return; }
 
     setGrantingSubs(true);
+    const licenceFailures: string[] = [];
+    let licencesCreated = 0;
     try {
       const now = new Date().toISOString();
       const endDate = new Date(Date.now() + grantDuration * 86400000).toISOString();
 
+      // Ensure productsMap is loaded (in case user clicked Attribuer before load finished)
+      const pmap = productsMap || await loadProductsMap();
+      if (!productsMap) setProductsMap(pmap);
+
+      // Ensure tenant exists (shared across all granted apps for this user)
+      let tenantId: string | null = null;
+      try {
+        tenantId = await ensureTenantForProfile(grantClient, adminUser.id);
+      } catch (e) {
+        console.warn("[grant] tenant creation failed — licences will be skipped", e);
+      }
+
       for (const [appId, { plan }] of selectedApps) {
-        console.log("[grant] inserting subscription", { appId, plan, user_id: grantClient.id });
-        const { data, error: err } = await supabase.from("subscriptions").insert({
+        const { data: subData, error: err } = await supabase.from("subscriptions").insert({
           user_id: grantClient.id,
           app_id: appId,
           plan,
@@ -241,27 +260,52 @@ export default function ClientsPage() {
           granted_by: adminUser.id,
           current_period_start: now,
           current_period_end: endDate,
-        }).select();
-        console.log("[grant] insert result", { data, err });
+        }).select("id").single();
         if (err) throw new Error(`${appMap[appId]?.name || appId}: ${err.message}`);
 
-        // Activity log — non-blocking, we don't care if it fails
+        // Activity log — non-blocking
         supabase.from("activity_log").insert({
           user_id: grantClient.id,
           action: "subscription_granted",
-          metadata: {
-            app_id: appId,
-            plan,
-            duration_days: grantDuration,
-            granted_by: adminUser.id,
-            note: grantNote || undefined,
-          },
+          metadata: { app_id: appId, plan, duration_days: grantDuration, granted_by: adminUser.id, note: grantNote || undefined },
         }).then(({ error: logErr }) => {
           if (logErr) console.warn("[grant] activity_log insert failed (non-blocking)", logErr);
         });
+
+        // Licence generation — best-effort, continues the grant flow even if this fails
+        if (tenantId && subData?.id) {
+          const resolved = resolvePlanId(pmap, appId, plan);
+          if (!resolved) {
+            licenceFailures.push(`${appMap[appId]?.name || appId} (plan "${plan}" introuvable dans le catalogue)`);
+          } else {
+            try {
+              await createGrantedLicence({
+                tenantId,
+                productId: resolved.productId,
+                planId: resolved.planId,
+                maxSeats: resolved.maxSeats,
+                subscriptionId: subData.id,
+                userEmail: grantClient.email,
+                userName: grantClient.full_name,
+                durationDays: grantDuration,
+                productSlug: appId,
+                planName: plan,
+              });
+              licencesCreated++;
+            } catch (licErr) {
+              console.warn("[grant] licence creation failed", { appId, plan, licErr });
+              licenceFailures.push(`${appMap[appId]?.name || appId}: ${(licErr as Error).message}`);
+            }
+          }
+        }
       }
 
-      success(`${selectedApps.length} abonnement(s) offert(s) à ${grantClient.full_name || grantClient.email}`);
+      const parts = [`${selectedApps.length} abonnement(s) offert(s) à ${grantClient.full_name || grantClient.email}`];
+      if (licencesCreated > 0) parts.push(`${licencesCreated} licence(s) générée(s)`);
+      success(parts.join(" — "));
+      if (licenceFailures.length > 0) {
+        showError(`Licences non générées : ${licenceFailures.join(", ")}`);
+      }
       setGrantClient(null);
       fetchClients();
     } catch (err: unknown) {

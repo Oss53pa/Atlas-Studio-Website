@@ -116,7 +116,7 @@ export default function LicencesPage() {
     if (!genForm.tenant_id || !genForm.product_id || !genForm.plan_id) { showError("Tous les champs sont requis"); return; }
     setGenLoading(true);
     try {
-      await apiCall("licence-generate", { method: "POST", body: genForm });
+      await apiCall("generate-licence", { method: "POST", body: genForm });
       success("Licence générée avec succès");
       setShowGenerate(false);
       setGenForm({ tenant_id: "", product_id: "", plan_id: "" });
