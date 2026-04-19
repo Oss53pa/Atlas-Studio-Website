@@ -18,6 +18,15 @@ import { useAppCatalog } from "../../hooks/useAppCatalog";
 
 type DetailTab = "profile" | "subscriptions" | "invoices";
 
+// NOTE: defined at module scope (not inside ClientsPage) so inputs don't
+// remount on every parent re-render and lose focus between keystrokes.
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="mb-3">
+    <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
+    {children}
+  </div>
+);
+
 // Durées d'abonnement offert
 const GRANT_DURATIONS = [
   { label: "1 mois", days: 30 },
@@ -294,12 +303,6 @@ export default function ClientsPage() {
     { label: "Factures", value: "invoices", count: clientInvoices.length },
   ];
 
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="mb-3">
-      <label className="block text-admin-text/80 text-[13px] font-semibold mb-1.5">{label}</label>
-      {children}
-    </div>
-  );
   // inputClass imported from AdminFormField
 
   return (
