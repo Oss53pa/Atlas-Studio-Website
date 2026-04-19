@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
       "atlas-crm": "atlas-crm",
     };
     const subdomain = appSubdomains[appId] || appId;
-    const redirectUrl = `https://${subdomain}.atlasstudio.app/auth?token=${token}`;
+    const redirectUrl = `https://${subdomain}.atlas-studio.org/auth?token=${token}`;
 
     return jsonResponse({ token, redirectUrl });
   } catch (error: any) {
