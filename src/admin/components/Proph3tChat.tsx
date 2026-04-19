@@ -264,7 +264,7 @@ async function generateLocalInsight(query: string): Promise<string> {
     }
 
     if (q.includes("client") || q.includes("risque") || q.includes("churn")) {
-      const { data } = await supabase.from("subscriptions").select("*, profiles(full_name, email)").eq("status", "trial");
+      const { data } = await supabase.from("subscriptions").select("*, profiles!subscriptions_user_id_fkey(full_name, email)").eq("status", "trial");
       const expiring = (data || []).filter(s => s.trial_ends_at && new Date(s.trial_ends_at).getTime() < Date.now() + 3 * 86400000);
       if (expiring.length === 0) return "Aucun essai n'expire dans les 72 prochaines heures. Situation stable.";
       return `**${expiring.length} essai(s) expirent dans 72h :**\n\n` +

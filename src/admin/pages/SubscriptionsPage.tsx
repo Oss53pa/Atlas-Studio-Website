@@ -41,7 +41,7 @@ export default function SubscriptionsPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchSubs = async () => {
-    const { data } = await supabase.from("subscriptions").select("*, profiles(full_name, email)").order("created_at", { ascending: false });
+    const { data } = await supabase.from("subscriptions").select("*, profiles!subscriptions_user_id_fkey(full_name, email)").order("created_at", { ascending: false });
     if (data) setSubs(data as SubWithProfile[]);
     setLoading(false);
   };
