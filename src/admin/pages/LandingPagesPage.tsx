@@ -13,6 +13,7 @@ const APPS = [
   { id: "advist", label: "Advist", url: "https://advist.atlas-studio.io" },
   { id: "taxpilot", label: "Liass'Pilot", url: "https://taxpilot.atlas-studio.io" },
   { id: "atlas-fa", label: "Atlas F&A", url: "https://atlas-fna.atlas-studio.org" },
+  { id: "cockpit-fa", label: "Cockpit F&A", url: "https://cockpit-fna.atlas-studio.org" },
 ] as const;
 
 const SECTIONS = [
