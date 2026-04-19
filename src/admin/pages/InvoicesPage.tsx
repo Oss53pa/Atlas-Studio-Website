@@ -11,6 +11,7 @@ import { useAppFilter } from "../contexts/AppFilterContext";
 import { useToast } from "../contexts/ToastContext";
 import { exportToCSV } from "../../lib/csvExport";
 import { apiCall } from "../../lib/api";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import type { Invoice, InvoiceStatus, Profile } from "../../lib/database.types";
 
 interface InvoiceWithProfile extends Invoice {
@@ -108,7 +109,7 @@ export default function InvoicesPage() {
       paid_at: formData.status === "paid" ? new Date().toISOString() : null,
     });
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success("Facture créée"); setShowForm(false); fetchInvoices(); }
   };
 

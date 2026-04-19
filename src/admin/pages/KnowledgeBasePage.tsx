@@ -6,6 +6,7 @@ import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
 
@@ -72,7 +73,7 @@ export default function KnowledgeBasePage() {
       ? await supabase.from("kb_articles").insert(row)
       : await supabase.from("kb_articles").update(row).eq("id", editArticle.id);
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Article créé" : "Article mis à jour"); setEditArticle(null); fetchArticles(); }
   };
 

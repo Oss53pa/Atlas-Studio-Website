@@ -5,6 +5,7 @@ import { AdminTable } from "../components/AdminTable";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 
 interface FeatureFlag {
@@ -70,7 +71,7 @@ export default function FeatureFlagsPage() {
       ? await supabase.from("feature_flags").insert(row)
       : await supabase.from("feature_flags").update(row).eq("id", editFlag.id);
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Feature flag créé" : "Feature flag mis à jour"); setEditFlag(null); fetchFlags(); }
   };
 

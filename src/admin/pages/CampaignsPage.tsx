@@ -6,6 +6,7 @@ import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 
 interface Campaign {
   id: string;
@@ -64,7 +65,7 @@ export default function CampaignsPage() {
       ? await supabase.from("newsletter_campaigns").insert(row)
       : await supabase.from("newsletter_campaigns").update(row).eq("id", editCampaign.id);
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Campagne créée" : "Campagne mise à jour"); setEditCampaign(null); fetchCampaigns(); }
   };
 

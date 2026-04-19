@@ -5,6 +5,7 @@ import { AdminTable } from "../components/AdminTable";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 
 interface AdminRole {
   id: string;
@@ -68,7 +69,7 @@ export default function RolesPage() {
       ? await supabase.from("admin_roles").insert(row)
       : await supabase.from("admin_roles").update(row).eq("id", editRole.id);
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Rôle créé" : "Rôle mis à jour"); setEditRole(null); fetchRoles(); }
   };
 

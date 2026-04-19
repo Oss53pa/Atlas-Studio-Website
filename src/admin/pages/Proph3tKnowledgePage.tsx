@@ -10,6 +10,7 @@ import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { AdminFormField, ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 
 interface KnowledgeChunk {
   id: string;
@@ -109,7 +110,7 @@ export default function Proph3tKnowledgePage() {
     const { error } = await supabase.from("proph3t_knowledge").insert(rows);
     setUploading(false);
 
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else {
       success(`${textChunks.length} chunk(s) indexés pour "${uploadForm.title}"`);
       setShowUpload(false);

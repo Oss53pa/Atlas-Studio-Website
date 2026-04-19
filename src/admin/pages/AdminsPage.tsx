@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../lib/auth";
 import { useToast } from "../contexts/ToastContext";
 import { apiCall } from "../../lib/api";
+import { formatSupabaseError } from "../../lib/errorMessages";
 
 interface AdminProfile {
   id: string;
@@ -48,7 +49,7 @@ export default function AdminsPage() {
 
     if (error) {
       console.error("Fetch admins error:", error);
-      showError(`Erreur: ${error.message}`);
+      showError(formatSupabaseError(error));
     } else {
       setAdmins((data as AdminProfile[]) || []);
     }
@@ -99,7 +100,7 @@ export default function AdminsPage() {
         .eq("id", result.userId);
 
       if (promoteError) {
-        showError(`Compte créé mais promotion échouée: ${promoteError.message}`);
+        showError(`Compte créé mais promotion échouée: ${formatSupabaseError(promoteError)}`);
       } else {
         success(`Admin "${form.full_name}" créé et notifié par email`);
       }
@@ -107,8 +108,8 @@ export default function AdminsPage() {
       setForm({ email: "", password: "", full_name: "", phone: "" });
       setShowCreate(false);
       fetchAdmins();
-    } catch (err: any) {
-      showError(`Erreur: ${err.message || "Création impossible"}`);
+    } catch (err: unknown) {
+      showError(formatSupabaseError(err, "Création impossible"));
     } finally {
       setActionLoading(null);
     }
@@ -129,7 +130,7 @@ export default function AdminsPage() {
       .update({ role: "client", is_active: false, updated_at: new Date().toISOString() })
       .eq("id", admin.id);
     if (error) {
-      showError(`Erreur: ${error.message}`);
+      showError(formatSupabaseError(error));
     } else {
       success(`Accès admin révoqué pour ${admin.full_name || admin.email}`);
       fetchAdmins();
@@ -149,7 +150,7 @@ export default function AdminsPage() {
       .update({ role: "super_admin", is_active: true, updated_at: new Date().toISOString() })
       .eq("id", admin.id);
     if (error) {
-      showError(`Erreur: ${error.message}`);
+      showError(formatSupabaseError(error));
     } else {
       success(`${admin.full_name || admin.email} promu Super Admin`);
       fetchAdmins();
@@ -172,7 +173,7 @@ export default function AdminsPage() {
       .update({ is_active: !admin.is_active, updated_at: new Date().toISOString() })
       .eq("id", admin.id);
     if (error) {
-      showError(`Erreur: ${error.message}`);
+      showError(formatSupabaseError(error));
     } else {
       success(admin.is_active ? "Admin désactivé" : "Admin réactivé");
       fetchAdmins();

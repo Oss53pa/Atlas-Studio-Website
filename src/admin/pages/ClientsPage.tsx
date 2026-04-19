@@ -12,6 +12,7 @@ import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
 import { useAppFilter } from "../contexts/AppFilterContext";
 import { useAuth } from "../../lib/auth";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import type { Profile, Subscription, Invoice } from "../../lib/database.types";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 
@@ -97,7 +98,7 @@ export default function ClientsPage() {
   // ─── Actions ───
   const toggleActive = async (client: Profile) => {
     const { error } = await supabase.from("profiles").update({ is_active: !client.is_active, updated_at: new Date().toISOString() }).eq("id", client.id);
-    if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
+    if (error) { console.error("Update error:", error); showError?.(formatSupabaseError(error)); }
     fetchClients();
     success(client.is_active ? "Client suspendu" : "Client réactivé");
   };
@@ -122,7 +123,7 @@ export default function ClientsPage() {
         try {
           await apiCall("admin-reset-password", { method: "POST", body: { userId: client.id, email: client.email, fullName: client.full_name } });
           success(`Nouveau mot de passe envoyé à ${client.email}`);
-        } catch (err: any) { showError(`Erreur: ${err.message}`); }
+        } catch (err: unknown) { showError(formatSupabaseError(err)); }
       },
     });
   };
@@ -142,7 +143,7 @@ export default function ClientsPage() {
       }
       setShowForm(false);
       fetchClients();
-    } catch (err: any) { showError(`Erreur: ${err.message}`); }
+    } catch (err: unknown) { showError(formatSupabaseError(err)); }
     setSaving(false);
   };
 
@@ -153,7 +154,7 @@ export default function ClientsPage() {
       onConfirm: async () => {
         setConfirmDialog(prev => ({ ...prev, open: false }));
         try { await apiCall(`admin-clients?id=${client.id}`, { method: "DELETE" }); success("Client supprimé"); fetchClients(); }
-        catch (err: any) { showError(`Erreur: ${err.message}`); }
+        catch (err: unknown) { showError(formatSupabaseError(err)); }
       },
     });
   };
@@ -181,7 +182,7 @@ export default function ClientsPage() {
       await supabase.from("activity_log").insert({ user_id: testAccessClient.id, action: "test_access_granted", metadata: { app_id: testAccessForm.appId, duration_days: days } });
       setTestAccessClient(null);
       success(`Accès test accordé pour ${days} jours`);
-    } catch (err: any) { showError(`Erreur: ${err.message}`); }
+    } catch (err: unknown) { showError(formatSupabaseError(err)); }
     setGrantingAccess(false);
   };
 
@@ -214,7 +215,8 @@ export default function ClientsPage() {
       const endDate = new Date(Date.now() + grantDuration * 86400000).toISOString();
 
       for (const [appId, { plan }] of selectedApps) {
-        const { error: err } = await supabase.from("subscriptions").insert({
+        console.log("[grant] inserting subscription", { appId, plan, user_id: grantClient.id });
+        const { data, error: err } = await supabase.from("subscriptions").insert({
           user_id: grantClient.id,
           app_id: appId,
           plan,
@@ -224,11 +226,12 @@ export default function ClientsPage() {
           granted_by: adminUser.id,
           current_period_start: now,
           current_period_end: endDate,
-        });
+        }).select();
+        console.log("[grant] insert result", { data, err });
         if (err) throw new Error(`${appMap[appId]?.name || appId}: ${err.message}`);
 
-        // Activity log
-        await supabase.from("activity_log").insert({
+        // Activity log — non-blocking, we don't care if it fails
+        supabase.from("activity_log").insert({
           user_id: grantClient.id,
           action: "subscription_granted",
           metadata: {
@@ -238,16 +241,20 @@ export default function ClientsPage() {
             granted_by: adminUser.id,
             note: grantNote || undefined,
           },
+        }).then(({ error: logErr }) => {
+          if (logErr) console.warn("[grant] activity_log insert failed (non-blocking)", logErr);
         });
       }
 
-      success(`${selectedApps.length} abonnement(s) offert(s) à ${grantClient.full_name}`);
+      success(`${selectedApps.length} abonnement(s) offert(s) à ${grantClient.full_name || grantClient.email}`);
       setGrantClient(null);
       fetchClients();
-    } catch (err: any) {
-      showError(err.message || "Erreur lors de l'attribution");
+    } catch (err: unknown) {
+      console.error("[grant] failed", err);
+      showError(formatSupabaseError(err, "Erreur lors de l'attribution"));
+    } finally {
+      setGrantingSubs(false);
     }
-    setGrantingSubs(false);
   };
 
   const grantSelectedCount = Object.values(grantApps).filter(v => v.selected).length;

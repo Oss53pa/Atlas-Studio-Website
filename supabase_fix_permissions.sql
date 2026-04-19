@@ -1,12 +1,14 @@
 -- Fix is_admin() function to match actual profiles schema
 -- Current profiles table uses 'role TEXT' not 'role_id UUID + roles table'
+-- Recognizes both 'admin' and 'super_admin' roles, and requires is_active.
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN AS $$
 BEGIN
   RETURN EXISTS (
     SELECT 1 FROM public.profiles
     WHERE id = auth.uid()
-    AND role = 'admin'
+    AND role IN ('admin', 'super_admin')
+    AND is_active = true
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;

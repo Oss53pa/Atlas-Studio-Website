@@ -6,6 +6,7 @@ import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
 
@@ -70,7 +71,7 @@ export default function DeploymentsPage() {
       changelog_internal: formData.changelog_internal || null,
     });
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success(`Déploiement v${formData.version} enregistré`); setShowForm(false); fetchDeployments(); }
   };
 

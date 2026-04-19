@@ -4,6 +4,7 @@ import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../lib/auth";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 
 interface AdminSettings {
   full_name: string;
@@ -88,7 +89,7 @@ export default function SettingsPage() {
       updated_at: new Date().toISOString(),
     }).eq("id", user?.id);
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else success(recoveryEmail ? "Email de recuperation enregistre" : "Email de recuperation supprime");
   };
 
@@ -98,7 +99,7 @@ export default function SettingsPage() {
     setSaving(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success("Mot de passe modifié"); setNewPassword(""); setConfirmPassword(""); }
   };
 

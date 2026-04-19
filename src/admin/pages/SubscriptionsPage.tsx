@@ -9,6 +9,7 @@ import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
 import { useToast } from "../contexts/ToastContext";
 import { exportToCSV } from "../../lib/csvExport";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import type { Subscription, SubscriptionStatus, Profile } from "../../lib/database.types";
 
 interface SubWithProfile extends Subscription {
@@ -112,7 +113,7 @@ export default function SubscriptionsPage() {
       current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
     });
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success("Abonnement créé"); setShowForm(false); fetchSubs(); }
   };
 

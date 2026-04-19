@@ -6,6 +6,7 @@ import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 
 interface PromoCode {
   id: string;
@@ -72,7 +73,7 @@ export default function PromoCodesPage() {
       ? await supabase.from("promo_codes").insert(row)
       : await supabase.from("promo_codes").update(row).eq("id", editCode.id);
     setSaving(false);
-    if (error) showError(`Erreur: ${error.message}`);
+    if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Code promo créé" : "Code promo mis à jour"); setEditCode(null); fetchCodes(); }
   };
 

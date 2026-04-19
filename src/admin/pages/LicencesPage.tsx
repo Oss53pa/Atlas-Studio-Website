@@ -6,6 +6,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import { apiCall } from "../../lib/api";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import { useLicences } from "../../hooks/useLicences";
 import { AdminCard } from "../components/AdminCard";
 import { AdminModal } from "../components/AdminModal";
@@ -90,7 +91,7 @@ export default function LicencesPage() {
         await apiCall("licence-action", { method: "POST", body: { licence_id: l.id, action: "suspend" } });
         success("Licence suspendue");
         fetchLicences();
-      } catch (e: any) { showError(e.message); }
+      } catch (e: unknown) { showError(formatSupabaseError(e)); }
       setActionLoading(false);
       setConfirm(c => ({ ...c, open: false }));
     },
@@ -105,7 +106,7 @@ export default function LicencesPage() {
         await apiCall("licence-action", { method: "POST", body: { licence_id: l.id, action: "revoke" } });
         success("Licence révoquée");
         fetchLicences();
-      } catch (e: any) { showError(e.message); }
+      } catch (e: unknown) { showError(formatSupabaseError(e)); }
       setActionLoading(false);
       setConfirm(c => ({ ...c, open: false }));
     },
@@ -120,7 +121,7 @@ export default function LicencesPage() {
       setShowGenerate(false);
       setGenForm({ tenant_id: "", product_id: "", plan_id: "" });
       fetchLicences();
-    } catch (e: any) { showError(e.message); }
+    } catch (e: unknown) { showError(formatSupabaseError(e)); }
     setGenLoading(false);
   };
 

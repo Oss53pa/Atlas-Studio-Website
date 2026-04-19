@@ -7,6 +7,7 @@ import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
+import { formatSupabaseError } from "../../lib/errorMessages";
 import type { AppRow, AppType, AppStatus } from "../../lib/database.types";
 import { DEFAULT_CONTENT } from "../../config/content";
 
@@ -117,7 +118,7 @@ export default function AppsManagementPage() {
       : await supabase.from("apps").update(row).eq("id", editApp.id);
 
     setSaving(false);
-    if (error) { showError(`Erreur: ${error.message}`); }
+    if (error) { showError(formatSupabaseError(error)); }
     else { success(isNew ? "Application créée" : "Application mise à jour"); setEditApp(null); fetchApps(); }
   };
 
