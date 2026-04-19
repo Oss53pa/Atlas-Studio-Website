@@ -1,10 +1,35 @@
 import { corsHeaders } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
+import { createLicenceAfterPayment } from "../_shared/licence-helpers.ts";
+
+async function verifyCinetPaySignature(payload: Record<string, unknown>, token: string | null): Promise<boolean> {
+  const secret = Deno.env.get("CINETPAY_SECRET_KEY");
+  if (!secret) return true; // backward compat; set this env to enforce
+  if (!token) return false;
+  const fields = [
+    "cpm_site_id", "cpm_trans_id", "cpm_trans_date", "cpm_amount", "cpm_currency",
+    "signature", "payment_method", "cel_phone_num", "cpm_phone_prefixe",
+    "cpm_language", "cpm_version", "cpm_payment_config", "cpm_page_action",
+    "cpm_custom", "cpm_designation", "cpm_error_message",
+  ];
+  const data = fields.map(k => String(payload[k] ?? "")).join("");
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
+  const sigHex = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
+  return sigHex.toLowerCase() === token.toLowerCase();
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     const payload = await req.json();
+
+    // Signature check (skipped silently if CINETPAY_SECRET_KEY is unset)
+    const validSig = await verifyCinetPaySignature(payload, req.headers.get("x-token"));
+    if (!validSig) return new Response("Invalid signature", { status: 401 });
 
     // Log raw webhook
     const { data: log } = await supabaseAdmin.from("payment_webhooks").insert({
@@ -48,16 +73,22 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from("invoices").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", session.invoice_id);
       await supabaseAdmin.from("payment_sessions").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", session.id);
 
-      // Trigger licence generation
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      try {
-        await fetch(`${supabaseUrl}/functions/v1/generate-licence`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ invoice_id: session.invoice_id }),
+      // Licence generation via shared helper (resolves app_slug + plan_name to UUIDs)
+      const { data: inv } = await supabaseAdmin
+        .from("invoices")
+        .select("user_id, app_id, plan, subscription_id")
+        .eq("id", session.invoice_id)
+        .maybeSingle();
+      if (inv?.user_id && inv.app_id && inv.plan && inv.subscription_id) {
+        const licResult = await createLicenceAfterPayment({
+          userId: inv.user_id,
+          appSlug: inv.app_id,
+          planName: inv.plan,
+          subscriptionId: inv.subscription_id,
         });
-      } catch { /* licence generation is best-effort from webhook */ }
+        if (licResult) console.log("[payment-webhook] licence created", licResult.licenceId);
+        else console.warn("[payment-webhook] licence skipped for invoice", session.invoice_id);
+      }
     }
 
     await supabaseAdmin.from("payment_webhooks").update({ processed: true, transaction_id: session.transaction_id, signature_valid: true, processed_at: new Date().toISOString() }).eq("id", log?.id);

@@ -2,6 +2,7 @@ import { jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { stripe } from "../_shared/stripe.ts";
 import { sendMail } from "../_shared/mailer.ts";
+import { createLicenceAfterPayment } from "../_shared/licence-helpers.ts";
 
 Deno.serve(async (req) => {
   const sig = req.headers.get("stripe-signature");
@@ -24,6 +25,21 @@ Deno.serve(async (req) => {
         const session = event.data.object;
         const { userId, appId, plan, subscriptionId, type } = session.metadata || {};
 
+        // Idempotence: skip if we already recorded an invoice for this checkout
+        if (session.payment_intent) {
+          const { data: existing } = await supabaseAdmin
+            .from("invoices")
+            .select("id")
+            .eq("stripe_payment_intent_id", session.payment_intent as string)
+            .maybeSingle();
+          if (existing?.id) {
+            console.log("Stripe checkout.completed already processed, skipping", session.id);
+            return jsonResponse({ received: true, deduped: true });
+          }
+        }
+
+        let insertedSubscriptionId: string | null = subscriptionId || null;
+
         if (type === "regularization" && subscriptionId) {
           await supabaseAdmin.from("subscriptions").update({
             status: "active",
@@ -42,7 +58,7 @@ Deno.serve(async (req) => {
             updated_at: new Date().toISOString(),
           }).eq("id", subscriptionId);
         } else if (userId && appId && plan) {
-          await supabaseAdmin.from("subscriptions").insert({
+          const { data: inserted } = await supabaseAdmin.from("subscriptions").insert({
             user_id: userId,
             app_id: appId,
             plan,
@@ -51,7 +67,8 @@ Deno.serve(async (req) => {
             price_at_subscription: (session.amount_total || 0) / 100,
             current_period_start: new Date().toISOString(),
             current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
-          });
+          }).select("id").single();
+          insertedSubscriptionId = inserted?.id || null;
         }
 
         if (userId && appId) {
@@ -75,28 +92,20 @@ Deno.serve(async (req) => {
           metadata: { appId, plan, amount: (session.amount_total || 0) / 100, provider: "stripe" },
         });
 
-        // ── TRIGGER LICENCE GENERATION ──
-        // This is the critical link between payment and licence
-        if (userId && appId && plan) {
-          try {
-            const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-            const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-            await fetch(`${supabaseUrl}/functions/v1/generate-licence`, {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${serviceKey}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                tenant_id: userId,
-                product_id: appId,
-                plan_id: plan,
-                subscription_id: session.subscription,
-              }),
-            });
-            console.log("Licence generation triggered for:", appId, plan, userId);
-          } catch (licErr) {
-            console.error("Licence generation trigger error (non-blocking):", licErr);
+        // ── LICENCE GENERATION ──
+        // Resolves app_slug + plan_name to UUIDs (product_id, plan_id) and
+        // ensures a tenant exists for this user, then creates the licence.
+        if (userId && appId && plan && insertedSubscriptionId) {
+          const licResult = await createLicenceAfterPayment({
+            userId,
+            appSlug: appId,
+            planName: plan,
+            subscriptionId: insertedSubscriptionId,
+          });
+          if (licResult) {
+            console.log("Licence created:", licResult.licenceId, "for", userId, appId, plan);
+          } else {
+            console.warn("Licence generation skipped for", userId, appId, plan);
           }
         }
 
