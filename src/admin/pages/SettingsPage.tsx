@@ -48,10 +48,10 @@ export default function SettingsPage() {
       setRecoveryEmail((profile as any).recovery_email || "");
     }
     // Load proph3t preferences for notifications
-    supabase.from("proph3t_preferences").select("*").then(({ data }) => {
+    supabase.from("app_settings").select("*").then(({ data }) => {
       if (data) {
         const prefs: Record<string, any> = {};
-        data.forEach((p: any) => { prefs[p.preference_key] = p.preference_value; });
+        data.forEach((p: any) => { prefs[p.setting_key] = p.setting_value; });
         setSettings(prev => ({
           ...prev,
           notification_email: (prefs.notification_channels || []).includes("email"),
@@ -118,11 +118,11 @@ export default function SettingsPage() {
     const channels = [];
     if (settings.notification_email) channels.push("email");
     if (settings.notification_dashboard) channels.push("dashboard");
-    const { error } = await supabase.from("proph3t_preferences").upsert({
-      preference_key: "notification_channels",
-      preference_value: JSON.stringify(channels),
+    const { error } = await supabase.from("app_settings").upsert({
+      setting_key: "notification_channels",
+      setting_value: JSON.stringify(channels),
       updated_at: new Date().toISOString(),
-    }, { onConflict: "preference_key" });
+    }, { onConflict: "setting_key" });
     setSaving(false);
     if (error) { console.error("Upsert error:", error); showError?.(`Erreur: ${error.message}`); }
     else { success("Notifications mises à jour"); }
@@ -140,21 +140,21 @@ export default function SettingsPage() {
   const [testingProvider, setTestingProvider] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.from("proph3t_preferences").select("*").eq("preference_key", "payment_config").single().then(({ data }) => {
-      if (data?.preference_value) {
-        try { setPaymentConfig(prev => ({ ...prev, ...JSON.parse(data.preference_value) })); } catch {}
+    supabase.from("app_settings").select("*").eq("setting_key", "payment_config").single().then(({ data }) => {
+      if (data?.setting_value) {
+        try { setPaymentConfig(prev => ({ ...prev, ...JSON.parse(data.setting_value) })); } catch {}
       }
     });
   }, []);
 
   const handleSavePaymentConfig = async () => {
     setSaving(true);
-    await supabase.from("proph3t_preferences").upsert({
-      preference_key: "payment_config",
-      preference_value: JSON.stringify(paymentConfig),
+    await supabase.from("app_settings").upsert({
+      setting_key: "payment_config",
+      setting_value: JSON.stringify(paymentConfig),
       description: "Configuration des moyens de paiement",
       updated_at: new Date().toISOString(),
-    }, { onConflict: "preference_key" });
+    }, { onConflict: "setting_key" });
     setSaving(false);
     success("Configuration paiement sauvegardée");
   };

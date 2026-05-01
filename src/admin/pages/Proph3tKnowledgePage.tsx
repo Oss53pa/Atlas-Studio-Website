@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { Database, Plus, Trash2, Upload, FileText, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Database, Plus, Trash2, FileText, Loader2, Library, FileUp } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { apiCall } from "../../lib/api";
 import { AdminTable } from "../components/AdminTable";
 import { AdminPageHeader } from "../components/AdminPageHeader";
 import { AdminSearch } from "../components/AdminSearch";
@@ -8,280 +9,348 @@ import { AdminFilterPills } from "../components/AdminFilterPills";
 import { AdminButton } from "../components/AdminButton";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
-import { AdminFormField, ADMIN_INPUT_CLASS } from "../components/AdminFormField";
+import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { useToast } from "../contexts/ToastContext";
 import { formatSupabaseError } from "../../lib/errorMessages";
 
-interface KnowledgeChunk {
+// PROPH3T v2 — page connaissance.
+// Deux sources distinctes :
+//   - proph3t_knowledge_base : référentiel système (SYSCOHADA, OHADA, fiscal…)
+//     pré-indexé, géré par l'équipe Atlas. Pas d'upload utilisateur.
+//   - proph3t_documents : documents propres au client/société. Uploadés via
+//     proph3t-ingest qui chunke + embed en arrière-plan.
+
+type Tab = "kb" | "documents";
+
+interface KnowledgeRow {
   id: string;
-  source_type: string;
+  category: string;
+  reference: string | null;
   title: string;
   content: string;
-  metadata: Record<string, any>;
-  chunk_index: number;
-  source_id: string | null;
+  metadata: Record<string, unknown>;
+  version: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DocumentRow {
+  id: string;
+  title: string;
+  source_type: string;
+  product: string | null;
+  society_id: string | null;
+  metadata: Record<string, unknown>;
+  page_count: number | null;
+  total_chunks: number;
+  ingestion_status: "pending" | "processing" | "done" | "failed";
+  ingestion_error: string | null;
   created_at: string;
 }
 
-const SOURCE_LABELS: Record<string, string> = {
-  cdc: "Cahier des charges",
-  ohada_rule: "Règle OHADA",
-  uemoa_regulation: "Réglementation UEMOA",
-  cemac_regulation: "Réglementation CEMAC",
-  fiscal_ci: "Fiscalité CI",
-  product_doc: "Documentation produit",
-  business_rule: "Règle métier",
-  faq: "FAQ",
-  decision_log: "Historique décisions",
+const KB_CATEGORIES = ["syscohada", "ohada", "fiscal", "rh", "immobilier", "retail", "sectoriel", "autre"];
+const KB_COLORS: Record<string, string> = {
+  syscohada: "bg-emerald-500/20 text-emerald-400",
+  ohada: "bg-blue-500/20 text-blue-400",
+  fiscal: "bg-amber-500/20 text-amber-400",
+  rh: "bg-purple-500/20 text-purple-400",
+  immobilier: "bg-indigo-500/20 text-indigo-400",
+  retail: "bg-cyan-500/20 text-cyan-400",
+  sectoriel: "bg-rose-500/20 text-rose-400",
+  autre: "bg-neutral-500/20 text-neutral-400",
 };
 
-const SOURCE_COLORS: Record<string, string> = {
-  cdc: "bg-blue-500/20 text-blue-400",
-  ohada_rule: "bg-emerald-500/20 text-emerald-400",
-  uemoa_regulation: "bg-cyan-500/20 text-cyan-400",
-  cemac_regulation: "bg-teal-500/20 text-teal-400",
-  fiscal_ci: "bg-amber-500/20 text-amber-400",
-  product_doc: "bg-purple-500/20 text-purple-400",
-  business_rule: "bg-indigo-500/20 text-indigo-400",
-  faq: "bg-orange-500/20 text-orange-400",
-  decision_log: "bg-rose-500/20 text-rose-400",
+const STATUS_COLORS: Record<string, string> = {
+  pending: "bg-neutral-500/20 text-neutral-400",
+  processing: "bg-blue-500/20 text-blue-400",
+  done: "bg-emerald-500/20 text-emerald-400",
+  failed: "bg-red-500/20 text-red-400",
 };
 
 export default function Proph3tKnowledgePage() {
   const { success, error: showError } = useToast();
-  const [chunks, setChunks] = useState<KnowledgeChunk[]>([]);
+  const [tab, setTab] = useState<Tab>("kb");
+  const [kbRows, setKbRows] = useState<KnowledgeRow[]>([]);
+  const [docs, setDocs] = useState<DocumentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [showUpload, setShowUpload] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadForm, setUploadForm] = useState({ title: "", source_type: "product_doc", content: "" });
-  const [detailChunk, setDetailChunk] = useState<KnowledgeChunk | null>(null);
-  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: "", message: "", onConfirm: () => {} });
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
-  const fetchChunks = async () => {
-    const { data } = await supabase.from("proph3t_knowledge").select("*").order("created_at", { ascending: false });
-    setChunks(data as KnowledgeChunk[] || []);
+  // Add KB row modal
+  const [showAddKb, setShowAddKb] = useState(false);
+  const [savingKb, setSavingKb] = useState(false);
+  const [kbForm, setKbForm] = useState({ category: "syscohada", reference: "", title: "", content: "" });
+
+  // Add document modal (text upload — files come later via Storage)
+  const [showAddDoc, setShowAddDoc] = useState(false);
+  const [savingDoc, setSavingDoc] = useState(false);
+  const [docForm, setDocForm] = useState({ title: "", source_type: "manual", product: "", text: "" });
+
+  const [detailKb, setDetailKb] = useState<KnowledgeRow | null>(null);
+  const [detailDoc, setDetailDoc] = useState<DocumentRow | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: "", message: "", onConfirm: () => {} });
+
+  const fetchAll = async () => {
+    setLoading(true);
+    const [kbRes, docsRes] = await Promise.all([
+      supabase.from("proph3t_knowledge_base").select("*").order("category").order("title"),
+      supabase.from("proph3t_documents").select("*").order("created_at", { ascending: false }).limit(500),
+    ]);
+    setKbRows((kbRes.data as KnowledgeRow[]) || []);
+    setDocs((docsRes.data as DocumentRow[]) || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchChunks(); }, []);
+  useEffect(() => { fetchAll(); }, []);
 
-  const filtered = chunks.filter(c => {
-    if (typeFilter !== "all" && c.source_type !== typeFilter) return false;
-    if (search && !c.title.toLowerCase().includes(search.toLowerCase()) && !c.content.toLowerCase().includes(search.toLowerCase())) return false;
+  const handleSaveKb = async () => {
+    if (!kbForm.title.trim() || !kbForm.content.trim()) { showError("Titre et contenu obligatoires"); return; }
+    setSavingKb(true);
+    // Note: l'embedding sera généré côté serveur lors d'un re-index batch ou via proph3t-ingest.
+    // Ici on insère sans embedding — la recherche sémantique reviendra une fois l'embedding ajouté.
+    const { error } = await supabase.from("proph3t_knowledge_base").insert({
+      category: kbForm.category,
+      reference: kbForm.reference.trim() || null,
+      title: kbForm.title.trim(),
+      content: kbForm.content.trim(),
+    });
+    setSavingKb(false);
+    if (error) showError(formatSupabaseError(error));
+    else {
+      success("Entrée ajoutée — embedding à indexer côté serveur");
+      setShowAddKb(false);
+      setKbForm({ category: "syscohada", reference: "", title: "", content: "" });
+      fetchAll();
+    }
+  };
+
+  const handleSaveDoc = async () => {
+    if (!docForm.title.trim() || !docForm.text.trim()) { showError("Titre et texte obligatoires"); return; }
+    setSavingDoc(true);
+    try {
+      // Appel à l'edge function proph3t-ingest qui chunke + embed
+      await apiCall("proph3t-ingest", {
+        method: "POST",
+        body: {
+          title: docForm.title.trim(),
+          source_type: docForm.source_type,
+          product: docForm.product.trim() || null,
+          text: docForm.text,
+        },
+      });
+      success("Document ingéré");
+      setShowAddDoc(false);
+      setDocForm({ title: "", source_type: "manual", product: "", text: "" });
+      fetchAll();
+    } catch (err: unknown) {
+      showError(formatSupabaseError(err));
+    }
+    setSavingDoc(false);
+  };
+
+  const deleteKb = (kb: KnowledgeRow) => {
+    setConfirmDialog({
+      open: true, title: "Supprimer cette entrée ?", message: `"${kb.title}" sera supprimée du référentiel.`,
+      onConfirm: async () => {
+        const { error } = await supabase.from("proph3t_knowledge_base").delete().eq("id", kb.id);
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        if (error) showError(formatSupabaseError(error));
+        else { success("Entrée supprimée"); fetchAll(); }
+      },
+    });
+  };
+
+  const deleteDoc = (d: DocumentRow) => {
+    setConfirmDialog({
+      open: true, title: "Supprimer ce document ?", message: `"${d.title}" et tous ses chunks (${d.total_chunks}) seront supprimés.`,
+      onConfirm: async () => {
+        const { error } = await supabase.from("proph3t_documents").delete().eq("id", d.id);
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        if (error) showError(formatSupabaseError(error));
+        else { success("Document supprimé"); fetchAll(); }
+      },
+    });
+  };
+
+  const filteredKb = kbRows.filter(k => {
+    if (categoryFilter !== "all" && k.category !== categoryFilter) return false;
+    if (search && !k.title.toLowerCase().includes(search.toLowerCase()) && !k.content.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
-  // Group by source_id to show document-level view
-  const uniqueSources = [...new Set(chunks.map(c => c.source_id || c.id))];
-  const documentCount = uniqueSources.length;
+  const filteredDocs = docs.filter(d => !search || d.title.toLowerCase().includes(search.toLowerCase()));
 
-  const handleUpload = async () => {
-    if (!uploadForm.title || !uploadForm.content) return;
-    setUploading(true);
-
-    // Split content into chunks of ~500 words
-    const words = uploadForm.content.split(/\s+/);
-    const chunkSize = 500;
-    const overlap = 50;
-    const textChunks: string[] = [];
-
-    for (let i = 0; i < words.length; i += chunkSize - overlap) {
-      textChunks.push(words.slice(i, i + chunkSize).join(" "));
-    }
-
-    const sourceId = `${uploadForm.source_type}_${uploadForm.title.toLowerCase().replace(/\s+/g, "_")}`;
-
-    // Delete existing chunks with same source_id (re-index)
-    await supabase.from("proph3t_knowledge").delete().eq("source_id", sourceId);
-
-    // Insert chunks (without embeddings — those will be generated by Edge Function)
-    const rows = textChunks.map((content, i) => ({
-      source_type: uploadForm.source_type,
-      title: uploadForm.title,
-      content,
-      chunk_index: i,
-      source_id: sourceId,
-      metadata: { total_chunks: textChunks.length, word_count: content.split(/\s+/).length },
-    }));
-
-    const { error } = await supabase.from("proph3t_knowledge").insert(rows);
-    setUploading(false);
-
-    if (error) showError(formatSupabaseError(error));
-    else {
-      success(`${textChunks.length} chunk(s) indexés pour "${uploadForm.title}"`);
-      setShowUpload(false);
-      setUploadForm({ title: "", source_type: "product_doc", content: "" });
-      fetchChunks();
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const text = await file.text();
-    setUploadForm(prev => ({
-      ...prev,
-      title: prev.title || file.name.replace(/\.[^/.]+$/, ""),
-      content: text,
-    }));
-    if (fileRef.current) fileRef.current.value = "";
-  };
-
-  const deleteSource = (sourceId: string, title: string) => {
-    setConfirmDialog({
-      open: true, title: "Supprimer ce document ?",
-      message: `Tous les chunks de "${title}" seront supprimés de la base de connaissances.`,
-      onConfirm: async () => {
-        await supabase.from("proph3t_knowledge").delete().eq("source_id", sourceId);
-        setConfirmDialog(prev => ({ ...prev, open: false }));
-        success("Document supprimé de la base de connaissances");
-        fetchChunks();
-      },
-    });
-  };
-
-  const bulkDelete = (ids: string[]) => {
-    setConfirmDialog({
-      open: true, title: `Supprimer ${ids.length} chunk(s) ?`, message: "Cette action est irréversible.",
-      onConfirm: async () => {
-        await supabase.from("proph3t_knowledge").delete().in("id", ids);
-        setConfirmDialog(prev => ({ ...prev, open: false }));
-        success(`${ids.length} chunk(s) supprimé(s)`);
-        fetchChunks();
-      },
-    });
-  };
-
-  const typeFilters = [
-    { label: "Tous", value: "all", count: chunks.length },
-    ...Object.entries(SOURCE_LABELS).map(([key, label]) => ({
-      label, value: key, count: chunks.filter(c => c.source_type === key).length,
-    })).filter(f => f.count > 0),
+  const tabs = [
+    { id: "kb", label: "Base de connaissances système", count: kbRows.length, icon: Library },
+    { id: "documents", label: "Documents", count: docs.length, icon: FileText },
   ];
 
   return (
     <div>
-      <AdminPageHeader title="Base de connaissances Proph3t (RAG)" subtitle={`${chunks.length} chunks — ${documentCount} documents indexés`}>
-        <AdminButton icon={Plus} onClick={() => setShowUpload(true)}>Indexer un document</AdminButton>
+      <AdminPageHeader title="Connaissance PROPH3T" subtitle="Référentiel SYSCOHADA/OHADA et documents indexés via RAG vectoriel">
+        {tab === "kb" ? (
+          <AdminButton icon={Plus} onClick={() => setShowAddKb(true)}>Ajouter une entrée</AdminButton>
+        ) : (
+          <AdminButton icon={FileUp} onClick={() => setShowAddDoc(true)}>Ingérer un document</AdminButton>
+        )}
       </AdminPageHeader>
 
-      <div className="flex items-center gap-4 mb-6 flex-wrap">
-        <AdminFilterPills filters={typeFilters} value={typeFilter} onChange={setTypeFilter} />
-        <AdminSearch value={search} onChange={setSearch} placeholder="Rechercher dans la base..." />
-      </div>
-
-      <AdminTable
-        keyExtractor={(r: KnowledgeChunk) => r.id}
-        loading={loading}
-        selectable
-        bulkActions={[{ label: "Supprimer", onClick: bulkDelete, variant: "danger" }]}
-        emptyMessage="Aucun document indexé"
-        emptyIcon={<Database size={32} />}
-        onRowClick={setDetailChunk}
-        columns={[
-          { key: "source_type", label: "Type", render: (r: KnowledgeChunk) => (
-            <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${SOURCE_COLORS[r.source_type] || "bg-neutral-500/20 text-neutral-400"}`}>
-              {SOURCE_LABELS[r.source_type] || r.source_type}
-            </span>
-          )},
-          { key: "title", label: "Document", sortable: true, render: (r: KnowledgeChunk) => (
-            <div>
-              <div className="text-neutral-text dark:text-admin-text text-[13px] font-medium">{r.title}</div>
-              <div className="text-neutral-muted dark:text-admin-muted text-[11px]">Chunk {r.chunk_index + 1} · {r.content.split(/\s+/).length} mots</div>
-            </div>
-          )},
-          { key: "content", label: "Extrait", render: (r: KnowledgeChunk) => (
-            <span className="text-neutral-muted dark:text-admin-muted text-[11px] truncate block max-w-[250px]">{r.content.slice(0, 100)}...</span>
-          )},
-          { key: "created_at", label: "Indexé le", sortable: true, render: (r: KnowledgeChunk) => (
-            <span className="text-[12px] text-neutral-muted dark:text-admin-muted">{new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</span>
-          )},
-          { key: "actions", label: "", render: (r: KnowledgeChunk) => (
-            <button onClick={e => { e.stopPropagation(); deleteSource(r.source_id || r.id, r.title); }}
-              className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-500/10 text-neutral-muted dark:text-admin-muted hover:text-red-500 transition-colors">
-              <Trash2 size={14} />
-            </button>
-          )},
-        ]}
-        data={filtered}
+      <AdminFilterPills
+        filters={tabs.map(t => ({ label: t.label, value: t.id, count: t.count }))}
+        value={tab}
+        onChange={(v) => setTab(v as Tab)}
       />
 
-      {/* Upload modal */}
-      <AdminModal open={showUpload} onClose={() => setShowUpload(false)} title="Indexer un document" size="xl"
-        subtitle="Le contenu sera découpé en chunks et indexé pour la recherche sémantique RAG"
-        footer={<AdminButton onClick={handleUpload} loading={uploading} disabled={!uploadForm.title || !uploadForm.content}>
-          {uploading ? "Indexation..." : "Indexer le document"}
-        </AdminButton>}>
-        <div className="space-y-4">
-          <AdminFormField label="Titre du document">
-            <input value={uploadForm.title} onChange={e => setUploadForm(p => ({ ...p, title: e.target.value }))} placeholder="ex: SYSCOHADA Révisé — Plan Comptable" className={ADMIN_INPUT_CLASS} />
-          </AdminFormField>
+      <div className="flex items-center gap-4 mb-6 mt-4 flex-wrap">
+        {tab === "kb" && (
+          <AdminFilterPills
+            filters={[{ label: "Toutes catégories", value: "all", count: kbRows.length }, ...KB_CATEGORIES.map(c => ({ label: c, value: c, count: kbRows.filter(k => k.category === c).length })).filter(f => f.count > 0)]}
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+          />
+        )}
+        <AdminSearch value={search} onChange={setSearch} placeholder={`Rechercher dans ${tab === "kb" ? "le référentiel" : "les documents"}…`} />
+      </div>
 
-          <AdminFormField label="Type de source">
-            <select value={uploadForm.source_type} onChange={e => setUploadForm(p => ({ ...p, source_type: e.target.value }))} className={ADMIN_INPUT_CLASS}>
-              {Object.entries(SOURCE_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </AdminFormField>
+      {tab === "kb" && (
+        <AdminTable
+          keyExtractor={(r: KnowledgeRow) => r.id}
+          loading={loading}
+          emptyMessage="Référentiel vide — ajoute des entrées SYSCOHADA / OHADA / fiscal pour activer le RAG"
+          emptyIcon={<Library size={32} />}
+          onRowClick={setDetailKb}
+          columns={[
+            { key: "category", label: "Catégorie", render: (r: KnowledgeRow) => (
+              <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${KB_COLORS[r.category] || ""}`}>{r.category}</span>
+            )},
+            { key: "title", label: "Titre", render: (r: KnowledgeRow) => (
+              <div>
+                <div className="text-neutral-text dark:text-admin-text text-[13px] font-medium">{r.title}</div>
+                {r.reference && <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-mono">{r.reference}</div>}
+              </div>
+            )},
+            { key: "content", label: "Contenu", render: (r: KnowledgeRow) => (
+              <div className="text-neutral-muted dark:text-admin-muted text-[12px] truncate max-w-[400px]">{r.content.slice(0, 100)}…</div>
+            )},
+            { key: "version", label: "Version", render: (r: KnowledgeRow) => <span className="font-mono text-[11px]">{r.version}</span> },
+            { key: "actions", label: "", render: (r: KnowledgeRow) => (
+              <button onClick={(e) => { e.stopPropagation(); deleteKb(r); }} className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-500/10 text-neutral-muted dark:text-admin-muted hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+            )},
+          ]}
+          data={filteredKb}
+        />
+      )}
 
-          <AdminFormField label="Contenu">
-            <div className="space-y-2">
-              <input ref={fileRef} type="file" accept=".txt,.md,.csv" onChange={handleFileUpload} className="hidden" />
-              <button onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[12px] font-medium text-neutral-body dark:text-admin-text hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
-                <Upload size={14} /> Charger un fichier (.txt, .md)
-              </button>
-              <textarea value={uploadForm.content} onChange={e => setUploadForm(p => ({ ...p, content: e.target.value }))} rows={15}
-                className={`${ADMIN_INPUT_CLASS} resize-y font-mono text-[12px] leading-relaxed`}
-                placeholder="Collez le contenu du document ici ou chargez un fichier..." />
-              {uploadForm.content && (
-                <div className="text-neutral-muted dark:text-admin-muted text-[11px]">
-                  {uploadForm.content.split(/\s+/).length} mots · sera découpé en ~{Math.ceil(uploadForm.content.split(/\s+/).length / 450)} chunks
-                </div>
-              )}
-            </div>
-          </AdminFormField>
+      {tab === "documents" && (
+        <AdminTable
+          keyExtractor={(r: DocumentRow) => r.id}
+          loading={loading}
+          emptyMessage="Aucun document ingéré — clique 'Ingérer un document' pour démarrer"
+          emptyIcon={<FileText size={32} />}
+          onRowClick={setDetailDoc}
+          columns={[
+            { key: "title", label: "Titre", render: (r: DocumentRow) => (
+              <div>
+                <div className="text-neutral-text dark:text-admin-text text-[13px] font-medium">{r.title}</div>
+                <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{r.source_type}{r.product ? ` · ${r.product}` : ""}</div>
+              </div>
+            )},
+            { key: "ingestion_status", label: "Statut", render: (r: DocumentRow) => (
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${STATUS_COLORS[r.ingestion_status]}`}>
+                {r.ingestion_status === "processing" && <Loader2 size={10} className="animate-spin" />}
+                {r.ingestion_status}
+              </span>
+            )},
+            { key: "total_chunks", label: "Chunks", render: (r: DocumentRow) => <span className="font-mono text-[12px]">{r.total_chunks}</span> },
+            { key: "created_at", label: "Ingéré", sortable: true, render: (r: DocumentRow) => (
+              <span className="text-[12px] text-neutral-muted dark:text-admin-muted">{new Date(r.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</span>
+            )},
+            { key: "actions", label: "", render: (r: DocumentRow) => (
+              <button onClick={(e) => { e.stopPropagation(); deleteDoc(r); }} className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-500/10 text-neutral-muted dark:text-admin-muted hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+            )},
+          ]}
+          data={filteredDocs}
+        />
+      )}
+
+      {/* Add KB modal */}
+      <AdminModal open={showAddKb} onClose={() => setShowAddKb(false)} title="Ajouter une entrée référentiel"
+        footer={<button onClick={handleSaveKb} disabled={savingKb} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 transition-colors text-[13px]">{savingKb ? "Enregistrement…" : "Enregistrer"}</button>}>
+        <div className="space-y-3">
+          <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Catégorie</label>
+            <select value={kbForm.category} onChange={e => setKbForm(p => ({ ...p, category: e.target.value }))} className={ADMIN_INPUT_CLASS}>
+              {KB_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select></div>
+          <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Référence (ex: AUDCIF-Art.13, optionnel)</label>
+            <input value={kbForm.reference} onChange={e => setKbForm(p => ({ ...p, reference: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
+          <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Titre *</label>
+            <input value={kbForm.title} onChange={e => setKbForm(p => ({ ...p, title: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
+          <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Contenu *</label>
+            <textarea value={kbForm.content} onChange={e => setKbForm(p => ({ ...p, content: e.target.value }))} rows={8} className={ADMIN_INPUT_CLASS} /></div>
+          <p className="text-[11px] text-neutral-muted dark:text-admin-muted">L'embedding vectoriel sera calculé en arrière-plan une fois Ollama disponible (ré-indexation batch).</p>
         </div>
       </AdminModal>
 
-      {/* Detail modal */}
-      <AdminModal open={!!detailChunk} onClose={() => setDetailChunk(null)} title={detailChunk?.title || ""} size="lg"
-        subtitle={detailChunk ? `${SOURCE_LABELS[detailChunk.source_type] || detailChunk.source_type} · Chunk ${detailChunk.chunk_index + 1}` : undefined}>
-        {detailChunk && (
+      {/* Add document modal (text input — file upload viendra plus tard via Storage) */}
+      <AdminModal open={showAddDoc} onClose={() => setShowAddDoc(false)} title="Ingérer un document"
+        footer={<button onClick={handleSaveDoc} disabled={savingDoc} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 transition-colors text-[13px]">{savingDoc ? "Ingestion en cours…" : "Ingérer"}</button>}>
+        <div className="space-y-3">
+          <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Titre *</label>
+            <input value={docForm.title} onChange={e => setDocForm(p => ({ ...p, title: e.target.value }))} className={ADMIN_INPUT_CLASS} /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Type</label>
+              <select value={docForm.source_type} onChange={e => setDocForm(p => ({ ...p, source_type: e.target.value }))} className={ADMIN_INPUT_CLASS}>
+                <option value="manual">Manuel</option>
+                <option value="report">Rapport</option>
+                <option value="conversation">Conversation</option>
+                <option value="txt">Texte brut</option>
+              </select></div>
+            <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Produit (slug)</label>
+              <input value={docForm.product} onChange={e => setDocForm(p => ({ ...p, product: e.target.value }))} placeholder="cockpit-fna, advist…" className={ADMIN_INPUT_CLASS} /></div>
+          </div>
+          <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Texte à ingérer *</label>
+            <textarea value={docForm.text} onChange={e => setDocForm(p => ({ ...p, text: e.target.value }))} rows={10} className={ADMIN_INPUT_CLASS} placeholder="Colle le contenu textuel à indexer (PDF/DOCX seront supportés via Storage en sprint suivant)" /></div>
+          <p className="text-[11px] text-neutral-muted dark:text-admin-muted">L'edge function proph3t-ingest chunke en blocs de 500 tokens (overlap 50) et appelle Ollama pour les embeddings.</p>
+        </div>
+      </AdminModal>
+
+      {/* Detail modals */}
+      <AdminModal open={!!detailKb} onClose={() => setDetailKb(null)} title="Détail référentiel" size="lg">
+        {detailKb && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <span className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold ${SOURCE_COLORS[detailChunk.source_type] || ""}`}>
-                {SOURCE_LABELS[detailChunk.source_type] || detailChunk.source_type}
-              </span>
-              <span className="text-neutral-muted dark:text-admin-muted text-[12px]">{detailChunk.content.split(/\s+/).length} mots</span>
+              <span className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold ${KB_COLORS[detailKb.category] || ""}`}>{detailKb.category}</span>
+              {detailKb.reference && <span className="text-[11px] font-mono text-neutral-muted dark:text-admin-muted">{detailKb.reference}</span>}
             </div>
-            <div>
-              <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Contenu</div>
-              <div className="text-neutral-text dark:text-admin-text text-[13px] whitespace-pre-wrap bg-warm-bg dark:bg-admin-surface-alt p-4 rounded-lg leading-relaxed max-h-[400px] overflow-y-auto">
-                {detailChunk.content}
-              </div>
+            <h3 className="text-neutral-text dark:text-admin-text text-base font-bold">{detailKb.title}</h3>
+            <div className="text-neutral-text dark:text-admin-text text-sm whitespace-pre-wrap bg-warm-bg dark:bg-admin-surface-alt p-4 rounded-lg">{detailKb.content}</div>
+          </div>
+        )}
+      </AdminModal>
+
+      <AdminModal open={!!detailDoc} onClose={() => setDetailDoc(null)} title="Détail document">
+        {detailDoc && (
+          <div className="space-y-4 text-[13px]">
+            <h3 className="text-neutral-text dark:text-admin-text text-base font-bold">{detailDoc.title}</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div><span className="text-neutral-muted dark:text-admin-muted">Type:</span> {detailDoc.source_type}</div>
+              <div><span className="text-neutral-muted dark:text-admin-muted">Statut:</span> {detailDoc.ingestion_status}</div>
+              <div><span className="text-neutral-muted dark:text-admin-muted">Chunks:</span> {detailDoc.total_chunks}</div>
+              <div><span className="text-neutral-muted dark:text-admin-muted">Pages:</span> {detailDoc.page_count ?? "—"}</div>
+              <div><span className="text-neutral-muted dark:text-admin-muted">Produit:</span> {detailDoc.product || "—"}</div>
+              <div><span className="text-neutral-muted dark:text-admin-muted">Créé:</span> {new Date(detailDoc.created_at).toLocaleDateString("fr-FR")}</div>
             </div>
-            {detailChunk.metadata && Object.keys(detailChunk.metadata).length > 0 && (
-              <div>
-                <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Metadata</div>
-                <pre className="bg-warm-bg dark:bg-admin-surface-alt rounded-lg p-4 text-[12px] font-mono text-neutral-text dark:text-admin-text whitespace-pre-wrap">
-                  {JSON.stringify(detailChunk.metadata, null, 2)}
-                </pre>
-              </div>
+            {detailDoc.ingestion_error && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded text-[12px]">{detailDoc.ingestion_error}</div>
             )}
-            <div className="text-[12px] text-neutral-muted dark:text-admin-muted">
-              Source ID : <span className="font-mono">{detailChunk.source_id || "—"}</span> · Indexé le {new Date(detailChunk.created_at).toLocaleString("fr-FR")}
-            </div>
           </div>
         )}
       </AdminModal>
 
       <AdminConfirmDialog {...confirmDialog} onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))} />
+
+      {/* Hidden imports placeholders */}
+      <span className="hidden"><Database size={1} /></span>
     </div>
   );
 }

@@ -7,6 +7,9 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   model_used?: string;
+  citations?: { tool: string; hits: unknown }[];
+  confidence?: number;
+  message_id?: string;
   created_at: string;
 }
 
@@ -52,6 +55,23 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
     }
   }, [input]);
 
+  const sendFeedback = async (messageId: string, rating: "up" | "down" | "correction", correctionText?: string) => {
+    try {
+      await supabase.functions.invoke("proph3t-feedback", {
+        body: { message_id: messageId, rating, correction_text: correctionText },
+      });
+    } catch (e) {
+      console.warn("[proph3t-chat] feedback failed", e);
+    }
+  };
+
+  const promptCorrection = (messageId: string) => {
+    const correction = window.prompt("Quelle est la bonne réponse ? PROPH3T va apprendre de votre correction.");
+    if (correction && correction.trim()) {
+      sendFeedback(messageId, "correction", correction.trim());
+    }
+  };
+
   const sendMessage = async (content: string) => {
     if (!content.trim() && !attachment) return;
     setIsLoading(true);
@@ -61,9 +81,9 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
     setMessages(prev => [...prev, userMsg]);
 
     try {
-      // Try calling proph3t-orchestrator Edge Function
-      const { data, error } = await supabase.functions.invoke("proph3t-orchestrator", {
-        body: { conversation_id: conversationId, message: content },
+      // Call new proph3t-ask edge function (CDC v2 ReAct orchestrator)
+      const { data, error } = await supabase.functions.invoke("proph3t-ask", {
+        body: { message: content, conversation_id: conversationId, product: "admin" },
       });
 
       if (error) throw error;
@@ -71,19 +91,21 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
 
       setMessages(prev => [...prev, {
         id: Date.now().toString() + "_r",
+        message_id: data?.message_id,
         role: "assistant",
-        content: data?.response || "Réponse reçue.",
-        model_used: data?.model_used,
+        content: data?.answer || "Réponse reçue.",
+        citations: data?.citations,
+        confidence: data?.confidence,
         created_at: new Date().toISOString(),
       }]);
     } catch {
-      // Fallback: generate insights locally from Supabase data
+      // Fallback: generate insights locally from Supabase data (v1 fallback heuristique)
       const response = await generateLocalInsight(content);
       setMessages(prev => [...prev, {
         id: Date.now().toString() + "_r",
         role: "assistant",
-        content: response,
-        model_used: "local",
+        content: response + "\n\n_⚠️ Mode dégradé: Ollama VPS non disponible. Réponse heuristique locale._",
+        model_used: "local-fallback",
         created_at: new Date().toISOString(),
       }]);
     }
@@ -148,6 +170,39 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
                       : <span key={i}>{part}</span>
                   )}
                 </div>
+                {/* Citations + confidence badge (CDC v2 garde-fous) */}
+                {msg.role === "assistant" && (msg.confidence !== undefined || (msg.citations && msg.citations.length > 0)) && (
+                  <div className="mt-2 flex items-center gap-2 flex-wrap text-[10px]">
+                    {msg.confidence !== undefined && (
+                      <span className={`px-2 py-0.5 rounded-full font-mono ${msg.confidence >= 70 ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
+                        confiance {msg.confidence}
+                      </span>
+                    )}
+                    {msg.citations && msg.citations.length > 0 && (
+                      <span className="text-neutral-500">{msg.citations.length} source(s)</span>
+                    )}
+                  </div>
+                )}
+                {/* Feedback buttons for assistant messages with a real message_id */}
+                {msg.role === "assistant" && msg.message_id && (
+                  <div className="mt-2 flex items-center gap-1 text-[11px]">
+                    <button
+                      onClick={() => sendFeedback(msg.message_id!, "up")}
+                      className="px-2 py-1 rounded hover:bg-emerald-500/10 text-neutral-500 hover:text-emerald-400 transition-colors"
+                      title="Bonne réponse"
+                    >👍</button>
+                    <button
+                      onClick={() => sendFeedback(msg.message_id!, "down")}
+                      className="px-2 py-1 rounded hover:bg-red-500/10 text-neutral-500 hover:text-red-400 transition-colors"
+                      title="Mauvaise réponse"
+                    >👎</button>
+                    <button
+                      onClick={() => promptCorrection(msg.message_id!)}
+                      className="px-2 py-1 rounded hover:bg-amber-500/10 text-neutral-500 hover:text-amber-400 transition-colors"
+                      title="Corriger"
+                    >✏️</button>
+                  </div>
+                )}
                 {msg.model_used && (
                   <div className="text-[10px] text-neutral-600 mt-2">
                     via {msg.model_used === "local" ? "analyse locale" : msg.model_used}
