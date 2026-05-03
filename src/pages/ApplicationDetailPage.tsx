@@ -151,7 +151,7 @@ export default function ApplicationDetailPage() {
               )}
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-neutral-light mb-5 tracking-tight leading-[1.05]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-neutral-light mb-5 tracking-tight leading-[1.12]">
               <AppLogo name={app.name} size={56} color="text-gold" />
             </h1>
             <p className="text-neutral-muted text-lg md:text-xl max-w-2xl leading-relaxed mb-9 font-light">
@@ -238,7 +238,7 @@ export default function ApplicationDetailPage() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center mb-14">
               <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Fonctionnalités</div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-gradient-light mb-4 tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">
                 Tout ce dont vous avez besoin
               </h2>
               <p className="text-neutral-muted text-[15px] leading-relaxed font-light">
@@ -284,7 +284,7 @@ export default function ApplicationDetailPage() {
           <ScrollReveal>
             <div className="text-center mb-14">
               <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Tarifs</div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-gradient-light mb-4 tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">
                 Choisissez votre plan
               </h2>
               <p className="text-neutral-muted text-[15px] font-light">
@@ -398,7 +398,7 @@ export default function ApplicationDetailPage() {
             <ScrollReveal>
               <div className="text-center mb-14">
                 <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Comparaison</div>
-                <h2 className="text-3xl md:text-4xl font-semibold text-gradient-light mb-3 tracking-tight">
+                <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-3 tracking-tight">
                   Comparez les plans en détail
                 </h2>
               </div>
@@ -486,7 +486,7 @@ export default function ApplicationDetailPage() {
         />
         <div className="relative max-w-2xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-semibold text-gradient-light mb-4 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">
               Prêt à essayer {app.name} ?
             </h2>
             <p className="text-neutral-muted text-[15px] mb-9 max-w-md mx-auto leading-relaxed font-light">

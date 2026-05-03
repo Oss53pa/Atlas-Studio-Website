@@ -19,7 +19,7 @@ export function AboutHero() {
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Pourquoi Atlas Studio</SectionLabel>
-          <h1 className="text-4xl md:text-5xl lg:text-[58px] font-semibold text-gradient-light leading-[1.08] tracking-tight mb-9 max-w-4xl">
+          <h1 className="text-4xl md:text-5xl lg:text-[58px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-9 max-w-4xl">
             Vous perdez des heures à retraiter ce que votre logiciel aurait dû vous donner{" "}
             <span className="text-gradient-gold">directement</span>.
           </h1>

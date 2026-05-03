@@ -24,7 +24,7 @@ export function CredibilitySection() {
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Pourquoi nous comprenons votre contexte</SectionLabel>
-          <h2 className="text-[32px] md:text-[42px] font-semibold text-gradient-light leading-[1.1] tracking-tight mb-7 max-w-3xl">
+          <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-7 max-w-3xl">
             Atlas Studio est conçue par quelqu'un qui a vécu ces problèmes{" "}
             <span className="text-gradient-gold">sur le terrain</span>.
           </h2>

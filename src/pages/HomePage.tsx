@@ -54,7 +54,7 @@ export default function HomePage() {
               <span className="font-logo text-gradient-champagne text-5xl md:text-6xl">Atlas Studio</span>
             </div>
           </div>
-          <h1 className="text-5xl md:text-7xl font-semibold leading-[1.05] mb-6 tracking-[-0.025em] text-gradient-light">
+          <h1 className="text-[44px] md:text-[68px] font-medium leading-[1.12] mb-7 tracking-[-0.02em] text-gradient-light pb-1">
             {content.hero.title}
           </h1>
           <p className="text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto text-neutral-muted font-light">
@@ -102,7 +102,7 @@ export default function HomePage() {
         <div className="relative max-w-site mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">{t("home.platform")}</div>
-            <h2 className="text-[36px] md:text-[44px] font-semibold text-neutral-light leading-[1.1] tracking-tight mb-4 text-gradient-light">{t("home.ourProducts")}</h2>
+            <h2 className="text-[36px] md:text-[44px] font-medium text-neutral-light leading-[1.12] tracking-tight mb-4 text-gradient-light">{t("home.ourProducts")}</h2>
             <p className="text-[15px] text-neutral-muted font-light max-w-[520px] leading-relaxed mb-14">
               {t("home.productsSubtitle")}
             </p>
@@ -131,7 +131,7 @@ export default function HomePage() {
         <div className="relative max-w-site mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">{t("home.howItWorks")}</div>
-            <h2 className="text-[36px] md:text-[44px] font-semibold text-neutral-light leading-[1.1] tracking-tight mb-4 text-gradient-light">{t("home.operationalIn")}</h2>
+            <h2 className="text-[36px] md:text-[44px] font-medium text-neutral-light leading-[1.12] tracking-tight mb-4 text-gradient-light">{t("home.operationalIn")}</h2>
             <p className="text-[15px] text-neutral-muted font-light max-w-[520px] leading-relaxed mb-14">
               {t("home.noInstall")}
             </p>
@@ -185,7 +185,7 @@ export default function HomePage() {
         <div className="relative max-w-site mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">{t("home.sectors")}</div>
-            <h2 className="text-[36px] md:text-[44px] font-semibold text-neutral-light leading-[1.1] tracking-tight mb-4 text-gradient-light">{t("home.allSectors")}</h2>
+            <h2 className="text-[36px] md:text-[44px] font-medium text-neutral-light leading-[1.12] tracking-tight mb-4 text-gradient-light">{t("home.allSectors")}</h2>
             <p className="text-[15px] text-neutral-muted font-light max-w-[520px] leading-relaxed mb-14">
               {t("home.sectorsSubtitle")}
             </p>
@@ -205,7 +205,7 @@ export default function HomePage() {
         <div className="relative max-w-site mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">{t("home.comparison")}</div>
-            <h2 className="text-[36px] md:text-[44px] font-semibold text-neutral-light leading-[1.1] tracking-tight mb-12 text-gradient-light">{t("home.vsAlternatives")}</h2>
+            <h2 className="text-[36px] md:text-[44px] font-medium text-neutral-light leading-[1.12] tracking-tight mb-12 text-gradient-light">{t("home.vsAlternatives")}</h2>
           </ScrollReveal>
           <ScrollReveal>
             <div className="overflow-x-auto rounded-2xl shadow-premium">
@@ -234,7 +234,7 @@ export default function HomePage() {
         <div className="relative max-w-site mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">{t("home.testimonials")}</div>
-            <h2 className="text-[36px] md:text-[44px] font-semibold text-neutral-light leading-[1.1] tracking-tight mb-12 text-gradient-light">{t("home.trustedBy")}</h2>
+            <h2 className="text-[36px] md:text-[44px] font-medium text-neutral-light leading-[1.12] tracking-tight mb-12 text-gradient-light">{t("home.trustedBy")}</h2>
           </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {(content.testimonials || []).map((tm, i) => (
@@ -265,7 +265,7 @@ export default function HomePage() {
         <div className="relative max-w-3xl mx-auto text-center">
           <ScrollReveal>
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>{t("home.pricingLabel")}</div>
-            <h2 className="text-[36px] md:text-[44px] font-semibold text-neutral-light leading-[1.1] tracking-tight mb-4 text-gradient-light">{t("home.simplePricing")}</h2>
+            <h2 className="text-[36px] md:text-[44px] font-medium text-neutral-light leading-[1.12] tracking-tight mb-4 text-gradient-light">{t("home.simplePricing")}</h2>
             <p className="text-[15px] text-neutral-muted font-light mb-12">{t("home.pricingSubtitle")}</p>
           </ScrollReveal>
           <ScrollReveal>
@@ -307,7 +307,7 @@ export default function HomePage() {
         <div className="relative max-w-2xl mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">{t("home.faqLabel")}</div>
-            <h2 className="text-[36px] md:text-[44px] font-semibold text-neutral-light leading-[1.1] tracking-tight mb-12 text-gradient-light">{t("home.faqTitle")}</h2>
+            <h2 className="text-[36px] md:text-[44px] font-medium text-neutral-light leading-[1.12] tracking-tight mb-12 text-gradient-light">{t("home.faqTitle")}</h2>
           </ScrollReveal>
           <ScrollReveal>
             {(content.faqs || []).map((faq, i) => (
@@ -323,7 +323,7 @@ export default function HomePage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] glow-gold pointer-events-none" />
         <div className="relative">
           <ScrollReveal>
-            <h2 className="text-4xl md:text-5xl font-semibold text-gradient-light mb-4 tracking-tight">{t("home.readyTitle")}</h2>
+            <h2 className="text-4xl md:text-5xl font-medium text-gradient-light mb-4 tracking-tight">{t("home.readyTitle")}</h2>
             <p className="text-[15px] text-neutral-muted font-light mb-10 max-w-md mx-auto leading-relaxed">
               {t("home.readySubtitle")}
             </p>

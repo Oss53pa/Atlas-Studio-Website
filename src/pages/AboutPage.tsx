@@ -29,7 +29,7 @@ export default function AboutPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] glow-gold pointer-events-none" />
         <div className="relative max-w-2xl mx-auto">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gradient-light leading-[1.1] tracking-tight mb-5">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-gradient-light leading-[1.12] tracking-tight mb-5">
               Prêt à voir la différence ?
             </h2>
             <p className="text-neutral-muted text-[15px] md:text-base font-light leading-relaxed mb-10">

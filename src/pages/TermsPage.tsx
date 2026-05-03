@@ -169,7 +169,7 @@ export default function TermsPage() {
             <span className="text-neutral-muted/50 text-[11px]">·</span>
             <span className="text-neutral-muted text-[11px]">En vigueur le {TERMS_V2.effectiveDate}</span>
           </div>
-          <h1 className="text-gradient-light text-3xl md:text-5xl font-semibold mb-4 tracking-tight leading-[1.1]">
+          <h1 className="text-gradient-light text-3xl md:text-5xl font-medium mb-4 tracking-tight leading-[1.12]">
             Conditions Generales d'Utilisation
           </h1>
           <p className="text-neutral-muted text-sm max-w-2xl mx-auto leading-relaxed font-light">

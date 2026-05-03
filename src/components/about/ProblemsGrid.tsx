@@ -45,7 +45,7 @@ export function ProblemsGrid() {
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Ce que nous résolvons</SectionLabel>
-          <h2 className="text-[32px] md:text-[42px] font-semibold text-gradient-light leading-[1.1] tracking-tight mb-14 max-w-2xl">
+          <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-14 max-w-2xl">
             Des problèmes que vous connaissez probablement
           </h2>
         </ScrollReveal>

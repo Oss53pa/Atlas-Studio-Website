@@ -37,7 +37,7 @@ export default function ApplicationsPage() {
         <div className="relative max-w-site mx-auto text-center">
           <ScrollReveal>
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Applications</div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-gradient-light mb-5 tracking-tight leading-[1.05]">Nos Solutions</h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gradient-light mb-5 tracking-tight leading-[1.12]">Nos Solutions</h1>
             <p className="text-neutral-muted text-base md:text-lg font-light max-w-2xl mx-auto leading-relaxed mb-10">
               Des outils professionnels conçus pour les réalités africaines.
               Comptabilité SYSCOHADA, liasse fiscale, signature électronique — tout ce qu'il faut pour digitaliser votre gestion.
@@ -79,7 +79,7 @@ export default function ApplicationsPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] glow-gold opacity-50 pointer-events-none" />
         <div className="relative">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-semibold text-gradient-light mb-4 tracking-tight">Prêt à digitaliser votre gestion ?</h2>
+            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">Prêt à digitaliser votre gestion ?</h2>
             <p className="text-neutral-muted text-[15px] font-light mb-9 max-w-md mx-auto">Souscrivez maintenant. Sans engagement, annulation à tout moment.</p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link to="/portal" className="btn-gold">
