@@ -6,14 +6,18 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt' mode: we register the SW manually in main.tsx and decide
+      // when to call updateSW(). Combined with the auto-reload hook, every
+      // visit picks up the latest deploy without users having to clear cache.
+      registerType: 'prompt',
+      injectRegister: false, // we handle registration ourselves in main.tsx
       includeAssets: ['favicon.svg', 'robots.txt'],
       manifest: {
         name: 'Atlas Studio',
         short_name: 'Atlas Studio',
         description: 'Solutions digitales professionnelles pour les entreprises africaines',
-        theme_color: '#0A0A0A',
-        background_color: '#FAFAF8',
+        theme_color: '#0A0F1A',
+        background_color: '#0A0F1A',
         display: 'standalone',
         start_url: '/',
         icons: [
@@ -23,16 +27,26 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Force the new SW to activate immediately and take over all open tabs
-        // so users don't stay stuck on a cached old bundle after a deploy.
         skipWaiting: true,
         clientsClaim: true,
-        // Remove any previously cached files on SW activation
         cleanupOutdatedCaches: true,
+        // Use NetworkFirst for navigation: if network is up, the SW serves fresh
+        // index.html (and therefore fresh JS/CSS hashes). Only falls back to
+        // cache when offline. This kills "stale UI after deploy" issues.
         navigateFallback: '/index.html',
-        // Never serve the cached index.html for these paths — always hit network
         navigateFallbackDenylist: [/^\/admin/, /^\/portal/, /^\/api/],
         runtimeCaching: [
+          // Always try the network for HTML navigations — guarantees fresh deploys
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 },
+            },
+          },
+          // Supabase API: NetworkFirst with short cache (already in place)
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',

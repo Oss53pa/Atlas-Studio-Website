@@ -101,6 +101,34 @@ if (typeof window !== 'undefined') {
 
 initErrorMonitor(ATLAS_APP_ID);
 
+// ── Service Worker auto-update ─────────────────────────────────────────
+// On every new deploy, the SW detects the new version. We auto-trigger
+// the activation + reload so users always see the latest UI without having
+// to clear cache. Skipped in dev (the virtual module is a no-op there).
+if (import.meta.env.PROD) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    const updateSW = registerSW({
+      immediate: true,
+      onNeedRefresh() {
+        // New version available — activate it and reload silently.
+        // For a marketing site, no need to ask the user; the reload is fast.
+        updateSW(true).then(() => {
+          window.location.reload();
+        });
+      },
+      onRegisteredSW(_swUrl, registration) {
+        // Periodically check for updates (every 60min) so long-open tabs
+        // also pick up new deploys without needing a manual refresh.
+        if (registration) {
+          setInterval(() => {
+            registration.update().catch(() => { /* ignore network errors */ });
+          }, 60 * 60 * 1000);
+        }
+      },
+    });
+  }).catch(() => { /* SW registration is non-critical */ });
+}
+
 const container = document.getElementById('root')!;
 const root = (container as any).__root ?? createRoot(container);
 (container as any).__root = root;
