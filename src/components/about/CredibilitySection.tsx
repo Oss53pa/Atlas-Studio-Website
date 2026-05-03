@@ -19,13 +19,14 @@ const FOUNDER = {
 
 export function CredibilitySection() {
   return (
-    <section className="bg-onyx border-b border-dark-border py-20 md:py-28 px-5 md:px-8">
-      <div className="max-w-site mx-auto">
+    <section className="relative bg-onyx border-b border-white/[0.04] py-20 md:py-28 px-5 md:px-8 overflow-hidden">
+      <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
+      <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Pourquoi nous comprenons votre contexte</SectionLabel>
-          <h2 className="text-[32px] md:text-[40px] font-normal text-neutral-light leading-tight tracking-tight mb-6 max-w-3xl">
+          <h2 className="text-[32px] md:text-[42px] font-semibold text-gradient-light leading-[1.1] tracking-tight mb-7 max-w-3xl">
             Atlas Studio est conçue par quelqu'un qui a vécu ces problèmes{" "}
-            <span className="text-gold">sur le terrain</span>.
+            <span className="text-gradient-gold">sur le terrain</span>.
           </h2>
           <p className="text-neutral-muted text-[15px] md:text-base font-light leading-relaxed max-w-2xl mb-14">
             Ce n'est pas une garantie de perfection — c'est une garantie de pertinence. Quand
@@ -35,25 +36,36 @@ export function CredibilitySection() {
         </ScrollReveal>
 
         <ScrollReveal delay={100}>
-          <div className="bg-dark-bg2 border border-dark-border rounded-2xl p-8 md:p-12">
-            <div className="text-neutral-light text-xl md:text-2xl font-normal mb-1">
-              {FOUNDER.name}
-            </div>
-            <div className="text-gold text-[13px] md:text-sm font-normal mb-5">
-              {FOUNDER.title}
-            </div>
-            <p className="text-neutral-muted text-[14px] md:text-[15px] font-light leading-relaxed mb-6 max-w-3xl">
-              {FOUNDER.bio}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {FOUNDER.badges.map((b) => (
-                <span
-                  key={b}
-                  className="inline-block text-[11px] md:text-xs text-neutral-muted font-light px-3 py-1.5 rounded-full bg-onyx border border-dark-border"
-                >
-                  {b}
-                </span>
-              ))}
+          <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 md:p-14 overflow-hidden shadow-premium-lg">
+            <div className="absolute -top-px left-[8%] right-[8%] h-px"
+              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.6) 50%, transparent 100%)" }}
+            />
+            <div className="absolute -top-1/2 left-1/2 -translate-x-1/2 w-[100%] h-[80%] pointer-events-none opacity-50"
+              style={{
+                background: "radial-gradient(ellipse 30% 50% at 50% 50%, rgba(16,185,129,0.08) 0%, transparent 70%)",
+                filter: "blur(40px)",
+              }}
+            />
+            <div className="relative">
+              <div className="text-neutral-light text-2xl md:text-3xl font-semibold mb-1 tracking-tight">
+                {FOUNDER.name}
+              </div>
+              <div className="text-gradient-gold text-[13px] md:text-sm font-semibold tracking-wide mb-6">
+                {FOUNDER.title}
+              </div>
+              <p className="text-neutral-muted text-[14px] md:text-[15px] font-light leading-relaxed mb-7 max-w-3xl">
+                {FOUNDER.bio}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {FOUNDER.badges.map((b) => (
+                  <span
+                    key={b}
+                    className="inline-block text-[11px] md:text-xs text-neutral-muted font-medium px-3 py-1.5 rounded-full bg-white/[0.025] border border-white/[0.08] tracking-wide"
+                  >
+                    {b}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </ScrollReveal>

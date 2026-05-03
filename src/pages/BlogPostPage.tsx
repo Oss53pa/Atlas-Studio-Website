@@ -24,49 +24,50 @@ export default function BlogPostPage() {
 
       {/* Hero image */}
       <section className="relative pt-20 md:pt-24">
-        <div className="h-64 md:h-80 w-full overflow-hidden">
+        <div className="h-72 md:h-96 w-full overflow-hidden relative">
           <img
             src={post.cover}
             alt={post.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-onyx via-onyx/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-onyx via-onyx/80 to-onyx/30" />
+          <div className="absolute inset-0 bg-dotgrid opacity-20 mix-blend-overlay pointer-events-none" />
         </div>
       </section>
 
       {/* Content */}
-      <section className="relative -mt-20 px-5 md:px-8 pb-16">
+      <section className="relative -mt-28 px-5 md:px-8 pb-20">
         <div className="max-w-3xl mx-auto">
           <ScrollReveal>
             <Link
               to="/blog"
-              className="inline-flex items-center gap-1.5 text-neutral-muted text-[13px] hover:text-gold transition-colors mb-6"
+              className="inline-flex items-center gap-1.5 text-neutral-muted text-[13px] hover:text-gold transition-colors mb-7 group"
             >
-              <ArrowLeft size={14} strokeWidth={1.5} />
+              <ArrowLeft size={14} strokeWidth={1.8} className="group-hover:-translate-x-0.5 transition-transform" />
               Retour au blog
             </Link>
 
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-[10px] font-normal uppercase tracking-wider bg-gold/90 text-onyx px-2.5 py-1 rounded-md">
+            <div className="flex items-center gap-3 mb-5 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] bg-gold/90 backdrop-blur-md text-onyx px-2.5 py-1 rounded-md shadow-lg">
                 {post.category}
               </span>
-              <span className="flex items-center gap-1 text-neutral-muted/60 text-[11px]">
+              <span className="flex items-center gap-1 text-neutral-muted/70 text-[11px]">
                 <Calendar size={12} strokeWidth={1.5} />
                 {post.date}
               </span>
-              <span className="flex items-center gap-1 text-neutral-muted/60 text-[11px]">
+              <span className="flex items-center gap-1 text-neutral-muted/70 text-[11px]">
                 <Clock size={12} strokeWidth={1.5} />
                 {post.readTime}
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-normal text-neutral-light mb-4 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-semibold text-gradient-light mb-5 leading-[1.1] tracking-tight">
               {post.title}
             </h1>
 
             {post.author && (
-              <p className="text-neutral-muted text-sm font-light mb-8">
-                Par <span className="text-neutral-light font-medium">{post.author}</span>
+              <p className="text-neutral-muted text-sm font-light mb-10">
+                Par <span className="text-gold font-medium">{post.author}</span>
               </p>
             )}
           </ScrollReveal>
@@ -82,12 +83,12 @@ export default function BlogPostPage() {
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <ScrollReveal>
-              <div className="flex items-center gap-2 flex-wrap mt-10 pt-8 border-t border-dark-border">
-                <Tag size={14} className="text-neutral-muted/40" strokeWidth={1.5} />
+              <div className="flex items-center gap-2 flex-wrap mt-12 pt-9 border-t border-white/[0.06]">
+                <Tag size={14} className="text-gold" strokeWidth={1.8} />
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[11px] text-neutral-muted bg-white/5 px-3 py-1 rounded-full"
+                    className="text-[11px] text-neutral-muted font-medium bg-white/[0.03] border border-white/[0.06] px-3 py-1 rounded-full"
                   >
                     {tag}
                   </span>
@@ -100,13 +101,11 @@ export default function BlogPostPage() {
 
       {/* Related articles */}
       {related.length > 0 && (
-        <section className="py-14 px-5 md:px-8 bg-dark-bg2 border-t border-dark-border">
-          <div className="max-w-site mx-auto">
+        <section className="relative py-16 px-5 md:px-8 bg-ink-100 border-t border-white/[0.04] overflow-hidden">
+          <div className="relative max-w-site mx-auto">
             <ScrollReveal>
-              <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">
-                Articles similaires
-              </div>
-              <h2 className="text-2xl font-normal text-neutral-light mb-8">
+              <div className="section-eyebrow">Articles similaires</div>
+              <h2 className="text-2xl md:text-3xl font-semibold text-gradient-light mb-10 tracking-tight">
                 Continuer la lecture
               </h2>
             </ScrollReveal>
@@ -116,20 +115,21 @@ export default function BlogPostPage() {
                 <ScrollReveal key={r.slug} delay={i * 80}>
                   <Link
                     to={`/blog/${r.slug}`}
-                    className="group block bg-onyx border border-dark-border rounded-xl overflow-hidden card-hover"
+                    className="group relative block bg-ink-200 border border-white/[0.06] rounded-2xl overflow-hidden card-hover"
                   >
-                    <div className="h-40 overflow-hidden">
+                    <div className="h-44 overflow-hidden relative">
                       <img
                         src={r.cover}
                         alt={r.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink-200/80 via-transparent to-transparent" />
                     </div>
                     <div className="p-5">
-                      <h3 className="text-sm font-normal text-neutral-light group-hover:text-gold transition-colors mb-2 line-clamp-2">
+                      <h3 className="text-sm font-semibold text-neutral-light group-hover:text-gold transition-colors mb-2 line-clamp-2 tracking-tight leading-snug">
                         {r.title}
                       </h3>
-                      <p className="text-neutral-muted text-[12px] font-light line-clamp-2">
+                      <p className="text-neutral-muted text-[12px] font-light line-clamp-2 leading-relaxed">
                         {r.excerpt}
                       </p>
                     </div>

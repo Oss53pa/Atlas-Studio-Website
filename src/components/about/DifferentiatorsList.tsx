@@ -44,13 +44,14 @@ const ITEMS: Differentiator[] = [
 
 export function DifferentiatorsList() {
   return (
-    <section className="bg-dark-bg2 border-b border-dark-border py-20 md:py-28 px-5 md:px-8">
-      <div className="max-w-site mx-auto">
+    <section className="relative bg-ink-100 border-b border-white/[0.04] py-20 md:py-28 px-5 md:px-8 overflow-hidden">
+      <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
+      <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Nos produits en pratique</SectionLabel>
-          <h2 className="text-[32px] md:text-[40px] font-normal text-neutral-light leading-tight tracking-tight mb-3 max-w-3xl">
+          <h2 className="text-[32px] md:text-[42px] font-semibold text-gradient-light leading-[1.1] tracking-tight mb-4 max-w-3xl">
             Ce que vous pouvez faire avec{" "}
-            <span className="font-logo text-gold">Atlas Studio</span>
+            <span className="font-logo text-gradient-champagne">Atlas Studio</span>
           </h2>
           <p className="text-neutral-muted text-[15px] md:text-base font-light max-w-2xl leading-relaxed mb-14">
             Cinq choses concrètes que vos outils actuels ne permettent pas — et que nous
@@ -61,12 +62,12 @@ export function DifferentiatorsList() {
         <div className="space-y-2">
           {ITEMS.map((item, i) => (
             <ScrollReveal key={item.num} delay={i * 60}>
-              <div className="group flex items-start gap-6 md:gap-8 py-7 border-b border-dark-border last:border-b-0">
-                <div className="font-mono text-gold text-xl md:text-2xl font-normal pt-0.5 min-w-[2.5rem] md:min-w-[3rem] transition-opacity group-hover:opacity-80">
+              <div className="group flex items-start gap-6 md:gap-10 py-8 border-b border-white/[0.06] last:border-b-0 hover:bg-white/[0.015] transition-colors duration-300 -mx-4 md:-mx-6 px-4 md:px-6 rounded-xl">
+                <div className="font-mono text-gradient-gold text-2xl md:text-3xl font-semibold tracking-tight pt-0.5 min-w-[2.5rem] md:min-w-[3rem]">
                   {item.num}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-neutral-light text-base md:text-lg font-normal leading-snug mb-2">
+                  <h3 className="text-neutral-light text-base md:text-lg font-semibold leading-snug mb-2 tracking-tight group-hover:text-gold transition-colors duration-300">
                     {item.title}
                   </h3>
                   <p className="text-neutral-muted text-[13px] md:text-sm font-light leading-relaxed">

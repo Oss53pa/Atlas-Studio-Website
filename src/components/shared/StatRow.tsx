@@ -4,18 +4,21 @@ export interface Stat {
 }
 
 /**
- * StatRow — rangée de statistiques (JetBrains Mono gold) séparées par une ligne.
- * Design aligné sur la section stats de HomePage.
+ * StatRow — premium row of metrics, gradient gold typography on a subtle gradient divider.
  */
 export function StatRow({ stats }: { stats: Stat[] }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 pt-10 mt-12 border-t border-dark-border">
+    <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 pt-10 mt-12">
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.3) 50%, transparent 100%)" }}
+      />
       {stats.map((s) => (
         <div key={s.label}>
-          <div className="font-mono text-gold text-2xl md:text-3xl font-normal leading-none mb-2">
+          <div className="font-mono text-2xl md:text-3xl font-semibold leading-none mb-2 tracking-tight text-gradient-gold">
             {s.value}
           </div>
-          <div className="text-neutral-muted text-xs md:text-[13px] font-light leading-snug">
+          <div className="text-neutral-muted text-xs md:text-[13px] font-light leading-snug tracking-wide">
             {s.label}
           </div>
         </div>

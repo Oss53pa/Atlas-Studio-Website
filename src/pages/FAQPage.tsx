@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { useContentContext } from "../components/layout/Layout";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { FAQItem } from "../components/ui/FAQItem";
@@ -10,13 +11,16 @@ export default function FAQPage() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <div className="bg-onyx min-h-screen pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8">
+    <div className="bg-onyx min-h-screen pt-28 pb-20 md:pt-32 md:pb-28 px-5 md:px-8 relative overflow-hidden">
       <SEOHead title="FAQ" description="Questions fréquentes sur Atlas Studio." canonical="/faq" />
-      <div className="max-w-2xl mx-auto">
+      <div className="absolute inset-0 bg-dotgrid opacity-25 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] glow-gold pointer-events-none" />
+
+      <div className="relative max-w-2xl mx-auto">
         <ScrollReveal>
-          <div className="text-[11px] font-normal text-gold uppercase tracking-[0.1em] mb-3">FAQ</div>
-          <h1 className="text-[34px] font-normal text-neutral-light leading-tight mb-3">Questions fréquentes</h1>
-          <p className="text-[15px] text-neutral-muted font-light mb-12">Trouvez rapidement les réponses à vos questions.</p>
+          <div className="section-eyebrow">FAQ</div>
+          <h1 className="text-4xl md:text-5xl font-semibold text-gradient-light leading-[1.1] tracking-tight mb-4">Questions fréquentes</h1>
+          <p className="text-[15px] text-neutral-muted font-light mb-14">Trouvez rapidement les réponses à vos questions.</p>
         </ScrollReveal>
 
         <ScrollReveal>
@@ -28,10 +32,16 @@ export default function FAQPage() {
         </ScrollReveal>
 
         <ScrollReveal>
-          <div className="text-center mt-12 bg-dark-bg2 border border-dark-border rounded-xl p-8">
-            <h3 className="text-neutral-light text-lg font-normal mb-2">Vous n'avez pas trouvé votre réponse ?</h3>
-            <p className="text-neutral-muted text-sm font-light mb-6">Notre équipe est là pour vous aider.</p>
-            <Link to="/contact" className="btn-gold">Nous contacter</Link>
+          <div className="relative text-center mt-14 bg-ink-100 border border-white/[0.06] rounded-2xl p-9 overflow-hidden shadow-premium">
+            <div className="absolute -top-px left-[10%] right-[10%] h-px"
+              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.55) 50%, transparent 100%)" }}
+            />
+            <h3 className="text-neutral-light text-lg font-semibold mb-2 tracking-tight">Vous n'avez pas trouvé votre réponse ?</h3>
+            <p className="text-neutral-muted text-sm font-light mb-7">Notre équipe est là pour vous aider.</p>
+            <Link to="/contact" className="btn-gold">
+              Nous contacter
+              <ArrowRight size={16} strokeWidth={2.2} />
+            </Link>
           </div>
         </ScrollReveal>
       </div>

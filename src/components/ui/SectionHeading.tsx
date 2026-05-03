@@ -7,8 +7,8 @@ interface SectionHeadingProps {
 
 export function SectionHeading({ title, subtitle, className = "" }: SectionHeadingProps) {
   return (
-    <div className={`text-center mb-12 ${className}`}>
-      <h2 className="text-3xl md:text-4xl font-normal mb-3 text-neutral-light">
+    <div className={`text-center mb-14 ${className}`}>
+      <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-gradient-light tracking-tight">
         {title}
       </h2>
       {subtitle && (
@@ -16,7 +16,11 @@ export function SectionHeading({ title, subtitle, className = "" }: SectionHeadi
           {subtitle}
         </p>
       )}
-      <div className="w-12 h-[3px] bg-gold mx-auto mt-3 reveal-line" />
+      <div className="relative w-16 h-px mx-auto mt-5 overflow-hidden">
+        <div className="h-px reveal-line"
+          style={{ background: "linear-gradient(90deg, transparent 0%, #10B981 50%, transparent 100%)" }}
+        />
+      </div>
     </div>
   );
 }

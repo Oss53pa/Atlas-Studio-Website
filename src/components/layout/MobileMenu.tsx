@@ -22,19 +22,27 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop with blur */}
       <div
-        className="fixed inset-0 bg-black/50 z-40"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
         onClick={onClose}
       />
 
       {/* Panel */}
-      <div
-        className="fixed top-0 right-0 h-full w-[75vw] max-w-72 bg-onyx z-50 animate-slide-in-right"
+      <div className="fixed top-0 right-0 h-full w-[80vw] max-w-80 z-50 animate-slide-in-right border-l border-white/[0.06]"
+        style={{
+          background:
+            "linear-gradient(180deg, #0E1525 0%, #0A0F1A 100%)",
+        }}
       >
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        {/* Subtle gold accent line at top */}
+        <div className="absolute top-0 left-0 right-0 h-px"
+          style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+        />
+
+        <div className="flex items-center justify-between p-6 border-b border-white/[0.06]">
           <Logo size={22} color="text-neutral-light" />
-          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-light transition-colors">
+          <button onClick={onClose} className="text-neutral-400 hover:text-gold transition-colors p-1.5 rounded-lg hover:bg-white/5">
             <X size={22} />
           </button>
         </div>
@@ -45,13 +53,13 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               key={l.to}
               to={l.to}
               onClick={onClose}
-              className="text-neutral-300 hover:text-gold text-[15px] font-medium py-3 px-3 rounded-lg hover:bg-white/5 transition-all duration-200"
+              className="text-neutral-300 hover:text-gold text-[15px] font-medium py-3 px-3 rounded-lg hover:bg-white/[0.04] transition-all duration-200"
             >
               {l.label}
             </Link>
           ))}
 
-          <div className="mt-6 pt-6 border-t border-white/10">
+          <div className="mt-6 pt-6 border-t border-white/[0.06]">
             <Link
               to="/portal"
               onClick={onClose}

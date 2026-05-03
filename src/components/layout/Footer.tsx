@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Send } from "lucide-react";
+import { Send, CheckCircle2 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useContentContext } from "./Layout";
 
@@ -47,25 +47,37 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-onyx text-neutral-light border-t border-dark-border">
-      <div className="max-w-site mx-auto px-5 md:px-8 py-14">
+    <footer className="relative bg-onyx text-neutral-light border-t border-white/[0.06] overflow-hidden">
+      {/* Top gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.3) 50%, transparent 100%)" }}
+      />
+      <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[300px] glow-gold opacity-30 pointer-events-none" />
+
+      <div className="relative max-w-site mx-auto px-5 md:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
           {/* Brand */}
           <div>
-            <div className="font-logo text-2xl text-gold mb-3">Atlas Studio</div>
-            <p className="text-xs text-neutral-muted font-light leading-relaxed max-w-[220px] mb-5">
+            <div className="font-logo text-3xl text-gradient-champagne mb-4">Atlas Studio</div>
+            <p className="text-xs text-neutral-muted font-light leading-relaxed max-w-[240px] mb-6">
               La suite de gestion conçue pour les entreprises d'Afrique francophone. SYSCOHADA natif, Mobile Money, IA <span className="font-logo">Proph3t</span>.
             </p>
 
             {/* Social links */}
             {socialLinks.length > 0 && (
-              <div className="flex gap-3 mb-5">
+              <div className="flex gap-2 mb-6">
                 {socialLinks.map(([key, url]) => {
                   const Icon = SOCIAL_ICONS[key];
                   if (!Icon) return null;
                   return (
-                    <a key={key} href={url as string} target="_blank" rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-neutral-muted hover:text-gold hover:border-gold/30 transition-colors">
+                    <a
+                      key={key}
+                      href={url as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-neutral-muted hover:text-gold hover:border-gold/40 hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-300"
+                    >
                       <Icon size={14} />
                     </a>
                   );
@@ -74,38 +86,39 @@ export function Footer() {
             )}
 
             {/* Newsletter */}
-            <div className="text-neutral-muted/60 text-[11px] font-normal uppercase tracking-wider mb-2">Newsletter</div>
+            <div className="text-neutral-muted/60 text-[10px] font-semibold uppercase tracking-[0.16em] mb-2.5">Newsletter</div>
             <div className="flex gap-2">
               <input
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 onKeyDown={e => e.key === "Enter" && handleNewsletter()}
-                className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-light text-[13px] outline-none focus:border-gold/50 transition-colors placeholder:text-neutral-600"
+                className="flex-1 px-3.5 py-2.5 bg-ink-200 border border-white/[0.08] rounded-lg text-neutral-light text-[13px] outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted/50"
               />
               <button
                 onClick={handleNewsletter}
                 disabled={newsletterStatus === "loading"}
-                className="px-3 py-2 bg-gold rounded-lg text-onyx hover:bg-gold-dark transition-colors"
+                className="px-3.5 py-2.5 bg-gradient-to-br from-gold-light via-gold to-gold-dark rounded-lg text-onyx hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                aria-label="S'inscrire"
               >
-                <Send size={14} strokeWidth={1.5} />
+                <Send size={14} strokeWidth={2} />
               </button>
             </div>
             {newsletterStatus === "success" && (
-              <p className="text-green-400 text-[11px] mt-1">Inscription confirmée !</p>
+              <p className="text-emerald-400 text-[11px] mt-2 flex items-center gap-1"><CheckCircle2 size={11} /> Inscription confirmée !</p>
             )}
             {newsletterStatus === "error" && (
-              <p className="text-red-400 text-[11px] mt-1">Erreur, réessayez.</p>
+              <p className="text-red-400 text-[11px] mt-2">Erreur, réessayez.</p>
             )}
           </div>
 
-          {/* Applications — sourced from content catalog to stay in sync */}
+          {/* Applications */}
           <div>
-            <h4 className="text-[10px] font-normal uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Applications</h4>
-            <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold mb-5">Applications</h4>
+            <ul className="text-[13px] text-neutral-muted font-light leading-[2.4]">
               {(content.apps || []).map((app) => (
                 <li key={app.id}>
-                  <Link to={`/applications/${app.id}`} className="hover:text-gold transition-colors">
+                  <Link to={`/applications/${app.id}`} className="hover:text-gold transition-colors duration-200">
                     {app.name}
                   </Link>
                 </li>
@@ -115,8 +128,8 @@ export function Footer() {
 
           {/* Ressources */}
           <div>
-            <h4 className="text-[10px] font-normal uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Ressources</h4>
-            <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold mb-5">Ressources</h4>
+            <ul className="text-[13px] text-neutral-muted font-light leading-[2.4]">
               {[
                 { to: "/applications", label: "Tous les produits" },
                 { to: "/tarifs", label: "Tarifs" },
@@ -125,7 +138,7 @@ export function Footer() {
                 { to: "/portal", label: "Souscrire" },
               ].map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="hover:text-gold transition-colors">{l.label}</Link>
+                  <Link to={l.to} className="hover:text-gold transition-colors duration-200">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -133,8 +146,8 @@ export function Footer() {
 
           {/* Entreprise */}
           <div>
-            <h4 className="text-[10px] font-normal uppercase tracking-[0.1em] text-neutral-muted/60 mb-4">Entreprise</h4>
-            <ul className="text-xs text-neutral-muted font-light leading-[2.4]">
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold mb-5">Entreprise</h4>
+            <ul className="text-[13px] text-neutral-muted font-light leading-[2.4]">
               {[
                 { to: "/a-propos", label: "À propos" },
                 { to: "/contact", label: "Contact" },
@@ -143,7 +156,7 @@ export function Footer() {
                 { to: "/confidentialite", label: "Confidentialité" },
               ].map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="hover:text-gold transition-colors">{l.label}</Link>
+                  <Link to={l.to} className="hover:text-gold transition-colors duration-200">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -151,11 +164,11 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-dark-border px-5 md:px-8 py-4 flex justify-between flex-wrap gap-4 max-w-site mx-auto">
-        <p className="text-neutral-muted/60 text-[11px]">
+      <div className="relative border-t border-white/[0.05] px-5 md:px-8 py-5 flex justify-between flex-wrap gap-4 max-w-site mx-auto">
+        <p className="text-neutral-muted/60 text-[11px] font-light">
           &copy; 2026 Atlas Studio<Link to="/admin/login" className="text-neutral-muted/60 hover:text-neutral-muted/60 cursor-default">.</Link> Abidjan, Côte d'Ivoire
         </p>
-        <p className="text-neutral-muted/60 text-[11px]">
+        <p className="text-neutral-muted/60 text-[11px] font-light">
           Données chiffrées AES-256 — traitement IA 100% local sur nos serveurs dédiés
         </p>
       </div>

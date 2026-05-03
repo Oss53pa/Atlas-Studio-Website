@@ -11,15 +11,17 @@ const STATS: Stat[] = [
 
 export function AboutHero() {
   return (
-    <section className="relative bg-onyx border-b border-dark-border pt-28 pb-20 md:pt-32 md:pb-28 px-5 md:px-8 overflow-hidden">
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] glow-gold pointer-events-none" />
+    <section className="relative bg-onyx border-b border-white/[0.04] pt-32 pb-24 md:pt-40 md:pb-28 px-5 md:px-8 overflow-hidden">
+      <div className="absolute inset-0 bg-dotgrid opacity-25 pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] glow-gold pointer-events-none" />
+      <div className="aurora-blob-gold" style={{ top: "20%", right: "-15%" }} />
 
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Pourquoi Atlas Studio</SectionLabel>
-          <h1 className="text-4xl md:text-5xl lg:text-[56px] font-normal text-neutral-light leading-[1.15] tracking-tight mb-8 max-w-4xl">
+          <h1 className="text-4xl md:text-5xl lg:text-[58px] font-semibold text-gradient-light leading-[1.08] tracking-tight mb-9 max-w-4xl">
             Vous perdez des heures à retraiter ce que votre logiciel aurait dû vous donner{" "}
-            <span className="text-gold">directement</span>.
+            <span className="text-gradient-gold">directement</span>.
           </h1>
         </ScrollReveal>
 
@@ -37,7 +39,7 @@ export function AboutHero() {
               réalités africaines : normes OHADA, Mobile Money, connectivité variable,
               fiscalité multi-pays.
             </p>
-            <p className="text-[15px] md:text-base text-neutral-light font-normal leading-relaxed">
+            <p className="text-[15px] md:text-base text-neutral-light font-medium leading-relaxed">
               Nous construisons la suite que nous aurions voulu trouver.
             </p>
           </div>

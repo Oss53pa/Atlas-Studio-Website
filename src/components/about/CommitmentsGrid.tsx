@@ -41,11 +41,11 @@ const COMMITMENTS: Commitment[] = [
 
 export function CommitmentsGrid() {
   return (
-    <section className="bg-dark-bg2 border-b border-dark-border py-20 md:py-28 px-5 md:px-8">
-      <div className="max-w-site mx-auto">
+    <section className="relative bg-ink-100 border-b border-white/[0.04] py-20 md:py-28 px-5 md:px-8 overflow-hidden">
+      <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Ce que nous croyons</SectionLabel>
-          <h2 className="text-[32px] md:text-[40px] font-normal text-neutral-light leading-tight tracking-tight mb-12 max-w-2xl">
+          <h2 className="text-[32px] md:text-[42px] font-semibold text-gradient-light leading-[1.1] tracking-tight mb-14 max-w-2xl">
             Nos engagements envers vous
           </h2>
         </ScrollReveal>
@@ -53,8 +53,11 @@ export function CommitmentsGrid() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {COMMITMENTS.map((c, i) => (
             <ScrollReveal key={c.title} delay={i * 60}>
-              <div className="h-full bg-onyx border border-dark-border rounded-xl p-7 card-hover">
-                <h3 className="text-neutral-light text-base md:text-lg font-normal mb-3 leading-snug">
+              <div className="relative h-full bg-ink-200 border border-white/[0.06] rounded-2xl p-7 card-hover overflow-hidden">
+                <div className="absolute -top-px left-[10%] right-[10%] h-px"
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
+                />
+                <h3 className="text-neutral-light text-base md:text-lg font-semibold mb-3 leading-snug tracking-tight">
                   {c.title}
                 </h3>
                 <p className="text-neutral-muted text-[13px] md:text-sm font-light leading-relaxed">

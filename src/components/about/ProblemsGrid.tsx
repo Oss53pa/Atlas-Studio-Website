@@ -40,11 +40,12 @@ const PROBLEMS: Problem[] = [
 
 export function ProblemsGrid() {
   return (
-    <section className="bg-onyx border-b border-dark-border py-20 md:py-28 px-5 md:px-8">
-      <div className="max-w-site mx-auto">
+    <section className="relative bg-onyx border-b border-white/[0.04] py-20 md:py-28 px-5 md:px-8 overflow-hidden">
+      <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
+      <div className="relative max-w-site mx-auto">
         <ScrollReveal>
           <SectionLabel>Ce que nous résolvons</SectionLabel>
-          <h2 className="text-[32px] md:text-[40px] font-normal text-neutral-light leading-tight tracking-tight mb-12 max-w-2xl">
+          <h2 className="text-[32px] md:text-[42px] font-semibold text-gradient-light leading-[1.1] tracking-tight mb-14 max-w-2xl">
             Des problèmes que vous connaissez probablement
           </h2>
         </ScrollReveal>
@@ -52,14 +53,18 @@ export function ProblemsGrid() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {PROBLEMS.map((p, i) => (
             <ScrollReveal key={p.title} delay={i * 80}>
-              <div className="h-full bg-dark-bg2 border border-dark-border rounded-xl p-7 card-hover border-l-[3px] border-l-gold">
-                <h3 className="text-neutral-light text-base md:text-lg font-normal mb-3 leading-snug">
+              <div className="relative h-full bg-ink-100 border border-white/[0.06] rounded-2xl p-8 card-hover overflow-hidden">
+                <div
+                  className="absolute top-0 left-0 bottom-0 w-[3px]"
+                  style={{ background: "linear-gradient(180deg, #10B981 0%, rgba(16,185,129,0.2) 100%)" }}
+                />
+                <h3 className="text-neutral-light text-base md:text-lg font-semibold mb-3 leading-snug tracking-tight">
                   {p.title}
                 </h3>
                 <p className="text-neutral-muted text-[13px] md:text-sm font-light leading-relaxed mb-3">
                   {p.body}
                 </p>
-                <p className="text-neutral-light/80 text-[13px] md:text-sm font-normal leading-relaxed">
+                <p className="text-neutral-light/85 text-[13px] md:text-sm font-medium leading-relaxed">
                   {p.emphasis}
                 </p>
               </div>

@@ -103,10 +103,13 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
 
 function SectionRenderer({ section }: { section: TermsSection }) {
   return (
-    <section id={section.id} className="bg-dark-bg2 border border-dark-border rounded-2xl p-6 md:p-8 mb-4 scroll-mt-28">
-      <div className="flex items-baseline gap-3 mb-4 pb-3 border-b border-dark-border">
-        <span className="text-gold text-2xl font-bold font-mono">{section.number}</span>
-        <h2 className="text-[#F5F5F5] text-lg md:text-xl font-semibold">{section.title}</h2>
+    <section id={section.id} className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-6 md:p-8 mb-4 scroll-mt-28 overflow-hidden">
+      <div className="absolute -top-px left-[8%] right-[8%] h-px"
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+      />
+      <div className="flex items-baseline gap-3 mb-5 pb-4 border-b border-white/[0.06]">
+        <span className="text-gradient-gold text-2xl font-bold font-mono tracking-tight">{section.number}</span>
+        <h2 className="text-neutral-light text-lg md:text-xl font-semibold tracking-tight">{section.title}</h2>
       </div>
       <div>
         {section.blocks.map((block, i) => (
@@ -146,27 +149,30 @@ export default function TermsPage() {
   };
 
   return (
-    <div className="bg-onyx text-[#F5F5F5] pt-24 pb-16 md:pt-28 md:pb-24 px-5 md:px-8 min-h-screen">
+    <div className="bg-onyx text-[#F5F5F5] pt-28 pb-20 md:pt-32 md:pb-28 px-5 md:px-8 min-h-screen relative overflow-hidden">
       <SEOHead
         title="Conditions Generales d'Utilisation"
         description="Conditions generales d'utilisation Atlas Studio v2.0 - applicable au 11 avril 2026."
         canonical="/cgu"
       />
 
-      <div className="max-w-6xl mx-auto">
+      <div className="absolute inset-0 bg-dotgrid opacity-25 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] glow-gold pointer-events-none" />
+
+      <div className="relative max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 md:mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 mb-4">
-            <span className="text-gold text-[11px] font-semibold uppercase tracking-wider">
+        <div className="text-center mb-10 md:mb-14">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/10 border border-gold/25 mb-5 backdrop-blur-sm">
+            <span className="text-gold text-[11px] font-semibold uppercase tracking-[0.16em]">
               Version {TERMS_V2.version}
             </span>
-            <span className="text-neutral-500 text-[11px]">·</span>
-            <span className="text-neutral-400 text-[11px]">En vigueur le {TERMS_V2.effectiveDate}</span>
+            <span className="text-neutral-muted/50 text-[11px]">·</span>
+            <span className="text-neutral-muted text-[11px]">En vigueur le {TERMS_V2.effectiveDate}</span>
           </div>
-          <h1 className="text-[#F5F5F5] text-3xl md:text-4xl font-bold mb-3">
+          <h1 className="text-gradient-light text-3xl md:text-5xl font-semibold mb-4 tracking-tight leading-[1.1]">
             Conditions Generales d'Utilisation
           </h1>
-          <p className="text-neutral-muted text-sm max-w-2xl mx-auto leading-relaxed">
+          <p className="text-neutral-muted text-sm max-w-2xl mx-auto leading-relaxed font-light">
             Les presentes conditions regissent l'utilisation de l'ensemble des Applications editees
             par Atlas Studio. Elles remplacent la version {TERMS_V2.previousVersion}.
           </p>
@@ -175,8 +181,11 @@ export default function TermsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
           {/* Sommaire (Table of Contents) */}
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="bg-dark-bg2 border border-dark-border rounded-2xl p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
-              <h3 className="text-[#F5F5F5] text-[12px] font-semibold uppercase tracking-wider mb-3 px-2">
+            <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto overflow-hidden">
+              <div className="absolute -top-px left-[10%] right-[10%] h-px"
+                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+              />
+              <h3 className="text-gold text-[11px] font-semibold uppercase tracking-[0.16em] mb-4 px-2">
                 Sommaire
               </h3>
               <nav>
@@ -213,15 +222,18 @@ export default function TermsPage() {
             ))}
 
             {/* Footer */}
-            <div className="bg-dark-bg2 border border-dark-border rounded-2xl p-6 mt-4 text-center">
-              <p className="text-neutral-muted text-[12px] leading-relaxed">
+            <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-7 mt-4 text-center overflow-hidden">
+              <div className="absolute -top-px left-[10%] right-[10%] h-px"
+                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+              />
+              <p className="text-neutral-muted text-[12px] leading-relaxed font-light">
                 Pour toute question relative aux presentes CGU, contactez-nous a{" "}
-                <a href={`mailto:${TERMS_V2.contactEmail}`} className="text-gold hover:underline">
+                <a href={`mailto:${TERMS_V2.contactEmail}`} className="text-gold hover:text-gold-light transition-colors">
                   {TERMS_V2.contactEmail}
                 </a>
                 .
               </p>
-              <p className="text-neutral-500 text-[11px] mt-2">
+              <p className="text-neutral-muted/60 text-[11px] mt-2 font-light">
                 {TERMS_V2.editor} · {TERMS_V2.location} · {TERMS_V2.website}
               </p>
             </div>

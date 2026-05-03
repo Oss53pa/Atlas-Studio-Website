@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Clock } from "lucide-react";
+import { Clock, ArrowUpRight } from "lucide-react";
 import { AppLogo } from "./Logo";
 import { StyledText } from "./StyledText";
 import type { AppItem } from "../../config/content";
@@ -11,9 +11,9 @@ interface AppCardProps {
 }
 
 const typeBadgeClass: Record<string, string> = {
-  "Module ERP": "bg-gold/10 text-gold border-gold/20",
-  "App": "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  "App mobile": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  "Module ERP": "bg-gold/10 text-gold border-gold/25",
+  "App": "bg-blue-500/10 text-blue-300 border-blue-500/25",
+  "App mobile": "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
 };
 
 function formatPrice(price: number): string {
@@ -24,43 +24,64 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
   const minPrice = Math.min(...Object.values(app.pricing));
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === 'coming_soon';
+  const accent = app.color || '#10B981';
 
-  const sharedClassName = `block bg-dark-bg2 border border-dark-border rounded-xl p-5 card-hover group overflow-hidden ${isComingSoon ? 'opacity-80' : ''}`;
-  const sharedStyle = { animationDelay: `${index * 60}ms`, borderTopWidth: '3px', borderTopColor: app.color || '#C8A960' };
+  const sharedClassName = `relative block bg-ink-100 border border-white/[0.06] rounded-2xl p-6 card-hover group overflow-hidden ${isComingSoon ? 'opacity-85' : ''}`;
+  const sharedStyle = { animationDelay: `${index * 60}ms` };
 
   const content = (
     <>
-      <div className="flex items-center justify-between mb-2">
-        <AppLogo name={app.name} size={18} color="text-gold" />
-        <div className="flex items-center gap-1.5">
-          {isComingSoon && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-normal border bg-amber-500/10 text-amber-400 border-amber-500/20">
-              <Clock size={10} />
-              Bientôt
+      {/* Premium top accent line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{
+          background: `linear-gradient(90deg, transparent 0%, ${accent}cc 50%, transparent 100%)`,
+        }}
+      />
+      {/* Subtle glow on hover */}
+      <div
+        className="absolute -top-1/2 left-1/2 -translate-x-1/2 w-[200%] h-[200%] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse 30% 20% at 50% 25%, ${accent}18 0%, transparent 70%)`,
+        }}
+      />
+
+      <div className="relative">
+        <div className="flex items-center justify-between mb-3">
+          <AppLogo name={app.name} size={20} color="text-gold" />
+          <div className="flex items-center gap-1.5">
+            {isComingSoon && (
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">
+                <Clock size={10} />
+                Bientôt
+              </span>
+            )}
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${typeBadgeClass[app.type] || ""}`}>
+              {app.type}
             </span>
-          )}
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-normal border ${typeBadgeClass[app.type] || ""}`}>
-            {app.type}
+          </div>
+        </div>
+        <p className="text-neutral-muted text-[12px] mb-1.5 font-medium tracking-wide">{app.tagline}</p>
+        <p className="text-neutral-placeholder text-[13px] leading-relaxed mb-4 line-clamp-2 font-light">
+          <StyledText>{app.desc}</StyledText>
+        </p>
+
+        <div className="flex items-baseline justify-between pt-4 border-t border-white/[0.05]">
+          <div>
+            {minPrice === 0 ? (
+              <span className="text-gradient-gold text-base font-semibold">Gratuit</span>
+            ) : (
+              <>
+                <span className="text-gradient-gold font-mono text-lg font-semibold">{formatPrice(minPrice)}</span>
+                <span className="text-neutral-muted text-[11px] ml-1.5 font-light">FCFA/{period}</span>
+              </>
+            )}
+          </div>
+          <span className="inline-flex items-center gap-1 text-gold text-[12px] font-medium group-hover:gap-1.5 transition-all duration-300">
+            Détails
+            <ArrowUpRight size={14} strokeWidth={2} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
           </span>
         </div>
-      </div>
-      <p className="text-neutral-muted text-[12px] mb-1.5 font-light">{app.tagline}</p>
-      <p className="text-neutral-placeholder text-[13px] leading-relaxed mb-3 line-clamp-2 font-light"><StyledText>{app.desc}</StyledText></p>
-
-      <div className="flex items-baseline justify-between pt-2 border-t border-dark-border">
-        <div>
-          {minPrice === 0 ? (
-            <span className="text-gold text-sm font-normal">Gratuit</span>
-          ) : (
-            <>
-              <span className="text-gold font-mono text-lg font-normal">{formatPrice(minPrice)}</span>
-              <span className="text-neutral-muted text-[11px] ml-1 font-light">FCFA/{period}</span>
-            </>
-          )}
-        </div>
-        <span className="text-gold text-[12px] font-normal group-hover:translate-x-1 transition-transform duration-300">
-          Détails →
-        </span>
       </div>
     </>
   );

@@ -6,7 +6,7 @@ interface StatCounterProps {
   light?: boolean;
 }
 
-function useCountUp(target: number, duration = 2000, isDecimal = false) {
+function useCountUp(target: number, duration = 2200, isDecimal = false) {
   const [count, setCount] = useState(0);
   const startedRef = useRef(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -50,15 +50,15 @@ export function StatCounter({ value, label, light = false }: StatCounterProps) {
   const suffix = match ? match[2] : value;
   const isDecimal = match ? match[1].includes(".") : false;
 
-  const { count, ref } = useCountUp(numericPart, 2000, isDecimal);
+  const { count, ref } = useCountUp(numericPart, 2200, isDecimal);
   const displayValue = isDecimal ? (count / 10).toFixed(1) : count;
 
   return (
     <div className="text-center" ref={ref}>
-      <div className="text-3xl md:text-4xl font-extrabold text-gold font-mono">
+      <div className="text-3xl md:text-4xl font-semibold font-mono tracking-tight text-gradient-gold leading-none">
         {match ? `${displayValue}${suffix}` : value}
       </div>
-      <div className="text-[13px] font-light mt-1 text-neutral-muted">
+      <div className="text-[12px] font-light mt-2 text-neutral-muted tracking-wide">
         {label}
       </div>
     </div>

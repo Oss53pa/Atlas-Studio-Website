@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { SEOHead } from "../components/ui/SEOHead";
 import { AboutHero } from "../components/about/AboutHero";
@@ -23,10 +24,12 @@ export default function AboutPage() {
       <CommitmentsGrid />
 
       {/* ===== CTA final ===== */}
-      <section className="bg-onyx py-20 md:py-28 px-5 md:px-8 text-center">
-        <div className="max-w-2xl mx-auto">
+      <section className="relative bg-onyx py-24 md:py-32 px-5 md:px-8 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-dotgrid opacity-30 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] glow-gold pointer-events-none" />
+        <div className="relative max-w-2xl mx-auto">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-normal text-neutral-light leading-tight tracking-tight mb-4">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gradient-light leading-[1.1] tracking-tight mb-5">
               Prêt à voir la différence ?
             </h2>
             <p className="text-neutral-muted text-[15px] md:text-base font-light leading-relaxed mb-10">
@@ -35,6 +38,7 @@ export default function AboutPage() {
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link to="/portal" className="btn-gold">
                 Essai gratuit — 14 jours
+                <ArrowRight size={16} strokeWidth={2.2} />
               </Link>
               <Link to="/contact" className="btn-outline-light">
                 Demander une démo
