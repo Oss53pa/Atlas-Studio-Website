@@ -31,8 +31,26 @@ export async function requireAdmin(req: Request): Promise<AuthUser> {
     .eq("id", user.id)
     .single();
 
-  if (!profile || profile.role !== "admin") {
+  // Both admin and super_admin can perform admin-level actions.
+  // super_admin is a strict superset (only super_admin can manage other admins).
+  if (!profile || (profile.role !== "admin" && profile.role !== "super_admin")) {
     throw new AuthError("Acces refuse", 403);
+  }
+
+  return user;
+}
+
+export async function requireSuperAdmin(req: Request): Promise<AuthUser> {
+  const user = await requireUser(req);
+
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || profile.role !== "super_admin") {
+    throw new AuthError("Acces refuse — super_admin requis", 403);
   }
 
   return user;
