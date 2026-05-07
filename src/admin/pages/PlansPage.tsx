@@ -91,7 +91,8 @@ export default function PlansPage() {
       setLoading(false);
     };
     load();
-  }, [showError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Build feature map per plan id
   const featuresByPlan = planFeatures.reduce((acc, pf) => {
