@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { apiCall } from "../lib/api";
@@ -13,6 +13,9 @@ import { TeamPage } from "./pages/TeamPage";
 import { ActivatePage } from "./pages/ActivatePage";
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { UpgradePage } from "./pages/UpgradePage";
+
+const WelcomePage = lazy(() => import("./pages/WelcomePage"));
+const LaunchPage = lazy(() => import("./pages/LaunchPage"));
 
 function PortalDashboard() {
   const { user, profile, signOut, loading } = useAuth();
@@ -78,6 +81,26 @@ export default function Portal() {
   return (
     <Routes>
       <Route path="login" element={isAuthed ? <Navigate to="/portal" replace /> : <LoginPage />} />
+      <Route
+        path="welcome"
+        element={
+          isAuthed ? (
+            <Suspense fallback={<div className="min-h-screen bg-onyx" />}><WelcomePage /></Suspense>
+          ) : (
+            <Navigate to="/portal/login" replace />
+          )
+        }
+      />
+      <Route
+        path="launch"
+        element={
+          isAuthed ? (
+            <Suspense fallback={<div className="min-h-screen bg-onyx" />}><LaunchPage /></Suspense>
+          ) : (
+            <Navigate to="/portal/login?next=/portal/launch" replace />
+          )
+        }
+      />
       <Route path="*" element={isAuthed ? <PortalDashboard /> : <Navigate to="/portal/login" replace />} />
     </Routes>
   );
