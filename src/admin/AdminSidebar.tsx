@@ -77,6 +77,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Plateforme & Ops",
     icon: Activity,
     items: [
+      { to: "/admin/stats", icon: BarChart3, label: "Tableau de bord" },
       { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
       { to: "/admin/system", icon: Activity, label: "Santé système" },
       { to: "/admin/alerts", icon: Bell, label: "Alertes" },

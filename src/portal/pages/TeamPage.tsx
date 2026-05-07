@@ -5,6 +5,8 @@ import {
   Key,
   Loader2,
   UserMinus,
+  PauseCircle,
+  PlayCircle,
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../../lib/auth";
@@ -28,6 +30,20 @@ const ACCENT = "#EF9F27";
 const TEXT = "#1A1A1A";
 const MUTED = "#888";
 const BORDER = "#E8E8E0";
+
+type Role = LicenceSeat["role"];
+
+/**
+ * Hierarchie des roles : super_admin > admin > editor / viewer.
+ * Un super_admin gere tout sauf les autres super_admin.
+ * Un admin ne gere que les editor / viewer.
+ */
+function canManage(myRole: Role | undefined, targetRole: Role): boolean {
+  if (!myRole) return false;
+  if (myRole === "app_super_admin") return targetRole !== "app_super_admin";
+  if (myRole === "app_admin") return targetRole === "editor" || targetRole === "viewer";
+  return false;
+}
 
 export function TeamPage({ userId }: { userId?: string }) {
   const { profile } = useAuth();
@@ -147,6 +163,7 @@ export function TeamPage({ userId }: { userId?: string }) {
         <LicenceDetail
           licenceId={effectiveLicenceId}
           tenantId={tenantId!}
+          currentUserId={userId}
         />
       )}
     </div>
@@ -155,28 +172,58 @@ export function TeamPage({ userId }: { userId?: string }) {
 
 /* ══════════════════════════════════════════════ */
 
-function LicenceDetail({ licenceId, tenantId }: { licenceId: string; tenantId: string }) {
+function LicenceDetail({ licenceId, tenantId, currentUserId }: { licenceId: string; tenantId: string; currentUserId?: string }) {
   const { seats, quota, loading, fetchSeats, fetchQuota } = useSeats(licenceId);
-  const [changingRole, setChangingRole] = useState<string | null>(null);
+  const [actioningSeat, setActioningSeat] = useState<string | null>(null);
 
-  const handleRoleChange = async (seat: LicenceSeat, newRole: string) => {
-    setChangingRole(seat.id);
+  const mySeat = currentUserId ? seats.find((s) => s.user_id === currentUserId) : undefined;
+  const myRole = mySeat?.role;
+
+  const handleRoleChange = async (seat: LicenceSeat, newRole: Role) => {
+    if (!canManage(myRole, seat.role) || !canManage(myRole, newRole)) return;
+    setActioningSeat(seat.id);
     await supabase
       .from("licence_seats")
       .update({ role: newRole })
       .eq("id", seat.id);
     await fetchSeats();
-    setChangingRole(null);
+    setActioningSeat(null);
+  };
+
+  const handleSuspend = async (seat: LicenceSeat) => {
+    if (!canManage(myRole, seat.role)) return;
+    if (!confirm(`Suspendre l'acces de ${seat.email} ? L'utilisateur ne pourra plus se connecter mais son siege est conserve.`)) return;
+    setActioningSeat(seat.id);
+    await supabase
+      .from("licence_seats")
+      .update({ status: "suspended" })
+      .eq("id", seat.id);
+    await fetchSeats();
+    setActioningSeat(null);
+  };
+
+  const handleReactivate = async (seat: LicenceSeat) => {
+    if (!canManage(myRole, seat.role)) return;
+    setActioningSeat(seat.id);
+    await supabase
+      .from("licence_seats")
+      .update({ status: "active" })
+      .eq("id", seat.id);
+    await fetchSeats();
+    setActioningSeat(null);
   };
 
   const handleRevoke = async (seat: LicenceSeat) => {
-    if (!confirm(`Revoquer l'acces de ${seat.email} ?`)) return;
+    if (!canManage(myRole, seat.role)) return;
+    if (!confirm(`Revoquer l'acces de ${seat.email} ? Action definitive : le siege est libere et ne pourra pas etre reactive.`)) return;
+    setActioningSeat(seat.id);
     await supabase
       .from("licence_seats")
       .update({ status: "revoked" })
       .eq("id", seat.id);
-    fetchSeats();
-    fetchQuota();
+    await fetchSeats();
+    await fetchQuota();
+    setActioningSeat(null);
   };
 
   if (loading) {
@@ -215,26 +262,49 @@ function LicenceDetail({ licenceId, tenantId }: { licenceId: string; tenantId: s
             <tbody>
               {activeSeats.map((seat) => {
                 const sStatus = STATUS_LABELS[seat.status];
+                const isMe = !!currentUserId && seat.user_id === currentUserId;
+                const canIManage = canManage(myRole, seat.role) && !isMe;
+                const isBusy = actioningSeat === seat.id;
                 return (
                   <tr
                     key={seat.id}
                     className="transition-colors"
-                    style={{ borderTop: `1px solid ${BORDER}` }}
+                    style={{ borderTop: `1px solid ${BORDER}`, opacity: seat.status === "suspended" ? 0.6 : 1 }}
                   >
-                    <td className="px-4 py-3" style={{ color: TEXT }}>{seat.email}</td>
+                    <td className="px-4 py-3" style={{ color: TEXT }}>
+                      <div className="flex items-center gap-2">
+                        <span>{seat.email}</span>
+                        {isMe && (
+                          <span
+                            className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                            style={{ background: ACCENT, color: "#fff" }}
+                          >
+                            vous
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3" style={{ color: TEXT }}>{seat.full_name || "---"}</td>
                     <td className="px-4 py-3">
-                      <select
-                        value={seat.role}
-                        onChange={(e) => handleRoleChange(seat, e.target.value)}
-                        disabled={changingRole === seat.id}
-                        className="bg-transparent outline-none text-sm cursor-pointer"
-                        style={{ color: TEXT }}
-                      >
-                        {Object.entries(ROLE_LABELS).map(([v, l]) => (
-                          <option key={v} value={v}>{l}</option>
-                        ))}
-                      </select>
+                      {canIManage ? (
+                        <select
+                          value={seat.role}
+                          onChange={(e) => handleRoleChange(seat, e.target.value as Role)}
+                          disabled={isBusy}
+                          className="bg-transparent outline-none text-sm cursor-pointer"
+                          style={{ color: TEXT }}
+                        >
+                          {(Object.entries(ROLE_LABELS) as [Role, string][])
+                            .filter(([v]) => canManage(myRole, v))
+                            .map(([v, l]) => (
+                              <option key={v} value={v}>{l}</option>
+                            ))}
+                        </select>
+                      ) : (
+                        <span className="text-sm" style={{ color: TEXT }}>
+                          {ROLE_LABELS[seat.role] ?? seat.role}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -250,14 +320,42 @@ function LicenceDetail({ licenceId, tenantId }: { licenceId: string; tenantId: s
                         : "Jamais"}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => handleRevoke(seat)}
-                        className="p-1.5 rounded-lg transition-colors hover:bg-red-50"
-                        style={{ color: "#DC2626" }}
-                        title="Revoquer"
-                      >
-                        <UserMinus size={16} />
-                      </button>
+                      {canIManage ? (
+                        <div className="inline-flex items-center gap-1">
+                          {seat.status === "active" ? (
+                            <button
+                              onClick={() => handleSuspend(seat)}
+                              disabled={isBusy}
+                              className="p-1.5 rounded-lg transition-colors hover:bg-orange-50 disabled:opacity-40"
+                              style={{ color: "#EA580C" }}
+                              title="Suspendre (reversible)"
+                            >
+                              <PauseCircle size={16} />
+                            </button>
+                          ) : seat.status === "suspended" ? (
+                            <button
+                              onClick={() => handleReactivate(seat)}
+                              disabled={isBusy}
+                              className="p-1.5 rounded-lg transition-colors hover:bg-green-50 disabled:opacity-40"
+                              style={{ color: "#16A34A" }}
+                              title="Reactiver"
+                            >
+                              <PlayCircle size={16} />
+                            </button>
+                          ) : null}
+                          <button
+                            onClick={() => handleRevoke(seat)}
+                            disabled={isBusy}
+                            className="p-1.5 rounded-lg transition-colors hover:bg-red-50 disabled:opacity-40"
+                            style={{ color: "#DC2626" }}
+                            title="Revoquer (definitif)"
+                          >
+                            <UserMinus size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs" style={{ color: MUTED }}>—</span>
+                      )}
                     </td>
                   </tr>
                 );

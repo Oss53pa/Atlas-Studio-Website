@@ -31,7 +31,7 @@ import './index.css';
 // Lazy load admin pages
 const DashboardPage = lazy(() => import('./admin/pages/DashboardPage'));
 const ContentManagementPage = lazy(() => import('./admin/pages/ContentManagementPage'));
-const AppsManagementPage = lazy(() => import('./admin/pages/AppsManagementPage'));
+const AdminAppsTable = lazy(() => import('./admin/pages/AdminAppsTable'));
 const ClientsPage = lazy(() => import('./admin/pages/ClientsPage'));
 const SubscriptionsPage = lazy(() => import('./admin/pages/SubscriptionsPage'));
 const InvoicesPage = lazy(() => import('./admin/pages/InvoicesPage'));
@@ -40,6 +40,7 @@ const TicketsPage = lazy(() => import('./admin/pages/TicketsPage'));
 const NewsletterPage = lazy(() => import('./admin/pages/NewsletterPage'));
 const EmailTemplatesPage = lazy(() => import('./admin/pages/EmailTemplatesPage'));
 const AnalyticsPage = lazy(() => import('./admin/pages/AnalyticsPage'));
+const AdminStatsPage = lazy(() => import('./admin/pages/AdminStatsPage'));
 const Proph3tPage = lazy(() => import('./admin/pages/Proph3tPage'));
 const SystemHealthPage = lazy(() => import('./admin/pages/SystemHealthPage'));
 const FeatureFlagsPage = lazy(() => import('./admin/pages/FeatureFlagsPage'));
@@ -168,13 +169,14 @@ root.render(
             <Route element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
               <Route index element={<Suspense fallback={<AdminLoader />}><DashboardPage /></Suspense>} />
               <Route path="content" element={<Suspense fallback={<AdminLoader />}><ContentManagementPage /></Suspense>} />
-              <Route path="apps" element={<Suspense fallback={<AdminLoader />}><AppsManagementPage /></Suspense>} />
+              <Route path="apps" element={<Suspense fallback={<AdminLoader />}><AdminAppsTable /></Suspense>} />
               <Route path="clients" element={<Suspense fallback={<AdminLoader />}><ClientsPage /></Suspense>} />
               <Route path="subscriptions" element={<Suspense fallback={<AdminLoader />}><SubscriptionsPage /></Suspense>} />
               <Route path="invoices" element={<Suspense fallback={<AdminLoader />}><InvoicesPage /></Suspense>} />
               <Route path="activity" element={<Suspense fallback={<AdminLoader />}><ActivityLogPage /></Suspense>} />
               <Route path="tickets" element={<Suspense fallback={<AdminLoader />}><TicketsPage /></Suspense>} />
               <Route path="analytics" element={<Suspense fallback={<AdminLoader />}><AnalyticsPage /></Suspense>} />
+              <Route path="stats" element={<Suspense fallback={<AdminLoader />}><AdminStatsPage /></Suspense>} />
               <Route path="newsletter" element={<Suspense fallback={<AdminLoader />}><NewsletterPage /></Suspense>} />
               <Route path="emails" element={<Suspense fallback={<AdminLoader />}><EmailTemplatesPage /></Suspense>} />
               <Route path="proph3t" element={<Suspense fallback={<AdminLoader />}><Proph3tPage /></Suspense>} />

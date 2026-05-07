@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { CheckCircle2, ArrowRight, Clock, ExternalLink } from "lucide-react";
 import { AppLogo } from "./Logo";
 import { StyledText } from "./StyledText";
+import { StartTrialButton } from "../marketplace/StartTrialButton";
 import type { AppItem } from "../../config/content";
 import type { AppStatus } from "../../lib/database.types";
 
@@ -109,15 +110,20 @@ export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
             ))}
           </div>
 
-          {isExternal ? (
-            <a href={detailLink} {...linkProps} className="btn-gold !px-6 !py-3 !text-[13px]">
-              Découvrir {app.name} <ExternalLink size={15} strokeWidth={2} />
-            </a>
-          ) : (
-            <Link to={detailLink} className="btn-gold !px-6 !py-3 !text-[13px]">
-              Découvrir {app.name} <ArrowRight size={15} strokeWidth={2} />
-            </Link>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {isExternal ? (
+              <a href={detailLink} {...linkProps} className="btn-gold !px-6 !py-3 !text-[13px]">
+                Découvrir {app.name} <ExternalLink size={15} strokeWidth={2} />
+              </a>
+            ) : (
+              <Link to={detailLink} className="btn-gold !px-6 !py-3 !text-[13px]">
+                Découvrir {app.name} <ArrowRight size={15} strokeWidth={2} />
+              </Link>
+            )}
+            {!isComingSoon && (
+              <StartTrialButton appId={app.id} appName={app.name} />
+            )}
+          </div>
         </div>
 
         {/* Features */}

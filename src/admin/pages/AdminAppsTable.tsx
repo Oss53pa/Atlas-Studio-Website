@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Search, GripVertical, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, GripVertical, ExternalLink, Eye, EyeOff } from "lucide-react";
 import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
@@ -19,12 +19,12 @@ const emptyApp: Partial<AppRow> = {
   id: "", name: "", type: "App", tagline: "", description: "",
   features: [], categories: [], pricing: {}, pricing_period: "mois",
   color: "#C8A960", icon: "receipt", highlights: [],
-  status: "available", sort_order: 0, external_url: null,
+  status: "available", visible: true, sort_order: 0, external_url: null,
 };
 
 interface PricingRow { plan: string; price: number }
 
-export default function AppsManagementPage() {
+export default function AdminAppsTable() {
   const { success, error: showError } = useToast();
   const [apps, setApps] = useState<AppRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,6 +109,7 @@ export default function AppsManagementPage() {
       highlights: highlightsStr.split(",").map(s => s.trim()).filter(Boolean),
       external_url: editApp.external_url || null,
       status: editApp.status as AppStatus || "available",
+      visible: editApp.visible ?? true,
       sort_order: editApp.sort_order || 0,
       updated_at: new Date().toISOString(),
     };
@@ -120,6 +121,21 @@ export default function AppsManagementPage() {
     setSaving(false);
     if (error) { showError(formatSupabaseError(error)); }
     else { success(isNew ? "Application créée" : "Application mise à jour"); setEditApp(null); fetchApps(); }
+  };
+
+  const toggleVisibility = async (app: AppRow) => {
+    const next = !app.visible;
+    setApps(prev => prev.map(a => a.id === app.id ? { ...a, visible: next } : a));
+    const { error } = await supabase
+      .from("apps")
+      .update({ visible: next, updated_at: new Date().toISOString() })
+      .eq("id", app.id);
+    if (error) {
+      setApps(prev => prev.map(a => a.id === app.id ? { ...a, visible: app.visible } : a));
+      showError(formatSupabaseError(error));
+    } else {
+      success(next ? `${app.name} est visible sur le site public` : `${app.name} est masquée du site public`);
+    }
   };
 
   const handleDelete = (app: AppRow) => {
@@ -141,7 +157,7 @@ export default function AppsManagementPage() {
       features: a.features, categories: a.categories, pricing: a.pricing,
       pricing_period: a.pricingPeriod || "mois", color: a.color || "#C8A960",
       icon: a.icon || "receipt", highlights: a.highlights || [],
-      status: "available" as AppStatus, sort_order: i,
+      status: "available" as AppStatus, visible: true, sort_order: i,
     }));
     const { error } = await supabase.from("apps").upsert(rows, { onConflict: "id" });
     setSaving(false);
@@ -202,6 +218,20 @@ export default function AppsManagementPage() {
             <span className="text-[12px] text-neutral-text dark:text-admin-text/80">{r.type}</span>
           )},
           { key: "status", label: "Statut", render: (r: AppRow) => <AdminBadge status={r.status} /> },
+          { key: "visible", label: "Visible", render: (r: AppRow) => (
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleVisibility(r); }}
+              title={r.visible ? "Visible sur atlas-studio.org — cliquer pour masquer" : "Masquée du site public — cliquer pour afficher"}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
+                r.visible
+                  ? "bg-admin-success/20 text-green-400 border-admin-success/30 hover:bg-admin-success/30"
+                  : "bg-admin-surface-alt text-admin-muted border-admin-surface-alt hover:bg-admin-surface-alt/80"
+              }`}
+            >
+              {r.visible ? <Eye size={12} /> : <EyeOff size={12} />}
+              {r.visible ? "Visible" : "Masquée"}
+            </button>
+          )},
           { key: "subs", label: "Abonnés", render: (r: AppRow) => (
             <span className="text-gold dark:text-admin-accent font-medium">{subCounts[r.id] || 0}</span>
           )},
@@ -285,6 +315,26 @@ export default function AppsManagementPage() {
               <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">URL externe (landing page)</label>
               <input value={editApp.external_url || ""} onChange={e => setEditApp({ ...editApp, external_url: e.target.value || null })} placeholder="https://mon-app.atlas-studio.org" className={ADMIN_INPUT_CLASS} />
               <p className="text-neutral-muted dark:text-admin-muted/60 text-[11px] mt-1">Redirige vers ce site au lieu de la page détail interne.</p>
+            </div>
+
+            {/* Visibilité publique */}
+            <div>
+              <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Visibilité publique</label>
+              <button
+                type="button"
+                onClick={() => setEditApp({ ...editApp, visible: !(editApp.visible ?? true) })}
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium border transition-colors ${
+                  (editApp.visible ?? true)
+                    ? "bg-admin-success/15 text-green-400 border-admin-success/30 hover:bg-admin-success/25"
+                    : "bg-admin-surface-alt text-admin-muted border-admin-surface-alt hover:bg-admin-surface-alt/80"
+                }`}
+              >
+                {(editApp.visible ?? true) ? <Eye size={14} /> : <EyeOff size={14} />}
+                {(editApp.visible ?? true) ? "Visible sur atlas-studio.org" : "Masquée du site public"}
+              </button>
+              <p className="text-neutral-muted dark:text-admin-muted/60 text-[11px] mt-1">
+                Indépendant du statut métier. Une app peut être <span className="font-semibold">en service</span> mais masquée du site public (ex. beta privée).
+              </p>
             </div>
 
             {/* Tagline + Description */}

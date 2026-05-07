@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, Download, TrendingUp, Users, ArrowDownRight, DollarSign, Filter } from "lucide-react";
+import { Loader2, Download, TrendingUp, Users, ArrowDownRight, DollarSign, Filter, AlarmClock } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
@@ -43,6 +43,17 @@ interface SubRow {
   price_at_subscription: number;
   created_at: string;
   cancelled_at: string | null;
+  trial_ends_at: string | null;
+  profiles?: { full_name: string | null; email: string | null } | null;
+}
+
+interface TrialExpiring {
+  email: string;
+  full_name: string;
+  app_id: string;
+  app_name: string;
+  trial_ends_at: string;
+  days_left: number;
 }
 
 /* ─── KPI Card ─── */
@@ -100,7 +111,7 @@ export default function AnalyticsPage() {
     async function load() {
       const [invRes, subsRes, clientsRes] = await Promise.all([
         supabase.from("invoices").select("app_id, amount, created_at, user_id, profiles(full_name, email)").eq("status", "paid"),
-        supabase.from("subscriptions").select("app_id, status, price_at_subscription, created_at, cancelled_at"),
+        supabase.from("subscriptions").select("app_id, status, price_at_subscription, created_at, cancelled_at, trial_ends_at, profiles:user_id(full_name, email)"),
         supabase.from("profiles").select("id, created_at"),
       ]);
 
@@ -210,6 +221,25 @@ export default function AnalyticsPage() {
     });
     return Object.values(byClient).sort((a, b) => b.total - a.total).slice(0, 10);
   }, [invoices]);
+
+  // ─── Trials qui expirent ───
+  const trialsExpiring = useMemo<TrialExpiring[]>(() => {
+    const now = Date.now();
+    return subs
+      .filter(s => s.status === "trial" && s.trial_ends_at)
+      .map(s => {
+        const ends = new Date(s.trial_ends_at as string).getTime();
+        return {
+          email: s.profiles?.email || "—",
+          full_name: s.profiles?.full_name || "—",
+          app_id: s.app_id,
+          app_name: appMap[s.app_id]?.name || s.app_id,
+          trial_ends_at: s.trial_ends_at as string,
+          days_left: Math.ceil((ends - now) / 86400000),
+        };
+      })
+      .sort((a, b) => a.days_left - b.days_left);
+  }, [subs, appMap]);
 
   // ─── Avg churn ───
   const avgChurn = useMemo(() => {
@@ -388,6 +418,62 @@ export default function AnalyticsPage() {
             <p className="text-neutral-muted dark:text-admin-muted text-sm">Aucune donnée</p>
           )}
         </div>
+      </div>
+
+      {/* Trials qui expirent — actionnable pour la relance */}
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold flex items-center gap-2">
+            <AlarmClock size={16} className="text-admin-accent" strokeWidth={1.5} />
+            Trials en cours {selectedApp !== "all" && `— ${selectedAppName}`}
+            <span className="text-neutral-muted dark:text-admin-muted text-[11px] font-normal">({trialsExpiring.length})</span>
+          </h2>
+        </div>
+        {trialsExpiring.length === 0 ? (
+          <p className="text-neutral-muted dark:text-admin-muted text-sm">Aucun trial en cours</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-warm-border dark:border-admin-surface-alt">
+                  <th className="text-left text-neutral-muted dark:text-admin-muted text-[11px] font-bold uppercase tracking-wider py-2 pr-4">Client</th>
+                  <th className="text-left text-neutral-muted dark:text-admin-muted text-[11px] font-bold uppercase tracking-wider py-2 pr-4">Application</th>
+                  <th className="text-left text-neutral-muted dark:text-admin-muted text-[11px] font-bold uppercase tracking-wider py-2 pr-4">Expire le</th>
+                  <th className="text-left text-neutral-muted dark:text-admin-muted text-[11px] font-bold uppercase tracking-wider py-2">Restant</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trialsExpiring.map((t, i) => {
+                  const tone =
+                    t.days_left <= 0
+                      ? "bg-admin-error/20 text-red-400 border-admin-error/30"
+                      : t.days_left <= 3
+                        ? "bg-admin-error/15 text-red-400 border-admin-error/30"
+                        : t.days_left <= 7
+                          ? "bg-admin-warning/20 text-orange-400 border-admin-warning/30"
+                          : "bg-admin-success/20 text-green-400 border-admin-success/30";
+                  return (
+                    <tr key={`${t.email}-${t.app_id}-${i}`} className="border-b border-warm-bg dark:border-admin-surface-alt/50 last:border-b-0">
+                      <td className="py-3 pr-4">
+                        <div className="text-neutral-text dark:text-admin-text text-sm font-medium">{t.full_name}</div>
+                        <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{t.email}</div>
+                      </td>
+                      <td className="py-3 pr-4 text-neutral-text dark:text-admin-text/80 text-sm">{t.app_name}</td>
+                      <td className="py-3 pr-4 text-neutral-text dark:text-admin-text/80 text-sm">
+                        {new Date(t.trial_ends_at).toLocaleDateString("fr-FR")}
+                      </td>
+                      <td className="py-3">
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold border ${tone}`}>
+                          {t.days_left > 0 ? `${t.days_left}j` : "Expiré"}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
