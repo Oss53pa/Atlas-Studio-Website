@@ -42,6 +42,7 @@ export function useSupabaseContent() {
           .from('apps')
           .select('*')
           .eq('status', 'available')
+          .eq('visible', true)
           .order('sort_order', { ascending: true });
 
         if (signal.cancelled) return;

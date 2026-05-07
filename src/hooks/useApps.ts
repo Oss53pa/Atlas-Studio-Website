@@ -18,6 +18,7 @@ export function useApps() {
       const { data, error: fetchError } = await supabase
         .from('apps')
         .select('*')
+        .eq('visible', true)
         .order('sort_order', { ascending: true });
 
       if (signal?.cancelled) return;

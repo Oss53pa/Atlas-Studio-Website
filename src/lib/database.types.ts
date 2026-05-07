@@ -37,6 +37,7 @@ export interface AppRow {
   highlights: string[];
   external_url: string | null;
   status: AppStatus;
+  visible: boolean;
   sort_order: number;
   created_at: string;
   updated_at: string;
