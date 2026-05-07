@@ -24,7 +24,7 @@ const emptyApp: Partial<AppRow> = {
 
 interface PricingRow { plan: string; price: number }
 
-export default function AppsManagementPage() {
+export default function AdminAppsTable() {
   const { success, error: showError } = useToast();
   const [apps, setApps] = useState<AppRow[]>([]);
   const [loading, setLoading] = useState(true);
