@@ -12,6 +12,16 @@ Deno.serve(async (req) => {
     const { data: newPlan } = await supabaseAdmin.from("plans").select("*").eq("id", new_plan_id).single();
     if (!sub || !newPlan) return new Response(JSON.stringify({ error: "Données introuvables" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+    // Refuser le change-plan si le nouveau plan a ete bloque par un admin
+    // (plans.is_available = false). Les abonnements actifs sur ce plan
+    // continuent normalement, mais on n'autorise pas de migrer vers lui.
+    if ((newPlan as { is_available?: boolean }).is_available === false) {
+      return new Response(
+        JSON.stringify({ error: `Le plan "${(newPlan as { name?: string }).name ?? new_plan_id}" n'est plus disponible.` }),
+        { status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { data: prorata } = await supabaseAdmin.rpc("calculate_prorata", { p_subscription_id: subscription_id, p_new_plan_id: new_plan_id, p_new_cycle: new_cycle || sub.billing_cycle });
     const isUpgrade = prorata?.is_upgrade;
 

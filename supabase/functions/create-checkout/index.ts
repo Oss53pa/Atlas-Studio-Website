@@ -13,6 +13,22 @@ Deno.serve(async (req) => {
     const { appId, plan, priceAmount, promoCode } = await req.json();
     const frontendUrl = Deno.env.get("FRONTEND_URL") || "https://atlas-studio.org";
 
+    // Refuser la souscription si l'app est arretee ou masquee.
+    // Defense-in-depth : l'UI marketplace filtre deja, mais un attaquant
+    // peut appeler directement cette fonction avec un appId arbitraire.
+    const { data: appRow, error: appErr } = await supabaseAdmin
+      .from("apps")
+      .select("status, visible, name")
+      .eq("id", appId)
+      .single();
+    if (appErr || !appRow) return errorResponse("Application introuvable", 404);
+    if (appRow.status !== "available") {
+      return errorResponse(`L'application "${appRow.name}" n'est plus disponible a la souscription.`, 410);
+    }
+    if ((appRow as { visible?: boolean }).visible === false) {
+      return errorResponse(`L'application "${appRow.name}" n'est plus accessible.`, 410);
+    }
+
     // ── Validate and apply promo code ──
     let finalPrice = priceAmount;
     let appliedDiscount = 0;
