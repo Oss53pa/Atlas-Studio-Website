@@ -77,7 +77,7 @@ export default function InvitePage() {
   }, [token]);
 
   // Login helper using verifyOtp
-  const loginWithOtp = async (tokenHash: string, email?: string) => {
+  const loginWithOtp = async (tokenHash: string, _email?: string, isNewSignup = false) => {
     const { error: otpError } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: "magiclink",
@@ -87,7 +87,9 @@ export default function InvitePage() {
       throw new Error(otpError.message || "Erreur lors de la connexion.");
     }
 
-    navigate("/portal");
+    // Brief 2026-05-07 : nouveaux comptes -> /portal/welcome (landing post-signup).
+    // Comptes existants -> /portal direct (workflow inchange).
+    navigate(isNewSignup ? "/portal/welcome" : "/portal");
   };
 
   // Step 4: After signup, call accept-invitation again with password + names
@@ -129,11 +131,12 @@ export default function InvitePage() {
         throw new Error(data.error || data.message || "Erreur lors de l'inscription.");
       }
 
-      // Step 5: On success, establish session and redirect
+      // Step 5: On success, establish session and redirect to /portal/welcome
+      // (nouveau compte = premiere connexion, on affiche la landing dediee).
       if (data.token_hash) {
-        await loginWithOtp(data.token_hash, data.email);
+        await loginWithOtp(data.token_hash, data.email, true);
       } else {
-        navigate("/portal");
+        navigate("/portal/welcome");
       }
     } catch (err: any) {
       setError(err.message || "Erreur lors de l'inscription.");

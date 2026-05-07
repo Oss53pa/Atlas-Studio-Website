@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Package, Star, Users, TrendingUp, AlertTriangle, Clock, Crown, RefreshCw, DollarSign,
-  Check, X, Building2, Sparkles, Briefcase
+  Check, X, Building2, Sparkles, Briefcase, Lock, Unlock
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useToast } from "../contexts/ToastContext";
@@ -22,6 +22,7 @@ interface Plan {
   max_seats?: number;
   max_companies?: number;
   is_popular: boolean;
+  is_available: boolean;
   features: string[];
   created_at: string;
 }
@@ -81,6 +82,7 @@ export default function PlansPage() {
           price_monthly: p.price_monthly_fcfa ?? p.price_monthly ?? 0,
           price_annual: p.price_annual_fcfa ?? p.price_annual ?? 0,
           seats: p.max_seats ?? p.seats ?? 0,
+          is_available: p.is_available ?? true,
         })) as Plan[];
         setPlans(normalized);
       }
@@ -91,7 +93,21 @@ export default function PlansPage() {
       setLoading(false);
     };
     load();
-  }, [showError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const togglePlanAvailability = async (plan: Plan) => {
+    const next = !plan.is_available;
+    setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, is_available: next } : p));
+    // Cast: la colonne plans.is_available est ajoutee par la migration
+    // 20260507b_add_plans_is_available.sql, mais le schema Database genere
+    // localement n'est pas encore regenere. RLS protege cote serveur.
+    const { error } = await (supabase.from("plans").update as any)({ is_available: next }).eq("id", plan.id);
+    if (error) {
+      setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, is_available: plan.is_available } : p));
+      showError(`Erreur : ${error.message}`);
+    }
+  };
 
   // Build feature map per plan id
   const featuresByPlan = planFeatures.reduce((acc, pf) => {
@@ -228,11 +244,30 @@ export default function PlansPage() {
                   <div
                     key={plan.id}
                     className={`relative bg-[#1E1E2E] border rounded-xl p-6 transition-colors ${
-                      plan.is_popular
-                        ? "border-[#EF9F27]/60 shadow-[0_0_0_1px_rgba(239,159,39,0.15)]"
-                        : "border-[#2A2A3A] hover:border-[#EF9F27]/30"
+                      !plan.is_available
+                        ? "border-red-500/40 opacity-60"
+                        : plan.is_popular
+                          ? "border-[#EF9F27]/60 shadow-[0_0_0_1px_rgba(239,159,39,0.15)]"
+                          : "border-[#2A2A3A] hover:border-[#EF9F27]/30"
                     }`}
                   >
+                    {/* Toggle souscription bloquee/ouverte (haut-droite) */}
+                    <button
+                      type="button"
+                      onClick={() => togglePlanAvailability(plan)}
+                      title={plan.is_available
+                        ? "Bloquer la souscription a ce plan"
+                        : "Reouvrir la souscription a ce plan"}
+                      className={`absolute -top-2.5 right-4 flex items-center gap-1 text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border transition-colors ${
+                        plan.is_available
+                          ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25"
+                          : "bg-red-500/20 text-red-300 border-red-500/40 hover:bg-red-500/30"
+                      }`}
+                    >
+                      {plan.is_available ? <Unlock size={10} /> : <Lock size={10} />}
+                      {plan.is_available ? "Souscription ouverte" : "Souscription bloquee"}
+                    </button>
+
                     {/* Badge */}
                     {isStarter && (
                       <div className="absolute -top-2.5 left-4 flex items-center gap-1 bg-[#EF9F27] text-[#0A0A0A] text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
@@ -607,7 +642,26 @@ export default function PlansPage() {
                 const stats = subsByPlan[plan.name] || { active: 0, total: 0 };
                 return (
                   <div key={plan.id}
-                    className={`relative bg-[#1E1E2E] border rounded-xl p-5 transition-colors hover:border-[#EF9F27]/30 ${plan.is_popular ? "border-[#EF9F27]/40" : "border-[#2A2A3A]"}`}>
+                    className={`relative bg-[#1E1E2E] border rounded-xl p-5 transition-colors ${
+                      !plan.is_available
+                        ? "border-red-500/40 opacity-60"
+                        : `hover:border-[#EF9F27]/30 ${plan.is_popular ? "border-[#EF9F27]/40" : "border-[#2A2A3A]"}`
+                    }`}>
+                    <button
+                      type="button"
+                      onClick={() => togglePlanAvailability(plan)}
+                      title={plan.is_available
+                        ? "Bloquer la souscription a ce plan"
+                        : "Reouvrir la souscription a ce plan"}
+                      className={`absolute -top-2.5 right-4 flex items-center gap-1 text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border transition-colors ${
+                        plan.is_available
+                          ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25"
+                          : "bg-red-500/20 text-red-300 border-red-500/40 hover:bg-red-500/30"
+                      }`}
+                    >
+                      {plan.is_available ? <Unlock size={10} /> : <Lock size={10} />}
+                      {plan.is_available ? "Ouvert" : "Bloque"}
+                    </button>
                     {plan.is_popular && (
                       <div className="absolute -top-2.5 left-4 flex items-center gap-1 bg-[#EF9F27] text-[#0A0A0A] text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">
                         <Star size={10} /> Populaire

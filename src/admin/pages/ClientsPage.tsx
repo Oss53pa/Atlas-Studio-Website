@@ -53,7 +53,18 @@ export default function ClientsPage() {
   const [clientInvoices, setClientInvoices] = useState<Invoice[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editClient, setEditClient] = useState<Profile | null>(null);
-  const [formData, setFormData] = useState({ email: "", password: "", full_name: "", company_name: "", phone: "" });
+  // Brief 2026-05-07 : creation client = email + full_name + trial obligatoire.
+  // Le mot de passe est genere par admin-clients v9 et envoye par email d'invitation.
+  // company_name / phone restent pour l'edition (pas demandes a la creation).
+  const [formData, setFormData] = useState({
+    email: "",
+    full_name: "",
+    company_name: "",
+    phone: "",
+    trial_app_id: "",
+    trial_plan: "",
+    trial_days: 14,
+  });
   const [saving, setSaving] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: "", message: "", onConfirm: () => {} });
 
@@ -139,15 +150,43 @@ export default function ClientsPage() {
     });
   };
 
-  const openCreateForm = () => { setEditClient(null); setFormData({ email: "", password: "", full_name: "", company_name: "", phone: "" }); setShowForm(true); };
-  const openEditForm = (client: Profile) => { setEditClient(client); setFormData({ email: client.email || "", password: "", full_name: client.full_name || "", company_name: client.company_name || "", phone: client.phone || "" }); setShowForm(true); };
+  const openCreateForm = () => {
+    setEditClient(null);
+    const firstApp = appList[0];
+    const firstPlan = firstApp ? Object.keys((firstApp.pricing as Record<string, number>) || {})[0] || "" : "";
+    setFormData({
+      email: "",
+      full_name: "",
+      company_name: "",
+      phone: "",
+      trial_app_id: firstApp?.id || "",
+      trial_plan: firstPlan,
+      trial_days: 14,
+    });
+    setShowForm(true);
+  };
+  const openEditForm = (client: Profile) => {
+    setEditClient(client);
+    setFormData({
+      email: client.email || "",
+      full_name: client.full_name || "",
+      company_name: client.company_name || "",
+      phone: client.phone || "",
+      trial_app_id: "",
+      trial_plan: "",
+      trial_days: 14,
+    });
+    setShowForm(true);
+  };
 
   const handleSaveClient = async () => {
     const fullName = formData.full_name.trim();
     if (!fullName) { showError("Le nom complet est obligatoire."); return; }
     if (!editClient) {
       if (!formData.email.trim()) { showError("L'email est obligatoire."); return; }
-      if (!formData.password.trim()) { showError("Le mot de passe est obligatoire."); return; }
+      if (!formData.trial_app_id) { showError("Selectionnez l'application a essayer."); return; }
+      if (!formData.trial_plan) { showError("Selectionnez le plan du trial."); return; }
+      if (!formData.trial_days || formData.trial_days < 1) { showError("Duree du trial invalide."); return; }
     }
     setSaving(true);
     try {
@@ -155,8 +194,19 @@ export default function ClientsPage() {
         await supabase.from("profiles").update({ full_name: fullName, company_name: formData.company_name, phone: formData.phone, updated_at: new Date().toISOString() }).eq("id", editClient.id);
         success("Client modifié");
       } else {
-        await apiCall("admin-clients", { method: "POST", body: { ...formData, full_name: fullName } });
-        success("Client créé");
+        // Brief 2026-05-07 : admin-clients v9 cree user (mot de passe auto-genere),
+        // envoie email d'invitation, puis cree la subscription trial.
+        await apiCall("admin-clients", {
+          method: "POST",
+          body: {
+            email: formData.email.trim(),
+            full_name: fullName,
+            trial_app_id: formData.trial_app_id,
+            trial_plan: formData.trial_plan,
+            trial_days: formData.trial_days,
+          },
+        });
+        success(`Client cree, invitation envoyee a ${formData.email.trim()}`);
       }
       setShowForm(false);
       fetchClients();
@@ -535,14 +585,70 @@ export default function ClientsPage() {
         footer={<button onClick={handleSaveClient} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 ${saving ? "opacity-50" : ""}`}>{saving ? "Sauvegarde..." : editClient ? "Modifier" : "Créer"}</button>}>
         <div className="space-y-1">
           <Field label="Nom complet *"><input required value={formData.full_name} onChange={e => setFormData(p => ({ ...p, full_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+
           {!editClient && (
             <>
-              <Field label="Email *"><input required type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
-              <Field label="Mot de passe *"><input required type="password" value={formData.password} onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+              <Field label="Email *">
+                <input required type="email" value={formData.email}
+                  onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+                  className={ADMIN_INPUT_CLASS}
+                  placeholder="client@entreprise.com"
+                />
+              </Field>
+              <p className="text-neutral-muted dark:text-admin-muted text-[12px] -mt-1 mb-3">
+                Un mot de passe sera genere automatiquement et envoye au client par email d'invitation.
+              </p>
+
+              <div className="mt-4 mb-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <p className="text-emerald-400 text-[12px] font-semibold uppercase tracking-wider">Trial gratuit a activer</p>
+              </div>
+              <Field label="Application *">
+                <select required value={formData.trial_app_id}
+                  onChange={e => {
+                    const appId = e.target.value;
+                    const app = appList.find(a => a.id === appId);
+                    const firstPlan = app ? Object.keys((app.pricing as Record<string, number>) || {})[0] || "" : "";
+                    setFormData(p => ({ ...p, trial_app_id: appId, trial_plan: firstPlan }));
+                  }}
+                  className={ADMIN_INPUT_CLASS}
+                >
+                  <option value="">— Selectionner une application —</option>
+                  {appList.map(app => (
+                    <option key={app.id} value={app.id}>{app.name}</option>
+                  ))}
+                </select>
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Plan *">
+                  <select required value={formData.trial_plan}
+                    onChange={e => setFormData(p => ({ ...p, trial_plan: e.target.value }))}
+                    className={ADMIN_INPUT_CLASS}
+                    disabled={!formData.trial_app_id}
+                  >
+                    <option value="">— Plan —</option>
+                    {(() => {
+                      const app = appList.find(a => a.id === formData.trial_app_id);
+                      const plans = app ? Object.keys((app.pricing as Record<string, number>) || {}) : [];
+                      return plans.map(plan => <option key={plan} value={plan}>{plan}</option>);
+                    })()}
+                  </select>
+                </Field>
+                <Field label="Duree (jours) *">
+                  <input required type="number" min={1} max={365} value={formData.trial_days}
+                    onChange={e => setFormData(p => ({ ...p, trial_days: parseInt(e.target.value) || 14 }))}
+                    className={ADMIN_INPUT_CLASS}
+                  />
+                </Field>
+              </div>
             </>
           )}
-          <Field label="Entreprise"><input value={formData.company_name} onChange={e => setFormData(p => ({ ...p, company_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
-          <Field label="Téléphone"><input value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+
+          {editClient && (
+            <>
+              <Field label="Entreprise"><input value={formData.company_name} onChange={e => setFormData(p => ({ ...p, company_name: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+              <Field label="Téléphone"><input value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))} className={ADMIN_INPUT_CLASS} /></Field>
+            </>
+          )}
         </div>
       </AdminModal>
 

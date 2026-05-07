@@ -14,6 +14,22 @@ Deno.serve(async (req) => {
     const frontendUrl = Deno.env.get("FRONTEND_URL")!;
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
+    // Refuser la souscription si l'app est arretee ou masquee.
+    // Defense-in-depth (mirror create-checkout) : un attaquant peut
+    // appeler directement avec un appId arbitraire.
+    const { data: appRow, error: appErr } = await supabaseAdmin
+      .from("apps")
+      .select("status, visible, name")
+      .eq("id", appId)
+      .single();
+    if (appErr || !appRow) return errorResponse("Application introuvable", 404);
+    if (appRow.status !== "available") {
+      return errorResponse(`L'application "${appRow.name}" n'est plus disponible a la souscription.`, 410);
+    }
+    if ((appRow as { visible?: boolean }).visible === false) {
+      return errorResponse(`L'application "${appRow.name}" n'est plus accessible.`, 410);
+    }
+
     const transactionId = `cp_${crypto.randomUUID().replace(/-/g, "").slice(0, 20)}`;
 
     const { data: profile } = await supabaseAdmin

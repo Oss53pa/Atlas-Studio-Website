@@ -167,7 +167,7 @@ export default function AdminAppsTable() {
   };
 
   const fmt = (n: number) => n.toLocaleString("fr-FR");
-  // inputClass imported from AdminFormField
+  // ADMIN_INPUT_CLASS imported from AdminFormField
 
   return (
     <div>
@@ -279,7 +279,7 @@ export default function AdminAppsTable() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">ID (slug)</label>
-                  <input value={editApp.id || ""} onChange={e => setEditApp({ ...editApp, id: e.target.value })} disabled={!isNew} placeholder="mon-app" className={`${inputClass} ${!isNew ? "opacity-50" : ""}`} />
+                  <input value={editApp.id || ""} onChange={e => setEditApp({ ...editApp, id: e.target.value })} disabled={!isNew} placeholder="mon-app" className={`${ADMIN_INPUT_CLASS} ${!isNew ? "opacity-50" : ""}`} />
                 </div>
                 <div>
                   <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Nom</label>
@@ -344,7 +344,7 @@ export default function AdminAppsTable() {
             </div>
             <div>
               <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Description</label>
-              <textarea value={editApp.description || ""} onChange={e => setEditApp({ ...editApp, description: e.target.value })} rows={3} className={`${inputClass} resize-y`} />
+              <textarea value={editApp.description || ""} onChange={e => setEditApp({ ...editApp, description: e.target.value })} rows={3} className={`${ADMIN_INPUT_CLASS} resize-y`} />
             </div>
 
             {/* Structured Pricing */}
@@ -354,7 +354,7 @@ export default function AdminAppsTable() {
                 {pricingRows.map((row, i) => (
                   <div key={i} className="flex gap-3 items-center">
                     <input value={row.plan} onChange={e => { const r = [...pricingRows]; r[i] = { ...r[i], plan: e.target.value }; setPricingRows(r); }}
-                      placeholder="Nom du plan" className={`flex-1 ${inputClass}`} />
+                      placeholder="Nom du plan" className={`flex-1 ${ADMIN_INPUT_CLASS}`} />
                     <div className="relative flex-1">
                       <input type="number" value={row.price} onChange={e => { const r = [...pricingRows]; r[i] = { ...r[i], price: Number(e.target.value) }; setPricingRows(r); }}
                         className={ADMIN_INPUT_CLASS} />
@@ -378,7 +378,7 @@ export default function AdminAppsTable() {
                     <input type="color" value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
                       className="w-10 h-10 rounded border border-warm-border dark:border-admin-surface-alt cursor-pointer bg-transparent" />
                     <input value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
-                      className={`flex-1 ${inputClass} font-mono`} />
+                      className={`flex-1 ${ADMIN_INPUT_CLASS} font-mono`} />
                   </div>
                 </div>
                 <div>
@@ -397,7 +397,7 @@ export default function AdminAppsTable() {
             <div>
               <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Fonctionnalités (une par ligne)</label>
               <textarea value={featuresStr} onChange={e => setFeaturesStr(e.target.value)} rows={5}
-                className={`${inputClass} resize-y font-mono text-[12px]`} />
+                className={`${ADMIN_INPUT_CLASS} resize-y font-mono text-[12px]`} />
               <p className="text-neutral-muted dark:text-admin-muted/60 text-[11px] mt-1">{featuresStr.split("\n").filter(Boolean).length} fonctionnalités</p>
             </div>
 

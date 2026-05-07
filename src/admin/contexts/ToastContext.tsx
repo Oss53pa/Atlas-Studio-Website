@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 import { Check, AlertTriangle, Info, X } from "lucide-react";
 
 type ToastType = "success" | "error" | "warning" | "info";
@@ -42,12 +42,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setTimeout(() => removeToast(id), 5000);
   }, [removeToast]);
 
-  const ctx: ToastContextType = {
+  // CRITIQUE: memoize ctx sinon les references success/error/warning/toast
+  // changent a chaque render. Les useEffect des consommateurs qui en dependent
+  // se redeclenchent en boucle (et chaque addToast re-render le provider, qui
+  // re-genere ctx, qui re-trigger les effets, qui re-call addToast, ...).
+  // Sans cette memoization on a vu 800+ erreurs en console sur PlansPage.
+  const ctx: ToastContextType = useMemo(() => ({
     toast: addToast,
     success: (msg) => addToast(msg, "success"),
     error: (msg) => addToast(msg, "error"),
     warning: (msg) => addToast(msg, "warning"),
-  };
+  }), [addToast]);
 
   return (
     <ToastContext.Provider value={ctx}>
