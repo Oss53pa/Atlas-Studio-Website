@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Rocket, Plus, RotateCcw, Search, CheckCircle2, XCircle, Clock, ArrowLeft } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
-import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
@@ -46,25 +45,45 @@ export default function DeploymentsPage() {
   const [saving, setSaving] = useState(false);
   const [detailDeploy, setDetailDeploy] = useState<Deployment | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: "", message: "", onConfirm: () => {} });
+  // Map slug (apps.id) -> products.id (uuid). deployments.product_id est uuid,
+  // donc tout filter/insert qui prenait un slug crashait avec
+  // "invalid input syntax for type uuid: \"atlas-compta\"".
+  const [productUuidBySlug, setProductUuidBySlug] = useState<Record<string, string>>({});
 
   const fetchDeployments = async () => {
-    const { data } = await supabase.from("deployments").select("*").order("deployed_at", { ascending: false });
-    setDeployments(data as Deployment[] || []);
+    const [deployRes, productsRes] = await Promise.all([
+      supabase.from("deployments").select("*").order("deployed_at", { ascending: false }),
+      supabase.from("products").select("id, slug"),
+    ]);
+    setDeployments(deployRes.data as Deployment[] || []);
+    if (productsRes.data) {
+      const map: Record<string, string> = {};
+      for (const p of productsRes.data as { id: string; slug: string }[]) map[p.slug] = p.id;
+      setProductUuidBySlug(map);
+    }
     setLoading(false);
   };
 
   useEffect(() => { fetchDeployments(); }, []);
 
+  // selectedApp est un slug d'app (e.g. "atlas-compta"), product_id en DB est uuid.
+  // On convertit le slug en uuid via productUuidBySlug pour comparer.
+  const selectedProductUuid = selectedApp !== "all" ? productUuidBySlug[selectedApp] : null;
+
   const filtered = deployments.filter(d => {
-    if (selectedApp !== "all" && d.product_id !== selectedApp) return false;
-    if (search && !d.version.toLowerCase().includes(search.toLowerCase()) && !(appMap[d.product_id || ""]?.name || "").toLowerCase().includes(search.toLowerCase())) return false;
+    if (selectedApp !== "all" && d.product_id !== selectedProductUuid) return false;
+    if (search) {
+      const productSlug = Object.keys(productUuidBySlug).find(s => productUuidBySlug[s] === d.product_id) || "";
+      const haystack = `${d.version} ${appMap[productSlug]?.name || ""}`.toLowerCase();
+      if (!haystack.includes(search.toLowerCase())) return false;
+    }
     return true;
   });
 
   const handleCreate = async () => {
     if (!formData.version) return;
     setSaving(true);
-    const { error } = await supabase.from("deployments").insert({
+    const { error } = await (supabase.from("deployments").insert as any)({
       product_id: formData.product_id || null, version: formData.version,
       environment: formData.environment, status: "deployed",
       changelog_public: formData.changelog_public || null,
@@ -79,7 +98,7 @@ export default function DeploymentsPage() {
     setConfirmDialog({
       open: true, title: "Rollback ce déploiement ?", message: `v${deploy.version} sera marqué comme "rolled_back".`,
       onConfirm: async () => {
-        const { error } = await supabase.from("deployments").update({ status: "rolled_back", rolled_back_at: new Date().toISOString() } as any).eq("id", deploy.id);
+        const { error } = await (supabase.from("deployments").update as any)({ status: "rolled_back", rolled_back_at: new Date().toISOString() }).eq("id", deploy.id);
         setConfirmDialog(prev => ({ ...prev, open: false }));
         if (error) { console.error("Update error:", error); showError?.(`Erreur: ${error.message}`); }
         else { success("Déploiement rollbacké"); }
@@ -97,7 +116,13 @@ export default function DeploymentsPage() {
           <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Déploiements</h1>
           <p className="text-neutral-muted dark:text-admin-muted text-sm">{deployments.length} déploiements enregistrés</p>
         </div>
-        <button onClick={() => { setFormData({ product_id: appList[0]?.id || "", version: "", environment: "production", changelog_public: "", changelog_internal: "" }); setShowForm(true); }}
+        <button onClick={() => {
+          // Pre-rempli avec le PREMIER product UUID (pas le slug app.id qui crashait l'insert)
+          const firstSlug = appList[0]?.id;
+          const firstUuid = firstSlug ? (productUuidBySlug[firstSlug] || "") : "";
+          setFormData({ product_id: firstUuid, version: "", environment: "production", changelog_public: "", changelog_internal: "" });
+          setShowForm(true);
+        }}
           className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-4 py-2.5 hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors text-[13px] flex items-center gap-2">
           <Plus size={14} /> Nouveau déploiement
         </button>
@@ -119,9 +144,11 @@ export default function DeploymentsPage() {
           { key: "version", label: "Version", sortable: true, render: (r: Deployment) => (
             <span className="font-mono text-neutral-text dark:text-admin-text font-medium">v{r.version}</span>
           )},
-          { key: "product_id", label: "Produit", render: (r: Deployment) => (
-            <span className="text-[13px]">{r.product_id ? appMap[r.product_id]?.name || r.product_id : "Platform"}</span>
-          )},
+          { key: "product_id", label: "Produit", render: (r: Deployment) => {
+            // product_id est uuid -> trouver le slug pour appMap
+            const slug = r.product_id ? Object.keys(productUuidBySlug).find(s => productUuidBySlug[s] === r.product_id) : null;
+            return <span className="text-[13px]">{slug ? appMap[slug]?.name || slug : "Platform"}</span>;
+          }},
           { key: "environment", label: "Environnement", render: (r: Deployment) => (
             <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${ENV_COLORS[r.environment] || ENV_COLORS.dev}`}>
               {r.environment}
@@ -154,7 +181,12 @@ export default function DeploymentsPage() {
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Produit</label>
               <select value={formData.product_id} onChange={e => setFormData(p => ({ ...p, product_id: e.target.value }))} className={inputClass}>
                 <option value="">Platform</option>
-                {appList.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
+                {/* value = product UUID (deployments.product_id est uuid), label = nom de l'app */}
+                {appList.map(app => {
+                  const uuid = productUuidBySlug[app.id];
+                  if (!uuid) return null; // skip apps sans product correspondant
+                  return <option key={app.id} value={uuid}>{app.name}</option>;
+                })}
               </select></div>
             <div><label className="block text-neutral-body dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Version</label>
               <input value={formData.version} onChange={e => setFormData(p => ({ ...p, version: e.target.value }))} placeholder="1.2.3" className={`${inputClass} font-mono`} /></div>
@@ -176,7 +208,10 @@ export default function DeploymentsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Produit</div>
-                <div className="text-neutral-text dark:text-admin-text text-sm">{detailDeploy.product_id ? appMap[detailDeploy.product_id]?.name || detailDeploy.product_id : "Platform"}</div></div>
+                <div className="text-neutral-text dark:text-admin-text text-sm">{(() => {
+                  const slug = detailDeploy.product_id ? Object.keys(productUuidBySlug).find(s => productUuidBySlug[s] === detailDeploy.product_id) : null;
+                  return slug ? appMap[slug]?.name || slug : "Platform";
+                })()}</div></div>
               <div><div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Environnement</div>
                 <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${ENV_COLORS[detailDeploy.environment]}`}>{detailDeploy.environment}</span></div>
             </div>

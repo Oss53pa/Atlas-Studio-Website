@@ -80,12 +80,13 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
             {companyName && <div className="text-neutral-500 text-[11px] truncate">{companyName}</div>}
           </div>
         </div>
-        <div
-          onClick={onLogout}
-          className="mt-3 px-3 py-2 rounded-lg cursor-pointer text-neutral-500 text-[13px] text-center hover:text-red-400 hover:bg-white/5 transition-all duration-200"
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onLogout(); }}
+          className="mt-3 w-full px-3 py-2 rounded-lg cursor-pointer text-neutral-500 text-[13px] text-center hover:text-red-400 hover:bg-white/5 transition-all duration-200"
         >
           Déconnexion
-        </div>
+        </button>
       </div>
     </>
   );

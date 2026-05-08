@@ -254,7 +254,7 @@ export default function LandingPagesPage() {
   const { user } = useAuth();
   const { success, error: toastErr } = useToast();
   const [app, setApp] = useState<AppId>("advist");
-  const [content, setContent] = useState<Record<AppId, ContentMap>>({ advist: {}, taxpilot: {}, "atlas-fa": {} });
+  const [content, setContent] = useState<Record<AppId, ContentMap>>({ advist: {}, taxpilot: {}, "atlas-fa": {}, "cockpit-fa": {} });
   const [open, setOpen] = useState<SectionKey | null>("hero");
   const [saving, setSaving] = useState<SectionKey | null>(null);
   const [loading, setLoading] = useState(true);
@@ -262,15 +262,21 @@ export default function LandingPagesPage() {
   /* fetch all apps in one go */
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("app_landing_content").select("*").order("sort_order");
-    if (error) { toastErr("Failed to load content"); setLoading(false); return; }
-    const map: Record<AppId, ContentMap> = { advist: {}, taxpilot: {}, "atlas-fa": {} };
-    for (const row of data ?? []) {
-      const aid = row.app_id as AppId;
-      if (map[aid]) map[aid][row.section as SectionKey] = { data: row.data ?? {}, updated_at: row.updated_at };
+    try {
+      const { data, error } = await supabase.from("app_landing_content").select("*").order("sort_order");
+      if (error) { toastErr("Failed to load content"); return; }
+      const map: Record<AppId, ContentMap> = { advist: {}, taxpilot: {}, "atlas-fa": {}, "cockpit-fa": {} };
+      for (const row of (data ?? []) as { app_id: string; section: string; data: any; updated_at: string }[]) {
+        const aid = row.app_id as AppId;
+        if (map[aid]) map[aid][row.section as SectionKey] = { data: row.data ?? {}, updated_at: row.updated_at };
+      }
+      setContent(map);
+    } catch (e) {
+      console.error("LandingPages fetchAll", e);
+      toastErr("Failed to load content");
+    } finally {
+      setLoading(false);
     }
-    setContent(map);
-    setLoading(false);
   }, [toastErr]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
@@ -283,7 +289,7 @@ export default function LandingPagesPage() {
   const save = async (sec: SectionKey) => {
     setSaving(sec);
     const sectionMeta = SECTIONS.find(s => s.key === sec)!;
-    const { error } = await supabase.from("app_landing_content").upsert(
+    const { error } = await (supabase.from("app_landing_content").upsert as any)(
       { app_id: app, section: sec, data: getData(sec), sort_order: sectionMeta.order, updated_at: new Date().toISOString(), updated_by: user?.id },
       { onConflict: "app_id,section" },
     );

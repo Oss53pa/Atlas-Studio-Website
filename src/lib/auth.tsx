@@ -98,19 +98,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Best-effort update: if the trigger already ran, UPDATE the row;
       // if RLS blocks the update, we continue silently — the OTP flow
       // is the actual gate before any portal access.
-      await supabase.from('profiles')
-        .update({
-          full_name: meta.full_name,
-          company_name: meta.company_name,
-        })
-        .eq('id', data.user.id);
+      await (supabase.from('profiles').update as any)({
+        full_name: meta.full_name,
+        company_name: meta.company_name,
+      }).eq('id', data.user.id);
     }
     return { error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      // Silent fail Supabase signOut (network down, token deja expire) ne doit
+      // PAS bloquer la deconnexion cote client. On clear le state local de
+      // toute facon pour eviter que l'utilisateur reste pris sur le portal.
+      console.warn("[auth] signOut error (cleared local state anyway)", e);
+    }
+    setUser(null);
+    setSession(null);
     setProfile(null);
+    // Hard redirect pour eviter qu'un autre tab/composant mette en cache
+    // l'ancien etat auth (cookie partage *.atlas-studio.org).
+    if (typeof window !== "undefined") {
+      window.location.assign("/portal/login");
+    }
   };
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
