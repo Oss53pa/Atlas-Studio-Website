@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
-import { apiCall } from "../lib/api";
 import { LoginPage } from "./LoginPage";
 import { Sidebar } from "./Sidebar";
 import { MyAppsPage } from "./pages/MyAppsPage";
@@ -24,16 +23,11 @@ function PortalDashboard() {
   // Double guard — never render dashboard without user AND profile
   if (!user || !profile || loading) return null;
 
-  const handleOpenApp = async (appId: string) => {
-    try {
-      const { redirectUrl } = await apiCall<{ token: string; redirectUrl: string }>("app-token", {
-        method: "POST",
-        body: { appId },
-      });
-      window.open(redirectUrl, "_blank");
-    } catch (err: any) {
-      alert(err.message || "Impossible d'ouvrir l'application");
-    }
+  const handleOpenApp = (appId: string) => {
+    // Ouverture SYNCHRONE dans un nouvel onglet pour preserver le user gesture
+    // (window.open apres await = bloque par popup blocker du navigateur).
+    // /portal/launch genere ensuite le JWT via app-token et redirige.
+    window.open(`/portal/launch?appId=${encodeURIComponent(appId)}`, "_blank");
   };
 
   return (
