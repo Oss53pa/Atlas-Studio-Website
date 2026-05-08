@@ -1,7 +1,10 @@
 import { lazy, Suspense, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/auth";
-import { LoginPage } from "./LoginPage";
+import LoginPage from "./auth/LoginPage";
+import SignupPage from "./auth/SignupPage";
+import ForgotPasswordPage from "./auth/ForgotPasswordPage";
+import ResetPasswordPage from "./auth/ResetPasswordPage";
 import { Sidebar } from "./Sidebar";
 import { MyAppsPage } from "./pages/MyAppsPage";
 import { CatalogPage } from "./pages/CatalogPage";
@@ -48,8 +51,21 @@ function PortalDashboard() {
   );
 }
 
+/**
+ * Pages publiques accessibles sans auth (login, signup, forgot, reset).
+ * Si l'utilisateur est déjà authentifié, on le redirige vers /portal sauf
+ * pour /reset-password qui nécessite la session de recovery active.
+ */
+const PUBLIC_AUTH_PATHS = new Set([
+  "/portal/login",
+  "/portal/signup",
+  "/portal/forgot-password",
+  "/portal/reset-password",
+]);
+
 export default function Portal() {
   const { user, profile, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -59,29 +75,47 @@ export default function Portal() {
     );
   }
 
-  // Auth requirements, in order:
-  //   1. Valid Supabase session (user)
-  //   2. Existing profile row (blocks orphan auth.users inserts)
-  //   3. Profile is active (blocks disabled/suspended accounts)
-  //   4. First-login OTP completed (blocks accounts that never verified email)
-  //   5. Role must be client, admin or super_admin — all three can consume apps.
-  //      Admins voient leurs propres subs/licences comme un client normal.
+  // Critères d'accès au portail :
+  //   1. Session Supabase valide (user)
+  //   2. Profil existant
+  //   3. Profil actif (non suspendu)
+  //   4. Rôle compatible : client, admin ou super_admin
+  // Note : on a supprimé l'exigence first_login_completed (OTP) — flow Supabase standard.
   const role = profile?.role;
-  const hasPortalAccess = role === 'client' || role === 'admin' || role === 'super_admin';
-  const isVerified = profile?.first_login_completed === true;
+  const hasPortalAccess = role === "client" || role === "admin" || role === "super_admin";
   const isActive = profile?.is_active !== false;
-  const isAuthed = Boolean(user && profile && hasPortalAccess && isActive && isVerified);
+  const isAuthed = Boolean(user && profile && hasPortalAccess && isActive);
+
+  const isPublicAuth = PUBLIC_AUTH_PATHS.has(location.pathname);
 
   return (
     <Routes>
-      <Route path="login" element={isAuthed ? <Navigate to="/portal" replace /> : <LoginPage />} />
+      {/* Pages auth publiques — si déjà connecté, redirection vers /portal
+          (sauf /reset-password qui peut être visité avec une session recovery) */}
+      <Route
+        path="login"
+        element={isAuthed ? <Navigate to="/portal" replace /> : <LoginPage />}
+      />
+      <Route
+        path="signup"
+        element={isAuthed ? <Navigate to="/portal" replace /> : <SignupPage />}
+      />
+      <Route
+        path="forgot-password"
+        element={isAuthed ? <Navigate to="/portal" replace /> : <ForgotPasswordPage />}
+      />
+      <Route path="reset-password" element={<ResetPasswordPage />} />
+
+      {/* Routes protégées spéciales (lazy) */}
       <Route
         path="welcome"
         element={
           isAuthed ? (
-            <Suspense fallback={<div className="min-h-screen bg-onyx" />}><WelcomePage /></Suspense>
+            <Suspense fallback={<div className="min-h-screen bg-onyx" />}>
+              <WelcomePage />
+            </Suspense>
           ) : (
-            <Navigate to="/portal/login" replace />
+            <Navigate to="/portal/login?next=/portal/welcome" replace />
           )
         }
       />
@@ -89,13 +123,26 @@ export default function Portal() {
         path="launch"
         element={
           isAuthed ? (
-            <Suspense fallback={<div className="min-h-screen bg-onyx" />}><LaunchPage /></Suspense>
+            <Suspense fallback={<div className="min-h-screen bg-onyx" />}>
+              <LaunchPage />
+            </Suspense>
           ) : (
             <Navigate to="/portal/login?next=/portal/launch" replace />
           )
         }
       />
-      <Route path="*" element={isAuthed ? <PortalDashboard /> : <Navigate to="/portal/login" replace />} />
+
+      {/* Toutes les autres routes du portail : auth requise */}
+      <Route
+        path="*"
+        element={
+          isAuthed ? (
+            <PortalDashboard />
+          ) : isPublicAuth ? null : (
+            <Navigate to={`/portal/login?next=${encodeURIComponent(location.pathname)}`} replace />
+          )
+        }
+      />
     </Routes>
   );
 }
