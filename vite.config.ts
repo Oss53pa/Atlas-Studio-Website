@@ -50,11 +50,12 @@ export default defineConfig({
               expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 },
             },
           },
-          // Supabase API: NetworkFirst with short cache (already in place)
+          // Supabase API: NetworkOnly (pas de cache).
+          // Avant: NetworkFirst avec 5min cache → causait des reponses stale
+          // sur les POST (ex: claude-proxy save_key) qui pendaient indefiniment.
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
-            options: { cacheName: 'supabase-cache', expiration: { maxEntries: 50, maxAgeSeconds: 300 } },
+            handler: 'NetworkOnly',
           },
         ],
       },
