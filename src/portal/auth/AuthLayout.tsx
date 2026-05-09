@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { Logo } from "../../components/ui/Logo";
 
 interface AuthLayoutProps {
   title: string;
