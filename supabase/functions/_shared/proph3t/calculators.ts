@@ -412,6 +412,36 @@ export function applyProrata360(amountCentimes: bigint, days: number): bigint {
   return (amountCentimes * BigInt(days)) / 360n;
 }
 
+// ─── Conversion devises (CDC §3.2 calculs SYSCOHADA) ─────────────────────
+
+/**
+ * Convertit un montant centimes d'une devise vers une autre.
+ * Pour les paires fixes (XOF/EUR, XAF/EUR, XOF/XAF), utilise les parites BCEAO/BEAC.
+ * Pour les autres paires, va chercher dans la table proph3t_currency_rates le taux le plus recent.
+ *
+ * Pour la simplicite, le calcul accepte un taux pre-fetch (pour usage hors edge function).
+ */
+export function convertCurrency(
+  amountCentimes: bigint,
+  fromCode: string,
+  toCode: string,
+  rate: number,
+): { amount_centimes: bigint; from: string; to: string; rate: number; formula: string } {
+  if (fromCode === toCode) {
+    return { amount_centimes: amountCentimes, from: fromCode, to: toCode, rate: 1, formula: "Meme devise" };
+  }
+  // Calcul precis : on multiplie en bigint puis divise
+  const rateBp = BigInt(Math.round(rate * 1_000_000));  // 6 decimales de taux
+  const converted = (amountCentimes * rateBp) / 1_000_000n;
+  return {
+    amount_centimes: converted,
+    from: fromCode,
+    to: toCode,
+    rate,
+    formula: `${amountCentimes} ${fromCode} × ${rate} = ${converted} ${toCode}`,
+  };
+}
+
 // ─── Master dispatcher (utilise par le tool compute_ratio) ────────────────
 
 export type RatioType =

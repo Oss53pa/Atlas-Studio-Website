@@ -13,12 +13,16 @@ import { groqChat, getGroqApiKey, getGroqModel } from "../_shared/proph3t/groq.t
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
 
 // Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini/Groq).
-// Sont retires : search_knowledge et search_documents (necessitent embeddings).
+// Sont retires : search_knowledge et search_documents (legacy, necessitent Ollama embeddings).
 // Sont retires : get_financial_data (stub jusqu'a Phase 1 CDC).
-// Sont gardes : get_memory (DB), compute_ratio (TS pur), compute_tva, apply_prorata_360,
-//               format_money_fcfa, generate_alert (DB), save_business_rule (DB).
+// search_app_knowledge / search_tenant_documents : fallback ilike sans embedding -> ok cloud.
+// extract_from_image / parse_document_visual : OK si user a Gemini BYOK.
 const TOOLS_NO_OLLAMA = TOOL_DECLARATIONS.filter(t =>
   !["search_knowledge", "search_documents", "get_financial_data"].includes(t.function.name)
+);
+// Pour les providers SANS support vision (Groq Llama 3.3 par defaut), on retire aussi vision.
+const TOOLS_NO_VISION = TOOLS_NO_OLLAMA.filter(t =>
+  !["extract_from_image", "parse_document_visual"].includes(t.function.name)
 );
 import { appendAudit } from "../_shared/proph3t/audit.ts";
 
@@ -122,14 +126,15 @@ Deno.serve(async (req) => {
           ? groqModel!
           : "llama3.1:8b-instruct-q4_K_M";
 
-    // Strategie tools selon provider (CDC §3 tools registry niveau 1) :
-    // - Ollama (self-hosted)        : TOUS les tools, y compris embeddings (search_knowledge/documents)
-    // - Anthropic/Gemini/Groq cloud : TOOLS_NO_OLLAMA (sans embeddings, sans get_financial_data stub)
-    //   Inclus : compute_ratio (TS pur), compute_tva, apply_prorata_360,
-    //   format_money_fcfa, get_memory, generate_alert, save_business_rule.
-    const tools = (useAnthropic || useGemini || useGroq)
-      ? TOOLS_NO_OLLAMA
-      : TOOL_DECLARATIONS;
+    // Strategie tools selon provider (CDC §3 tools registry L1, 28 tools) :
+    // - Ollama self-hosted : TOUS tools, y compris vision si modele multimodal
+    // - Anthropic / Gemini : TOOLS_NO_OLLAMA (vision OK, embeddings via fallback texte)
+    // - Groq Llama 3.3     : TOOLS_NO_VISION (pas de vision native)
+    const tools = useGroq
+      ? TOOLS_NO_VISION
+      : (useAnthropic || useGemini)
+        ? TOOLS_NO_OLLAMA
+        : TOOL_DECLARATIONS;
 
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
       const result = useAnthropic
@@ -175,7 +180,13 @@ Deno.serve(async (req) => {
         let toolResult: unknown;
         try {
           toolResult = await runTool(toolName, tc.function.arguments);
-          if (toolName === "search_knowledge" || toolName === "search_documents") {
+          if (
+            toolName === "search_knowledge" ||
+            toolName === "search_documents" ||
+            toolName === "search_app_knowledge" ||
+            toolName === "search_tenant_documents" ||
+            toolName === "recall_similar_cases"
+          ) {
             citations.push({ tool: toolName, args: tc.function.arguments, hits: toolResult });
           }
         } catch (err) {
