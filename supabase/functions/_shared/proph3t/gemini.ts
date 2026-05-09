@@ -193,10 +193,13 @@ export async function geminiTestKey(apiKey: string, model: string): Promise<{
   prompt_tokens?: number;
   output_tokens?: number;
 }> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
     const res = await fetch(url, {
       method: "POST",
+      signal: controller.signal,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ role: "user", parts: [{ text: "ping" }] }],
@@ -215,7 +218,10 @@ export async function geminiTestKey(apiKey: string, model: string): Promise<{
       output_tokens: data.usageMetadata?.candidatesTokenCount,
     };
   } catch (err) {
-    return { ok: false, error: (err as Error).message };
+    const e = err as Error;
+    return { ok: false, error: e.name === "AbortError" ? "Timeout 20s — Gemini API ne repond pas" : e.message };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

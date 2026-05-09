@@ -102,27 +102,38 @@ if (typeof window !== 'undefined') {
 initErrorMonitor(ATLAS_APP_ID);
 
 // ── Service Worker auto-update ─────────────────────────────────────────
-// On every new deploy, the SW detects the new version. We auto-trigger
-// the activation + reload so users always see the latest UI without having
-// to clear cache. Skipped in dev (the virtual module is a no-op there).
+// IMPORTANT: l'ancien code (updateSW(true).then(reload)) creait une BOUCLE
+// INFINIE de mises a jour combine a skipWaiting+clientsClaim. Versions
+// 2807 -> 3442 observees en moins d'1h sur atlas-studio.org.
+//
+// Nouveau flow (sans boucle):
+// - registerType: 'prompt' (vite.config) -> on detecte la nouvelle version
+//   sans l'activer automatiquement.
+// - On stocke un flag dans sessionStorage pour empecher de retrigger un
+//   updateSW() apres un reload (au cas ou la detection se repeterait).
+// - On marque l'usage de updateSW manuel: l'utilisateur recupere la nouvelle
+//   version au prochain hard-refresh ou a la prochaine session.
 if (import.meta.env.PROD) {
+  const ALREADY_UPDATED_KEY = 'atlas_sw_updated_at';
   import('virtual:pwa-register').then(({ registerSW }) => {
-    const updateSW = registerSW({
-      immediate: true,
+    registerSW({
+      immediate: false,
       onNeedRefresh() {
-        // New version available — activate it and reload silently.
-        // For a marketing site, no need to ask the user; the reload is fast.
-        updateSW(true).then(() => {
-          window.location.reload();
-        });
+        // Anti-loop: si on a deja applique un update il y a moins de 5 min,
+        // on ne fait rien (sinon = boucle infinie).
+        const last = Number(sessionStorage.getItem(ALREADY_UPDATED_KEY) || 0);
+        if (Date.now() - last < 5 * 60 * 1000) return;
+        sessionStorage.setItem(ALREADY_UPDATED_KEY, String(Date.now()));
+        // On ne fait PAS de reload force. La nouvelle version sera
+        // active a la prochaine visite "naturelle" du user.
+        console.info('[atlas-sw] Nouvelle version disponible — sera active au prochain rechargement.');
       },
       onRegisteredSW(_swUrl, registration) {
-        // Periodically check for updates (every 60min) so long-open tabs
-        // also pick up new deploys without needing a manual refresh.
+        // Update toutes les 6h (au lieu de 1h pour reduire les chances de loop)
         if (registration) {
           setInterval(() => {
-            registration.update().catch(() => { /* ignore network errors */ });
-          }, 60 * 60 * 1000);
+            registration.update().catch(() => { /* ignore */ });
+          }, 6 * 60 * 60 * 1000);
         }
       },
     });
