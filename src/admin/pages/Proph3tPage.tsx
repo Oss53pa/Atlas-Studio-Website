@@ -9,6 +9,7 @@ import { supabase } from "../../lib/supabase";
 import { useToast } from "../contexts/ToastContext";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { Proph3tChat } from "../components/Proph3tChat";
+import { Proph3tTestRunner } from "../components/Proph3tTestRunner";
 
 /* ─── Types ─── */
 interface Insight {
@@ -45,6 +46,7 @@ export default function Proph3tPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [testRunnerOpen, setTestRunnerOpen] = useState(false);
 
   // Raw data
   const [subsData, setSubsData] = useState<any[]>([]);
@@ -262,6 +264,10 @@ export default function Proph3tPage() {
             className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors !py-2.5 !text-[13px] flex items-center gap-2">
             <MessageSquare size={14} /> Parler à <span className="font-logo">Proph3t</span>
           </button>
+          <button onClick={() => setTestRunnerOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+            <Activity size={14} /> Tester les tools
+          </button>
           <button onClick={handleRefresh} disabled={refreshing}
             className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
             <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} /> Actualiser
@@ -433,6 +439,7 @@ export default function Proph3tPage() {
 
       {/* Chat Proph3t */}
       <Proph3tChat open={chatOpen} onClose={() => setChatOpen(false)} />
+      <Proph3tTestRunner open={testRunnerOpen} onClose={() => setTestRunnerOpen(false)} />
     </div>
   );
 }

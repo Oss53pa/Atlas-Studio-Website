@@ -293,6 +293,32 @@ const TEST_CASES: TestCase[] = [
     },
     validate: (r: any) => r?.ok ? null : "anomalies ko",
   },
+
+  // ─── RH L2 (10) ───
+  { name: "compute_smig", category: "RH L2", args: { pays: "CI" }, validate: (r: any) => r?.ok && r?.smig_fcfa > 0 ? null : "smig ko" },
+  { name: "compute_salaire_net", category: "RH L2", args: { salaire_brut_centimes: "50000000", pays: "CI" }, validate: (r: any) => r?.ok && BigInt(r?.salaire_net_centimes) > 0n ? null : "net ko" },
+  { name: "compute_iuts", category: "RH L2", args: { salaire_brut_centimes: "20000000" }, validate: (r: any) => r?.ok ? null : "iuts ko" },
+  { name: "compute_its", category: "RH L2", args: { salaire_imposable_centimes: "200000000", pays: "CI" }, validate: (r: any) => r?.ok && BigInt(r?.its_centimes) > 0n ? null : "its ko" },
+  { name: "compute_taxes_parafiscales", category: "RH L2", args: { salaire_brut_centimes: "50000000", pays: "CI" }, validate: (r: any) => r?.ok && r?.taxes?.length > 0 ? null : "parafiscales ko" },
+  { name: "compute_conges_payes", category: "RH L2", args: { salaire_mensuel_brut_centimes: "30000000", mois_travailles: 12, jours_deja_pris: 10 }, validate: (r: any) => r?.ok && r?.jours_acquis === 30 ? null : `conges ko: ${r?.jours_acquis}` },
+  { name: "compute_indemnite_licenciement", category: "RH L2", args: { salaire_moyen_centimes: "30000000", annees_anciennete: 7 }, validate: (r: any) => r?.ok ? null : "licenciement ko" },
+  { name: "compute_prime_anciennete", category: "RH L2", args: { salaire_base_centimes: "30000000", annees_anciennete: 5 }, validate: (r: any) => r?.ok && r?.taux === 0.05 ? null : `anciennete ko: ${r?.taux}` },
+  { name: "generate_fiche_paie", category: "RH L2", args: { salarie: { nom: "Test", matricule: "M001" }, periode: "2025-01", pays: "CI", salaire_base_centimes: "50000000", primes_centimes: "5000000", annees_anciennete: 3 }, validate: (r: any) => r?.ok && r?.fiche?.lignes_brut?.length > 0 ? null : "fiche ko" },
+  { name: "simulate_embauche_cost", category: "RH L2", args: { salaire_brut_mensuel_centimes: "60000000", pays: "CI", duree_mois: 12 }, validate: (r: any) => r?.ok && BigInt(r?.cout_total_centimes) > 0n ? null : "embauche ko" },
+
+  // ─── IMMOBILIER L2 (5) ───
+  { name: "compute_loyer_revise", category: "IMMO L2", args: { loyer_actuel_centimes: "30000000", inflation_pct: 3 }, validate: (r: any) => r?.ok && BigInt(r?.loyer_revise_centimes) > BigInt(r?.loyer_actuel_centimes) ? null : "loyer ko" },
+  { name: "compute_depot_garantie", category: "IMMO L2", args: { loyer_mensuel_centimes: "30000000", usage: "habitation" }, validate: (r: any) => r?.ok && r?.nb_mois === 2 ? null : "depot ko" },
+  { name: "compute_taxe_fonciere", category: "IMMO L2", args: { valeur_locative_annuelle_centimes: "360000000", pays: "CI", type: "bati" }, validate: (r: any) => r?.ok && r?.taux === 0.04 ? null : "taxe_fonciere ko" },
+  { name: "compute_charges_copropriete", category: "IMMO L2", args: { charges_annuelles_totales_centimes: "12000000000", lots: [{ id: "A1", tantieme: 250 }, { id: "A2", tantieme: 250 }, { id: "A3", tantieme: 500 }] }, validate: (r: any) => r?.ok && r?.repartition_par_lot?.length === 3 ? null : "copro ko" },
+  { name: "compute_rendement_locatif", category: "IMMO L2", args: { prix_achat_centimes: "5000000000000", loyer_mensuel_centimes: "30000000" }, validate: (r: any) => r?.ok && r?.rendement_brut_pct > 0 ? null : "rendement ko" },
+
+  // ─── RETAIL L2 (5) ───
+  { name: "compute_marge_brute", category: "RETAIL L2", args: { ca_ht_centimes: "10000000000", cout_achat_marchandises_centimes: "6000000000" }, validate: (r: any) => r?.ok && r?.taux_marge_pct === 40 ? null : `marge ko: ${r?.taux_marge_pct}` },
+  { name: "compute_taux_marque", category: "RETAIL L2", args: { prix_achat_centimes: "100000", prix_vente_centimes: "150000" }, validate: (r: any) => r?.ok && r?.taux_marque_pct > 0 && r?.taux_marge_pct === 50 ? null : "taux ko" },
+  { name: "compute_rotation_stocks", category: "RETAIL L2", args: { ca_ou_achats_centimes: "12000000000", stock_debut_centimes: "1000000000", stock_fin_centimes: "1000000000" }, validate: (r: any) => r?.ok && r?.rotation_par_an === 12 ? null : `rotation ko: ${r?.rotation_par_an}` },
+  { name: "compute_point_mort", category: "RETAIL L2", args: { charges_fixes_centimes: "1000000000", ca_total_centimes: "5000000000", charges_variables_centimes: "3000000000" }, validate: (r: any) => r?.ok && BigInt(r?.point_mort_chiffre_centimes) > 0n ? null : "point_mort ko" },
+  { name: "compute_panier_moyen", category: "RETAIL L2", args: { ca_total_centimes: "100000000", nb_transactions: 1000, nb_clients_uniques: 250, duree_retention_annees: 3, marge_brute_pct: 30 }, validate: (r: any) => r?.ok && BigInt(r?.panier_moyen_centimes) > 0n ? null : "panier ko" },
 ];
 
 interface TestResult {

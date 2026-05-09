@@ -23,6 +23,19 @@ import {
   reconcileBankStatement, computeIrppUemoa, computeIsUemoa, computeCnssContribution,
   validateJournalEntry, detectAccountingAnomalies,
 } from "./finance.ts";
+import {
+  computeSmig, computeSalaireNet, computeIuts, computeIts, computeTaxesParafiscales,
+  computeCongesPayes, computeIndemniteLicenciement, computePrimeAnciennete,
+  generateFichePaie, simulateEmbaucheCost,
+} from "./rh.ts";
+import {
+  computeLoyerRevise, computeDepotGarantie, computeTaxeFonciere,
+  computeChargesCopropriete, computeRendementLocatif,
+} from "./immobilier.ts";
+import {
+  computeMargeBrute, computeTauxMarque, computeRotationStocks,
+  computePointMort, computePanierMoyen,
+} from "./retail.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -74,7 +87,30 @@ export type ToolName =
   | "compute_is_uemoa"
   | "compute_cnss_contribution"
   | "validate_journal_entry"
-  | "detect_accounting_anomalies";
+  | "detect_accounting_anomalies"
+  // RH L2 (10) — Phase 2
+  | "compute_smig"
+  | "compute_salaire_net"
+  | "compute_iuts"
+  | "compute_its"
+  | "compute_taxes_parafiscales"
+  | "compute_conges_payes"
+  | "compute_indemnite_licenciement"
+  | "compute_prime_anciennete"
+  | "generate_fiche_paie"
+  | "simulate_embauche_cost"
+  // IMMOBILIER L2 (5)
+  | "compute_loyer_revise"
+  | "compute_depot_garantie"
+  | "compute_taxe_fonciere"
+  | "compute_charges_copropriete"
+  | "compute_rendement_locatif"
+  // RETAIL L2 (5)
+  | "compute_marge_brute"
+  | "compute_taux_marque"
+  | "compute_rotation_stocks"
+  | "compute_point_mort"
+  | "compute_panier_moyen";
 
 /** Convertit les inputs string -> bigint pour les champs financiers. */
 function parseFinancialInputs(raw: Record<string, unknown>): FinancialInputs {
@@ -865,6 +901,32 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
       },
     },
   },
+
+  // ─────────────── RH L2 (10) — Phase 2 ───────────────
+  { type: "function", function: { name: "compute_smig", description: "Retourne le SMIG mensuel ou horaire d'un pays UEMOA/CEMAC.", parameters: { type: "object", properties: { pays: { type: "string" }, type: { type: "string", enum: ["mensuel", "horaire"] } }, required: ["pays"] } } },
+  { type: "function", function: { name: "compute_salaire_net", description: "Calcule salaire net (brut moins cotisations CNSS salarie et ITS/IUTS).", parameters: { type: "object", properties: { salaire_brut_centimes: { type: "string" }, pays: { type: "string" }, enfants_a_charge: { type: "integer" } }, required: ["salaire_brut_centimes", "pays"] } } },
+  { type: "function", function: { name: "compute_iuts", description: "Calcule IUTS (Impot Unique sur Traitements Salaires) Burkina Faso.", parameters: { type: "object", properties: { salaire_brut_centimes: { type: "string" } }, required: ["salaire_brut_centimes"] } } },
+  { type: "function", function: { name: "compute_its", description: "Calcule ITS (Impot sur Traitements et Salaires) UEMOA bareme progressif.", parameters: { type: "object", properties: { salaire_imposable_centimes: { type: "string" }, pays: { type: "string" } }, required: ["salaire_imposable_centimes", "pays"] } } },
+  { type: "function", function: { name: "compute_taxes_parafiscales", description: "Calcule taxes parafiscales (FDFP CI, FNAEF SN, TPA BF, etc.).", parameters: { type: "object", properties: { salaire_brut_centimes: { type: "string" }, pays: { type: "string" } }, required: ["salaire_brut_centimes", "pays"] } } },
+  { type: "function", function: { name: "compute_conges_payes", description: "Calcule conges payes acquis (2.5j/mois) et indemnite solde.", parameters: { type: "object", properties: { salaire_mensuel_brut_centimes: { type: "string" }, mois_travailles: { type: "integer" }, jours_deja_pris: { type: "integer" } }, required: ["salaire_mensuel_brut_centimes", "mois_travailles"] } } },
+  { type: "function", function: { name: "compute_indemnite_licenciement", description: "Indemnite legale licenciement OHADA (30/35/40% selon anciennete, plafond 12 mois).", parameters: { type: "object", properties: { salaire_moyen_centimes: { type: "string" }, annees_anciennete: { type: "number" }, pays: { type: "string" } }, required: ["salaire_moyen_centimes", "annees_anciennete"] } } },
+  { type: "function", function: { name: "compute_prime_anciennete", description: "Prime anciennete progressive (2-25%) convention collective UEMOA.", parameters: { type: "object", properties: { salaire_base_centimes: { type: "string" }, annees_anciennete: { type: "number" } }, required: ["salaire_base_centimes", "annees_anciennete"] } } },
+  { type: "function", function: { name: "generate_fiche_paie", description: "Fiche de paie complete : lignes brut, retenues, net, cout employeur.", parameters: { type: "object", properties: { salarie: { type: "object" }, periode: { type: "string" }, pays: { type: "string" }, salaire_base_centimes: { type: "string" }, primes_centimes: { type: "string" }, heures_supp_centimes: { type: "string" }, annees_anciennete: { type: "number" } }, required: ["salarie", "periode", "pays", "salaire_base_centimes"] } } },
+  { type: "function", function: { name: "simulate_embauche_cost", description: "Simule cout total employeur d'une embauche (bruts + cotisations + parafiscales) sur N mois.", parameters: { type: "object", properties: { salaire_brut_mensuel_centimes: { type: "string" }, pays: { type: "string" }, duree_mois: { type: "integer" } }, required: ["salaire_brut_mensuel_centimes", "pays"] } } },
+
+  // ─────────────── IMMOBILIER L2 (5) ───────────────
+  { type: "function", function: { name: "compute_loyer_revise", description: "Indexation loyer via IRL ou inflation BCEAO/BEAC.", parameters: { type: "object", properties: { loyer_actuel_centimes: { type: "string" }, irl_initial: { type: "number" }, irl_actuel: { type: "number" }, inflation_pct: { type: "number" } }, required: ["loyer_actuel_centimes"] } } },
+  { type: "function", function: { name: "compute_depot_garantie", description: "Depot garantie selon usage (habitation/commercial/bureau).", parameters: { type: "object", properties: { loyer_mensuel_centimes: { type: "string" }, usage: { type: "string", enum: ["habitation", "commercial", "bureau", "autre"] }, pays: { type: "string" } }, required: ["loyer_mensuel_centimes", "usage"] } } },
+  { type: "function", function: { name: "compute_taxe_fonciere", description: "Taxe fonciere bati/non-bati par pays UEMOA.", parameters: { type: "object", properties: { valeur_locative_annuelle_centimes: { type: "string" }, pays: { type: "string" }, type: { type: "string", enum: ["bati", "non_bati"] } }, required: ["valeur_locative_annuelle_centimes", "pays", "type"] } } },
+  { type: "function", function: { name: "compute_charges_copropriete", description: "Repartition charges copropriete au tantieme.", parameters: { type: "object", properties: { charges_annuelles_totales_centimes: { type: "string" }, lots: { type: "array" }, cles_repartition: { type: "array" } }, required: ["charges_annuelles_totales_centimes", "lots"] } } },
+  { type: "function", function: { name: "compute_rendement_locatif", description: "Rendement locatif brut/net (vacance + charges + taxe fonciere).", parameters: { type: "object", properties: { prix_achat_centimes: { type: "string" }, frais_acquisition_centimes: { type: "string" }, loyer_mensuel_centimes: { type: "string" }, charges_annuelles_centimes: { type: "string" }, taxe_fonciere_centimes: { type: "string" }, vacance_locative_pct: { type: "number" } }, required: ["prix_achat_centimes", "loyer_mensuel_centimes"] } } },
+
+  // ─────────────── RETAIL L2 (5) ───────────────
+  { type: "function", function: { name: "compute_marge_brute", description: "Marge brute commerciale (CA - cout achat) + taux + interpretation par secteur.", parameters: { type: "object", properties: { ca_ht_centimes: { type: "string" }, cout_achat_marchandises_centimes: { type: "string" } }, required: ["ca_ht_centimes", "cout_achat_marchandises_centimes"] } } },
+  { type: "function", function: { name: "compute_taux_marque", description: "Taux marque vs taux marge + coefficient multiplicateur.", parameters: { type: "object", properties: { prix_achat_centimes: { type: "string" }, prix_vente_centimes: { type: "string" } }, required: ["prix_achat_centimes", "prix_vente_centimes"] } } },
+  { type: "function", function: { name: "compute_rotation_stocks", description: "Rotation stocks et duree moyenne stockage.", parameters: { type: "object", properties: { ca_ou_achats_centimes: { type: "string" }, stock_debut_centimes: { type: "string" }, stock_fin_centimes: { type: "string" } }, required: ["ca_ou_achats_centimes", "stock_debut_centimes", "stock_fin_centimes"] } } },
+  { type: "function", function: { name: "compute_point_mort", description: "Seuil de rentabilite (CA et quantite). CF / Taux marge sur CV.", parameters: { type: "object", properties: { charges_fixes_centimes: { type: "string" }, ca_total_centimes: { type: "string" }, charges_variables_centimes: { type: "string" }, prix_vente_unitaire_centimes: { type: "string" } }, required: ["charges_fixes_centimes", "ca_total_centimes", "charges_variables_centimes"] } } },
+  { type: "function", function: { name: "compute_panier_moyen", description: "Panier moyen + frequence achat + LTV client.", parameters: { type: "object", properties: { ca_total_centimes: { type: "string" }, nb_transactions: { type: "integer" }, nb_clients_uniques: { type: "integer" }, duree_retention_annees: { type: "number" }, marge_brute_pct: { type: "number" } }, required: ["ca_total_centimes", "nb_transactions", "nb_clients_uniques"] } } },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1161,6 +1223,52 @@ export async function runTool(
 
     case "detect_accounting_anomalies":
       return detectAccountingAnomalies(args as Parameters<typeof detectAccountingAnomalies>[0]);
+
+    // ─── RH L2 (10) ───
+    case "compute_smig":
+      return computeSmig(args as Parameters<typeof computeSmig>[0]);
+    case "compute_salaire_net":
+      return computeSalaireNet(args as Parameters<typeof computeSalaireNet>[0]);
+    case "compute_iuts":
+      return computeIuts(args as Parameters<typeof computeIuts>[0]);
+    case "compute_its":
+      return computeIts(args as Parameters<typeof computeIts>[0]);
+    case "compute_taxes_parafiscales":
+      return computeTaxesParafiscales(args as Parameters<typeof computeTaxesParafiscales>[0]);
+    case "compute_conges_payes":
+      return computeCongesPayes(args as Parameters<typeof computeCongesPayes>[0]);
+    case "compute_indemnite_licenciement":
+      return computeIndemniteLicenciement(args as Parameters<typeof computeIndemniteLicenciement>[0]);
+    case "compute_prime_anciennete":
+      return computePrimeAnciennete(args as Parameters<typeof computePrimeAnciennete>[0]);
+    case "generate_fiche_paie":
+      return generateFichePaie(args as Parameters<typeof generateFichePaie>[0]);
+    case "simulate_embauche_cost":
+      return simulateEmbaucheCost(args as Parameters<typeof simulateEmbaucheCost>[0]);
+
+    // ─── IMMOBILIER L2 (5) ───
+    case "compute_loyer_revise":
+      return computeLoyerRevise(args as Parameters<typeof computeLoyerRevise>[0]);
+    case "compute_depot_garantie":
+      return computeDepotGarantie(args as Parameters<typeof computeDepotGarantie>[0]);
+    case "compute_taxe_fonciere":
+      return computeTaxeFonciere(args as Parameters<typeof computeTaxeFonciere>[0]);
+    case "compute_charges_copropriete":
+      return computeChargesCopropriete(args as Parameters<typeof computeChargesCopropriete>[0]);
+    case "compute_rendement_locatif":
+      return computeRendementLocatif(args as Parameters<typeof computeRendementLocatif>[0]);
+
+    // ─── RETAIL L2 (5) ───
+    case "compute_marge_brute":
+      return computeMargeBrute(args as Parameters<typeof computeMargeBrute>[0]);
+    case "compute_taux_marque":
+      return computeTauxMarque(args as Parameters<typeof computeTauxMarque>[0]);
+    case "compute_rotation_stocks":
+      return computeRotationStocks(args as Parameters<typeof computeRotationStocks>[0]);
+    case "compute_point_mort":
+      return computePointMort(args as Parameters<typeof computePointMort>[0]);
+    case "compute_panier_moyen":
+      return computePanierMoyen(args as Parameters<typeof computePanierMoyen>[0]);
 
     default:
       throw new Error(`Unknown tool: ${name}`);
