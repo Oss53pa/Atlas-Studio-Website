@@ -193,29 +193,34 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      {/* Sections list */}
+      {/* Sections list — avec petit trait vertical entre les icones */}
       <nav className="flex-1 overflow-y-auto px-2 py-3 scrollbar-thin">
         <div className="px-2 mb-1.5 text-[9px] font-bold uppercase tracking-widest text-neutral-600">Sections</div>
-        <div className="space-y-0.5">
-          {NAV_GROUPS.map(group => {
+        <div>
+          {NAV_GROUPS.map((group, idx) => {
             const isActiveSection = activeSection === group.id;
             const hasActivePage = group.items.some(it => isActive(it.to));
             return (
-              <button
-                key={group.id}
-                onClick={() => { setActiveSection(group.id); if (!secondaryOpen) setSecondaryOpen(true); }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-all ${
-                  isActiveSection
-                    ? "bg-onyx-light text-neutral-light font-semibold ring-1 ring-white/10"
-                    : hasActivePage
-                      ? "text-admin-accent hover:bg-white/5"
-                      : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
-                }`}
-              >
-                <group.icon size={15} strokeWidth={1.75} />
-                <span className="flex-1 text-left">{group.label}</span>
-                {hasActivePage && <span className="w-1.5 h-1.5 rounded-full bg-admin-accent" />}
-              </button>
+              <div key={group.id}>
+                {idx > 0 && (
+                  // Petit trait vertical entre les icones (aligne sur la colonne icone)
+                  <div className="h-2.5 w-px bg-white/15 ml-[19.5px] my-0.5" aria-hidden="true" />
+                )}
+                <button
+                  onClick={() => { setActiveSection(group.id); if (!secondaryOpen) setSecondaryOpen(true); }}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-all ${
+                    isActiveSection
+                      ? "bg-onyx-light text-neutral-light font-semibold ring-1 ring-white/10"
+                      : hasActivePage
+                        ? "text-admin-accent hover:bg-white/5"
+                        : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
+                  }`}
+                >
+                  <group.icon size={15} strokeWidth={1.75} />
+                  <span className="flex-1 text-left">{group.label}</span>
+                  {hasActivePage && <span className="w-1.5 h-1.5 rounded-full bg-admin-accent" />}
+                </button>
+              </div>
             );
           })}
         </div>
@@ -272,9 +277,9 @@ export function AdminSidebar() {
         </select>
       </div>
 
-      {/* Items list */}
-      <nav className="flex-1 overflow-y-auto py-2 px-2 scrollbar-thin">
-        <div className="space-y-0.5">
+      {/* Items list — avec ligne verticale guide a gauche (style arbre) */}
+      <nav className="flex-1 overflow-y-auto py-3 px-3 scrollbar-thin">
+        <div className="ml-2 pl-3 border-l border-white/10 space-y-0.5">
           {activeGroup.items.map(item => {
             const active = isActive(item.to);
             return (
