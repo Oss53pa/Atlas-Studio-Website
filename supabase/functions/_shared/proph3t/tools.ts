@@ -36,6 +36,22 @@ import {
   computeMargeBrute, computeTauxMarque, computeRotationStocks,
   computePointMort, computePanierMoyen,
 } from "./retail.ts";
+import {
+  classifyDocument, extractDocumentMetadata, computeLegalRetention,
+  detectDocumentDuplicates, generateArchiveIndex,
+} from "./documentaire.ts";
+import {
+  computeAuditSample, computeMateriality, testBalanceGeneral,
+  analyzeVarianceInterperiode, scoreInternalControl,
+} from "./audit_metier.ts";
+import {
+  forecastCashflow, computeDecouvertCost, computeEscompteCommercial,
+  computeFactoringCost, scoreBankHealth,
+} from "./tresorerie.ts";
+import {
+  scoreLead, computeCommission, forecastPipeline,
+  scoreChurnRisk, analyzeCustomerSegment,
+} from "./commercial.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -110,7 +126,31 @@ export type ToolName =
   | "compute_taux_marque"
   | "compute_rotation_stocks"
   | "compute_point_mort"
-  | "compute_panier_moyen";
+  | "compute_panier_moyen"
+  // DOCUMENTAIRE L2 (5)
+  | "classify_document"
+  | "extract_document_metadata"
+  | "compute_legal_retention"
+  | "detect_document_duplicates"
+  | "generate_archive_index"
+  // AUDIT L2 (5)
+  | "compute_audit_sample"
+  | "compute_materiality"
+  | "test_balance_general"
+  | "analyze_variance_interperiode"
+  | "score_internal_control"
+  // TRESORERIE L2 (5)
+  | "forecast_cashflow"
+  | "compute_decouvert_cost"
+  | "compute_escompte_commercial"
+  | "compute_factoring_cost"
+  | "score_bank_health"
+  // COMMERCIAL L2 (5)
+  | "score_lead"
+  | "compute_commission"
+  | "forecast_pipeline"
+  | "score_churn_risk"
+  | "analyze_customer_segment";
 
 /** Convertit les inputs string -> bigint pour les champs financiers. */
 function parseFinancialInputs(raw: Record<string, unknown>): FinancialInputs {
@@ -927,6 +967,34 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
   { type: "function", function: { name: "compute_rotation_stocks", description: "Rotation stocks et duree moyenne stockage.", parameters: { type: "object", properties: { ca_ou_achats_centimes: { type: "string" }, stock_debut_centimes: { type: "string" }, stock_fin_centimes: { type: "string" } }, required: ["ca_ou_achats_centimes", "stock_debut_centimes", "stock_fin_centimes"] } } },
   { type: "function", function: { name: "compute_point_mort", description: "Seuil de rentabilite (CA et quantite). CF / Taux marge sur CV.", parameters: { type: "object", properties: { charges_fixes_centimes: { type: "string" }, ca_total_centimes: { type: "string" }, charges_variables_centimes: { type: "string" }, prix_vente_unitaire_centimes: { type: "string" } }, required: ["charges_fixes_centimes", "ca_total_centimes", "charges_variables_centimes"] } } },
   { type: "function", function: { name: "compute_panier_moyen", description: "Panier moyen + frequence achat + LTV client.", parameters: { type: "object", properties: { ca_total_centimes: { type: "string" }, nb_transactions: { type: "integer" }, nb_clients_uniques: { type: "integer" }, duree_retention_annees: { type: "number" }, marge_brute_pct: { type: "number" } }, required: ["ca_total_centimes", "nb_transactions", "nb_clients_uniques"] } } },
+
+  // ─────────────── DOCUMENTAIRE L2 (5) — Phase 3 ───────────────
+  { type: "function", function: { name: "classify_document", description: "Classification automatique d'un document (facture/contrat/releve...) via heuristiques.", parameters: { type: "object", properties: { text_content: { type: "string" }, threshold: { type: "number" } }, required: ["text_content"] } } },
+  { type: "function", function: { name: "extract_document_metadata", description: "Extrait dates, montants, emails, telephones, RIB, parties d'un document texte.", parameters: { type: "object", properties: { text_content: { type: "string" }, expected_doc_type: { type: "string" } }, required: ["text_content"] } } },
+  { type: "function", function: { name: "compute_legal_retention", description: "Duree de conservation legale OHADA selon type de document.", parameters: { type: "object", properties: { document_type: { type: "string" }, date_creation: { type: "string" } }, required: ["document_type", "date_creation"] } } },
+  { type: "function", function: { name: "detect_document_duplicates", description: "Detection doublons (hash exact + metadata + similarite Jaccard).", parameters: { type: "object", properties: { documents: { type: "array" }, similarity_threshold: { type: "number" } }, required: ["documents"] } } },
+  { type: "function", function: { name: "generate_archive_index", description: "Index d'archivage CSV/JSON avec retention legale calculee.", parameters: { type: "object", properties: { documents: { type: "array" }, format: { type: "string", enum: ["csv", "json"] } }, required: ["documents"] } } },
+
+  // ─────────────── AUDIT L2 (5) ───────────────
+  { type: "function", function: { name: "compute_audit_sample", description: "Echantillonnage audit ISA 530 : taille + selection (systematique/aleatoire/ciblee).", parameters: { type: "object", properties: { population_size: { type: "integer" }, confidence_level: { type: "number" }, expected_error_rate: { type: "number" }, tolerable_error_rate: { type: "number" }, selection_method: { type: "string" }, amounts_centimes: { type: "array" } }, required: ["population_size"] } } },
+  { type: "function", function: { name: "compute_materiality", description: "Seuil de signification ISA 320 (5% resultat / 1% CA / 1% capitaux).", parameters: { type: "object", properties: { resultat_avant_impot_centimes: { type: "string" }, ca_total_centimes: { type: "string" }, capitaux_propres_centimes: { type: "string" }, approche: { type: "string", enum: ["resultat", "ca", "capitaux"] } } } } },
+  { type: "function", function: { name: "test_balance_general", description: "Controle equilibre balance + soldes anormaux + coherence GL.", parameters: { type: "object", properties: { balance: { type: "array" }, grand_livre: { type: "array" } }, required: ["balance"] } } },
+  { type: "function", function: { name: "analyze_variance_interperiode", description: "Analyse variations significatives entre N et N-1.", parameters: { type: "object", properties: { exercice_n: { type: "array" }, exercice_n_minus_1: { type: "array" }, seuil_variation_pct: { type: "number" }, seuil_variation_centimes: { type: "string" } }, required: ["exercice_n", "exercice_n_minus_1"] } } },
+  { type: "function", function: { name: "score_internal_control", description: "Score controle interne sur 100 selon criteres COSO (5 categories).", parameters: { type: "object", properties: { responses: { type: "array" } }, required: ["responses"] } } },
+
+  // ─────────────── TRESORERIE L2 (5) ───────────────
+  { type: "function", function: { name: "forecast_cashflow", description: "Prevision tresorerie 13 semaines + alertes negatif.", parameters: { type: "object", properties: { solde_initial_centimes: { type: "string" }, encaissements: { type: "array" }, decaissements: { type: "array" }, horizon_semaines: { type: "integer" } }, required: ["solde_initial_centimes", "encaissements", "decaissements"] } } },
+  { type: "function", function: { name: "compute_decouvert_cost", description: "Cout decouvert bancaire (interets + CPFD + frais) + TEG.", parameters: { type: "object", properties: { montant_decouvert_centimes: { type: "string" }, duree_jours: { type: "integer" }, taux_decouvert_annuel: { type: "number" }, cpfd_pct: { type: "number" }, frais_fixes_centimes: { type: "string" } }, required: ["montant_decouvert_centimes", "duree_jours"] } } },
+  { type: "function", function: { name: "compute_escompte_commercial", description: "Escompte commercial paiement anticipe + decision vs placement alternatif.", parameters: { type: "object", properties: { valeur_nominale_centimes: { type: "string" }, taux_escompte_pct: { type: "number" }, jours_avant_echeance: { type: "integer" }, taux_placement_alternatif_pct: { type: "number" } }, required: ["valeur_nominale_centimes", "taux_escompte_pct", "jours_avant_echeance"] } } },
+  { type: "function", function: { name: "compute_factoring_cost", description: "Cout affacturage (commission + financement + retenue) + taux effectif.", parameters: { type: "object", properties: { montant_creance_centimes: { type: "string" }, jours_avant_echeance: { type: "integer" }, commission_factoring_pct: { type: "number" }, taux_financement_annuel_pct: { type: "number" }, retenue_garantie_pct: { type: "number" } }, required: ["montant_creance_centimes", "jours_avant_echeance", "commission_factoring_pct", "taux_financement_annuel_pct", "retenue_garantie_pct"] } } },
+  { type: "function", function: { name: "score_bank_health", description: "Score sante banque partenaire (5 criteres ponderes).", parameters: { type: "object", properties: { bank_name: { type: "string" }, criteria: { type: "object" } }, required: ["bank_name", "criteria"] } } },
+
+  // ─────────────── COMMERCIAL L2 (5) ───────────────
+  { type: "function", function: { name: "score_lead", description: "Score lead BANT + classement hot/warm/cold/disqualifie.", parameters: { type: "object", properties: { budget_confirme: { type: "boolean" }, budget_centimes: { type: "string" }, decideur_identifie: { type: "boolean" }, besoin_exprime: { type: "string", enum: ["vague", "qualifie", "urgent"] }, timeline_mois: { type: "integer" }, industrie_strategique: { type: "boolean" }, taille_entreprise: { type: "string", enum: ["TPE", "PME", "ETI", "GE"] } }, required: ["budget_confirme", "decideur_identifie", "besoin_exprime"] } } },
+  { type: "function", function: { name: "compute_commission", description: "Commission commerciale paliers progressifs + bonus quota.", parameters: { type: "object", properties: { ca_realise_centimes: { type: "string" }, quota_centimes: { type: "string" }, paliers: { type: "array" }, bonus_quota_pct: { type: "number" }, bonus_overperformance_seuil_pct: { type: "number" }, bonus_overperformance_pct: { type: "number" } }, required: ["ca_realise_centimes", "quota_centimes", "paliers"] } } },
+  { type: "function", function: { name: "forecast_pipeline", description: "Prevision CA pondere + breakdown par stage et par mois.", parameters: { type: "object", properties: { opportunites: { type: "array" }, periode_mois: { type: "integer" }, stages_overrides: { type: "object" } }, required: ["opportunites"] } } },
+  { type: "function", function: { name: "score_churn_risk", description: "Risque churn 0-100 + actions recommandees.", parameters: { type: "object", properties: { derniere_commande_jours: { type: "integer" }, frequence_actuelle: { type: "number" }, frequence_baseline: { type: "number" }, tickets_critiques_ouverts: { type: "integer" }, jours_avant_renouvellement: { type: "integer" }, rdv_planifie: { type: "boolean" } }, required: ["derniere_commande_jours", "frequence_actuelle", "frequence_baseline"] } } },
+  { type: "function", function: { name: "analyze_customer_segment", description: "Segmentation RFM (Recence/Frequence/Montant) en quintiles + segments.", parameters: { type: "object", properties: { clients: { type: "array" }, periode_jours: { type: "integer" } }, required: ["clients"] } } },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1269,6 +1337,54 @@ export async function runTool(
       return computePointMort(args as Parameters<typeof computePointMort>[0]);
     case "compute_panier_moyen":
       return computePanierMoyen(args as Parameters<typeof computePanierMoyen>[0]);
+
+    // ─── DOCUMENTAIRE L2 (5) — Phase 3 ───
+    case "classify_document":
+      return classifyDocument(args as Parameters<typeof classifyDocument>[0]);
+    case "extract_document_metadata":
+      return extractDocumentMetadata(args as Parameters<typeof extractDocumentMetadata>[0]);
+    case "compute_legal_retention":
+      return computeLegalRetention(args as Parameters<typeof computeLegalRetention>[0]);
+    case "detect_document_duplicates":
+      return detectDocumentDuplicates(args as Parameters<typeof detectDocumentDuplicates>[0]);
+    case "generate_archive_index":
+      return generateArchiveIndex(args as Parameters<typeof generateArchiveIndex>[0]);
+
+    // ─── AUDIT L2 (5) ───
+    case "compute_audit_sample":
+      return computeAuditSample(args as Parameters<typeof computeAuditSample>[0]);
+    case "compute_materiality":
+      return computeMateriality(args as Parameters<typeof computeMateriality>[0]);
+    case "test_balance_general":
+      return testBalanceGeneral(args as Parameters<typeof testBalanceGeneral>[0]);
+    case "analyze_variance_interperiode":
+      return analyzeVarianceInterperiode(args as Parameters<typeof analyzeVarianceInterperiode>[0]);
+    case "score_internal_control":
+      return scoreInternalControl(args as Parameters<typeof scoreInternalControl>[0]);
+
+    // ─── TRESORERIE L2 (5) ───
+    case "forecast_cashflow":
+      return forecastCashflow(args as Parameters<typeof forecastCashflow>[0]);
+    case "compute_decouvert_cost":
+      return computeDecouvertCost(args as Parameters<typeof computeDecouvertCost>[0]);
+    case "compute_escompte_commercial":
+      return computeEscompteCommercial(args as Parameters<typeof computeEscompteCommercial>[0]);
+    case "compute_factoring_cost":
+      return computeFactoringCost(args as Parameters<typeof computeFactoringCost>[0]);
+    case "score_bank_health":
+      return scoreBankHealth(args as Parameters<typeof scoreBankHealth>[0]);
+
+    // ─── COMMERCIAL L2 (5) ───
+    case "score_lead":
+      return scoreLead(args as Parameters<typeof scoreLead>[0]);
+    case "compute_commission":
+      return computeCommission(args as Parameters<typeof computeCommission>[0]);
+    case "forecast_pipeline":
+      return forecastPipeline(args as Parameters<typeof forecastPipeline>[0]);
+    case "score_churn_risk":
+      return scoreChurnRisk(args as Parameters<typeof scoreChurnRisk>[0]);
+    case "analyze_customer_segment":
+      return analyzeCustomerSegment(args as Parameters<typeof analyzeCustomerSegment>[0]);
 
     default:
       throw new Error(`Unknown tool: ${name}`);
