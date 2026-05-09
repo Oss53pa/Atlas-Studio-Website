@@ -201,9 +201,13 @@ export async function anthropicTestKey(apiKey: string, model: string): Promise<{
   input_tokens?: number;
   output_tokens?: number;
 }> {
+  // 20s timeout pour eviter de hang la edge function
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         "x-api-key": apiKey,
@@ -227,7 +231,10 @@ export async function anthropicTestKey(apiKey: string, model: string): Promise<{
       output_tokens: data.usage?.output_tokens,
     };
   } catch (err) {
-    return { ok: false, error: (err as Error).message };
+    const e = err as Error;
+    return { ok: false, error: e.name === "AbortError" ? "Timeout 20s — Anthropic API ne repond pas" : e.message };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

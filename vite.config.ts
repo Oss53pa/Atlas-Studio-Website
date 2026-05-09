@@ -27,8 +27,12 @@ export default defineConfig({
         ],
       },
       workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
+        // skipWaiting + clientsClaim combines avec un updateSW(true) cote
+        // main.tsx ont cause une BOUCLE INFINIE de mises a jour SW
+        // (635 versions creees en <1h sur atlas-studio.org). On desactive
+        // skipWaiting pour que la nouvelle SW attende le clic user.
+        skipWaiting: false,
+        clientsClaim: false,
         cleanupOutdatedCaches: true,
         // Use NetworkFirst for navigation: if network is up, the SW serves fresh
         // index.html (and therefore fresh JS/CSS hashes). Only falls back to
