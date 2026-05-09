@@ -89,18 +89,27 @@ export function Proph3tConfigPanel({ variant = "portal", subtitle }: Proph3tConf
       return;
     }
     setSavingKey(true);
+    const t0 = Date.now();
+    console.log("[proph3t] save_key start", { provider: activeProvider, keyLen: apiKeyInput.trim().length });
     try {
       const model = activeProvider === "anthropic" ? selectedAnthropicModel : selectedGeminiModel;
-      const res = await apiCall<{ ok: boolean }>("claude-proxy", {
+      console.log("[proph3t] calling claude-proxy with model", model);
+      const res = await apiCall<{ ok: boolean; error?: string }>("claude-proxy", {
         method: "POST",
         body: { action: "save_key", provider: activeProvider, api_key: apiKeyInput.trim(), model },
       });
+      console.log("[proph3t] save_key response in", Date.now() - t0, "ms", res);
       if (res.ok) {
         flashToast("Clé enregistrée et testée avec succès");
         setApiKeyInput("");
         await refreshStatus();
+      } else {
+        flashToast(`Erreur : ${res.error || "reponse inattendue"}`);
       }
-    } catch (err: any) { flashToast(`Erreur : ${err.message}`); }
+    } catch (err: any) {
+      console.error("[proph3t] save_key FAILED in", Date.now() - t0, "ms", err);
+      flashToast(`Erreur : ${err.message}`);
+    }
     finally { setSavingKey(false); }
   };
 
