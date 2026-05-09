@@ -10,6 +10,13 @@ import { chat, type OllamaMessage } from "../_shared/proph3t/ollama.ts";
 import { anthropicChat, getAnthropicKeyForUser } from "../_shared/proph3t/anthropic.ts";
 import { geminiChat, getGeminiKeyForUser } from "../_shared/proph3t/gemini.ts";
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
+
+// Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini seuls).
+// Les tools commentes (search_knowledge, search_documents) requierent l'embedding model
+// d'Ollama qui n'est pas accessible sans OLLAMA_URL secret configure.
+const TOOLS_NO_OLLAMA = TOOL_DECLARATIONS.filter(t =>
+  !["search_knowledge", "search_documents"].includes(t.function.name)
+);
 import { appendAudit } from "../_shared/proph3t/audit.ts";
 
 const MAX_ITERATIONS = 5;
@@ -103,13 +110,18 @@ Deno.serve(async (req) => {
         ? gemini!.model
         : "llama3.1:8b-instruct-q4_K_M";
 
+    // Si on utilise un BYOK (Anthropic/Gemini), on retire les tools qui
+    // dependent d'Ollama embeddings (search_knowledge, search_documents)
+    // pour eviter que le LLM boucle sur des appels qui echouent.
+    const tools = (useAnthropic || useGemini) ? TOOLS_NO_OLLAMA : TOOL_DECLARATIONS;
+
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
       const result = useAnthropic
         ? await anthropicChat({
             apiKey: anthropic!.apiKey,
             model: anthropic!.model,
             messages,
-            tools: TOOL_DECLARATIONS,
+            tools,
             temperature: 0.2,
           })
         : useGemini
@@ -117,7 +129,7 @@ Deno.serve(async (req) => {
               apiKey: gemini!.apiKey,
               model: gemini!.model,
               messages,
-              tools: TOOL_DECLARATIONS,
+              tools,
               temperature: 0.2,
             })
           : await chat({
