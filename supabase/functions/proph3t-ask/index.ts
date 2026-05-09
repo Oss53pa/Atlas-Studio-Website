@@ -120,10 +120,15 @@ Deno.serve(async (req) => {
           ? groqModel!
           : "llama3.1:8b-instruct-q4_K_M";
 
-    // Si on utilise un LLM cloud (Anthropic/Gemini/Groq), on retire les tools qui
-    // dependent d'Ollama embeddings (search_knowledge, search_documents)
-    // pour eviter que le LLM boucle sur des appels qui echouent.
-    const tools = (useAnthropic || useGemini || useGroq) ? TOOLS_NO_OLLAMA : TOOL_DECLARATIONS;
+    // Strategie tools selon provider :
+    // - Ollama (self-hosted) : tous les tools, y compris embeddings
+    // - Anthropic/Gemini : tools sans embeddings (TOOLS_NO_OLLAMA)
+    // - Groq : AUCUN tool. Llama 3.3 70B repond directement avec ses connaissances.
+    //   On reactivera les tools quand on aura des embeddings dispos
+    //   (Gemini ou Voyage) + des tools branches sur des donnees client reelles.
+    const tools = useGroq
+      ? undefined
+      : (useAnthropic || useGemini) ? TOOLS_NO_OLLAMA : TOOL_DECLARATIONS;
 
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
       const result = useAnthropic
