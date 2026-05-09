@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
   CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database, AlertTriangle,
-  ChevronDown, ChevronRight, Crown,
+  ChevronDown, ChevronRight, Crown, Home, Package, Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -20,45 +20,62 @@ interface NavGroup { id: string; label: string; icon: LucideIcon; items: NavItem
 const PINNED: NavItem[] = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/admin/proph3t", icon: Brain, label: "Proph3t IA" },
-  { to: "/admin/clients", icon: Users, label: "Utilisateurs" },
+  { to: "/admin/clients", icon: Users, label: "Clients" },
   { to: "/admin/invoices", icon: Receipt, label: "Facturation" },
 ];
 
 const NAV_GROUPS: NavGroup[] = [
   {
+    id: "overview",
+    label: "Vue d'ensemble",
+    icon: Home,
+    items: [
+      { to: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/admin/stats", icon: BarChart3, label: "Statistiques" },
+      { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+    ],
+  },
+  {
+    id: "catalog",
+    label: "Catalogue",
+    icon: Package,
+    items: [
+      { to: "/admin/apps", icon: Layers, label: "Applications" },
+      { to: "/admin/plans", icon: Layers, label: "Plans & Tarifs" },
+      { to: "/admin/promo-codes", icon: Tag, label: "Codes Promo" },
+      { to: "/admin/landing-pages", icon: FileText, label: "Landing Pages" },
+    ],
+  },
+  {
     id: "clients",
     label: "Clients & Comptes",
     icon: Users,
     items: [
-      { to: "/admin/clients", icon: Users, label: "Utilisateurs" },
+      { to: "/admin/clients", icon: Users, label: "Clients" },
       { to: "/admin/subscriptions", icon: Repeat, label: "Abonnements" },
       { to: "/admin/licences", icon: KeyRound, label: "Licences" },
-      { to: "/admin/tickets", icon: MessageSquare, label: "Support" },
+      { to: "/admin/roles", icon: ShieldCheck, label: "Rôles" },
     ],
   },
   {
-    id: "revenue",
-    label: "Revenus",
+    id: "billing",
+    label: "Facturation",
     icon: CreditCard,
     items: [
-      { to: "/admin/invoices", icon: Receipt, label: "Facturation" },
+      { to: "/admin/invoices", icon: Receipt, label: "Factures" },
       { to: "/admin/payments", icon: CreditCard, label: "Paiements" },
-      { to: "/admin/plans", icon: Layers, label: "Plans & Tarifs" },
-      { to: "/admin/apps", icon: CreditCard, label: "Apps" },
-      { to: "/admin/promo-codes", icon: Tag, label: "Codes Promo" },
     ],
   },
   {
-    id: "content",
-    label: "Contenu & Marketing",
-    icon: FileText,
+    id: "communication",
+    label: "Communication",
+    icon: Mail,
     items: [
       { to: "/admin/content", icon: FileText, label: "Site Atlas Studio" },
-      { to: "/admin/landing-pages", icon: Layers, label: "Landing Pages Apps" },
       { to: "/admin/newsletter", icon: Mail, label: "Newsletter" },
       { to: "/admin/campaigns", icon: Send, label: "Campagnes" },
       { to: "/admin/emails", icon: Megaphone, label: "Templates Email" },
-      { to: "/admin/knowledge-base", icon: BookOpen, label: "Base de connaissances" },
+      { to: "/admin/tickets", icon: MessageSquare, label: "Support" },
     ],
   },
   {
@@ -67,25 +84,23 @@ const NAV_GROUPS: NavGroup[] = [
     icon: Brain,
     items: [
       { to: "/admin/proph3t", icon: Brain, label: "Console Proph3t" },
-      { to: "/admin/proph3t-memory", icon: Brain, label: "Mémoires" },
+      { to: "/admin/proph3t-memory", icon: Database, label: "Mémoires" },
       { to: "/admin/proph3t-plans", icon: ListChecks, label: "Plans d'action" },
-      { to: "/admin/proph3t-knowledge", icon: Database, label: "Base RAG" },
+      { to: "/admin/proph3t-knowledge", icon: BookOpen, label: "Base RAG" },
     ],
   },
   {
-    id: "ops",
-    label: "Plateforme & Ops",
-    icon: Activity,
+    id: "system",
+    label: "Système",
+    icon: Wrench,
     items: [
-      { to: "/admin/stats", icon: BarChart3, label: "Tableau de bord" },
-      { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
       { to: "/admin/system", icon: Activity, label: "Santé système" },
       { to: "/admin/alerts", icon: Bell, label: "Alertes" },
       { to: "/admin/error-monitor", icon: AlertTriangle, label: "Error Monitor" },
       { to: "/admin/feature-flags", icon: Flag, label: "Feature Flags" },
       { to: "/admin/deployments", icon: Rocket, label: "Déploiements" },
-      { to: "/admin/roles", icon: ShieldCheck, label: "Rôles & Permissions" },
       { to: "/admin/activity", icon: ClipboardList, label: "Logs & Audit" },
+      { to: "/admin/knowledge-base", icon: BookOpen, label: "Base de connaissances" },
       { to: "/admin/settings", icon: Settings, label: "Paramètres" },
     ],
   },
@@ -106,7 +121,7 @@ export function AdminSidebar() {
       const saved = localStorage.getItem("atlas_sidebar_open_groups");
       if (saved) return JSON.parse(saved);
     } catch { /* ignore */ }
-    return { clients: true, revenue: false, content: false, ai: false, ops: false };
+    return { overview: true, catalog: false, clients: false, billing: false, communication: false, ai: false, system: false };
   });
 
   useEffect(() => {
