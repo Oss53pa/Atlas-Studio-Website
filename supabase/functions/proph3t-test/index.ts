@@ -347,6 +347,27 @@ const TEST_CASES: TestCase[] = [
   { name: "forecast_pipeline", category: "COMM L2", args: { opportunites: [{ id: "o1", montant_centimes: "10000000000", stage: "negociation" }, { id: "o2", montant_centimes: "5000000000", stage: "proposition" }] }, validate: (r: any) => r?.ok && BigInt(r?.total_pondere_centimes) > 0n ? null : "pipeline ko" },
   { name: "score_churn_risk", category: "COMM L2", args: { derniere_commande_jours: 200, frequence_actuelle: 1, frequence_baseline: 5, tickets_critiques_ouverts: 1 }, validate: (r: any) => r?.ok && typeof r?.score_risque === "number" ? null : "churn ko" },
   { name: "analyze_customer_segment", category: "COMM L2", args: { clients: [{ id: "c1", recence_jours: 10, frequence: 20, montant_total_centimes: "10000000000" }, { id: "c2", recence_jours: 400, frequence: 1, montant_total_centimes: "100000000" }, { id: "c3", recence_jours: 30, frequence: 12, montant_total_centimes: "5000000000" }] }, validate: (r: any) => r?.ok && Object.keys(r?.segments || {}).length > 0 ? null : "rfm ko" },
+
+  // ─── FISCAL L2 (5) ───
+  { name: "compute_irvm", category: "FISC L2", args: { montant_brut_centimes: "100000000", pays: "CI", beneficiaire_residence: "resident" }, validate: (r: any) => r?.ok && r?.taux_applique === 0.10 ? null : "irvm ko" },
+  { name: "compute_droit_enregistrement", category: "FISC L2", args: { type_acte: "vente_immobiliere", montant_acte_centimes: "5000000000000", pays: "CI" }, validate: (r: any) => r?.ok && r?.taux === 0.04 ? null : "droit_enr ko" },
+  { name: "compute_minimum_forfaitaire", category: "FISC L2", args: { ca_ht_centimes: "1000000000000", is_calcule_centimes: "100000000", pays: "CI" }, validate: (r: any) => r?.ok && BigInt(r?.impot_du_centimes) > 0n ? null : "imf ko" },
+  { name: "forecast_dsf", category: "FISC L2", args: { pays: "CI", exercice: "2025", ca_ht_centimes: "5000000000000", benefice_imposable_centimes: "1000000000000", taux_is_pays: 0.25 }, validate: (r: any) => r?.ok && BigInt(r?.total_a_payer_centimes) > 0n ? null : "dsf ko" },
+  { name: "compute_credit_tva", category: "FISC L2", args: { tva_collectee_centimes: "100000000", tva_deductible_centimes: "200000000", pays: "CI", type_activite: "exportateur" }, validate: (r: any) => r?.ok && r?.position === "credit_tva" ? null : "credit_tva ko" },
+
+  // ─── JURIDIQUE L2 (5) ───
+  { name: "compute_capital_minimum", category: "JURI L2", args: { forme_juridique: "SA", capital_propose_centimes: "1500000000" }, validate: (r: any) => r?.ok && r?.capital_min_fcfa === 10_000_000 ? null : "capital ko" },
+  { name: "validate_societe_creation", category: "JURI L2", args: { forme_juridique: "SARL", pays: "CI", nb_associes: 2, capital_propose_centimes: "200000000", statuts_rediges: true, rccm_depose: true, publication_jal: true, numero_ifu_obtenu: true, declaration_existence_fiscale: true }, validate: (r: any) => r?.ok && typeof r?.taux_conformite_pct === "number" ? null : "creation ko" },
+  { name: "forecast_ag_quorum", category: "JURI L2", args: { forme_juridique: "SA", type_assemblee: "AGE", capital_total_centimes: "1000000000000", capital_present_centimes: "600000000000", voix_pour: 700, voix_contre: 200, premiere_convocation: true }, validate: (r: any) => r?.ok && r?.quorum_atteint === true ? null : "quorum ko" },
+  { name: "compute_mise_demeure_delai", category: "JURI L2", args: { date_mise_demeure: "2025-01-01", montant_principal_centimes: "10000000000", taux_legal_annuel: 0.06 }, validate: (r: any) => r?.ok && r?.date_limite_executoire ? null : "med ko" },
+  { name: "analyze_contract_clauses", category: "JURI L2", args: { contract_text: "Entre les soussignes, d'une part X SA et d'autre part Y SARL. Le contrat a pour objet la prestation de services. Prix : 5 000 000 FCFA. Duree : 12 mois. Tribunal de commerce d'Abidjan competent. Resiliation anticipee possible avec preavis 3 mois." }, validate: (r: any) => r?.ok && r?.score_completude > 50 ? null : `clauses ko: ${r?.score_completude}` },
+
+  // ─── MARKETING L2 (5) ───
+  { name: "compute_cac_ltv_ratio", category: "MKT L2", args: { marketing_spend_centimes: "100000000000", nb_nouveaux_clients: 100, panier_moyen_centimes: "500000000", frequence_achats_par_an: 4, duree_retention_annees: 3, marge_brute_pct: 30 }, validate: (r: any) => r?.ok && r?.ratio_ltv_cac > 0 ? null : "cac/ltv ko" },
+  { name: "compute_campaign_roi", category: "MKT L2", args: { campagne_nom: "Test campaign", cout_campagne_centimes: "10000000000", revenu_attribue_centimes: "40000000000", nb_conversions: 100 }, validate: (r: any) => r?.ok && r?.roas === 4 ? null : `roi ko: ${r?.roas}` },
+  { name: "ab_test_significance", category: "MKT L2", args: { variant_a: { nom: "A", impressions: 5000, conversions: 100 }, variant_b: { nom: "B", impressions: 5000, conversions: 150 }, niveau_confiance: 0.95 }, validate: (r: any) => r?.ok && r?.significatif === true ? null : "ab ko" },
+  { name: "compute_conversion_funnel", category: "MKT L2", args: { steps: [{ nom: "Visite", visiteurs: 10000 }, { nom: "Inscription", visiteurs: 1000 }, { nom: "Premier achat", visiteurs: 200 }] }, validate: (r: any) => r?.ok && r?.taux_global_pct === 2 ? null : `funnel ko: ${r?.taux_global_pct}` },
+  { name: "forecast_growth_compound", category: "MKT L2", args: { valeur_initiale: 1000, taux_croissance_mensuel_pct: 5, horizon_mois: 12 }, validate: (r: any) => r?.ok && r?.valeur_finale > r?.projection_mensuelle?.[0]?.valeur ? null : "growth ko" },
 ];
 
 interface TestResult {

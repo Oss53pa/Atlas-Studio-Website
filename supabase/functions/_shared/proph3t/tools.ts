@@ -52,6 +52,18 @@ import {
   scoreLead, computeCommission, forecastPipeline,
   scoreChurnRisk, analyzeCustomerSegment,
 } from "./commercial.ts";
+import {
+  computeIrvm, computeDroitEnregistrement, computeMinimumForfaitaire,
+  forecastDsf, computeCreditTva,
+} from "./fiscal.ts";
+import {
+  computeCapitalMinimum, validateSocieteCreation, forecastAgQuorum,
+  computeMiseDemeureDelai, analyzeContractClauses,
+} from "./juridique.ts";
+import {
+  computeCacLtvRatio, computeCampaignRoi, abTestSignificance,
+  computeConversionFunnel, forecastGrowthCompound,
+} from "./marketing.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -150,7 +162,25 @@ export type ToolName =
   | "compute_commission"
   | "forecast_pipeline"
   | "score_churn_risk"
-  | "analyze_customer_segment";
+  | "analyze_customer_segment"
+  // FISCAL L2 (5) — Phase 4
+  | "compute_irvm"
+  | "compute_droit_enregistrement"
+  | "compute_minimum_forfaitaire"
+  | "forecast_dsf"
+  | "compute_credit_tva"
+  // JURIDIQUE L2 (5)
+  | "compute_capital_minimum"
+  | "validate_societe_creation"
+  | "forecast_ag_quorum"
+  | "compute_mise_demeure_delai"
+  | "analyze_contract_clauses"
+  // MARKETING L2 (5)
+  | "compute_cac_ltv_ratio"
+  | "compute_campaign_roi"
+  | "ab_test_significance"
+  | "compute_conversion_funnel"
+  | "forecast_growth_compound";
 
 /** Convertit les inputs string -> bigint pour les champs financiers. */
 function parseFinancialInputs(raw: Record<string, unknown>): FinancialInputs {
@@ -995,6 +1025,27 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
   { type: "function", function: { name: "forecast_pipeline", description: "Prevision CA pondere + breakdown par stage et par mois.", parameters: { type: "object", properties: { opportunites: { type: "array" }, periode_mois: { type: "integer" }, stages_overrides: { type: "object" } }, required: ["opportunites"] } } },
   { type: "function", function: { name: "score_churn_risk", description: "Risque churn 0-100 + actions recommandees.", parameters: { type: "object", properties: { derniere_commande_jours: { type: "integer" }, frequence_actuelle: { type: "number" }, frequence_baseline: { type: "number" }, tickets_critiques_ouverts: { type: "integer" }, jours_avant_renouvellement: { type: "integer" }, rdv_planifie: { type: "boolean" } }, required: ["derniere_commande_jours", "frequence_actuelle", "frequence_baseline"] } } },
   { type: "function", function: { name: "analyze_customer_segment", description: "Segmentation RFM (Recence/Frequence/Montant) en quintiles + segments.", parameters: { type: "object", properties: { clients: { type: "array" }, periode_jours: { type: "integer" } }, required: ["clients"] } } },
+
+  // ─────────────── FISCAL L2 (5) — Phase 4 ───────────────
+  { type: "function", function: { name: "compute_irvm", description: "IRVM (Impot Revenus Valeurs Mobilieres) selon pays et residence beneficiaire.", parameters: { type: "object", properties: { montant_brut_centimes: { type: "string" }, pays: { type: "string" }, beneficiaire_residence: { type: "string", enum: ["resident", "non_resident"] }, type_revenu: { type: "string" } }, required: ["montant_brut_centimes", "pays", "beneficiaire_residence"] } } },
+  { type: "function", function: { name: "compute_droit_enregistrement", description: "Droits d'enregistrement (cession parts, vente immo, augmentation capital, bail).", parameters: { type: "object", properties: { type_acte: { type: "string", enum: ["cession_parts_sociales", "vente_immobiliere", "augmentation_capital", "bail_commercial"] }, montant_acte_centimes: { type: "string" }, pays: { type: "string" }, duree_bail_annees: { type: "integer" } }, required: ["type_acte", "montant_acte_centimes", "pays"] } } },
+  { type: "function", function: { name: "compute_minimum_forfaitaire", description: "Impot Minimum Forfaitaire IMF (max IS, IMF).", parameters: { type: "object", properties: { ca_ht_centimes: { type: "string" }, is_calcule_centimes: { type: "string" }, pays: { type: "string" } }, required: ["ca_ht_centimes", "pays"] } } },
+  { type: "function", function: { name: "forecast_dsf", description: "Projection DSF annuelle agreges (IS + IMF + IRVM).", parameters: { type: "object", properties: { pays: { type: "string" }, exercice: { type: "string" }, ca_ht_centimes: { type: "string" }, benefice_imposable_centimes: { type: "string" }, taux_is_pays: { type: "number" }, dividendes_distribues_centimes: { type: "string" }, beneficiaire_dividende: { type: "string" } }, required: ["pays", "exercice", "ca_ht_centimes", "benefice_imposable_centimes"] } } },
+  { type: "function", function: { name: "compute_credit_tva", description: "Credit TVA + eligibilite remboursement.", parameters: { type: "object", properties: { tva_collectee_centimes: { type: "string" }, tva_deductible_centimes: { type: "string" }, pays: { type: "string" }, type_activite: { type: "string", enum: ["exportateur", "investissement", "standard"] }, credit_anterieur_centimes: { type: "string" } }, required: ["tva_collectee_centimes", "tva_deductible_centimes", "pays"] } } },
+
+  // ─────────────── JURIDIQUE L2 (5) ───────────────
+  { type: "function", function: { name: "compute_capital_minimum", description: "Capital minimum legal selon forme juridique OHADA.", parameters: { type: "object", properties: { forme_juridique: { type: "string" }, appel_public_epargne: { type: "boolean" }, pays: { type: "string" }, capital_propose_centimes: { type: "string" } }, required: ["forme_juridique"] } } },
+  { type: "function", function: { name: "validate_societe_creation", description: "Checklist conformite formalites creation societe OHADA.", parameters: { type: "object", properties: { forme_juridique: { type: "string" }, pays: { type: "string" }, nb_associes: { type: "integer" }, capital_propose_centimes: { type: "string" }, statuts_rediges: { type: "boolean" }, acte_authentique: { type: "boolean" }, rccm_depose: { type: "boolean" }, publication_jal: { type: "boolean" }, numero_ifu_obtenu: { type: "boolean" }, declaration_existence_fiscale: { type: "boolean" }, agrement_specifique_obtenu: { type: "boolean" } }, required: ["forme_juridique", "pays", "nb_associes", "capital_propose_centimes", "statuts_rediges"] } } },
+  { type: "function", function: { name: "forecast_ag_quorum", description: "Quorum AGO/AGE et majorite requise selon AUSCGIE.", parameters: { type: "object", properties: { forme_juridique: { type: "string", enum: ["SA", "SARL"] }, type_assemblee: { type: "string", enum: ["AGO", "AGE"] }, capital_total_centimes: { type: "string" }, capital_present_centimes: { type: "string" }, voix_pour: { type: "integer" }, voix_contre: { type: "integer" }, voix_abstention: { type: "integer" }, premiere_convocation: { type: "boolean" } }, required: ["forme_juridique", "type_assemblee", "capital_total_centimes", "capital_present_centimes", "voix_pour", "voix_contre"] } } },
+  { type: "function", function: { name: "compute_mise_demeure_delai", description: "Delai mise en demeure + interets retard + indemnite.", parameters: { type: "object", properties: { date_mise_demeure: { type: "string" }, delai_octroye_jours: { type: "integer" }, montant_principal_centimes: { type: "string" }, taux_legal_annuel: { type: "number" }, date_calcul: { type: "string" }, indemnite_forfaitaire_fcfa: { type: "integer" } }, required: ["date_mise_demeure", "montant_principal_centimes"] } } },
+  { type: "function", function: { name: "analyze_contract_clauses", description: "Analyse clauses-types (presentes/manquantes/suspectes) + score completude.", parameters: { type: "object", properties: { contract_text: { type: "string" } }, required: ["contract_text"] } } },
+
+  // ─────────────── MARKETING L2 (5) ───────────────
+  { type: "function", function: { name: "compute_cac_ltv_ratio", description: "CAC + LTV + ratio LTV/CAC + payback period.", parameters: { type: "object", properties: { marketing_spend_centimes: { type: "string" }, nb_nouveaux_clients: { type: "integer" }, panier_moyen_centimes: { type: "string" }, frequence_achats_par_an: { type: "number" }, duree_retention_annees: { type: "number" }, marge_brute_pct: { type: "number" } }, required: ["marketing_spend_centimes", "nb_nouveaux_clients", "panier_moyen_centimes", "frequence_achats_par_an", "duree_retention_annees", "marge_brute_pct"] } } },
+  { type: "function", function: { name: "compute_campaign_roi", description: "ROI/ROAS d'une campagne marketing + recommandation scaling.", parameters: { type: "object", properties: { campagne_nom: { type: "string" }, cout_campagne_centimes: { type: "string" }, revenu_attribue_centimes: { type: "string" }, nb_conversions: { type: "integer" }, marge_brute_pct: { type: "number" } }, required: ["campagne_nom", "cout_campagne_centimes", "revenu_attribue_centimes", "nb_conversions"] } } },
+  { type: "function", function: { name: "ab_test_significance", description: "Significativite statistique A/B test (Z-test 2 proportions).", parameters: { type: "object", properties: { variant_a: { type: "object" }, variant_b: { type: "object" }, niveau_confiance: { type: "number" } }, required: ["variant_a", "variant_b"] } } },
+  { type: "function", function: { name: "compute_conversion_funnel", description: "Analyse entonnoir + drop-off + bottleneck.", parameters: { type: "object", properties: { steps: { type: "array" }, benchmarks: { type: "array" } }, required: ["steps"] } } },
+  { type: "function", function: { name: "forecast_growth_compound", description: "Projection croissance composee mensuelle (MRR, users, leads).", parameters: { type: "object", properties: { valeur_initiale: { type: "number" }, taux_croissance_mensuel_pct: { type: "number" }, horizon_mois: { type: "integer" }, cout_unitaire_centimes: { type: "string" }, metric_name: { type: "string" } }, required: ["valeur_initiale", "taux_croissance_mensuel_pct", "horizon_mois"] } } },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1385,6 +1436,42 @@ export async function runTool(
       return scoreChurnRisk(args as Parameters<typeof scoreChurnRisk>[0]);
     case "analyze_customer_segment":
       return analyzeCustomerSegment(args as Parameters<typeof analyzeCustomerSegment>[0]);
+
+    // ─── FISCAL L2 (5) — Phase 4 ───
+    case "compute_irvm":
+      return computeIrvm(args as Parameters<typeof computeIrvm>[0]);
+    case "compute_droit_enregistrement":
+      return computeDroitEnregistrement(args as Parameters<typeof computeDroitEnregistrement>[0]);
+    case "compute_minimum_forfaitaire":
+      return computeMinimumForfaitaire(args as Parameters<typeof computeMinimumForfaitaire>[0]);
+    case "forecast_dsf":
+      return forecastDsf(args as Parameters<typeof forecastDsf>[0]);
+    case "compute_credit_tva":
+      return computeCreditTva(args as Parameters<typeof computeCreditTva>[0]);
+
+    // ─── JURIDIQUE L2 (5) ───
+    case "compute_capital_minimum":
+      return computeCapitalMinimum(args as Parameters<typeof computeCapitalMinimum>[0]);
+    case "validate_societe_creation":
+      return validateSocieteCreation(args as Parameters<typeof validateSocieteCreation>[0]);
+    case "forecast_ag_quorum":
+      return forecastAgQuorum(args as Parameters<typeof forecastAgQuorum>[0]);
+    case "compute_mise_demeure_delai":
+      return computeMiseDemeureDelai(args as Parameters<typeof computeMiseDemeureDelai>[0]);
+    case "analyze_contract_clauses":
+      return analyzeContractClauses(args as Parameters<typeof analyzeContractClauses>[0]);
+
+    // ─── MARKETING L2 (5) ───
+    case "compute_cac_ltv_ratio":
+      return computeCacLtvRatio(args as Parameters<typeof computeCacLtvRatio>[0]);
+    case "compute_campaign_roi":
+      return computeCampaignRoi(args as Parameters<typeof computeCampaignRoi>[0]);
+    case "ab_test_significance":
+      return abTestSignificance(args as Parameters<typeof abTestSignificance>[0]);
+    case "compute_conversion_funnel":
+      return computeConversionFunnel(args as Parameters<typeof computeConversionFunnel>[0]);
+    case "forecast_growth_compound":
+      return forecastGrowthCompound(args as Parameters<typeof forecastGrowthCompound>[0]);
 
     default:
       throw new Error(`Unknown tool: ${name}`);
