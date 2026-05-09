@@ -179,7 +179,7 @@ Deno.serve(async (req) => {
         const toolName = tc.function.name as ToolName;
         let toolResult: unknown;
         try {
-          toolResult = await runTool(toolName, tc.function.arguments);
+          toolResult = await runTool(toolName, tc.function.arguments, { user_id: user.id });
           if (
             toolName === "search_knowledge" ||
             toolName === "search_documents" ||

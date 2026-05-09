@@ -13,10 +13,16 @@ import {
   updateMemory, forgetMemory,
 } from "./memory.ts";
 import { searchAppKnowledge, searchTenantDocuments, indexDocument } from "./rag.ts";
+import { makeEmbedding, resolveGeminiKey } from "./embeddings.ts";
 import { planTask, chainOfThought, verifyHypothesis, routeToModel } from "./orchestration.ts";
 import { generateReport, sendNotification, logDecision } from "./communication.ts";
 import { extractFromImage, parseDocumentVisual } from "./vision.ts";
 import { verifyRlsContext, auditTrailWrite, checkCompliance } from "./security.ts";
+import {
+  parseGrandLivre, generateBalanceSheet, generateCompteResultat, applyBenfordLaw,
+  reconcileBankStatement, computeIrppUemoa, computeIsUemoa, computeCnssContribution,
+  validateJournalEntry, detectAccountingAnomalies,
+} from "./finance.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -57,7 +63,18 @@ export type ToolName =
   // Security L1 (3)
   | "verify_rls_context"
   | "audit_trail_write"
-  | "check_compliance";
+  | "check_compliance"
+  // FINANCE L2 (10) — Phase 1 CDC
+  | "parse_grand_livre"
+  | "generate_balance_sheet"
+  | "generate_compte_resultat"
+  | "apply_benford_law"
+  | "reconcile_bank_statement"
+  | "compute_irpp_uemoa"
+  | "compute_is_uemoa"
+  | "compute_cnss_contribution"
+  | "validate_journal_entry"
+  | "detect_accounting_anomalies";
 
 /** Convertit les inputs string -> bigint pour les champs financiers. */
 function parseFinancialInputs(raw: Record<string, unknown>): FinancialInputs {
@@ -689,13 +706,184 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
       },
     },
   },
+
+  // ─────────────── FINANCE L2 (10) — Phase 1 ───────────────
+  {
+    type: "function",
+    function: {
+      name: "parse_grand_livre",
+      description: "Parse un grand livre SYSCOHADA (CSV ou JSON) en JournalEntry[]. Verifie equilibre debit/credit.",
+      parameters: {
+        type: "object",
+        properties: {
+          format: { type: "string", enum: ["csv", "json"] },
+          content: { type: "string", description: "Contenu brut du fichier" },
+          decimal_separator: { type: "string", enum: [".", ","], default: "," },
+          thousand_separator: { type: "string", default: " " },
+        },
+        required: ["format", "content"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "generate_balance_sheet",
+      description: "Produit le Bilan SYSCOHADA (Actif/Passif) a partir des ecritures. Verifie equilibre.",
+      parameters: {
+        type: "object",
+        properties: {
+          entries: { type: "array", description: "JournalEntry[] avec compte, debit_centimes, credit_centimes" },
+          exercice: { type: "string", description: "Annee, ex 2025" },
+          raison_sociale: { type: "string" },
+        },
+        required: ["entries", "exercice", "raison_sociale"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "generate_compte_resultat",
+      description: "Produit le Compte de Resultat (Charges classe 6 / Produits classe 7).",
+      parameters: {
+        type: "object",
+        properties: {
+          entries: { type: "array" },
+          exercice: { type: "string" },
+          raison_sociale: { type: "string" },
+        },
+        required: ["entries", "exercice", "raison_sociale"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "apply_benford_law",
+      description: "Detecte fraude/anomalies via la loi de Benford sur le 1er chiffre. Retourne chi2 + verdict.",
+      parameters: {
+        type: "object",
+        properties: {
+          amounts_centimes: { type: "array", items: { type: "string" }, description: "Liste de montants en centimes" },
+          min_amount_threshold: { type: "integer", description: "Ignore les petits montants < threshold (centimes)" },
+        },
+        required: ["amounts_centimes"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "reconcile_bank_statement",
+      description: "Rapprochement bancaire automatique : ecritures comptables vs releve bancaire.",
+      parameters: {
+        type: "object",
+        properties: {
+          compta_entries: { type: "array" },
+          bank_entries: { type: "array" },
+          tolerance_days: { type: "integer", default: 3 },
+        },
+        required: ["compta_entries", "bank_entries"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "compute_irpp_uemoa",
+      description: "Calcule IRPP avec bareme progressif UEMOA (CI/SN/BF disponibles).",
+      parameters: {
+        type: "object",
+        properties: {
+          revenu_imposable_centimes: { type: "string" },
+          pays: { type: "string", enum: ["CI", "SN", "BF", "ML", "BJ", "TG", "NE"] },
+          parts_fiscales: { type: "number", default: 1 },
+        },
+        required: ["revenu_imposable_centimes", "pays"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "compute_is_uemoa",
+      description: "Calcule IS (Impot sur les Societes) selon taux du pays UEMOA/CEMAC.",
+      parameters: {
+        type: "object",
+        properties: {
+          benefice_imposable_centimes: { type: "string" },
+          pays: { type: "string" },
+          taux_reduit: { type: "boolean", default: false },
+        },
+        required: ["benefice_imposable_centimes", "pays"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "compute_cnss_contribution",
+      description: "Calcule cotisations CNSS/CNPS (salarie + employeur) avec plafond pays.",
+      parameters: {
+        type: "object",
+        properties: {
+          salaire_brut_centimes: { type: "string" },
+          pays: { type: "string" },
+        },
+        required: ["salaire_brut_centimes", "pays"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "validate_journal_entry",
+      description: "Valide partie double, comptes SYSCOHADA, dates. Retourne errors[] + warnings[].",
+      parameters: {
+        type: "object",
+        properties: {
+          entries: { type: "array" },
+          current_date: { type: "string", description: "ISO date pour validation 'pas dans le futur'" },
+        },
+        required: ["entries"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "detect_accounting_anomalies",
+      description: "Detecte ecritures suspectes : montants ronds, weekend, doublons, sous-seuils.",
+      parameters: {
+        type: "object",
+        properties: {
+          entries: { type: "array" },
+          thresholds: { type: "array", items: { type: "integer" }, description: "Seuils reglementaires en FCFA" },
+        },
+        required: ["entries"],
+      },
+    },
+  },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
 // Runner — implementation cote Supabase
 // ────────────────────────────────────────────────────────────────────────────
 
-export async function runTool(name: ToolName, args: Record<string, unknown>): Promise<unknown> {
+/**
+ * Contexte d'execution propage par l'orchestrateur. Permet aux tools
+ * embedding-aware (memory, rag) de reutiliser la cle Gemini de l'utilisateur.
+ */
+export interface ToolContext {
+  user_id?: string;
+}
+
+export async function runTool(
+  name: ToolName,
+  args: Record<string, unknown>,
+  ctx?: ToolContext,
+): Promise<unknown> {
   switch (name) {
     // ─── Data L1 (legacy + core) ───
     case "search_knowledge": {
@@ -842,15 +1030,28 @@ export async function runTool(name: ToolName, args: Record<string, unknown>): Pr
     case "route_to_model":
       return routeToModel(args as Parameters<typeof routeToModel>[0]);
 
-    // ─── Memory L1 (5) ───
-    case "save_episodic_memory":
-      return await saveEpisodicMemory(supabaseAdmin, args as Parameters<typeof saveEpisodicMemory>[1]);
+    // ─── Memory L1 (5) ─── (embeddings-aware quand cle Gemini dispo)
+    case "save_episodic_memory": {
+      const a = args as Parameters<typeof saveEpisodicMemory>[1];
+      const key = await resolveGeminiKey(supabaseAdmin, ctx?.user_id);
+      const text = `${a.event_type}: ${JSON.stringify(a.event_data).slice(0, 1000)}`;
+      const emb = await makeEmbedding(text, key);
+      return await saveEpisodicMemory(supabaseAdmin, a, emb ?? undefined);
+    }
 
-    case "save_semantic_memory":
-      return await saveSemanticMemory(supabaseAdmin, args as Parameters<typeof saveSemanticMemory>[1]);
+    case "save_semantic_memory": {
+      const a = args as Parameters<typeof saveSemanticMemory>[1];
+      const key = await resolveGeminiKey(supabaseAdmin, ctx?.user_id);
+      const emb = await makeEmbedding(a.fact, key);
+      return await saveSemanticMemory(supabaseAdmin, a, emb ?? undefined);
+    }
 
-    case "recall_similar_cases":
-      return await recallSimilarCases(supabaseAdmin, args as Parameters<typeof recallSimilarCases>[1]);
+    case "recall_similar_cases": {
+      const a = args as Parameters<typeof recallSimilarCases>[1];
+      const key = await resolveGeminiKey(supabaseAdmin, ctx?.user_id);
+      const emb = await makeEmbedding(a.query, key);
+      return await recallSimilarCases(supabaseAdmin, a, emb ?? undefined);
+    }
 
     case "update_memory":
       return await updateMemory(supabaseAdmin, args as Parameters<typeof updateMemory>[1]);
@@ -858,15 +1059,33 @@ export async function runTool(name: ToolName, args: Record<string, unknown>): Pr
     case "forget_memory":
       return await forgetMemory(supabaseAdmin, args as Parameters<typeof forgetMemory>[1]);
 
-    // ─── RAG L1 (3) ───
-    case "search_app_knowledge":
-      return await searchAppKnowledge(supabaseAdmin, args as Parameters<typeof searchAppKnowledge>[1]);
+    // ─── RAG L1 (3) ─── (embeddings-aware)
+    case "search_app_knowledge": {
+      const a = args as Parameters<typeof searchAppKnowledge>[1];
+      const key = await resolveGeminiKey(supabaseAdmin, ctx?.user_id);
+      const emb = await makeEmbedding(a.query, key);
+      return await searchAppKnowledge(supabaseAdmin, a, emb ?? undefined);
+    }
 
-    case "search_tenant_documents":
-      return await searchTenantDocuments(supabaseAdmin, args as Parameters<typeof searchTenantDocuments>[1]);
+    case "search_tenant_documents": {
+      const a = args as Parameters<typeof searchTenantDocuments>[1];
+      const key = await resolveGeminiKey(supabaseAdmin, ctx?.user_id);
+      const emb = await makeEmbedding(a.query, key);
+      return await searchTenantDocuments(supabaseAdmin, a, emb ?? undefined);
+    }
 
-    case "index_document":
-      return await indexDocument(supabaseAdmin, args as Parameters<typeof indexDocument>[1]);
+    case "index_document": {
+      const a = args as Parameters<typeof indexDocument>[1];
+      const key = await resolveGeminiKey(supabaseAdmin, ctx?.user_id);
+      // Si on a une cle, on cree une fonction qui calcule embedding par chunk
+      const embeddingFn = key
+        ? async (chunkText: string) => {
+            const v = await makeEmbedding(chunkText, key);
+            return v ?? [];
+          }
+        : undefined;
+      return await indexDocument(supabaseAdmin, a, embeddingFn);
+    }
 
     // ─── Output L1 (3) ───
     case "generate_report":
@@ -911,6 +1130,37 @@ export async function runTool(name: ToolName, args: Record<string, unknown>): Pr
 
     case "check_compliance":
       return checkCompliance(args as Parameters<typeof checkCompliance>[0]);
+
+    // ─── FINANCE L2 (10) — Phase 1 ───
+    case "parse_grand_livre":
+      return parseGrandLivre(args as Parameters<typeof parseGrandLivre>[0]);
+
+    case "generate_balance_sheet":
+      return generateBalanceSheet(args as Parameters<typeof generateBalanceSheet>[0]);
+
+    case "generate_compte_resultat":
+      return generateCompteResultat(args as Parameters<typeof generateCompteResultat>[0]);
+
+    case "apply_benford_law":
+      return applyBenfordLaw(args as Parameters<typeof applyBenfordLaw>[0]);
+
+    case "reconcile_bank_statement":
+      return reconcileBankStatement(args as Parameters<typeof reconcileBankStatement>[0]);
+
+    case "compute_irpp_uemoa":
+      return computeIrppUemoa(args as Parameters<typeof computeIrppUemoa>[0]);
+
+    case "compute_is_uemoa":
+      return computeIsUemoa(args as Parameters<typeof computeIsUemoa>[0]);
+
+    case "compute_cnss_contribution":
+      return computeCnssContribution(args as Parameters<typeof computeCnssContribution>[0]);
+
+    case "validate_journal_entry":
+      return validateJournalEntry(args as Parameters<typeof validateJournalEntry>[0]);
+
+    case "detect_accounting_anomalies":
+      return detectAccountingAnomalies(args as Parameters<typeof detectAccountingAnomalies>[0]);
 
     default:
       throw new Error(`Unknown tool: ${name}`);

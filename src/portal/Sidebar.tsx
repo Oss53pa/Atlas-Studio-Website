@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, Users, KeyRound, Menu, X, type LucideIcon } from "lucide-react";
+import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, Users, KeyRound, Menu, X, Sparkles, type LucideIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { NotificationBell } from "../components/ui/NotificationBell";
 import type { Profile } from "../lib/database.types";
@@ -14,6 +14,7 @@ interface SidebarProps {
 
 const nav: { id: string; icon: LucideIcon; label: string }[] = [
   { id: "apps", icon: Zap, label: "Mes Applications" },
+  { id: "proph3t", icon: Sparkles, label: "Proph3t IA" },
   { id: "catalog", icon: ShoppingCart, label: "Catalogue" },
   { id: "team", icon: Users, label: "Licences & Équipe" },
   { id: "billing", icon: CreditCard, label: "Facturation" },
