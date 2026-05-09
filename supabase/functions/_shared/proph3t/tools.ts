@@ -64,6 +64,14 @@ import {
   computeCacLtvRatio, computeCampaignRoi, abTestSignificance,
   computeConversionFunnel, forecastGrowthCompound,
 } from "./marketing.ts";
+import {
+  prioritizeTasks, computeMeetingEfficiency, scheduleOptimization,
+  estimateProjectDuration, computeTeamCapacity,
+} from "./productivite.ts";
+import {
+  computeCsatNps, scoreTicketPriority, computeSlaCompliance,
+  predictResolutionTime, analyzeTicketCategories,
+} from "./support.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -180,7 +188,19 @@ export type ToolName =
   | "compute_campaign_roi"
   | "ab_test_significance"
   | "compute_conversion_funnel"
-  | "forecast_growth_compound";
+  | "forecast_growth_compound"
+  // PRODUCTIVITE L2 (5) — Phase 5
+  | "prioritize_tasks"
+  | "compute_meeting_efficiency"
+  | "schedule_optimization"
+  | "estimate_project_duration"
+  | "compute_team_capacity"
+  // SUPPORT L2 (5)
+  | "compute_csat_nps"
+  | "score_ticket_priority"
+  | "compute_sla_compliance"
+  | "predict_resolution_time"
+  | "analyze_ticket_categories";
 
 /** Convertit les inputs string -> bigint pour les champs financiers. */
 function parseFinancialInputs(raw: Record<string, unknown>): FinancialInputs {
@@ -1046,6 +1066,20 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
   { type: "function", function: { name: "ab_test_significance", description: "Significativite statistique A/B test (Z-test 2 proportions).", parameters: { type: "object", properties: { variant_a: { type: "object" }, variant_b: { type: "object" }, niveau_confiance: { type: "number" } }, required: ["variant_a", "variant_b"] } } },
   { type: "function", function: { name: "compute_conversion_funnel", description: "Analyse entonnoir + drop-off + bottleneck.", parameters: { type: "object", properties: { steps: { type: "array" }, benchmarks: { type: "array" } }, required: ["steps"] } } },
   { type: "function", function: { name: "forecast_growth_compound", description: "Projection croissance composee mensuelle (MRR, users, leads).", parameters: { type: "object", properties: { valeur_initiale: { type: "number" }, taux_croissance_mensuel_pct: { type: "number" }, horizon_mois: { type: "integer" }, cout_unitaire_centimes: { type: "string" }, metric_name: { type: "string" } }, required: ["valeur_initiale", "taux_croissance_mensuel_pct", "horizon_mois"] } } },
+
+  // ─────────────── PRODUCTIVITE L2 (5) — Phase 5 ───────────────
+  { type: "function", function: { name: "prioritize_tasks", description: "Matrice Eisenhower (urgent×important) + alerte surcharge Q1.", parameters: { type: "object", properties: { tasks: { type: "array" } }, required: ["tasks"] } } },
+  { type: "function", function: { name: "compute_meeting_efficiency", description: "Score reunion (cout × valeur decisions/actions) + verdict.", parameters: { type: "object", properties: { duree_minutes: { type: "integer" }, nb_participants: { type: "integer" }, taux_horaire_moyen_centimes: { type: "string" }, decisions_prises: { type: "integer" }, actions_definies: { type: "integer" }, alignement_atteint: { type: "integer" } }, required: ["duree_minutes", "nb_participants", "taux_horaire_moyen_centimes", "decisions_prises", "actions_definies"] } } },
+  { type: "function", function: { name: "schedule_optimization", description: "Optimise calendrier : focus blocks + surcharges + recos.", parameters: { type: "object", properties: { events: { type: "array" }, jour_debut_heure: { type: "string" }, jour_fin_heure: { type: "string" } }, required: ["events"] } } },
+  { type: "function", function: { name: "estimate_project_duration", description: "PERT 3-points estimate (optimiste/vraisemblable/pessimiste) + intervalle confiance.", parameters: { type: "object", properties: { taches: { type: "array" }, niveau_confiance: { type: "number" } }, required: ["taches"] } } },
+  { type: "function", function: { name: "compute_team_capacity", description: "Capacite reelle equipe (brute - meetings - conges - context switch).", parameters: { type: "object", properties: { nb_membres: { type: "integer" }, jours_ouvrables_periode: { type: "integer" }, meeting_overhead_pct: { type: "number" }, conges_pct: { type: "number" }, context_switch_pct: { type: "number" }, taux_journalier_moyen_centimes: { type: "string" } }, required: ["nb_membres", "jours_ouvrables_periode"] } } },
+
+  // ─────────────── SUPPORT L2 (5) ───────────────
+  { type: "function", function: { name: "compute_csat_nps", description: "CSAT et/ou NPS scoring + decomposition + niveau.", parameters: { type: "object", properties: { scores: { type: "array", items: { type: "number" } }, type: { type: "string", enum: ["csat", "nps", "both"] }, csat_threshold: { type: "number" } }, required: ["scores", "type"] } } },
+  { type: "function", function: { name: "score_ticket_priority", description: "Priorite ticket P0-P4 selon impact + urgence + VIP + securite.", parameters: { type: "object", properties: { impact_users_pct: { type: "number" }, service_status: { type: "string", enum: ["operational", "degraded", "down", "data_loss"] }, has_workaround: { type: "boolean" }, client_vip: { type: "boolean" }, sla_breached: { type: "boolean" }, is_security_or_rgpd: { type: "boolean" } }, required: ["impact_users_pct", "service_status", "has_workaround"] } } },
+  { type: "function", function: { name: "compute_sla_compliance", description: "Taux respect SLA + breaches actuelles (first response + resolution).", parameters: { type: "object", properties: { tickets: { type: "array" }, current_time: { type: "string" } }, required: ["tickets"] } } },
+  { type: "function", function: { name: "predict_resolution_time", description: "Estimation resolution selon historique + complexite + charge equipe.", parameters: { type: "object", properties: { category: { type: "string" }, complexity: { type: "string", enum: ["simple", "medium", "complex"] }, team_load_pct: { type: "number" }, created_at: { type: "string" }, historical_resolutions_hours: { type: "array" } }, required: ["category", "created_at"] } } },
+  { type: "function", function: { name: "analyze_ticket_categories", description: "Top 5 categories + tendances + categories slow + recos.", parameters: { type: "object", properties: { tickets_current: { type: "array" }, tickets_previous: { type: "array" }, slow_resolution_threshold_hours: { type: "number" } }, required: ["tickets_current"] } } },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1472,6 +1506,30 @@ export async function runTool(
       return computeConversionFunnel(args as Parameters<typeof computeConversionFunnel>[0]);
     case "forecast_growth_compound":
       return forecastGrowthCompound(args as Parameters<typeof forecastGrowthCompound>[0]);
+
+    // ─── PRODUCTIVITE L2 (5) — Phase 5 ───
+    case "prioritize_tasks":
+      return prioritizeTasks(args as Parameters<typeof prioritizeTasks>[0]);
+    case "compute_meeting_efficiency":
+      return computeMeetingEfficiency(args as Parameters<typeof computeMeetingEfficiency>[0]);
+    case "schedule_optimization":
+      return scheduleOptimization(args as Parameters<typeof scheduleOptimization>[0]);
+    case "estimate_project_duration":
+      return estimateProjectDuration(args as Parameters<typeof estimateProjectDuration>[0]);
+    case "compute_team_capacity":
+      return computeTeamCapacity(args as Parameters<typeof computeTeamCapacity>[0]);
+
+    // ─── SUPPORT L2 (5) ───
+    case "compute_csat_nps":
+      return computeCsatNps(args as Parameters<typeof computeCsatNps>[0]);
+    case "score_ticket_priority":
+      return scoreTicketPriority(args as Parameters<typeof scoreTicketPriority>[0]);
+    case "compute_sla_compliance":
+      return computeSlaCompliance(args as Parameters<typeof computeSlaCompliance>[0]);
+    case "predict_resolution_time":
+      return predictResolutionTime(args as Parameters<typeof predictResolutionTime>[0]);
+    case "analyze_ticket_categories":
+      return analyzeTicketCategories(args as Parameters<typeof analyzeTicketCategories>[0]);
 
     default:
       throw new Error(`Unknown tool: ${name}`);

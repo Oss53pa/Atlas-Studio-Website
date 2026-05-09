@@ -11,6 +11,13 @@ import { anthropicChat, getAnthropicKeyForUser } from "../_shared/proph3t/anthro
 import { geminiChat, getGeminiKeyForUser } from "../_shared/proph3t/gemini.ts";
 import { groqChat, getGroqApiKey, getGroqModel } from "../_shared/proph3t/groq.ts";
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
+import {
+  detectDomains, filterToolsByDomains, buildToolDomainMap,
+  L2_TOOLS_BY_DOMAIN, CORE_L1_TOOLS,
+} from "../_shared/proph3t/routing.ts";
+
+// Build la map tool->domain une seule fois au boot (CDC §5.3 routing).
+const TOOL_DOMAIN_MAP = buildToolDomainMap(CORE_L1_TOOLS, L2_TOOLS_BY_DOMAIN);
 
 // Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini/Groq).
 // Sont retires : search_knowledge et search_documents (legacy, necessitent Ollama embeddings).
@@ -130,11 +137,24 @@ Deno.serve(async (req) => {
     // - Ollama self-hosted : TOUS tools, y compris vision si modele multimodal
     // - Anthropic / Gemini : TOOLS_NO_OLLAMA (vision OK, embeddings via fallback texte)
     // - Groq Llama 3.3     : TOOLS_NO_VISION (pas de vision native)
-    const tools = useGroq
+    // CDC §5.3 routing : detecter les domaines pertinents pour reduire le contexte LLM
+    const domainDetection = detectDomains({
+      message: body.message,
+      product: body.product,
+      conversation_history: (history || []).map(h => h.content),
+      max_domains: 3,
+    });
+    console.log(`[proph3t-ask] domains: ${domainDetection.domains.join(",") || "(core only)"} — ${domainDetection.reason}`);
+
+    // Base : selection par provider (compatibilite vision / embeddings)
+    const baseTools = useGroq
       ? TOOLS_NO_VISION
       : (useAnthropic || useGemini)
         ? TOOLS_NO_OLLAMA
         : TOOL_DECLARATIONS;
+
+    // Puis filtre par domaine detecte (Core L1 + tools L2 des domaines)
+    const tools = filterToolsByDomains(baseTools, TOOL_DOMAIN_MAP, domainDetection.domains);
 
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
       const result = useAnthropic
