@@ -9,6 +9,7 @@ import { supabaseAdmin } from "../_shared/supabase.ts";
 import { chat, type OllamaMessage } from "../_shared/proph3t/ollama.ts";
 import { anthropicChat, getAnthropicKeyForUser } from "../_shared/proph3t/anthropic.ts";
 import { geminiChat, getGeminiKeyForUser } from "../_shared/proph3t/gemini.ts";
+import { groqChat, getGroqApiKey, getGroqModel } from "../_shared/proph3t/groq.ts";
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
 
 // Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini seuls).
@@ -66,7 +67,11 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    // 2bis. Determiner le provider LLM (BYOK Anthropic, Gemini, ou fallback Ollama)
+    // 2bis. Determiner le provider LLM, dans cet ordre :
+    //   1. BYOK Anthropic (si user a saisi sa cle)
+    //   2. BYOK Gemini (si user a saisi sa cle)
+    //   3. Groq fallback central (si secret GROQ_API_KEY defini cote serveur)
+    //   4. Ollama self-hosted (fallback ultime, si OLLAMA_URL defini)
     const [anthropic, gemini] = await Promise.all([
       getAnthropicKeyForUser(supabaseAdmin, user.id).catch((e) => {
         console.warn("[proph3t-ask] BYOK Anthropic indisponible:", (e as Error).message);
@@ -79,6 +84,9 @@ Deno.serve(async (req) => {
     ]);
     const useAnthropic = !!anthropic;
     const useGemini = !useAnthropic && !!gemini;
+    const groqKey = (!useAnthropic && !useGemini) ? getGroqApiKey() : undefined;
+    const useGroq = !!groqKey;
+    const groqModel = useGroq ? getGroqModel() : null;
 
     // 3. Charger les messages précédents de la conversation (contexte court)
     const { data: history } = await supabaseAdmin
@@ -108,12 +116,14 @@ Deno.serve(async (req) => {
       ? anthropic!.model
       : useGemini
         ? gemini!.model
-        : "llama3.1:8b-instruct-q4_K_M";
+        : useGroq
+          ? groqModel!
+          : "llama3.1:8b-instruct-q4_K_M";
 
-    // Si on utilise un BYOK (Anthropic/Gemini), on retire les tools qui
+    // Si on utilise un LLM cloud (Anthropic/Gemini/Groq), on retire les tools qui
     // dependent d'Ollama embeddings (search_knowledge, search_documents)
     // pour eviter que le LLM boucle sur des appels qui echouent.
-    const tools = (useAnthropic || useGemini) ? TOOLS_NO_OLLAMA : TOOL_DECLARATIONS;
+    const tools = (useAnthropic || useGemini || useGroq) ? TOOLS_NO_OLLAMA : TOOL_DECLARATIONS;
 
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
       const result = useAnthropic
@@ -132,11 +142,19 @@ Deno.serve(async (req) => {
               tools,
               temperature: 0.2,
             })
-          : await chat({
-              messages,
-              tools: TOOL_DECLARATIONS,
-              temperature: 0.2,
-            });
+          : useGroq
+            ? await groqChat({
+                apiKey: groqKey!,
+                model: groqModel!,
+                messages,
+                tools,
+                temperature: 0.2,
+              })
+            : await chat({
+                messages,
+                tools: TOOL_DECLARATIONS,
+                temperature: 0.2,
+              });
 
       const toolCalls = result.message.tool_calls || [];
       if (toolCalls.length === 0) {
