@@ -47,7 +47,7 @@ function canManage(myRole: Role | undefined, targetRole: Role): boolean {
 
 export function TeamPage({ userId }: { userId?: string }) {
   const { profile } = useAuth();
-  const tenantId = profile?.tenant_id;
+  const tenantId = (profile as any)?.tenant_id as string | undefined;
   const { licences, loading: licLoading } = useLicences(tenantId);
   const [selectedLicenceId, setSelectedLicenceId] = useState<string | null>(null);
 

@@ -212,7 +212,7 @@ export default function SystemHealthPage() {
             <BarChart data={uptimeData}>
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#a3a3a3" }} axisLine={false} tickLine={false} />
               <YAxis domain={[80, 100]} tick={{ fontSize: 11, fill: "#a3a3a3" }} axisLine={false} tickLine={false} width={35} />
-              <Tooltip contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid #e5e5e5" }} formatter={(v: number) => [`${v}%`, "Uptime"]} />
+              <Tooltip contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid #e5e5e5" }} formatter={((v: number) => [`${v}%`, "Uptime"]) as any} />
               <Bar dataKey="rate" radius={[4, 4, 0, 0]}>
                 {uptimeData.map((d, i) => (
                   <Cell key={i} fill={d.rate >= 95 ? "#2E7D32" : d.rate >= 80 ? "#E65100" : "#C62828"} />

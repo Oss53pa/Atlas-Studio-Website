@@ -6,7 +6,6 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './lib/auth';
 import { initErrorMonitor, AtlasErrorBoundary } from './lib/error-sdk';
 import { Layout } from './components/layout/Layout';
-import { RequireAuth } from './components/guards/RequireAuth';
 import { RequireAdmin } from './components/guards/RequireAdmin';
 import { RequireSuperAdmin } from './components/guards/RequireSuperAdmin';
 import { AdminLayout } from './admin/AdminLayout';

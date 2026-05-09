@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Loader2, AlertCircle, UserPlus, Users, Shield, ChevronDown } from "lucide-react";
-import { supabase } from "../lib/supabase";
 
 interface AdminInfo {
   company_name: string;

@@ -36,7 +36,7 @@ export function SupportPage({ userId }: SupportPageProps) {
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
-    setTickets(data as Ticket[] || []);
+    setTickets(data as unknown as Ticket[] || []);
     setLoading(false);
   };
 
@@ -49,7 +49,7 @@ export function SupportPage({ userId }: SupportPageProps) {
       .from("tickets")
       .insert({ user_id: userId, subject, priority: priority as any })
       .select()
-      .single();
+      .single() as { data: { id: string } | null };
 
     if (ticket) {
       await supabase.from("ticket_messages").insert({
@@ -73,7 +73,7 @@ export function SupportPage({ userId }: SupportPageProps) {
       .select("*")
       .eq("ticket_id", ticket.id)
       .order("created_at", { ascending: true });
-    setMessages(data as TicketMessage[] || []);
+    setMessages(data as unknown as TicketMessage[] || []);
   };
 
   const handleReply = async () => {

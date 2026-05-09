@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Send, Plus, Pencil, Trash2, Search, Calendar, Users, Eye, BarChart3 } from "lucide-react";
+import { Send, Plus, Trash2, Search, Eye, BarChart3 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
@@ -39,7 +39,7 @@ export default function CampaignsPage() {
 
   const fetchCampaigns = async () => {
     const { data } = await supabase.from("newsletter_campaigns").select("*").order("created_at", { ascending: false });
-    setCampaigns(data as Campaign[] || []);
+    setCampaigns(data as unknown as Campaign[] || []);
     setLoading(false);
   };
 
@@ -63,7 +63,7 @@ export default function CampaignsPage() {
     };
     const { error } = isNew
       ? await supabase.from("newsletter_campaigns").insert(row)
-      : await supabase.from("newsletter_campaigns").update(row).eq("id", editCampaign.id);
+      : await supabase.from("newsletter_campaigns").update(row).eq("id", editCampaign.id as string);
     setSaving(false);
     if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Campagne créée" : "Campagne mise à jour"); setEditCampaign(null); fetchCampaigns(); }

@@ -11,8 +11,8 @@ export function useAdminDelegateLink(licenceId: string) {
   const fetchLink = useCallback(async () => {
     if (!licenceId) return
     setLoading(true)
-    const { data } = await supabase.from('admin_delegate_links').select('*').eq('licence_id', licenceId).eq('status', 'active').order('created_at', { ascending: false }).limit(1).single()
-    setLink(data as AdminDelegateLink | null)
+    const { data } = await supabase.from('admin_delegate_links').select('*').eq('licence_id', licenceId).eq('status', 'active').order('created_at', { ascending: false }).limit(1).single() as { data: AdminDelegateLink | null }
+    setLink(data)
     if (data?.token) setAdminUrl(`https://atlas-studio.org/admin-access/${data.token}`)
     setLoading(false)
   }, [licenceId])

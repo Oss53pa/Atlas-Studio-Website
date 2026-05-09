@@ -4,7 +4,7 @@ import { Zap } from "lucide-react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AppFilterProvider } from "./contexts/AppFilterContext";
 import { ToastProvider, useToast } from "./contexts/ToastContext";
-import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { CommandPalette } from "./components/CommandPalette";
 import { Proph3tChat } from "./components/Proph3tChat";
 import { LockScreen } from "./components/LockScreen";
@@ -14,7 +14,6 @@ import { useAuth } from "../lib/auth";
 
 function AdminShell() {
   const [chatOpen, setChatOpen] = useState(false);
-  const { isDark } = useTheme();
   const { alerts, unreadCount } = useRealtimeAlerts();
   const { toast } = useToast();
   const { user, signOut } = useAuth();

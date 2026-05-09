@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, UserX, UserCheck, Plus, Pencil, Trash2, Download, KeyRound, FileText, FlaskConical, Gift, Check } from "lucide-react";
+import { Search, UserX, UserCheck, Plus, Pencil, Trash2, Download, KeyRound, FlaskConical, Gift, Check } from "lucide-react";
 import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { apiCall } from "../../lib/api";
@@ -7,7 +7,6 @@ import { exportToCSV } from "../../lib/csvExport";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
-import { AdminCard } from "../components/AdminCard";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
 import { useAppFilter } from "../contexts/AppFilterContext";
@@ -132,8 +131,8 @@ export default function ClientsPage() {
       supabase.from("subscriptions").select("*").eq("user_id", client.id).order("created_at", { ascending: false }),
       supabase.from("invoices").select("*").eq("user_id", client.id).order("created_at", { ascending: false }).limit(20),
     ]);
-    setClientSubs(subsRes.data as Subscription[] || []);
-    setClientInvoices(invRes.data as Invoice[] || []);
+    setClientSubs(subsRes.data as unknown as Subscription[] || []);
+    setClientInvoices(invRes.data as unknown as Invoice[] || []);
   };
 
   const handleResetPassword = async (client: Profile) => {

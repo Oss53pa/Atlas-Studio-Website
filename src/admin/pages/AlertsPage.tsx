@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { Bell, CheckCircle2, Search, Filter, Trash2 } from "lucide-react";
+import { Bell, CheckCircle2, Search } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
-import { AdminBadge } from "../components/AdminBadge";
 import { AdminModal } from "../components/AdminModal";
 import { useToast } from "../contexts/ToastContext";
 

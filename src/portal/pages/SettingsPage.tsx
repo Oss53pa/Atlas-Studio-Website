@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { User, Lock, ShieldAlert } from "lucide-react";
+import { User, Lock, ShieldAlert, Sparkles } from "lucide-react";
 import { useAuth } from "../../lib/auth";
 import { supabase } from "../../lib/supabase";
 import { apiCall } from "../../lib/api";
+import { Proph3tConfigPanel } from "../../components/proph3t/Proph3tConfigPanel";
 
-type Tab = "profile" | "security" | "account";
+type Tab = "profile" | "security" | "proph3t" | "account";
 
 const TABS: { id: Tab; label: string; icon: typeof User }[] = [
   { id: "profile", label: "Profil", icon: User },
   { id: "security", label: "Sécurité", icon: Lock },
+  { id: "proph3t", label: "IA Proph3t", icon: Sparkles },
   { id: "account", label: "Compte", icon: ShieldAlert },
 ];
 
@@ -157,6 +159,14 @@ export function SettingsPage() {
           </button>
         </div>
       )}
+
+
+      {tab === 'proph3t' && (
+        <div className="max-w-2xl">
+          <Proph3tConfigPanel variant="portal" />
+        </div>
+      )}
+
 
       {tab === "account" && (
         <div className="bg-white border border-red-200 rounded-2xl p-7 max-w-md">

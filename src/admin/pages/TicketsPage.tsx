@@ -42,7 +42,7 @@ export default function TicketsPage() {
 
   const fetchTickets = async () => {
     const { data } = await supabase.from("tickets").select("*, profiles(full_name, email)").order("created_at", { ascending: false });
-    setTickets(data as TicketWithProfile[] || []);
+    setTickets(data as unknown as TicketWithProfile[] || []);
     setLoading(false);
   };
 
@@ -69,7 +69,7 @@ export default function TicketsPage() {
 
   // ─── Actions ───
   const updateStatus = async (ticket: TicketWithProfile, status: string) => {
-    const { error } = await supabase.from("tickets").update({ status, updated_at: new Date().toISOString() }).eq("id", ticket.id);
+    const { error } = await supabase.from("tickets").update({ status: status as Ticket["status"], updated_at: new Date().toISOString() }).eq("id", ticket.id);
     if (error) { console.error("Update error:", error); }
     fetchTickets();
     if (activeTicket?.id === ticket.id) setActiveTicket({ ...activeTicket, status: status as any });
@@ -79,7 +79,7 @@ export default function TicketsPage() {
   const openTicket = async (ticket: TicketWithProfile) => {
     setActiveTicket(ticket);
     const { data } = await supabase.from("ticket_messages").select("*").eq("ticket_id", ticket.id).order("created_at", { ascending: true });
-    setMessages(data as TicketMessage[] || []);
+    setMessages(data as unknown as TicketMessage[] || []);
   };
 
   const handleReply = async (andClose = false) => {
@@ -120,12 +120,6 @@ export default function TicketsPage() {
       { key: "created_at", label: "Date", render: (r: any) => new Date(r.created_at).toLocaleDateString("fr-FR") },
     ], "tickets");
     toastSuccess("Export CSV téléchargé");
-  };
-
-  // ─── Last admin reply time ───
-  const getLastAdminReply = (msgs: TicketMessage[]): string | null => {
-    const adminMsgs = msgs.filter(m => m.is_admin);
-    return adminMsgs.length > 0 ? adminMsgs[adminMsgs.length - 1].created_at : null;
   };
 
   const statusFilters = [

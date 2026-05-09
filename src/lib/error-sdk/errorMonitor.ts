@@ -96,7 +96,7 @@ export async function captureError(appId: string, payload: ErrorPayload): Promis
     if (error) {
       // On log en console dev uniquement, on ne propage pas
       if (environment !== 'production') {
-        // eslint-disable-next-line no-console
+         
         console.warn('[atlas-error-sdk] upsert failed:', error.message);
       }
       return false;
@@ -105,7 +105,7 @@ export async function captureError(appId: string, payload: ErrorPayload): Promis
   } catch (err) {
     // Silencieux par design : le monitoring ne doit JAMAIS casser l'app
     if (typeof console !== 'undefined' && import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
+       
       console.warn('[atlas-error-sdk] captureError failed:', err);
     }
     return false;

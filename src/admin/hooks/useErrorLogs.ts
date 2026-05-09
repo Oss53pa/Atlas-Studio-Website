@@ -88,7 +88,7 @@ export function useErrorLogs(filters: ErrorLogFilters = {}) {
       setError(err.message);
       setLogs([]);
     } else {
-      setLogs((data || []) as ErrorLog[]);
+      setLogs((data || []) as unknown as ErrorLog[]);
     }
     setLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps

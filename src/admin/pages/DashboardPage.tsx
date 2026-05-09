@@ -6,10 +6,10 @@ import {
   CreditCard, ClipboardList, Brain, Activity, Flag,
   Bell, Tag, Rocket, BookOpen, BarChart3, KeyRound,
   Send, ShieldCheck, Settings, Layers, Wallet,
-  TrendingUp, TrendingDown, Eye, MousePointerClick,
+  TrendingUp, TrendingDown, Eye,
   type LucideIcon,
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "../../lib/supabase";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
@@ -140,7 +140,7 @@ export default function DashboardPage() {
       }
 
       const { data: pending } = await supabase.from("invoices").select("id, invoice_number, amount, currency, created_at, profiles(full_name)").eq("status", "pending").order("created_at", { ascending: false }).limit(5);
-      if (pending) setPendingInvoices(pending as PendingInvoice[]);
+      if (pending) setPendingInvoices(pending as unknown as PendingInvoice[]);
 
       // Licences
       const { count: lt } = await supabase.from("licences").select("id", { count: "exact", head: true });
@@ -208,7 +208,7 @@ export default function DashboardPage() {
               <BarChart data={monthlyRevenues}>
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} width={50} tickFormatter={v => v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)} />
-                <Tooltip contentStyle={{ background: "#1E1E2E", border: "1px solid #2A2A3A", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => [`${fmt(v)} FCFA`, "Revenus"]} />
+                <Tooltip contentStyle={{ background: "#1E1E2E", border: "1px solid #2A2A3A", borderRadius: 8, fontSize: 12 }} formatter={((v: number) => [`${fmt(v)} FCFA`, "Revenus"]) as any} />
                 <Bar dataKey="amount" fill="#EF9F27" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

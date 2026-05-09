@@ -7,6 +7,8 @@ import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { requireUser } from "../_shared/auth.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { chat, type OllamaMessage } from "../_shared/proph3t/ollama.ts";
+import { anthropicChat, getAnthropicKeyForUser } from "../_shared/proph3t/anthropic.ts";
+import { geminiChat, getGeminiKeyForUser } from "../_shared/proph3t/gemini.ts";
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
 import { appendAudit } from "../_shared/proph3t/audit.ts";
 
@@ -57,6 +59,20 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
+    // 2bis. Determiner le provider LLM (BYOK Anthropic, Gemini, ou fallback Ollama)
+    const [anthropic, gemini] = await Promise.all([
+      getAnthropicKeyForUser(supabaseAdmin, user.id).catch((e) => {
+        console.warn("[proph3t-ask] BYOK Anthropic indisponible:", (e as Error).message);
+        return null;
+      }),
+      getGeminiKeyForUser(supabaseAdmin, user.id).catch((e) => {
+        console.warn("[proph3t-ask] BYOK Gemini indisponible:", (e as Error).message);
+        return null;
+      }),
+    ]);
+    const useAnthropic = !!anthropic;
+    const useGemini = !useAnthropic && !!gemini;
+
     // 3. Charger les messages précédents de la conversation (contexte court)
     const { data: history } = await supabaseAdmin
       .from("proph3t_messages")
@@ -81,15 +97,34 @@ Deno.serve(async (req) => {
 
     const citations: unknown[] = [];
     let finalAnswer = "";
-    let modelUsed = "llama3.1:8b-instruct-q4_K_M";
+    let modelUsed = useAnthropic
+      ? anthropic!.model
+      : useGemini
+        ? gemini!.model
+        : "llama3.1:8b-instruct-q4_K_M";
 
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
-      const result = await chat({
-        messages,
-        tools: TOOL_DECLARATIONS,
-        temperature: 0.2,
-      });
-      modelUsed = "llama3.1:8b-instruct-q4_K_M";
+      const result = useAnthropic
+        ? await anthropicChat({
+            apiKey: anthropic!.apiKey,
+            model: anthropic!.model,
+            messages,
+            tools: TOOL_DECLARATIONS,
+            temperature: 0.2,
+          })
+        : useGemini
+          ? await geminiChat({
+              apiKey: gemini!.apiKey,
+              model: gemini!.model,
+              messages,
+              tools: TOOL_DECLARATIONS,
+              temperature: 0.2,
+            })
+          : await chat({
+              messages,
+              tools: TOOL_DECLARATIONS,
+              temperature: 0.2,
+            });
 
       const toolCalls = result.message.tool_calls || [];
       if (toolCalls.length === 0) {

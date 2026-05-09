@@ -1,11 +1,10 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useSubscribers } from '../../hooks/newsletter/useSubscribers'
 import { Search, Plus, Upload, Download, Trash2, Loader2, Users, UserCheck, UserMinus, UserX } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
 import { ImportModal } from './ImportModal'
 
 export function SubscribersList() {
-  const { subscribers, loading, stats, fetchSubscribers, addSubscriber, deleteSubscriber, updateSubscriberStatus } = useSubscribers()
+  const { subscribers, loading, stats, fetchSubscribers, addSubscriber, deleteSubscriber } = useSubscribers()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [showImport, setShowImport] = useState(false)

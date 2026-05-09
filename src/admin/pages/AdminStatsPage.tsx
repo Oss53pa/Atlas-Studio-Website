@@ -56,8 +56,8 @@ export default function AdminStatsPage() {
       if (subsRes.error) throw subsRes.error;
       if (profilesRes.error) throw profilesRes.error;
 
-      const subs = subsRes.data || [];
-      const profiles = profilesRes.data || [];
+      const subs = (subsRes.data || []) as any[];
+      const profiles = (profilesRes.data || []) as any[];
       const now = Date.now();
       const week_ago = now - 7 * DAY_MS;
       const month_ago = now - 30 * DAY_MS;
@@ -274,7 +274,7 @@ export default function AdminStatsPage() {
 }
 
 function KpiCard({ label, value, sub, icon: Icon }: {
-  label: string; value: string; sub?: string; icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  label: string; value: string; sub?: string; icon: React.ComponentType<any>;
 }) {
   return (
     <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">

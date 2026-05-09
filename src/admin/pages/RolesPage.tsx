@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Shield, Plus, Pencil, Trash2, Search, Check } from "lucide-react";
+import { Shield, Plus, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminModal } from "../components/AdminModal";
@@ -67,7 +67,7 @@ export default function RolesPage() {
     const row = { name: editRole.name, description: editRole.description || null, permissions: editRole.permissions || {} };
     const { error } = isNew
       ? await supabase.from("admin_roles").insert(row)
-      : await supabase.from("admin_roles").update(row).eq("id", editRole.id);
+      : await supabase.from("admin_roles").update(row).eq("id", editRole.id as string);
     setSaving(false);
     if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Rôle créé" : "Rôle mis à jour"); setEditRole(null); fetchRoles(); }

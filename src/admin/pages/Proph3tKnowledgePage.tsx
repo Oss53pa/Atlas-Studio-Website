@@ -97,7 +97,7 @@ export default function Proph3tKnowledgePage() {
       supabase.from("proph3t_documents").select("*").order("created_at", { ascending: false }).limit(500),
     ]);
     setKbRows((kbRes.data as KnowledgeRow[]) || []);
-    setDocs((docsRes.data as DocumentRow[]) || []);
+    setDocs((docsRes.data as unknown as DocumentRow[]) || []);
     setLoading(false);
   };
 

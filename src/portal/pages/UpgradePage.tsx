@@ -105,7 +105,7 @@ export function UpgradePage({ userId }: { userId?: string }) {
         currentPlanId={sub?.plan_id}
         onSelectPlan={setSelectedPlanId}
         billingCycle={billingCycle}
-        onCycleChange={setBillingCycle}
+        onCycleChange={setBillingCycle as (cycle: string) => void}
       />
 
       {selectedPlanId && (

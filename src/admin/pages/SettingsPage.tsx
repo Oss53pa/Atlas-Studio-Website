@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Save, Shield, Globe, Bell, Key, Loader2, CreditCard, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
+import { Save, Shield, Globe, Bell, Key, Loader2, CreditCard, CheckCircle, XCircle, Eye, EyeOff, Sparkles } from "lucide-react";
 import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../lib/auth";
 import { useToast } from "../contexts/ToastContext";
 import { formatSupabaseError } from "../../lib/errorMessages";
+import { Proph3tConfigPanel } from "../../components/proph3t/Proph3tConfigPanel";
 
 interface AdminSettings {
   full_name: string;
@@ -23,7 +24,7 @@ export default function SettingsPage() {
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [tab, setTab] = useState<"profile" | "security" | "notifications" | "payment">("profile");
+  const [tab, setTab] = useState<"profile" | "security" | "notifications" | "payment" | "proph3t">("profile");
 
   const [settings, setSettings] = useState<AdminSettings>({
     full_name: "", email: "", phone: "",
@@ -69,7 +70,7 @@ export default function SettingsPage() {
       full_name: settings.full_name,
       phone: settings.phone,
       updated_at: new Date().toISOString(),
-    }).eq("id", user?.id);
+    }).eq("id", user?.id ?? "");
     setSaving(false);
     success("Profil mis à jour");
   };
@@ -87,7 +88,7 @@ export default function SettingsPage() {
     const { error } = await supabase.from("profiles").update({
       recovery_email: recoveryEmail || null,
       updated_at: new Date().toISOString(),
-    }).eq("id", user?.id);
+    }).eq("id", user?.id ?? "");
     setSaving(false);
     if (error) showError(formatSupabaseError(error));
     else success(recoveryEmail ? "Email de recuperation enregistre" : "Email de recuperation supprime");
@@ -141,8 +142,9 @@ export default function SettingsPage() {
 
   useEffect(() => {
     supabase.from("app_settings").select("*").eq("setting_key", "payment_config").single().then(({ data }) => {
-      if (data?.setting_value) {
-        try { setPaymentConfig(prev => ({ ...prev, ...JSON.parse(data.setting_value) })); } catch {}
+      const d = data as any;
+      if (d?.setting_value) {
+        try { setPaymentConfig(prev => ({ ...prev, ...JSON.parse(d.setting_value as string) })); } catch {}
       }
     });
   }, []);
@@ -189,6 +191,7 @@ export default function SettingsPage() {
     { id: "security" as const, label: "Sécurité", icon: Shield },
     { id: "notifications" as const, label: "Notifications", icon: Bell },
     { id: "payment" as const, label: "Paiement", icon: CreditCard },
+    { id: "proph3t" as const, label: "IA Proph3t", icon: Sparkles },
   ];
 
   if (loading) {
@@ -211,6 +214,13 @@ export default function SettingsPage() {
         ))}
       </div>
 
+      {tab === "proph3t" && (
+        <div className="max-w-2xl">
+          <Proph3tConfigPanel variant="admin" />
+        </div>
+      )}
+
+      {tab !== "proph3t" && (
       <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 max-w-2xl">
         {/* Profile */}
         {tab === "profile" && (
@@ -481,6 +491,7 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

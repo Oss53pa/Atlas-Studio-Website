@@ -39,7 +39,7 @@ export async function ensureTenantForProfile(client: Profile, adminUserId: strin
     .from("tenants")
     .select("id")
     .eq("billing_email", client.email)
-    .maybeSingle();
+    .maybeSingle() as { data: { id: string } | null };
   if (existing?.id) return existing.id;
 
   const { data: created, error } = await supabase
@@ -53,7 +53,7 @@ export async function ensureTenantForProfile(client: Profile, adminUserId: strin
       created_by: adminUserId,
     })
     .select("id")
-    .single();
+    .single() as { data: { id: string } | null; error: { message: string } | null };
   if (error || !created) throw new Error(`tenant: ${error?.message || "creation failed"}`);
   return created.id;
 }
@@ -101,7 +101,7 @@ export async function createGrantedLicence(params: {
     max_seats: params.maxSeats,
     activated_at: now.toISOString(),
     expires_at: expiresAt.toISOString(),
-  }).select("id").single();
+  }).select("id").single() as { data: { id: string } | null; error: { message: string } | null };
   if (licErr || !licence) throw new Error(`licence: ${licErr?.message || "insert failed"}`);
 
   const { error: seatErr } = await supabase.from("licence_seats").insert({

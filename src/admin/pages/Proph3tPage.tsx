@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
-  Brain, AlertTriangle, TrendingDown, TrendingUp, Clock, Users,
+  Brain, TrendingDown, TrendingUp, Clock, Users,
   Receipt, MessageSquare, Zap, ArrowRight, RefreshCw, Shield,
-  Activity, Target, Loader2, CheckCircle2, XCircle, Bell,
+  Activity, Target, Loader2, CheckCircle2, XCircle,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useToast } from "../contexts/ToastContext";
@@ -41,7 +41,7 @@ const PRIORITY_COLORS = { high: "text-red-600 bg-red-50", medium: "text-amber-60
 
 export default function Proph3tPage() {
   const { success: toastSuccess } = useToast();
-  const { appMap } = useAppCatalog();
+  useAppCatalog();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);

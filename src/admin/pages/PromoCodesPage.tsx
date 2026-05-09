@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Tag, Plus, Pencil, Trash2, Search, Copy, Check } from "lucide-react";
+import { Tag, Plus, Trash2, Search, Copy, Check } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
@@ -33,7 +33,7 @@ export default function PromoCodesPage() {
 
   const fetchCodes = async () => {
     const { data } = await supabase.from("promo_codes").select("*").order("created_at", { ascending: false });
-    setCodes(data as PromoCode[] || []);
+    setCodes(data as unknown as PromoCode[] || []);
     setLoading(false);
   };
 
@@ -71,7 +71,7 @@ export default function PromoCodesPage() {
     };
     const { error } = isNew
       ? await supabase.from("promo_codes").insert(row)
-      : await supabase.from("promo_codes").update(row).eq("id", editCode.id);
+      : await supabase.from("promo_codes").update(row).eq("id", editCode.id as string);
     setSaving(false);
     if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Code promo créé" : "Code promo mis à jour"); setEditCode(null); fetchCodes(); }

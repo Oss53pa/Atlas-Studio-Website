@@ -19,7 +19,7 @@ export function BillingPage({ userId }: BillingPageProps) {
     }
   };
 
-  const handleDownloadPDF = async (invoiceId: string, invoiceNumber: string) => {
+  const handleDownloadPDF = async (invoiceId: string, _invoiceNumber: string) => {
     try {
       const { supabase } = await import("../../lib/supabase");
       const { data: { session } } = await supabase.auth.getSession();

@@ -44,7 +44,7 @@ function useCountUp(target: number, duration = 2200, isDecimal = false) {
   return { count, ref };
 }
 
-export function StatCounter({ value, label, light = false }: StatCounterProps) {
+export function StatCounter({ value, label }: StatCounterProps) {
   const match = value.match(/^([\d.]+)(.*)$/);
   const numericPart = match ? parseFloat(match[1]) : 0;
   const suffix = match ? match[2] : value;

@@ -105,7 +105,7 @@ export default function ActivityLogPage() {
     }
 
     const { data, count } = await query;
-    const items = (data as ActivityLog[]) || [];
+    const items = (data as unknown as ActivityLog[]) || [];
     setLogs(items);
     setTotalCount(count || 0);
     setLoading(false);

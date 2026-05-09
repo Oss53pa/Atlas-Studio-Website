@@ -55,7 +55,7 @@ export default function PaymentsPage() {
 
   const fetchPayments = async () => {
     const { data } = await supabase.from("payments").select("*, invoices(invoice_number, app_id, profiles(full_name, email))").order("created_at", { ascending: false });
-    setPayments(data as Payment[] || []);
+    setPayments(data as unknown as Payment[] || []);
     setLoading(false);
   };
 
@@ -124,7 +124,7 @@ export default function PaymentsPage() {
             <BarChart data={methodChart} layout="vertical">
               <XAxis type="number" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} tickFormatter={v => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)} />
               <YAxis type="category" dataKey="method" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} width={120} />
-              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={(v: number) => [`${fmt(v)} FCFA`, "Revenus"]} />
+              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={((v: number) => [`${fmt(v)} FCFA`, "Revenus"]) as any} />
               <Bar dataKey="amount" fill="#C8A960" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>

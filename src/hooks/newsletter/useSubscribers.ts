@@ -13,7 +13,7 @@ export function useSubscribers() {
     if (status !== 'all') query = query.eq('status', status)
     if (search) query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`)
     const { data, count } = await query.limit(200)
-    setSubscribers((data as Subscriber[]) || [])
+    setSubscribers((data as unknown as Subscriber[]) || [])
     setTotal(count || 0)
     setLoading(false)
   }, [])
@@ -22,7 +22,7 @@ export function useSubscribers() {
 
   const addSubscriber = useCallback(async (email: string, fullName?: string) => {
     const { data, error } = await supabase.from('newsletter_subscribers').insert({ email, full_name: fullName, status: 'active', source: 'manual' }).select().single()
-    if (data) setSubscribers(prev => [data as Subscriber, ...prev])
+    if (data) setSubscribers(prev => [data as unknown as Subscriber, ...prev])
     return { data, error }
   }, [])
 

@@ -15,7 +15,7 @@ export function useSubscriptions(userId: string | undefined) {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
-      setSubscriptions(data as Subscription[] || []);
+      setSubscriptions(data as unknown as Subscription[] || []);
     } catch { /* fallback empty */ }
   };
 
@@ -27,7 +27,7 @@ export function useSubscriptions(userId: string | undefined) {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
-      setInvoices(data as Invoice[] || []);
+      setInvoices(data as unknown as Invoice[] || []);
     } catch { /* fallback empty */ }
   };
 

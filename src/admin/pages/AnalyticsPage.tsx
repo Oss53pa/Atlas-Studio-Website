@@ -15,14 +15,6 @@ interface MonthData {
   subs: number;
 }
 
-interface AppRevenue {
-  app_id: string;
-  name: string;
-  total: number;
-  count: number;
-  color: string;
-}
-
 interface TopClient {
   full_name: string;
   email: string;
@@ -105,7 +97,7 @@ export default function AnalyticsPage() {
   // Raw data
   const [allInvoices, setAllInvoices] = useState<InvoiceRow[]>([]);
   const [allSubs, setAllSubs] = useState<SubRow[]>([]);
-  const [totalClients, setTotalClients] = useState(0);
+  const [, setTotalClients] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -115,7 +107,7 @@ export default function AnalyticsPage() {
         supabase.from("profiles").select("id, created_at"),
       ]);
 
-      if (invRes.data) setAllInvoices(invRes.data as InvoiceRow[]);
+      if (invRes.data) setAllInvoices(invRes.data as unknown as InvoiceRow[]);
       if (subsRes.data) setAllSubs(subsRes.data as SubRow[]);
       setTotalClients(clientsRes.data?.length || 0);
       setLoading(false);
@@ -383,7 +375,7 @@ export default function AnalyticsPage() {
         {/* Africa Map — only in consolidated view */}
         {selectedApp === "all" && (
           <AfricaMap
-            data={topClients.slice(0, 20).map((c, i) => ({
+            data={topClients.slice(0, 20).map((c) => ({
               country: c.full_name,
               code: "",
               value: Math.round(c.total / 1000),
