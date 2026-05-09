@@ -12,11 +12,13 @@ import { geminiChat, getGeminiKeyForUser } from "../_shared/proph3t/gemini.ts";
 import { groqChat, getGroqApiKey, getGroqModel } from "../_shared/proph3t/groq.ts";
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
 
-// Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini seuls).
-// Les tools commentes (search_knowledge, search_documents) requierent l'embedding model
-// d'Ollama qui n'est pas accessible sans OLLAMA_URL secret configure.
+// Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini/Groq).
+// Sont retires : search_knowledge et search_documents (necessitent embeddings).
+// Sont retires : get_financial_data (stub jusqu'a Phase 1 CDC).
+// Sont gardes : get_memory (DB), compute_ratio (TS pur), compute_tva, apply_prorata_360,
+//               format_money_fcfa, generate_alert (DB), save_business_rule (DB).
 const TOOLS_NO_OLLAMA = TOOL_DECLARATIONS.filter(t =>
-  !["search_knowledge", "search_documents"].includes(t.function.name)
+  !["search_knowledge", "search_documents", "get_financial_data"].includes(t.function.name)
 );
 import { appendAudit } from "../_shared/proph3t/audit.ts";
 
@@ -120,15 +122,14 @@ Deno.serve(async (req) => {
           ? groqModel!
           : "llama3.1:8b-instruct-q4_K_M";
 
-    // Strategie tools selon provider :
-    // - Ollama (self-hosted) : tous les tools, y compris embeddings
-    // - Anthropic/Gemini : tools sans embeddings (TOOLS_NO_OLLAMA)
-    // - Groq : AUCUN tool. Llama 3.3 70B repond directement avec ses connaissances.
-    //   On reactivera les tools quand on aura des embeddings dispos
-    //   (Gemini ou Voyage) + des tools branches sur des donnees client reelles.
-    const tools = useGroq
-      ? undefined
-      : (useAnthropic || useGemini) ? TOOLS_NO_OLLAMA : TOOL_DECLARATIONS;
+    // Strategie tools selon provider (CDC §3 tools registry niveau 1) :
+    // - Ollama (self-hosted)        : TOUS les tools, y compris embeddings (search_knowledge/documents)
+    // - Anthropic/Gemini/Groq cloud : TOOLS_NO_OLLAMA (sans embeddings, sans get_financial_data stub)
+    //   Inclus : compute_ratio (TS pur), compute_tva, apply_prorata_360,
+    //   format_money_fcfa, get_memory, generate_alert, save_business_rule.
+    const tools = (useAnthropic || useGemini || useGroq)
+      ? TOOLS_NO_OLLAMA
+      : TOOL_DECLARATIONS;
 
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
       const result = useAnthropic
