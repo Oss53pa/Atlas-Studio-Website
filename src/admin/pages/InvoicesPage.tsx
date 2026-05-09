@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DollarSign, Clock, AlertTriangle, Download, Plus, Send, Mail, Search } from "lucide-react";
+import { DollarSign, Clock, AlertTriangle, Download, Plus, Mail, Search } from "lucide-react";
 import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
@@ -35,7 +35,7 @@ const dateFilters = [
 ];
 
 export default function InvoicesPage() {
-  const { appMap, appList } = useAppCatalog();
+  const { appList } = useAppCatalog();
   const { selectedApp } = useAppFilter();
   const { success, error: showError } = useToast();
   const [invoices, setInvoices] = useState<InvoiceWithProfile[]>([]);
@@ -50,7 +50,7 @@ export default function InvoicesPage() {
 
   const fetchInvoices = async () => {
     const { data } = await supabase.from("invoices").select("*, profiles(full_name, email)").order("created_at", { ascending: false });
-    if (data) setInvoices(data as InvoiceWithProfile[]);
+    if (data) setInvoices(data as unknown as InvoiceWithProfile[]);
     setLoading(false);
   };
 
@@ -104,7 +104,7 @@ export default function InvoicesPage() {
     setSaving(true);
     const { error } = await supabase.from("invoices").insert({
       invoice_number: `INV-${Date.now().toString(36).toUpperCase()}`,
-      user_id: formData.user_id, app_id: formData.app_id || null, plan: formData.plan || null,
+      user_id: formData.user_id, app_id: formData.app_id || "", plan: formData.plan || "",
       amount: formData.amount, currency: formData.currency, status: formData.status as InvoiceStatus,
       paid_at: formData.status === "paid" ? new Date().toISOString() : null,
     });

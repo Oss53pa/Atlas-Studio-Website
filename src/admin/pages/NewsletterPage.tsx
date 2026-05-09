@@ -7,7 +7,7 @@ import { CampaignStats } from "../../components/newsletter/CampaignStats";
 import { SubscribersList } from "../../components/newsletter/SubscribersList";
 import { TemplateGallery } from "../../components/newsletter/TemplateGallery";
 import { Mail, Users, LayoutTemplate } from "lucide-react";
-import type { Campaign, NewsletterTemplate } from "../../types/newsletter";
+import type { NewsletterTemplate } from "../../types/newsletter";
 
 type MainTab = "campaigns" | "subscribers" | "templates";
 type View = "list" | "editor" | "stats";
@@ -39,7 +39,7 @@ export default function NewsletterPage() {
       .single();
 
     if (data) {
-      setSelectedCampaignId(data.id);
+      setSelectedCampaignId((data as any).id);
       setView("editor");
       setMainTab("campaigns");
     }

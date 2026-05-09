@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BookOpen, Plus, Pencil, Trash2, Search, Eye, EyeOff, ThumbsUp, ThumbsDown } from "lucide-react";
+import { BookOpen, Plus, Pencil, Trash2, Search, ThumbsUp, ThumbsDown } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminBadge } from "../components/AdminBadge";
@@ -71,7 +71,7 @@ export default function KnowledgeBasePage() {
     };
     const { error } = isNew
       ? await supabase.from("kb_articles").insert(row)
-      : await supabase.from("kb_articles").update(row).eq("id", editArticle.id);
+      : await supabase.from("kb_articles").update(row).eq("id", editArticle.id as string);
     setSaving(false);
     if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Article créé" : "Article mis à jour"); setEditArticle(null); fetchArticles(); }

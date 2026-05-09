@@ -14,16 +14,17 @@ export function useFeatureAccess(productId: string, tenantId?: string) {
       .in('status', ['active', 'trial', 'past_due', 'degraded'])
       .order('created_at', { ascending: false }).limit(1).single()
       .then(({ data }) => {
-        if (data?.plans?.plan_features) {
+        const d = data as any;
+        if (d?.plans?.plan_features) {
           const map: FeatureMap = {}
-          for (const pf of data.plans.plan_features as any[]) {
+          for (const pf of d.plans.plan_features as any[]) {
             // A feature is accessible if it's core OR explicitly enabled in plan_features.
             // is_core features are always granted regardless of plan_features.enabled.
             map[pf.features.key] = {
               enabled: pf.features.is_core ? true : (pf.enabled === true),
               limit: pf.limit_value,
               limitUnit: pf.limit_unit,
-              isDegraded: data.status === 'degraded',
+              isDegraded: d.status === 'degraded',
               isCore: pf.features.is_core
             }
           }

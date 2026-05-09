@@ -33,7 +33,7 @@ export default function FeatureFlagsPage() {
 
   const fetchFlags = async () => {
     const { data } = await supabase.from("feature_flags").select("*").order("created_at", { ascending: false });
-    setFlags(data as FeatureFlag[] || []);
+    setFlags(data as unknown as FeatureFlag[] || []);
     setLoading(false);
   };
 
@@ -69,7 +69,7 @@ export default function FeatureFlagsPage() {
     };
     const { error } = isNew
       ? await supabase.from("feature_flags").insert(row)
-      : await supabase.from("feature_flags").update(row).eq("id", editFlag.id);
+      : await supabase.from("feature_flags").update(row).eq("id", editFlag.id as string);
     setSaving(false);
     if (error) showError(formatSupabaseError(error));
     else { success(isNew ? "Feature flag créé" : "Feature flag mis à jour"); setEditFlag(null); fetchFlags(); }

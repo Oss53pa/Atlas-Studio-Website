@@ -34,7 +34,7 @@ export function useApps() {
         setError(msg);
         setApps([]);
       } else {
-        setApps((data || []).map(row => ({
+        setApps(((data || []) as any[]).map(row => ({
           id: row.id,
           name: row.name,
           type: row.type as AppItem['type'],

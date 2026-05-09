@@ -30,7 +30,7 @@ export default function ErrorMonitorDetailPage() {
     if (error || !data) {
       setNotFound(true);
     } else {
-      setLog(data as ErrorLog);
+      setLog(data as unknown as ErrorLog);
     }
     setLoading(false);
   };

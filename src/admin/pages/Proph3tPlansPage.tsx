@@ -75,8 +75,8 @@ export default function Proph3tPlansPage() {
       supabase.from("proph3t_conversations").select("*").order("started_at", { ascending: false }).limit(200),
       supabase.from("proph3t_alerts").select("*").order("created_at", { ascending: false }).limit(200),
     ]);
-    setConversations((convRes.data as Conversation[]) || []);
-    setAlerts((alertsRes.data as Alert[]) || []);
+    setConversations((convRes.data as unknown as Conversation[]) || []);
+    setAlerts((alertsRes.data as unknown as Alert[]) || []);
     setLoading(false);
   };
 

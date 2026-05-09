@@ -35,7 +35,7 @@ async function resolveEmailSender(tenantId: string, defaultSender: string): Prom
     .from('atlas_email_config')
     .select('*')
     .eq('tenant_id', tenantId)
-    .single();
+    .single() as { data: any };
 
   const { data: tenant } = await supabase
     .from('tenants')
@@ -89,7 +89,7 @@ async function getTemplate(
     .eq('template_key', templateKey)
     .eq('lang', lang)
     .eq('is_active', true)
-    .single();
+    .single() as { data: TemplateRow | null };
 
   if (appTemplate) return appTemplate;
 
@@ -102,7 +102,7 @@ async function getTemplate(
       .eq('template_key', templateKey)
       .eq('lang', lang)
       .eq('is_active', true)
-      .single();
+      .single() as { data: TemplateRow | null };
 
     if (coreTemplate) return coreTemplate;
   }
@@ -116,7 +116,7 @@ async function getTemplate(
       .eq('template_key', 'notification_generic')
       .eq('lang', lang)
       .eq('is_active', true)
-      .single();
+      .single() as { data: TemplateRow | null };
 
     return genericTemplate ?? null;
   }

@@ -128,7 +128,7 @@ export function SubscriptionPage({ userId }: { userId?: string }) {
         </span>
         <BillingCycleSwitcher
           cycle={cycle}
-          onChange={setCycle}
+          onChange={setCycle as (c: string) => void}
           annualDiscount={plan?.annual_discount_pct}
         />
       </div>

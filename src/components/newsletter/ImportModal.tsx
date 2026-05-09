@@ -43,7 +43,7 @@ export function ImportModal({ onClose, onImported }: Props) {
       }
     }).filter(s => s.email && s.email.includes('@'))
 
-    const { data, error } = await supabase.from('newsletter_subscribers').upsert(batch, { onConflict: 'email', ignoreDuplicates: true }).select()
+    const { data } = await supabase.from('newsletter_subscribers').upsert(batch, { onConflict: 'email', ignoreDuplicates: true }).select()
     added = data?.length || 0
     skipped = batch.length - added
     setResult({ added, skipped })

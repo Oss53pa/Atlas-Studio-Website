@@ -42,7 +42,7 @@ export default function SubscriptionsPage() {
 
   const fetchSubs = async () => {
     const { data } = await supabase.from("subscriptions").select("*, profiles!subscriptions_user_id_fkey(full_name, email)").order("created_at", { ascending: false });
-    if (data) setSubs(data as SubWithProfile[]);
+    if (data) setSubs(data as unknown as SubWithProfile[]);
     setLoading(false);
   };
 
@@ -142,8 +142,6 @@ export default function SubscriptionsPage() {
     ], "abonnements");
     success("Export CSV téléchargé");
   };
-
-  const inputClass = "w-full px-4 py-3 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
 
   return (
     <div>

@@ -11,7 +11,7 @@ export function useSeats(licenceId: string) {
     if (!licenceId) return
     setLoading(true)
     const { data } = await supabase.from('licence_seats').select('*').eq('licence_id', licenceId).order('created_at')
-    setSeats((data as LicenceSeat[]) || [])
+    setSeats((data as unknown as LicenceSeat[]) || [])
     setLoading(false)
   }, [licenceId])
 

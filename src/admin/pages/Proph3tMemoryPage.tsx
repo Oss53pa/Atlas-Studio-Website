@@ -78,9 +78,9 @@ export default function Proph3tMemoryPage() {
       supabase.from("proph3t_business_rules").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("proph3t_validated_qa").select("*").order("validation_count", { ascending: false }).limit(500),
     ]);
-    setObservations((obsRes.data as Observation[]) || []);
-    setRules((rulesRes.data as BusinessRule[]) || []);
-    setQa((qaRes.data as ValidatedQa[]) || []);
+    setObservations((obsRes.data as unknown as Observation[]) || []);
+    setRules((rulesRes.data as unknown as BusinessRule[]) || []);
+    setQa((qaRes.data as unknown as ValidatedQa[]) || []);
     setLoading(false);
   };
 

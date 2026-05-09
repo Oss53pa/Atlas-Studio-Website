@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, X, Bot, User, Zap, Loader2 } from "lucide-react";
+import { Send, Paperclip, X, Bot, User, Zap } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 
 interface Message {
@@ -300,7 +300,7 @@ async function generateLocalInsight(query: string): Promise<string> {
     }
 
     if (q.includes("impayé") || q.includes("retard") || q.includes("facture")) {
-      const { data } = await supabase.from("invoices").select("*, profiles(full_name, email)").eq("status", "pending").order("created_at");
+      const { data } = await supabase.from("invoices").select("*, profiles(full_name, email)").eq("status", "pending").order("created_at") as { data: any[] | null };
       if (!data || data.length === 0) return "Aucune facture en attente. Tout est en ordre.";
       const total = data.reduce((s, i) => s + Number(i.amount || 0), 0);
       return `**${data.length} facture(s) en attente** — Total : **${total.toLocaleString("fr-FR")} FCFA**\n\n` +
@@ -310,17 +310,17 @@ async function generateLocalInsight(query: string): Promise<string> {
     }
 
     if (q.includes("ticket") || q.includes("support") || q.includes("urgent")) {
-      const { data } = await supabase.from("tickets").select("*, profiles(full_name)").in("status", ["open", "in_progress"]).order("created_at");
+      const { data } = await supabase.from("tickets").select("*, profiles(full_name)").in("status", ["open", "in_progress"]).order("created_at") as { data: any[] | null };
       if (!data || data.length === 0) return "Aucun ticket ouvert. Le support est à jour.";
-      const critical = data.filter(t => t.priority === "high");
+      const critical = data.filter((t: any) => t.priority === "high");
       return `**${data.length} ticket(s) ouvert(s)** dont **${critical.length} haute priorité**\n\n` +
         data.slice(0, 5).map((t: any) => `- [${t.priority?.toUpperCase()}] ${t.subject} — ${(t.profiles as any)?.full_name || "—"}`).join("\n") +
         `\n\n**Recommandation :** Traitez les tickets haute priorité en premier pour respecter le SLA.`;
     }
 
     if (q.includes("client") || q.includes("risque") || q.includes("churn")) {
-      const { data } = await supabase.from("subscriptions").select("*, profiles!subscriptions_user_id_fkey(full_name, email)").eq("status", "trial");
-      const expiring = (data || []).filter(s => s.trial_ends_at && new Date(s.trial_ends_at).getTime() < Date.now() + 3 * 86400000);
+      const { data } = await supabase.from("subscriptions").select("*, profiles!subscriptions_user_id_fkey(full_name, email)").eq("status", "trial") as { data: any[] | null };
+      const expiring = (data || []).filter((s: any) => s.trial_ends_at && new Date(s.trial_ends_at).getTime() < Date.now() + 3 * 86400000);
       if (expiring.length === 0) return "Aucun essai n'expire dans les 72 prochaines heures. Situation stable.";
       return `**${expiring.length} essai(s) expirent dans 72h :**\n\n` +
         expiring.map((s: any) => `- ${(s.profiles as any)?.full_name || "—"} (${(s.profiles as any)?.email || "—"}) — expire le ${new Date(s.trial_ends_at).toLocaleDateString("fr-FR")}`).join("\n") +

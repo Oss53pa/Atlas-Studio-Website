@@ -14,8 +14,8 @@ export function useCampaignEditor(campaignId: string) {
     if (!campaignId) return
     supabase.from('newsletter_campaigns').select('*').eq('id', campaignId).single().then(({ data }) => {
       if (data) {
-        setCampaign(data as Campaign)
-        setBlocks((data as Campaign).blocks || [])
+        setCampaign(data as unknown as Campaign)
+        setBlocks((data as unknown as Campaign).blocks || [])
       }
     })
   }, [campaignId])

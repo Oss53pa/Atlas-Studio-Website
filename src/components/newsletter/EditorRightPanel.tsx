@@ -6,7 +6,7 @@ interface Props {
   onUpdate: (props: Record<string, unknown>) => void
 }
 
-export function EditorRightPanel({ block, accentColor, onUpdate }: Props) {
+export function EditorRightPanel({ block, onUpdate }: Props) {
   if (!block) return (
     <div className="w-72 bg-[#1E1E2E] border-l border-[#2A2A3A] flex items-center justify-center">
       <p className="text-[#888] text-xs text-center px-6">Sélectionnez un bloc pour modifier ses propriétés</p>

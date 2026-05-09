@@ -12,7 +12,7 @@ export function useCampaigns() {
       .from('newsletter_campaigns')
       .select('*')
       .order('created_at', { ascending: false })
-    setCampaigns((data as Campaign[]) || [])
+    setCampaigns((data as unknown as Campaign[]) || [])
     setLoading(false)
   }, [])
 
@@ -30,7 +30,7 @@ export function useCampaigns() {
       .insert({ ...rest, name: `${campaign.name} (copie)`, status: 'draft', recipient_count: 0, delivered_count: 0, open_count: 0, unique_open_count: 0, click_count: 0, unique_click_count: 0, unsubscribe_count: 0, bounce_count: 0, spam_count: 0 })
       .select()
       .single()
-    if (data) setCampaigns(prev => [data as Campaign, ...prev])
+    if (data) setCampaigns(prev => [data as unknown as Campaign, ...prev])
     return data as Campaign | null
   }, [])
 

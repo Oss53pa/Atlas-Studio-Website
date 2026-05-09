@@ -24,11 +24,12 @@ export function useAppCatalog() {
 
       if (data && data.length > 0) {
         const map: Record<string, AppRow> = {};
-        for (const row of data) {
-          map[row.id] = row as AppRow;
+        const list = data as unknown as AppRow[];
+        for (const row of list) {
+          map[row.id] = row;
         }
         setAppMap(map);
-        setAppList(data as AppRow[]);
+        setAppList(list);
       }
     } catch (err) {
       console.error('useAppCatalog unexpected error:', err);

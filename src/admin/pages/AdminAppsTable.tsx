@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Search, GripVertical, ExternalLink, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ExternalLink, Eye, EyeOff } from "lucide-react";
 import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
@@ -48,7 +48,7 @@ export default function AdminAppsTable() {
       console.error("Erreur chargement apps:", appsRes.error);
       showError?.(`Erreur chargement apps: ${appsRes.error.message}`);
     }
-    if (appsRes.data) setApps(appsRes.data as AppRow[]);
+    if (appsRes.data) setApps(appsRes.data as unknown as AppRow[]);
     if (subsRes.error) {
       console.error("Erreur chargement subscriptions:", subsRes.error);
     }

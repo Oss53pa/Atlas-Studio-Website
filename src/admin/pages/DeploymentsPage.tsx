@@ -55,7 +55,7 @@ export default function DeploymentsPage() {
       supabase.from("deployments").select("*").order("deployed_at", { ascending: false }),
       supabase.from("products").select("id, slug"),
     ]);
-    setDeployments(deployRes.data as Deployment[] || []);
+    setDeployments(deployRes.data as unknown as Deployment[] || []);
     if (productsRes.data) {
       const map: Record<string, string> = {};
       for (const p of productsRes.data as { id: string; slug: string }[]) map[p.slug] = p.id;

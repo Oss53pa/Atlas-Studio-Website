@@ -10,7 +10,6 @@ import { apiCall } from "../../lib/api";
 import { SeatQuotaBar } from "../../components/licences/SeatQuotaBar";
 
 /* ── design tokens ── */
-const BG = "#FAFAF7";
 const SURFACE = "#FFFFFF";
 const ACCENT = "#EF9F27";
 const TEXT = "#1A1A1A";
@@ -28,7 +27,7 @@ interface LicencePreview {
   status: string;
 }
 
-export function ActivatePage({ userId }: { userId?: string }) {
+export function ActivatePage(_props: { userId?: string }) {
   const [step, setStep] = useState<Step>(1);
   const [activationKey, setActivationKey] = useState("");
   const [preview, setPreview] = useState<LicencePreview | null>(null);

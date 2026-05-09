@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import {
   Key, Shield, ShieldOff, ShieldAlert, Clock, Users, Search, Plus,
-  Eye, EyeOff, Ban, Copy, Link2, FileText, Activity, ChevronDown,
+  Eye, Ban, Copy, Link2, FileText, Activity, ChevronDown,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { apiCall } from "../../lib/api";
@@ -13,7 +13,7 @@ import { AdminModal } from "../components/AdminModal";
 import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import type {
   Licence, LicenceSeat, LicenceActivation, AdminDelegateLink,
-  LicenceAuditEntry, STATUS_LABELS as StatusLabelsType,
+  LicenceAuditEntry,
 } from "../../types/licences";
 import { STATUS_LABELS, ROLE_LABELS } from "../../types/licences";
 
@@ -55,7 +55,7 @@ export default function LicencesPage() {
     const id = selected.id;
     if (detailTab === "seats") {
       supabase.from("licence_seats").select("*").eq("licence_id", id).order("created_at", { ascending: false })
-        .then(({ data }) => setSeats((data as LicenceSeat[]) || []));
+        .then(({ data }) => setSeats((data as unknown as LicenceSeat[]) || []));
     } else if (detailTab === "activations") {
       supabase.from("licence_activations").select("*").eq("licence_id", id).order("created_at", { ascending: false })
         .then(({ data }) => setActivations((data as LicenceActivation[]) || []));
@@ -64,7 +64,7 @@ export default function LicencesPage() {
         .then(({ data }) => setAdminLinks((data as AdminDelegateLink[]) || []));
     } else if (detailTab === "audit") {
       supabase.from("licence_audit_log").select("*").eq("licence_id", id).order("created_at", { ascending: false }).limit(50)
-        .then(({ data }) => setAuditLog((data as LicenceAuditEntry[]) || []));
+        .then(({ data }) => setAuditLog((data as unknown as LicenceAuditEntry[]) || []));
     }
   }, [selected, detailTab]);
 
@@ -149,7 +149,7 @@ export default function LicencesPage() {
     <div className="grid grid-cols-2 gap-4 text-sm">
       {[
         ["Client", l.tenants?.name || l.tenant_id],
-        ["Email", l.tenants?.email || "—"],
+        ["Email", (l.tenants as any)?.email || "—"],
         ["Produit", l.products?.name || l.product_id],
         ["Plan", l.plans?.name || l.plan_id],
         ["Statut", null],

@@ -14,7 +14,7 @@ export function useCampaignStats(campaignId: string) {
       supabase.from('newsletter_campaigns').select('*').eq('id', campaignId).single(),
       supabase.from('newsletter_sends').select('*').eq('campaign_id', campaignId).order('created_at', { ascending: false }).limit(500),
     ]).then(([campRes, sendsRes]) => {
-      if (campRes.data) setCampaign(campRes.data as Campaign)
+      if (campRes.data) setCampaign(campRes.data as unknown as Campaign)
       if (sendsRes.data) setSends(sendsRes.data as CampaignSend[])
       setLoading(false)
     })
