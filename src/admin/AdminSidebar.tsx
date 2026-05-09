@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
   CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database, AlertTriangle,
-  ChevronDown, ChevronRight, Crown, Home, Package, Wrench, PanelLeftClose, PanelLeftOpen,
+  Crown, Home, Package, Wrench, PanelLeftClose, PanelLeftOpen,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -106,9 +106,7 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-const RECENT_KEY = "atlas_admin_recent_pages";
 const SECONDARY_OPEN_KEY = "atlas_admin_secondary_open";
-const EXPANDED_GROUPS_KEY = "atlas_admin_expanded_groups";
 
 export function AdminSidebar() {
   const location = useLocation();
@@ -130,61 +128,21 @@ export function AdminSidebar() {
     try { localStorage.setItem(SECONDARY_OPEN_KEY, String(secondaryOpen)); } catch { /* ignore */ }
   }, [secondaryOpen]);
 
-  // ─── Expanded groups (tree) ─────────────────────────────────────────────
+  // ─── Active section: derived from URL, can be overriden by user click
   const sectionFromUrl = useMemo(() => {
     for (const g of NAV_GROUPS) {
       if (g.items.some(it => location.pathname === it.to || (it.to !== "/admin" && location.pathname.startsWith(it.to + "/")))) {
         return g.id;
       }
     }
-    if (location.pathname === "/admin") return "overview";
-    return null;
+    return "overview";
   }, [location.pathname]);
 
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
-    try {
-      const saved = localStorage.getItem(EXPANDED_GROUPS_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch { /* ignore */ }
-    return { overview: true };
-  });
+  const [activeSection, setActiveSection] = useState<string>(sectionFromUrl);
 
-  useEffect(() => {
-    try { localStorage.setItem(EXPANDED_GROUPS_KEY, JSON.stringify(expandedGroups)); } catch { /* ignore */ }
-  }, [expandedGroups]);
+  useEffect(() => { setActiveSection(sectionFromUrl); }, [sectionFromUrl]);
 
-  // Auto-expand the group containing the current page
-  useEffect(() => {
-    if (sectionFromUrl) {
-      setExpandedGroups(prev => prev[sectionFromUrl] ? prev : { ...prev, [sectionFromUrl]: true });
-    }
-  }, [sectionFromUrl]);
-
-  const toggleGroup = (id: string) => setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }));
-
-  // ─── Recent pages tracking ──────────────────────────────────────────────
-  const allItems = useMemo(() => {
-    const map: Record<string, NavItem> = {};
-    for (const g of NAV_GROUPS) for (const it of g.items) map[it.to] = it;
-    return map;
-  }, []);
-
-  const [recentPaths, setRecentPaths] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); }
-    catch { return []; }
-  });
-
-  useEffect(() => {
-    if (allItems[location.pathname]) {
-      setRecentPaths(prev => {
-        const next = [location.pathname, ...prev.filter(p => p !== location.pathname)].slice(0, 5);
-        try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* ignore */ }
-        return next;
-      });
-    }
-  }, [location.pathname, allItems]);
-
-  const recentItems = recentPaths.map(p => allItems[p]).filter(Boolean);
+  const activeGroup = NAV_GROUPS.find(g => g.id === activeSection) ?? NAV_GROUPS[0];
 
   const handleLogout = async () => {
     await signOut();
@@ -196,9 +154,9 @@ export function AdminSidebar() {
   const isActive = (to: string) =>
     to === "/admin" ? location.pathname === "/admin" : location.pathname === to || location.pathname.startsWith(to + "/");
 
-  // ─── PRIMARY SIDEBAR (tree navigation, w-60) ───────────────────────────
+  // ─── PRIMARY SIDEBAR — sections only (no items inline), w-56 ─────────
   const primarySidebar = (
-    <div className="w-60 min-h-screen bg-onyx border-r border-white/10 flex flex-col flex-shrink-0">
+    <div className="w-56 min-h-screen bg-onyx border-r border-white/10 flex flex-col flex-shrink-0">
       {/* Header */}
       <div className="px-4 pt-5 pb-3 border-b border-white/5">
         <div className="flex items-center justify-between">
@@ -211,52 +169,56 @@ export function AdminSidebar() {
         <div className="text-admin-accent text-[9px] font-bold uppercase tracking-widest mt-1">Admin Console</div>
       </div>
 
-      {/* Navigation tree */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 scrollbar-thin">
-        {NAV_GROUPS.map(group => {
-          const isExpanded = !!expandedGroups[group.id];
-          const isCurrentSection = sectionFromUrl === group.id;
-          return (
-            <div key={group.id} className="mb-1">
-              {/* Group header */}
-              <button
-                onClick={() => toggleGroup(group.id)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-all ${
-                  isCurrentSection
-                    ? "bg-onyx-light text-neutral-light font-semibold ring-1 ring-white/10"
+      {/* Pinned shortcuts at the very top */}
+      <div className="px-2 pt-3 pb-2 border-b border-white/5">
+        <div className="px-2 mb-1.5 text-[9px] font-bold uppercase tracking-widest text-neutral-600">Épinglés</div>
+        <div className="space-y-0.5">
+          {PINNED.map(item => {
+            const active = isActive(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[12px] transition-all ${
+                  active
+                    ? "bg-admin-accent/15 text-admin-accent font-medium"
                     : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
+                }`}
+              >
+                <item.icon size={13} strokeWidth={1.5} />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Sections list */}
+      <nav className="flex-1 overflow-y-auto px-2 py-3 scrollbar-thin">
+        <div className="px-2 mb-1.5 text-[9px] font-bold uppercase tracking-widest text-neutral-600">Sections</div>
+        <div className="space-y-0.5">
+          {NAV_GROUPS.map(group => {
+            const isActiveSection = activeSection === group.id;
+            const hasActivePage = group.items.some(it => isActive(it.to));
+            return (
+              <button
+                key={group.id}
+                onClick={() => { setActiveSection(group.id); if (!secondaryOpen) setSecondaryOpen(true); }}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition-all ${
+                  isActiveSection
+                    ? "bg-onyx-light text-neutral-light font-semibold ring-1 ring-white/10"
+                    : hasActivePage
+                      ? "text-admin-accent hover:bg-white/5"
+                      : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
                 }`}
               >
                 <group.icon size={15} strokeWidth={1.75} />
                 <span className="flex-1 text-left">{group.label}</span>
-                {isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                {hasActivePage && <span className="w-1.5 h-1.5 rounded-full bg-admin-accent" />}
               </button>
-
-              {/* Sub-items (tree style with vertical guide line) */}
-              {isExpanded && (
-                <div className="mt-0.5 ml-4 pl-3 border-l border-white/10 space-y-0.5">
-                  {group.items.map(item => {
-                    const active = isActive(item.to);
-                    return (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] transition-all ${
-                          active
-                            ? "bg-white/10 text-neutral-light font-medium"
-                            : "text-neutral-500 hover:bg-white/5 hover:text-neutral-300"
-                        }`}
-                      >
-                        <item.icon size={13} strokeWidth={1.5} />
-                        <span className="truncate">{item.label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </nav>
 
       {/* Footer: theme + retract */}
@@ -279,11 +241,17 @@ export function AdminSidebar() {
     </div>
   );
 
-  // ─── SECONDARY SIDEBAR (extras: search, pinned, recent, w-56) ──────────
+  // ─── SECONDARY SIDEBAR — items of active section, w-56 ──────────────
   const secondarySidebar = (
     <div className="w-56 min-h-screen bg-onyx/95 border-r border-white/10 flex flex-col flex-shrink-0">
+      {/* Header: active section name */}
+      <div className="h-14 px-4 flex items-center gap-2 border-b border-white/5">
+        <activeGroup.icon size={15} className="text-admin-accent" strokeWidth={1.75} />
+        <span className="text-neutral-light text-[13px] font-semibold tracking-wide">{activeGroup.label}</span>
+      </div>
+
       {/* Search + app filter */}
-      <div className="px-3 pt-4 pb-3 border-b border-white/5 space-y-2">
+      <div className="px-3 pt-3 pb-2 space-y-2 border-b border-white/5">
         <button
           onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
           className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-md flex items-center gap-2 text-neutral-500 text-[11px] hover:border-gold/30 hover:text-neutral-400 transition-colors"
@@ -304,62 +272,30 @@ export function AdminSidebar() {
         </select>
       </div>
 
-      {/* Pinned + Recent */}
-      <div className="flex-1 overflow-y-auto px-2 py-3 scrollbar-thin space-y-4">
-        {/* Épinglés */}
-        <div>
-          <div className="px-2 mb-1.5 text-[9px] font-bold uppercase tracking-widest text-neutral-600">Épinglés</div>
-          <div className="space-y-0.5">
-            {PINNED.map(item => {
-              const active = isActive(item.to);
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] transition-all ${
-                    active
-                      ? "bg-admin-accent/15 text-admin-accent font-medium"
-                      : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
-                  }`}
-                >
-                  <item.icon size={13} strokeWidth={1.5} />
-                  <span className="truncate">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
+      {/* Items list */}
+      <nav className="flex-1 overflow-y-auto py-2 px-2 scrollbar-thin">
+        <div className="space-y-0.5">
+          {activeGroup.items.map(item => {
+            const active = isActive(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[12px] transition-all ${
+                  active
+                    ? "bg-admin-accent/15 text-admin-accent font-medium"
+                    : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
+                }`}
+              >
+                <item.icon size={14} strokeWidth={1.5} />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
+      </nav>
 
-        {/* Recent */}
-        {recentItems.length > 0 && (
-          <div>
-            <div className="px-2 mb-1.5 text-[9px] font-bold uppercase tracking-widest text-neutral-600">
-              Récents ({recentItems.length})
-            </div>
-            <div className="space-y-0.5">
-              {recentItems.map(item => {
-                const active = isActive(item.to);
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] transition-all ${
-                      active
-                        ? "bg-white/10 text-neutral-light font-medium"
-                        : "text-neutral-500 hover:bg-white/5 hover:text-neutral-300"
-                    }`}
-                  >
-                    <item.icon size={13} strokeWidth={1.5} />
-                    <span className="truncate">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Footer: super admin + back to site + user + logout */}
+      {/* Footer */}
       <div className="border-t border-white/5 px-2 py-2 space-y-0.5">
         {isSuperAdmin && (
           <Link
