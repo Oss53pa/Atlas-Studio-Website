@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Users, Repeat, Receipt,
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
   CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database, AlertTriangle,
-  ChevronDown, ChevronRight, Crown, Home, Package, Wrench,
+  Crown, Home, Package, Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -115,30 +115,26 @@ export function AdminSidebar() {
   const { appList } = useAppCatalog();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Persist open groups across navigation
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
-    try {
-      const saved = localStorage.getItem("atlas_sidebar_open_groups");
-      if (saved) return JSON.parse(saved);
-    } catch { /* ignore */ }
-    return { overview: true, catalog: false, clients: false, billing: false, communication: false, ai: false, system: false };
-  });
-
-  useEffect(() => {
-    try { localStorage.setItem("atlas_sidebar_open_groups", JSON.stringify(openGroups)); } catch { /* ignore */ }
-  }, [openGroups]);
-
-  // Auto-open the group containing the current page
-  useEffect(() => {
-    for (const group of NAV_GROUPS) {
-      if (group.items.some(item => location.pathname.startsWith(item.to))) {
-        setOpenGroups(prev => (prev[group.id] ? prev : { ...prev, [group.id]: true }));
-        break;
+  // Active section derived from URL (auto-tracks navigation), but
+  // can be overriden by user click on a primary icon.
+  const sectionFromUrl = useMemo(() => {
+    for (const g of NAV_GROUPS) {
+      if (g.items.some(it => location.pathname === it.to || (it.to !== "/admin" && location.pathname.startsWith(it.to + "/")))) {
+        return g.id;
       }
+      if (location.pathname === "/admin" && g.id === "overview") return g.id;
     }
+    return "overview";
   }, [location.pathname]);
 
-  const toggleGroup = (id: string) => setOpenGroups(prev => ({ ...prev, [id]: !prev[id] }));
+  const [activeSection, setActiveSection] = useState<string>(sectionFromUrl);
+
+  // Sync activeSection when URL changes (unless user just manually clicked a primary icon)
+  useEffect(() => {
+    setActiveSection(sectionFromUrl);
+  }, [sectionFromUrl]);
+
+  const activeGroup = NAV_GROUPS.find(g => g.id === activeSection) ?? NAV_GROUPS[0];
 
   const handleLogout = async () => {
     await signOut();
@@ -148,21 +144,111 @@ export function AdminSidebar() {
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   const isActive = (to: string) =>
-    to === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(to);
+    to === "/admin" ? location.pathname === "/admin" : location.pathname === to || location.pathname.startsWith(to + "/");
 
-  const sidebarContent = (
-    <div className="w-60 min-h-screen bg-onyx border-r border-white/10 flex flex-col flex-shrink-0">
-      {/* Header */}
-      <div className="px-4 pt-5 pb-3 border-b border-white/5">
-        <div className="flex items-center justify-between">
-          <Link to="/"><Logo size={20} color="text-neutral-light" /></Link>
-          <NotificationCenter />
-        </div>
-        <div className="text-admin-accent text-[9px] font-bold uppercase tracking-widest mt-1">Admin</div>
+  // ─── PRIMARY RAIL (icon-only column, w-16) ────────────────────────────
+  const primaryRail = (
+    <div className="w-16 min-h-screen bg-onyx border-r border-white/10 flex flex-col flex-shrink-0">
+      {/* Logo */}
+      <Link to="/" className="h-14 flex items-center justify-center border-b border-white/5">
+        <Logo size={18} color="text-neutral-light" />
+      </Link>
+
+      {/* Notification + theme toggle row */}
+      <div className="flex items-center justify-center py-2 border-b border-white/5">
+        <NotificationCenter />
       </div>
 
-      {/* Search */}
-      <div className="px-3 pt-3 pb-2">
+      {/* Pinned icons */}
+      <div className="py-2 flex flex-col items-center gap-1">
+        {PINNED.map(item => {
+          const active = isActive(item.to);
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              title={item.label}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                active
+                  ? "bg-admin-accent/20 text-admin-accent"
+                  : "text-neutral-500 hover:bg-white/5 hover:text-neutral-300"
+              }`}
+            >
+              <item.icon size={16} strokeWidth={1.75} />
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="h-px bg-white/10 mx-3 my-1" />
+
+      {/* Section icons */}
+      <nav className="flex-1 py-2 flex flex-col items-center gap-1 overflow-y-auto scrollbar-thin">
+        {NAV_GROUPS.map(group => {
+          const active = activeSection === group.id;
+          const hasActiveItem = group.items.some(it => isActive(it.to));
+          return (
+            <button
+              key={group.id}
+              onClick={() => setActiveSection(group.id)}
+              title={group.label}
+              className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                active || hasActiveItem
+                  ? "bg-admin-accent/15 text-admin-accent"
+                  : "text-neutral-500 hover:bg-white/5 hover:text-neutral-300"
+              }`}
+            >
+              <group.icon size={17} strokeWidth={1.75} />
+              {hasActiveItem && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-admin-accent rounded-r" />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Bottom: theme + avatar + logout */}
+      <div className="border-t border-white/5 py-2 flex flex-col items-center gap-1">
+        <button
+          onClick={toggleTheme}
+          title={isDark ? "Mode clair" : "Mode sombre"}
+          className="w-10 h-10 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-white/5 hover:text-neutral-300 transition-all"
+        >
+          {isDark ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
+        <div
+          title={`${profile?.full_name || "Admin"} • ${isSuperAdmin ? "Super Admin" : "Admin"}`}
+          className={`w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-bold ${
+            isSuperAdmin ? "bg-purple-500 text-white" : "bg-admin-accent text-onyx"
+          }`}
+        >
+          {(profile?.full_name || "A").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+        </div>
+        <button
+          onClick={handleLogout}
+          title="Déconnexion"
+          className="w-10 h-10 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-white/5 hover:text-red-400 transition-all"
+        >
+          <LogOut size={14} />
+        </button>
+      </div>
+    </div>
+  );
+
+  // ─── SECONDARY PANEL (active section's items, w-56) ───────────────────
+  const secondaryPanel = (
+    <div className="w-56 min-h-screen bg-onyx/95 border-r border-white/10 flex flex-col flex-shrink-0">
+      {/* Header: section name */}
+      <div className="h-14 px-4 flex items-center justify-between border-b border-white/5">
+        <div className="flex items-center gap-2">
+          <activeGroup.icon size={14} className="text-admin-accent" strokeWidth={1.75} />
+          <span className="text-neutral-light text-[12px] font-semibold tracking-wide">{activeGroup.label}</span>
+        </div>
+        <span className="text-admin-accent text-[8px] font-bold uppercase tracking-widest">Admin</span>
+      </div>
+
+      {/* Search + app filter */}
+      <div className="px-3 pt-3 pb-2 space-y-2 border-b border-white/5">
         <button
           onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
           className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-md flex items-center gap-2 text-neutral-500 text-[11px] hover:border-gold/30 hover:text-neutral-400 transition-colors"
@@ -171,10 +257,6 @@ export function AdminSidebar() {
           <span className="flex-1 text-left">Rechercher...</span>
           <kbd className="text-[9px] font-mono bg-white/5 px-1 py-0.5 rounded">⌘K</kbd>
         </button>
-      </div>
-
-      {/* App filter */}
-      <div className="px-3 pb-3">
         <select
           value={selectedApp}
           onChange={e => setSelectedApp(e.target.value)}
@@ -187,83 +269,35 @@ export function AdminSidebar() {
         </select>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 pb-2 scrollbar-thin">
-        {/* Pinned items */}
-        <div className="mb-2">
-          <div className="px-2 mb-1 text-[9px] font-bold uppercase tracking-widest text-neutral-600">Épinglés</div>
-          <div className="space-y-0.5">
-            {PINNED.map(item => {
-              const active = isActive(item.to);
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] transition-all ${
-                    active
-                      ? "bg-admin-accent/15 text-admin-accent font-medium"
-                      : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
-                  }`}
-                >
-                  <item.icon size={14} strokeWidth={1.5} />
-                  <span className="truncate">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="h-px bg-white/5 my-2" />
-
-        {/* Collapsible groups */}
-        {NAV_GROUPS.map(group => {
-          const isOpen = openGroups[group.id];
-          const hasActive = group.items.some(item => isActive(item.to));
-          return (
-            <div key={group.id} className="mb-1">
-              <button
-                onClick={() => toggleGroup(group.id)}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wide transition-colors ${
-                  hasActive ? "text-admin-accent" : "text-neutral-500 hover:text-neutral-300"
+      {/* Items list */}
+      <nav className="flex-1 overflow-y-auto py-2 px-2 scrollbar-thin">
+        <div className="space-y-0.5">
+          {activeGroup.items.map(item => {
+            const active = isActive(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[12px] transition-all ${
+                  active
+                    ? "bg-admin-accent/15 text-admin-accent font-medium"
+                    : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
                 }`}
               >
-                <group.icon size={12} strokeWidth={2} />
-                <span className="flex-1 text-left">{group.label}</span>
-                {isOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-              </button>
-              {isOpen && (
-                <div className="mt-0.5 space-y-0.5 pl-2">
-                  {group.items.map(item => {
-                    const active = isActive(item.to);
-                    return (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] transition-all ${
-                          active
-                            ? "bg-admin-accent/15 text-admin-accent font-medium"
-                            : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
-                        }`}
-                      >
-                        <item.icon size={13} strokeWidth={1.5} />
-                        <span className="truncate">{item.label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                <item.icon size={14} strokeWidth={1.5} />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-white/5 px-3 py-2.5 space-y-1">
-        {/* Super Admin only: Manage Admins */}
+      {/* Footer: super admin link + back to site */}
+      <div className="border-t border-white/5 px-2 py-2 space-y-0.5">
         {isSuperAdmin && (
           <Link
             to="/admin/admins"
-            className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-all ${
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[11px] transition-all ${
               isActive("/admin/admins")
                 ? "bg-purple-500/15 text-purple-400 font-medium"
                 : "text-neutral-500 hover:text-purple-400 hover:bg-white/5"
@@ -273,43 +307,21 @@ export function AdminSidebar() {
             Gérer les Admins
           </Link>
         )}
-
-        <button
-          onClick={toggleTheme}
-          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-neutral-500 text-[11px] hover:text-neutral-300 hover:bg-white/5 transition-all"
-        >
-          {isDark ? <Sun size={12} /> : <Moon size={12} />}
-          {isDark ? "Mode clair" : "Mode sombre"}
-        </button>
-
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${isSuperAdmin ? "bg-purple-500 text-white" : "bg-admin-accent text-onyx"}`}>
-            {(profile?.full_name || "A").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-neutral-light text-[11px] font-medium truncate">{profile?.full_name || "Admin"}</div>
-            <div className={`text-[9px] flex items-center gap-1 ${isSuperAdmin ? "text-purple-400" : "text-admin-accent"}`}>
-              {isSuperAdmin && <Crown size={9} />}
-              {isSuperAdmin ? "Super Admin" : "Admin"}
-            </div>
-          </div>
-        </div>
-
         <Link
           to="/"
-          className="flex items-center gap-2 px-2 py-1.5 rounded-md text-neutral-500 text-[11px] hover:text-neutral-300 hover:bg-white/5 transition-all"
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-neutral-500 text-[11px] hover:text-neutral-300 hover:bg-white/5 transition-all"
         >
           <ArrowLeft size={12} />
           Retour au site
         </Link>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-neutral-500 text-[11px] hover:text-red-400 hover:bg-white/5 transition-all"
-        >
-          <LogOut size={12} />
-          Déconnexion
-        </button>
       </div>
+    </div>
+  );
+
+  const sidebarContent = (
+    <div className="flex">
+      {primaryRail}
+      {secondaryPanel}
     </div>
   );
 
