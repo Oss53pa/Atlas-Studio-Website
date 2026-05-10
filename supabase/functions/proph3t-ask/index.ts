@@ -100,6 +100,30 @@ Deno.serve(async (req) => {
     const groqKey = (!useAnthropic && !useGemini) ? getGroqApiKey() : undefined;
     const useGroq = !!groqKey;
     const groqModel = useGroq ? getGroqModel() : null;
+    const ollamaConfigured = !!Deno.env.get("OLLAMA_URL");
+
+    // Si AUCUN provider LLM dispo : retourner reponse claire au lieu de timeout
+    if (!useAnthropic && !useGemini && !useGroq && !ollamaConfigured) {
+      const { data: userProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("proph3t_provider")
+        .eq("id", user.id)
+        .maybeSingle();
+      return jsonResponse({
+        conversation_id: conversationId,
+        answer: "**Aucun provider LLM configure.**\n\nPour utiliser Proph3t, vous devez :\n\n1. **Option BYOK** : configurer votre propre cle API dans `Parametres > Proph3t` (Anthropic Claude OU Google Gemini)\n2. **Option Groq central** : demander a l'admin de definir la variable d'environnement `GROQ_API_KEY` cote serveur Supabase\n\n_Si Groq est cense etre configure : verifiez que la variable est bien `GROQ_API_KEY` (et non `groq_api_key` ou autre), et qu'elle est sauvegardee dans les **Edge Functions secrets** (pas seulement les variables d'environnement projet)._",
+        citations: [],
+        confidence: 0,
+        provider_status: {
+          anthropic: useAnthropic,
+          gemini: useGemini,
+          groq: useGroq,
+          ollama_configured: ollamaConfigured,
+          user_provider_setting: userProfile?.proph3t_provider ?? "non_defini",
+        },
+        disclaimer: "Aucun LLM accessible. Reconfigurez les clefs API.",
+      });
+    }
 
     // 3. Charger les messages précédents de la conversation (contexte court)
     const { data: history } = await supabaseAdmin
