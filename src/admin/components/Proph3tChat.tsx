@@ -98,13 +98,15 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
         confidence: data?.confidence,
         created_at: new Date().toISOString(),
       }]);
-    } catch {
-      // Fallback: generate insights locally from Supabase data (v1 fallback heuristique)
+    } catch (err) {
+      // Fallback: generate insights locally from Supabase data
+      const errMessage = (err as Error)?.message || "Erreur inconnue";
+      console.error("[proph3t-chat] proph3t-ask failed:", err);
       const response = await generateLocalInsight(content);
       setMessages(prev => [...prev, {
         id: Date.now().toString() + "_r",
         role: "assistant",
-        content: response + "\n\n_⚠️ Mode dégradé: Ollama VPS non disponible. Réponse heuristique locale._",
+        content: response + `\n\n_⚠️ Mode dégradé : Edge function **proph3t-ask** indisponible — ${errMessage}_`,
         model_used: "local-fallback",
         created_at: new Date().toISOString(),
       }]);
@@ -327,12 +329,13 @@ async function generateLocalInsight(query: string): Promise<string> {
         `\n\n**Action :** Contactez-les avec une offre de conversion personnalisée.`;
     }
 
-    return "Je comprends votre question, mais l'Edge Function **proph3t-orchestrator** n'est pas encore déployée. Pour le moment, je peux répondre aux questions sur :\n\n" +
+    return "Je comprends votre question, mais je suis en mode degradé local. Pour le moment, je peux répondre aux questions sur :\n\n" +
       "- **Rapport du jour** (MRR, clients, tickets)\n" +
       "- **Factures en attente** (impayés, relances)\n" +
       "- **Tickets ouverts** (support, urgences)\n" +
       "- **Risque churn** (essais expirants)\n\n" +
-      "Posez l'une de ces questions ou utilisez les commandes rapides ci-dessus.";
+      "Posez l'une de ces questions ou utilisez les commandes rapides ci-dessus.\n\n" +
+      "_Si l'IA répond systématiquement en mode dégradé : vérifier que vous avez configuré une clé Anthropic/Gemini, ou que GROQ_API_KEY est défini côté serveur._";
 
   } catch (err) {
     return "Erreur lors de l'analyse des données. Vérifiez votre connexion à Supabase.";
