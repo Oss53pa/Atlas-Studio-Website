@@ -140,22 +140,30 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
                 if (data.conversation_id) setConversationId(data.conversation_id);
                 break;
               case "status":
-                // Optionnel: afficher "Recherche RAG..." dans le placeholder
+                // Mise à jour du placeholder italique tant qu'il n'y a pas de contenu réel
                 setMessages(prev => prev.map(m =>
-                  m.id === assistantId && m.content === ""
+                  m.id === assistantId && (m.content === "" || (m.content.startsWith("_") && m.content.endsWith("_")))
                     ? { ...m, content: `_${data.msg}_` }
                     : m
                 ));
                 break;
               case "rag":
-                // Reset le placeholder dès que le delta commence à arriver
-                if (data.chunks_count >= 0) {
-                  setMessages(prev => prev.map(m =>
-                    m.id === assistantId && m.content.startsWith("_")
-                      ? { ...m, content: "" }
-                      : m
-                  ));
-                }
+                // Reset le placeholder pour préparer le tool_call ou delta
+                setMessages(prev => prev.map(m =>
+                  m.id === assistantId && m.content.startsWith("_")
+                    ? { ...m, content: "" }
+                    : m
+                ));
+                break;
+              case "tool_call":
+                setMessages(prev => prev.map(m =>
+                  m.id === assistantId && (m.content === "" || (m.content.startsWith("_") && m.content.endsWith("_")))
+                    ? { ...m, content: `_🔧 Calcul : **${data.name}**..._` }
+                    : m
+                ));
+                break;
+              case "tool_result":
+                // Pas de reset ici - le status "Generation reponse..." va prendre le relais
                 break;
               case "delta":
                 streamedContent += data.content;
