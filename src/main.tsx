@@ -116,24 +116,36 @@ initErrorMonitor(ATLAS_APP_ID);
 if (import.meta.env.PROD) {
   const ALREADY_UPDATED_KEY = 'atlas_sw_updated_at';
   import('virtual:pwa-register').then(({ registerSW }) => {
-    registerSW({
+    const updateSW = registerSW({
       immediate: false,
       onNeedRefresh() {
         // Anti-loop: si on a deja applique un update il y a moins de 5 min,
-        // on ne fait rien (sinon = boucle infinie).
+        // on ne re-déclenche pas (sinon = boucle infinie de reload).
         const last = Number(sessionStorage.getItem(ALREADY_UPDATED_KEY) || 0);
-        if (Date.now() - last < 5 * 60 * 1000) return;
+        if (Date.now() - last < 5 * 60 * 1000) {
+          console.info('[atlas-sw] Nouvelle version detectee mais cooldown actif (anti-loop).');
+          return;
+        }
         sessionStorage.setItem(ALREADY_UPDATED_KEY, String(Date.now()));
-        // On ne fait PAS de reload force. La nouvelle version sera
-        // active a la prochaine visite "naturelle" du user.
-        console.info('[atlas-sw] Nouvelle version disponible — sera active au prochain rechargement.');
+        console.info('[atlas-sw] Nouvelle version disponible — auto-reload dans 2s...');
+        // Auto-reload pour eviter que l'utilisateur reste bloque sur l'ancien
+        // bundle (sinon il doit faire Ctrl+Shift+R manuellement et son auth
+        // ne marche plus avec les vieilles cles cachees).
+        // updateSW(true) = skipWaiting + reload automatique.
+        setTimeout(() => {
+          updateSW(true).catch((err) => {
+            console.warn('[atlas-sw] updateSW failed, fallback reload:', err);
+            window.location.reload();
+          });
+        }, 2000);
       },
       onRegisteredSW(_swUrl, registration) {
-        // Update toutes les 6h (au lieu de 1h pour reduire les chances de loop)
+        // Check des updates toutes les 30min (plus reactif sans risque de loop
+        // grace au sessionStorage cooldown).
         if (registration) {
           setInterval(() => {
             registration.update().catch(() => { /* ignore */ });
-          }, 6 * 60 * 60 * 1000);
+          }, 30 * 60 * 1000);
         }
       },
     });
