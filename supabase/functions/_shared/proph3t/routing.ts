@@ -233,6 +233,18 @@ export function buildToolDomainMap(coreNames: string[], l2Map: Record<Domain, st
       "cockpit-fa": "finance",
       "wisehr": "rh",
       "duedeck": "audit",
+      "advist": "commercial",
+      "atlasbanx": "tresorerie",
+      "atlastrade": "fiscal",
+      "cashpilot": "tresorerie",
+      "cockpit-journey": "rh",
+      "docjourney": "documentaire",
+      "liasspilot": "fiscal",
+      "tablesmart": "retail",
+      "atlas-fa": "finance",
+      "atlas-lease": "finance",
+      "atlas-mall-suite": "immobilier",
+      "wisefm": "immobilier",
     };
     for (const [app, names] of Object.entries(l3Map)) {
       const dom = l3ToDomain[app];
@@ -324,6 +336,19 @@ export const L3_TOOLS_BY_APP: Record<string, string[]> = {
     "generate_lettre_affirmation", "compute_risk_assessment_matrix", "detect_round_tripping",
     "compute_substantive_test", "analyze_journal_entries_anomalies", "generate_audit_report",
   ],
+  // Phase 7 — 12 apps × 5 tools = 60 tools
+  "advist": ["compute_honoraires_conseil", "define_mission_scope", "generate_rapport_conseil", "score_mission_complexite", "optimize_mission_planning"],
+  "atlasbanx": ["compute_echeancier_credit", "score_credit_demande", "execute_batch_virements", "reconcile_interbank", "alertes_prudentielles"],
+  "atlastrade": ["compute_frais_douane", "compute_marge_import", "compute_hedging_fx", "check_trade_compliance", "score_fournisseur_international"],
+  "cashpilot": ["compute_pooling_tresorerie", "optimize_cash_allocation", "detect_flux_anormaux", "forecast_besoin_financement", "compute_net_working_capital"],
+  "cockpit-journey": ["compute_per_diem_mission", "validate_note_frais", "generate_ordre_mission", "analyze_missions_cost", "optimize_itineraire"],
+  "docjourney": ["define_document_workflow", "track_document_progress", "detect_goulots_documentaires", "search_document_semantic", "generate_document_template"],
+  "liasspilot": ["generate_liasse_fiscale", "check_conformite_fiscale", "compute_acomptes_provisionnels", "generate_declaration_tva", "detect_erreurs_liasse"],
+  "tablesmart": ["compute_addition_table", "compute_taux_occupation_salle", "analyze_menu_performance", "forecast_approvisionnement", "compute_pourboire_repartition"],
+  "atlas-fa": ["consolidate_group_accounts", "compute_intercompany_eliminations", "generate_reporting_pnl", "compute_free_cash_flow", "compute_wacc_company"],
+  "atlas-lease": ["compute_rent_lease", "classify_lease_type", "generate_contrat_lease", "detect_impaes_lease", "compute_taxavantages_lease"],
+  "atlas-mall-suite": ["compute_loyer_variable_retail", "analyze_footfall_mall", "compute_tenant_mix_optimal", "detect_charges_communes_repartition", "forecast_revenu_mall_annuel"],
+  "wisefm": ["compute_maintenance_budget", "plan_contrats_maintenance", "analyze_consommation_energie", "track_tickets_fm", "compute_contrats_renewal_forecast"],
 };
 
 /**
