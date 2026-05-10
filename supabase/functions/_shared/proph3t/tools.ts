@@ -72,6 +72,11 @@ import {
   computeCsatNps, scoreTicketPriority, computeSlaCompliance,
   predictResolutionTime, analyzeTicketCategories,
 } from "./support.ts";
+import {
+  workflowAuditCompletSociete, workflowClosingMensuel,
+  workflowDueDiligenceLite, workflowSimulationRecrutement,
+  workflowAnalyseClient360,
+} from "./workflows.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -200,7 +205,13 @@ export type ToolName =
   | "score_ticket_priority"
   | "compute_sla_compliance"
   | "predict_resolution_time"
-  | "analyze_ticket_categories";
+  | "analyze_ticket_categories"
+  // WORKFLOWS orchestres (5)
+  | "workflow_audit_complet_societe"
+  | "workflow_closing_mensuel"
+  | "workflow_due_diligence_lite"
+  | "workflow_simulation_recrutement"
+  | "workflow_analyse_client_360";
 
 /** Convertit les inputs string -> bigint pour les champs financiers. */
 function parseFinancialInputs(raw: Record<string, unknown>): FinancialInputs {
@@ -1080,6 +1091,13 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
   { type: "function", function: { name: "compute_sla_compliance", description: "Taux respect SLA + breaches actuelles (first response + resolution).", parameters: { type: "object", properties: { tickets: { type: "array" }, current_time: { type: "string" } }, required: ["tickets"] } } },
   { type: "function", function: { name: "predict_resolution_time", description: "Estimation resolution selon historique + complexite + charge equipe.", parameters: { type: "object", properties: { category: { type: "string" }, complexity: { type: "string", enum: ["simple", "medium", "complex"] }, team_load_pct: { type: "number" }, created_at: { type: "string" }, historical_resolutions_hours: { type: "array" } }, required: ["category", "created_at"] } } },
   { type: "function", function: { name: "analyze_ticket_categories", description: "Top 5 categories + tendances + categories slow + recos.", parameters: { type: "object", properties: { tickets_current: { type: "array" }, tickets_previous: { type: "array" }, slow_resolution_threshold_hours: { type: "number" } }, required: ["tickets_current"] } } },
+
+  // ─────────────── WORKFLOWS orchestres (5) ───────────────
+  { type: "function", function: { name: "workflow_audit_complet_societe", description: "Workflow audit complet : validation + balance + Benford + anomalies + variance + materiality + rapport markdown.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, exercice: { type: "string" }, entries: { type: "array" }, entries_n_minus_1: { type: "array" }, resultat_avant_impot_centimes: { type: "string" }, ca_total_centimes: { type: "string" } }, required: ["raison_sociale", "exercice", "entries"] } } },
+  { type: "function", function: { name: "workflow_closing_mensuel", description: "Cloture mensuelle : validation + balance + bilan + compte resultat + ratios cles + rapport.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, mois: { type: "string" }, entries: { type: "array" } }, required: ["raison_sociale", "mois", "entries"] } } },
+  { type: "function", function: { name: "workflow_due_diligence_lite", description: "Mini due diligence : ratios + Benford + materiality + sample + controle interne + recommandation GO/NOGO.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, inputs_financiers: { type: "object" }, amounts_for_benford: { type: "array" }, resultat_avant_impot_centimes: { type: "string" }, ca_total_centimes: { type: "string" }, population_audit_size: { type: "integer" }, internal_control_responses: { type: "array" } }, required: ["raison_sociale", "inputs_financiers"] } } },
+  { type: "function", function: { name: "workflow_simulation_recrutement", description: "Simulation embauche : SMIG check + salaire net + cotisations + cout total + fiche paie.", parameters: { type: "object", properties: { poste: { type: "string" }, salaire_brut_mensuel_centimes: { type: "string" }, pays: { type: "string" }, duree_mois: { type: "integer" }, primes_centimes: { type: "string" }, annees_anciennete: { type: "number" } }, required: ["poste", "salaire_brut_mensuel_centimes", "pays"] } } },
+  { type: "function", function: { name: "workflow_analyse_client_360", description: "Vue 360 client : churn + RFM + panier + CAC/LTV + niveau priorite + actions.", parameters: { type: "object", properties: { client_id: { type: "string" }, nom_client: { type: "string" }, derniere_commande_jours: { type: "integer" }, frequence_actuelle: { type: "number" }, frequence_baseline: { type: "number" }, panier_moyen_centimes: { type: "string" }, nb_transactions_total: { type: "integer" }, nb_clients_uniques: { type: "integer" }, duree_retention_annees: { type: "number" }, marge_brute_pct: { type: "number" }, cac_centimes: { type: "string" }, tickets_critiques_ouverts: { type: "integer" } }, required: ["client_id", "derniere_commande_jours", "frequence_actuelle", "frequence_baseline", "panier_moyen_centimes", "nb_transactions_total"] } } },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1530,6 +1548,34 @@ export async function runTool(
       return predictResolutionTime(args as Parameters<typeof predictResolutionTime>[0]);
     case "analyze_ticket_categories":
       return analyzeTicketCategories(args as Parameters<typeof analyzeTicketCategories>[0]);
+
+    // ─── WORKFLOWS orchestres (5) ───
+    // Note : forward la fonction runTool elle-meme pour permettre la composition.
+    case "workflow_audit_complet_societe":
+      return await workflowAuditCompletSociete(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowAuditCompletSociete>[1],
+      );
+    case "workflow_closing_mensuel":
+      return await workflowClosingMensuel(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowClosingMensuel>[1],
+      );
+    case "workflow_due_diligence_lite":
+      return await workflowDueDiligenceLite(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowDueDiligenceLite>[1],
+      );
+    case "workflow_simulation_recrutement":
+      return await workflowSimulationRecrutement(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowSimulationRecrutement>[1],
+      );
+    case "workflow_analyse_client_360":
+      return await workflowAnalyseClient360(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowAnalyseClient360>[1],
+      );
 
     default:
       throw new Error(`Unknown tool: ${name}`);

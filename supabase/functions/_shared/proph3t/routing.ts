@@ -307,4 +307,8 @@ export const CORE_L1_TOOLS: string[] = [
   "generate_report", "send_notification", "log_decision",
   "extract_from_image", "parse_document_visual",
   "verify_rls_context", "audit_trail_write", "check_compliance",
+  // Workflows orchestres : toujours dispo (peuvent etre invoques depuis n'importe quel domaine)
+  "workflow_audit_complet_societe", "workflow_closing_mensuel",
+  "workflow_due_diligence_lite", "workflow_simulation_recrutement",
+  "workflow_analyse_client_360",
 ];
