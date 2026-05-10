@@ -80,56 +80,120 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
     const userMsg: Message = { id: Date.now().toString(), role: "user", content, created_at: new Date().toISOString() };
     setMessages(prev => [...prev, userMsg]);
 
+    // ID stable du message assistant - on le crée vide tout de suite et on le remplit par stream
+    const assistantId = Date.now().toString() + "_r";
+    setMessages(prev => [...prev, {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      created_at: new Date().toISOString(),
+    }]);
+
     try {
-      // Call new proph3t-ask edge function (CDC v2 ReAct orchestrator)
-      let { data, error } = await supabase.functions.invoke("proph3t-ask", {
-        body: { message: content, conversation_id: conversationId, product: "admin" },
+      // Récupérer le JWT user pour l'auth header
+      const { data: { session }, error: sessErr } = await supabase.auth.getSession();
+      if (sessErr || !session?.access_token) {
+        // Tenter un refresh
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (!refreshed?.session?.access_token) throw new Error("Session expirée — reconnectez-vous");
+      }
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+
+      // Appel SSE via fetch (pas EventSource car POST + body)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const res = await fetch(`${supabaseUrl}/functions/v1/proph3t-ask-stream`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Accept": "text/event-stream",
+        },
+        body: JSON.stringify({ message: content, conversation_id: conversationId, product: "admin" }),
       });
 
-      // Si 401 : essayer un refresh session puis rejouer une fois
-      if (error && (error as any)?.context?.response?.status === 401) {
-        const { data: refreshed } = await supabase.auth.refreshSession();
-        if (refreshed?.session) {
-          ({ data, error } = await supabase.functions.invoke("proph3t-ask", {
-            body: { message: content, conversation_id: conversationId, product: "admin" },
-          }));
-        }
+      if (!res.ok || !res.body) {
+        // Tenter de lire le body JSON d'erreur
+        let errMsg = `HTTP ${res.status}`;
+        try { const j = await res.json(); if (j?.error) errMsg = j.error; } catch { /* ignore */ }
+        throw new Error(errMsg);
       }
 
-      if (error) throw error;
-      if (data?.conversation_id) setConversationId(data.conversation_id);
+      // Lire le stream SSE
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let streamedContent = "";
 
-      setMessages(prev => [...prev, {
-        id: Date.now().toString() + "_r",
-        message_id: data?.message_id,
-        role: "assistant",
-        content: data?.answer || "Réponse reçue.",
-        model_used: data?.model_used,
-        citations: data?.citations,
-        confidence: data?.confidence,
-        created_at: new Date().toISOString(),
-      }]);
-    } catch (err) {
-      // Extraire le vrai message d'erreur du body (FunctionsHttpError encapsule la response)
-      let errMessage = (err as Error)?.message || "Erreur inconnue";
-      let errHint = "";
-      try {
-        const ctxResp = (err as any)?.context?.response;
-        if (ctxResp && typeof ctxResp.json === "function") {
-          const body = await ctxResp.json();
-          if (body?.error) errMessage = body.error;
-          if (body?.hint) errHint = `\n\n_Hint :_ ${body.hint}`;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+
+        for (const event of events) {
+          if (!event.startsWith("data: ")) continue;
+          try {
+            const data = JSON.parse(event.slice(6));
+            switch (data.type) {
+              case "start":
+                if (data.conversation_id) setConversationId(data.conversation_id);
+                break;
+              case "status":
+                // Optionnel: afficher "Recherche RAG..." dans le placeholder
+                setMessages(prev => prev.map(m =>
+                  m.id === assistantId && m.content === ""
+                    ? { ...m, content: `_${data.msg}_` }
+                    : m
+                ));
+                break;
+              case "rag":
+                // Reset le placeholder dès que le delta commence à arriver
+                if (data.chunks_count >= 0) {
+                  setMessages(prev => prev.map(m =>
+                    m.id === assistantId && m.content.startsWith("_")
+                      ? { ...m, content: "" }
+                      : m
+                  ));
+                }
+                break;
+              case "delta":
+                streamedContent += data.content;
+                setMessages(prev => prev.map(m =>
+                  m.id === assistantId ? { ...m, content: streamedContent } : m
+                ));
+                break;
+              case "done":
+                setMessages(prev => prev.map(m =>
+                  m.id === assistantId ? {
+                    ...m,
+                    message_id: data.message_id,
+                    model_used: data.model_used,
+                    citations: data.citations,
+                    confidence: data.confidence,
+                  } : m
+                ));
+                break;
+              case "error":
+                throw new Error(data.error || "Erreur stream");
+            }
+          } catch (e) {
+            // Continuer sur erreur de parsing isolée, sauf si c'est notre type=error
+            if ((e as Error).message && !(e instanceof SyntaxError)) throw e;
+          }
         }
-      } catch { /* ignore parse failure */ }
-      console.error("[proph3t-chat] proph3t-ask failed:", err, errMessage);
-      const response = await generateLocalInsight(content);
-      setMessages(prev => [...prev, {
-        id: Date.now().toString() + "_r",
-        role: "assistant",
-        content: response + `\n\n_⚠️ Mode dégradé : Edge function **proph3t-ask** indisponible — ${errMessage}_` + errHint,
-        model_used: "local-fallback",
-        created_at: new Date().toISOString(),
-      }]);
+      }
+    } catch (err) {
+      const errMessage = (err as Error)?.message || "Erreur inconnue";
+      console.error("[proph3t-chat] stream failed:", err, errMessage);
+      const fallback = await generateLocalInsight(content);
+      setMessages(prev => prev.map(m =>
+        m.id === assistantId ? {
+          ...m,
+          content: fallback + `\n\n_⚠️ Mode dégradé : Edge function **proph3t-ask-stream** indisponible — ${errMessage}_`,
+          model_used: "local-fallback",
+        } : m
+      ));
     }
 
     setAttachment(null);
@@ -186,10 +250,18 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
                   : "bg-white/5 text-neutral-light border border-white/10"
               }`}>
                 <div className="text-[13px] leading-relaxed whitespace-pre-wrap">
-                  {msg.content.split(/(\*\*.*?\*\*)/).map((part, i) =>
-                    part.startsWith("**") && part.endsWith("**")
-                      ? <strong key={i} className="text-gold font-semibold">{part.slice(2, -2)}</strong>
-                      : <span key={i}>{part}</span>
+                  {msg.content === "" && msg.role === "assistant" ? (
+                    <div className="flex gap-1.5 py-1">
+                      <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  ) : (
+                    msg.content.split(/(\*\*.*?\*\*)/).map((part, i) =>
+                      part.startsWith("**") && part.endsWith("**")
+                        ? <strong key={i} className="text-gold font-semibold">{part.slice(2, -2)}</strong>
+                        : <span key={i}>{part}</span>
+                    )
                   )}
                 </div>
                 {/* Citations + confidence badge (CDC v2 garde-fous) */}
@@ -234,20 +306,7 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
             </div>
           ))}
 
-          {isLoading && (
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
-                <Zap size={14} className="text-onyx animate-pulse" />
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
-                <div className="flex gap-1.5">
-                  <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Loader désormais intégré au bubble assistant vide pendant le streaming */}
           <div ref={messagesEndRef} />
         </div>
 
