@@ -220,11 +220,24 @@ export function filterToolsByDomains(
  * Construit la map tool_name -> domain a partir de TOOL_DECLARATIONS.
  * Cette map est calculee une seule fois au boot.
  */
-export function buildToolDomainMap(coreNames: string[], l2Map: Record<Domain, string[]>): Map<string, Domain | "core"> {
+export function buildToolDomainMap(coreNames: string[], l2Map: Record<Domain, string[]>, l3Map?: Record<string, string[]>): Map<string, Domain | "core"> {
   const m = new Map<string, Domain | "core">();
   for (const n of coreNames) m.set(n, "core");
   for (const [d, names] of Object.entries(l2Map)) {
     for (const n of names) m.set(n, d as Domain);
+  }
+  // L3 tools : on les associe au domaine "parent" pour le routing
+  // (ex: compute_kpi_dashboard est categorie 'finance' meme si app_id='cockpit-fa')
+  if (l3Map) {
+    const l3ToDomain: Record<string, Domain> = {
+      "cockpit-fa": "finance",
+      "wisehr": "rh",
+      "duedeck": "audit",
+    };
+    for (const [app, names] of Object.entries(l3Map)) {
+      const dom = l3ToDomain[app];
+      if (dom) for (const n of names) m.set(n, dom);
+    }
   }
   return m;
 }
@@ -294,6 +307,26 @@ export const L2_TOOLS_BY_DOMAIN: Record<Domain, string[]> = {
 };
 
 /**
+ * Tools L3 app-specific. Charges quand le product matche l'app_id.
+ */
+export const L3_TOOLS_BY_APP: Record<string, string[]> = {
+  "cockpit-fa": [
+    "compute_kpi_dashboard", "detect_cycle_breaks", "forecast_dso_evolution",
+    "compute_grand_livre_summary", "validate_clos_exercice",
+    "compute_immobilisations_amortissements", "detect_ecart_inventaire",
+    "generate_situation_intermediaire",
+  ],
+  "wisehr": [
+    "compute_paie_batch", "compute_indemnite_transport", "compute_heures_supp",
+    "validate_avenant_salaire", "compute_solde_tout_compte", "forecast_masse_salariale",
+  ],
+  "duedeck": [
+    "generate_lettre_affirmation", "compute_risk_assessment_matrix", "detect_round_tripping",
+    "compute_substantive_test", "analyze_journal_entries_anomalies", "generate_audit_report",
+  ],
+};
+
+/**
  * Liste des Core L1 tools (toujours charges).
  */
 export const CORE_L1_TOOLS: string[] = [
@@ -307,8 +340,11 @@ export const CORE_L1_TOOLS: string[] = [
   "generate_report", "send_notification", "log_decision",
   "extract_from_image", "parse_document_visual",
   "verify_rls_context", "audit_trail_write", "check_compliance",
-  // Workflows orchestres : toujours dispo (peuvent etre invoques depuis n'importe quel domaine)
+  // Workflows orchestres : toujours dispo
   "workflow_audit_complet_societe", "workflow_closing_mensuel",
   "workflow_due_diligence_lite", "workflow_simulation_recrutement",
   "workflow_analyse_client_360",
+  "workflow_closing_annuel", "workflow_paie_mensuelle", "workflow_audit_juridique",
+  // Meta-tools : toujours dispo (le LLM doit pouvoir charger des tools dynamiquement)
+  "load_domain_tools", "list_available_tools", "describe_tool",
 ];

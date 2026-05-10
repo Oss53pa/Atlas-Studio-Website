@@ -13,11 +13,11 @@ import { groqChat, getGroqApiKey, getGroqModel } from "../_shared/proph3t/groq.t
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
 import {
   detectDomains, filterToolsByDomains, buildToolDomainMap,
-  L2_TOOLS_BY_DOMAIN, CORE_L1_TOOLS,
+  L2_TOOLS_BY_DOMAIN, L3_TOOLS_BY_APP, CORE_L1_TOOLS,
 } from "../_shared/proph3t/routing.ts";
 
 // Build la map tool->domain une seule fois au boot (CDC §5.3 routing).
-const TOOL_DOMAIN_MAP = buildToolDomainMap(CORE_L1_TOOLS, L2_TOOLS_BY_DOMAIN);
+const TOOL_DOMAIN_MAP = buildToolDomainMap(CORE_L1_TOOLS, L2_TOOLS_BY_DOMAIN, L3_TOOLS_BY_APP);
 
 // Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini/Groq).
 // Sont retires : search_knowledge et search_documents (legacy, necessitent Ollama embeddings).

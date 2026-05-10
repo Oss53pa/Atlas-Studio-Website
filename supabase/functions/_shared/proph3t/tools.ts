@@ -77,6 +77,26 @@ import {
   workflowDueDiligenceLite, workflowSimulationRecrutement,
   workflowAnalyseClient360,
 } from "./workflows.ts";
+import {
+  workflowClosingAnnuel, workflowPaieMensuelle, workflowAuditJuridique,
+} from "./workflows_v2.ts";
+// L3 app-specific
+import {
+  computeKpiDashboard, detectCycleBreaks, forecastDsoEvolution,
+  computeGrandLivreSummary, validateClosExercice,
+  computeImmobilisationsAmortissements, detectEcartInventaire,
+  generateSituationIntermediaire,
+} from "./l3_cockpit_fa.ts";
+import {
+  computePaieBatch, computeIndemniteTransport, computeHeuresSupp,
+  validateAvenantSalaire, computeSoldeToutCompte, forecastMasseSalariale,
+} from "./l3_atlas_paie.ts";
+import {
+  generateLettreAffirmation, computeRiskAssessmentMatrix, detectRoundTripping,
+  computeSubstantiveTest, analyzeJournalEntriesAnomalies, generateAuditReport,
+} from "./l3_atlas_audit.ts";
+// Meta tools
+import { loadDomainTools, listAvailableTools, describeTool } from "./meta_tools.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -206,12 +226,42 @@ export type ToolName =
   | "compute_sla_compliance"
   | "predict_resolution_time"
   | "analyze_ticket_categories"
-  // WORKFLOWS orchestres (5)
+  // WORKFLOWS orchestres (5 + 3 v2)
   | "workflow_audit_complet_societe"
   | "workflow_closing_mensuel"
   | "workflow_due_diligence_lite"
   | "workflow_simulation_recrutement"
-  | "workflow_analyse_client_360";
+  | "workflow_analyse_client_360"
+  | "workflow_closing_annuel"
+  | "workflow_paie_mensuelle"
+  | "workflow_audit_juridique"
+  // META-tools (3)
+  | "load_domain_tools"
+  | "list_available_tools"
+  | "describe_tool"
+  // L3 Cockpit FA (8)
+  | "compute_kpi_dashboard"
+  | "detect_cycle_breaks"
+  | "forecast_dso_evolution"
+  | "compute_grand_livre_summary"
+  | "validate_clos_exercice"
+  | "compute_immobilisations_amortissements"
+  | "detect_ecart_inventaire"
+  | "generate_situation_intermediaire"
+  // L3 WiseHR / Paie (6)
+  | "compute_paie_batch"
+  | "compute_indemnite_transport"
+  | "compute_heures_supp"
+  | "validate_avenant_salaire"
+  | "compute_solde_tout_compte"
+  | "forecast_masse_salariale"
+  // L3 DueDeck / Audit (6)
+  | "generate_lettre_affirmation"
+  | "compute_risk_assessment_matrix"
+  | "detect_round_tripping"
+  | "compute_substantive_test"
+  | "analyze_journal_entries_anomalies"
+  | "generate_audit_report";
 
 /** Convertit les inputs string -> bigint pour les champs financiers. */
 function parseFinancialInputs(raw: Record<string, unknown>): FinancialInputs {
@@ -1098,6 +1148,42 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
   { type: "function", function: { name: "workflow_due_diligence_lite", description: "Mini due diligence : ratios + Benford + materiality + sample + controle interne + recommandation GO/NOGO.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, inputs_financiers: { type: "object" }, amounts_for_benford: { type: "array" }, resultat_avant_impot_centimes: { type: "string" }, ca_total_centimes: { type: "string" }, population_audit_size: { type: "integer" }, internal_control_responses: { type: "array" } }, required: ["raison_sociale", "inputs_financiers"] } } },
   { type: "function", function: { name: "workflow_simulation_recrutement", description: "Simulation embauche : SMIG check + salaire net + cotisations + cout total + fiche paie.", parameters: { type: "object", properties: { poste: { type: "string" }, salaire_brut_mensuel_centimes: { type: "string" }, pays: { type: "string" }, duree_mois: { type: "integer" }, primes_centimes: { type: "string" }, annees_anciennete: { type: "number" } }, required: ["poste", "salaire_brut_mensuel_centimes", "pays"] } } },
   { type: "function", function: { name: "workflow_analyse_client_360", description: "Vue 360 client : churn + RFM + panier + CAC/LTV + niveau priorite + actions.", parameters: { type: "object", properties: { client_id: { type: "string" }, nom_client: { type: "string" }, derniere_commande_jours: { type: "integer" }, frequence_actuelle: { type: "number" }, frequence_baseline: { type: "number" }, panier_moyen_centimes: { type: "string" }, nb_transactions_total: { type: "integer" }, nb_clients_uniques: { type: "integer" }, duree_retention_annees: { type: "number" }, marge_brute_pct: { type: "number" }, cac_centimes: { type: "string" }, tickets_critiques_ouverts: { type: "integer" } }, required: ["client_id", "derniere_commande_jours", "frequence_actuelle", "frequence_baseline", "panier_moyen_centimes", "nb_transactions_total"] } } },
+
+  // ─── WORKFLOWS v2 (3) ───
+  { type: "function", function: { name: "workflow_closing_annuel", description: "Cloture annuelle : validation + balance + amortissements + checklist + bilan + CR + DSF + rapport.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, exercice: { type: "string" }, pays: { type: "string" }, entries: { type: "array" }, immobilisations: { type: "array" }, benefice_imposable_centimes: { type: "string" }, ca_total_centimes: { type: "string" }, cloture_check: { type: "object" }, auditeur_nom: { type: "string" }, opinion: { type: "string" } }, required: ["raison_sociale", "exercice", "pays", "entries"] } } },
+  { type: "function", function: { name: "workflow_paie_mensuelle", description: "Paie mensuelle complete : batch + parafiscales + projection + rapport.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, pays: { type: "string" }, periode: { type: "string" }, salaries: { type: "array" }, horizon_mois_projection: { type: "integer" }, recrutements_prevus: { type: "array" }, departs_prevus: { type: "array" } }, required: ["raison_sociale", "pays", "periode", "salaries"] } } },
+  { type: "function", function: { name: "workflow_audit_juridique", description: "Audit juridique : creation + capital + clauses + risques + IC + score.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, forme_juridique: { type: "string" }, pays: { type: "string" }, capital_propose_centimes: { type: "string" }, nb_associes: { type: "integer" }, societe_creation_check: { type: "object" }, contrats: { type: "array" }, risques: { type: "array" }, internal_control_responses: { type: "array" } }, required: ["raison_sociale", "forme_juridique", "pays", "capital_propose_centimes", "nb_associes", "societe_creation_check"] } } },
+
+  // ─── META-tools (3) ───
+  { type: "function", function: { name: "load_domain_tools", description: "META : retourne les tools d'un domaine. Liste valide : finance, rh, immobilier, retail, documentaire, audit, tresorerie, commercial, fiscal, juridique, marketing, productivite, support, workflows.", parameters: { type: "object", properties: { domain: { type: "string" } }, required: ["domain"] } } },
+  { type: "function", function: { name: "list_available_tools", description: "META : liste TOUS les tools disponibles, regroupes par domaine.", parameters: { type: "object", properties: {} } } },
+  { type: "function", function: { name: "describe_tool", description: "META : description detaillee + schema complet d'un tool.", parameters: { type: "object", properties: { tool_name: { type: "string" } }, required: ["tool_name"] } } },
+
+  // ─── L3 Cockpit FA (8) ───
+  { type: "function", function: { name: "compute_kpi_dashboard", description: "[Cockpit-FA] Dashboard KPIs (CA + creances + dettes + treso + autonomie + alertes).", parameters: { type: "object", properties: { ca_total_centimes: { type: "string" }, ca_periode_precedente_centimes: { type: "string" }, total_creances_centimes: { type: "string" }, total_dettes_centimes: { type: "string" }, tresorerie_centimes: { type: "string" }, total_actif_centimes: { type: "string" }, capitaux_propres_centimes: { type: "string" }, jours_periode: { type: "integer" } }, required: ["ca_total_centimes", "total_creances_centimes", "total_dettes_centimes", "tresorerie_centimes", "total_actif_centimes", "capitaux_propres_centimes"] } } },
+  { type: "function", function: { name: "detect_cycle_breaks", description: "[Cockpit-FA] Detection ruptures sequence numerique pieces (par journal).", parameters: { type: "object", properties: { pieces: { type: "array" }, format_attendu: { type: "string" } }, required: ["pieces"] } } },
+  { type: "function", function: { name: "forecast_dso_evolution", description: "[Cockpit-FA] Projection DSO sur N mois + tendance.", parameters: { type: "object", properties: { historique_mensuel: { type: "array" }, horizon_mois: { type: "integer" } }, required: ["historique_mensuel"] } } },
+  { type: "function", function: { name: "compute_grand_livre_summary", description: "[Cockpit-FA] Synthese GL par compte + agregation par classe SYSCOHADA.", parameters: { type: "object", properties: { entries: { type: "array" }, classes_filter: { type: "array" } }, required: ["entries"] } } },
+  { type: "function", function: { name: "validate_clos_exercice", description: "[Cockpit-FA] Checklist conformite avant cloture (lettrage, provisions, etc.).", parameters: { type: "object", properties: { ecritures_lettrees_pct: { type: "number" }, provisions_passees: { type: "boolean" }, amortissements_passes: { type: "boolean" }, inventaire_realise: { type: "boolean" }, rapprochement_bancaire_complet: { type: "boolean" }, ecarts_comptes_resolus: { type: "boolean" }, audit_externe_planifie: { type: "boolean" }, declarations_fiscales_a_jour: { type: "boolean" } } } } },
+  { type: "function", function: { name: "compute_immobilisations_amortissements", description: "[Cockpit-FA] Amortissements lineaires/degressifs SYSCOHADA.", parameters: { type: "object", properties: { immobilisations: { type: "array" }, date_calcul: { type: "string" } }, required: ["immobilisations", "date_calcul"] } } },
+  { type: "function", function: { name: "detect_ecart_inventaire", description: "[Cockpit-FA] Ecarts stock comptable vs physique + perte estimee.", parameters: { type: "object", properties: { stock_comptable: { type: "array" }, stock_physique: { type: "array" }, seuil_ecart_pct: { type: "number" } }, required: ["stock_comptable", "stock_physique"] } } },
+  { type: "function", function: { name: "generate_situation_intermediaire", description: "[Cockpit-FA] Situation comptable proforma a date X.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, date_situation: { type: "string" }, entries_jusqu_a_date: { type: "array" } }, required: ["raison_sociale", "date_situation", "entries_jusqu_a_date"] } } },
+
+  // ─── L3 WiseHR / Paie (6) ───
+  { type: "function", function: { name: "compute_paie_batch", description: "[WiseHR] Batch fiches paie pour N salaries en 1 appel.", parameters: { type: "object", properties: { pays: { type: "string" }, periode: { type: "string" }, salaries: { type: "array" } }, required: ["pays", "periode", "salaries"] } } },
+  { type: "function", function: { name: "compute_indemnite_transport", description: "[WiseHR] Indemnite transport partie exoneree/imposable.", parameters: { type: "object", properties: { montant_alloue_centimes: { type: "string" }, pays: { type: "string" } }, required: ["montant_alloue_centimes", "pays"] } } },
+  { type: "function", function: { name: "compute_heures_supp", description: "[WiseHR] Heures supp avec majorations legales.", parameters: { type: "object", properties: { taux_horaire_centimes: { type: "string" }, heures_45_pct: { type: "number" }, heures_50_pct: { type: "number" }, heures_nuit: { type: "number" }, heures_dimanche: { type: "number" }, heures_jour_ferie: { type: "number" } }, required: ["taux_horaire_centimes", "heures_45_pct", "heures_50_pct"] } } },
+  { type: "function", function: { name: "validate_avenant_salaire", description: "[WiseHR] Check avenant : SMIG, convention, baisse.", parameters: { type: "object", properties: { salaire_actuel_centimes: { type: "string" }, salaire_propose_centimes: { type: "string" }, pays: { type: "string" }, smig_legal_centimes: { type: "string" }, convention_collective_min_centimes: { type: "string" }, motif: { type: "string" } }, required: ["salaire_actuel_centimes", "salaire_propose_centimes", "pays"] } } },
+  { type: "function", function: { name: "compute_solde_tout_compte", description: "[WiseHR] Solde de tout compte selon type rupture.", parameters: { type: "object", properties: { salaire_moyen_centimes: { type: "string" }, jours_travailles_periode_partielle: { type: "integer" }, jours_dans_periode: { type: "integer" }, conges_payes_restants_jours: { type: "integer" }, primes_dues_centimes: { type: "string" }, annees_anciennete: { type: "number" }, type_rupture: { type: "string" }, pays: { type: "string" } }, required: ["salaire_moyen_centimes", "conges_payes_restants_jours", "annees_anciennete", "type_rupture"] } } },
+  { type: "function", function: { name: "forecast_masse_salariale", description: "[WiseHR] Projection masse salariale annuelle.", parameters: { type: "object", properties: { effectif_actuel: { type: "integer" }, cout_moyen_mensuel_centimes: { type: "string" }, taux_augmentation_annuelle_pct: { type: "number" }, recrutements_prevus: { type: "array" }, departs_prevus: { type: "array" }, horizon_mois: { type: "integer" } }, required: ["effectif_actuel", "cout_moyen_mensuel_centimes", "recrutements_prevus", "departs_prevus", "horizon_mois"] } } },
+
+  // ─── L3 DueDeck / Audit (6) ───
+  { type: "function", function: { name: "generate_lettre_affirmation", description: "[DueDeck] Lettre d'affirmation client (8 affirmations obligatoires).", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, exercice: { type: "string" }, date_lettre: { type: "string" }, affirmations_specifiques: { type: "array" }, signataire: { type: "object" } }, required: ["raison_sociale", "exercice", "date_lettre", "signataire"] } } },
+  { type: "function", function: { name: "compute_risk_assessment_matrix", description: "[DueDeck] Matrice risques ISA 315 + score residuel.", parameters: { type: "object", properties: { risks: { type: "array" } }, required: ["risks"] } } },
+  { type: "function", function: { name: "detect_round_tripping", description: "[DueDeck] Detection schemas circulaires A->B->C->A.", parameters: { type: "object", properties: { transactions: { type: "array" }, fenetre_jours: { type: "integer" }, tolerance_montant_pct: { type: "number" } }, required: ["transactions"] } } },
+  { type: "function", function: { name: "compute_substantive_test", description: "[DueDeck] Tests substantifs bilan + variations N/N-1.", parameters: { type: "object", properties: { bilan_n: { type: "object" }, bilan_n_minus_1: { type: "object" } }, required: ["bilan_n"] } } },
+  { type: "function", function: { name: "analyze_journal_entries_anomalies", description: "[DueDeck] JET ISA 240 anomalies ecritures.", parameters: { type: "object", properties: { entries: { type: "array" }, date_cloture: { type: "string" }, seuil_signification_centimes: { type: "string" }, comptes_suspects: { type: "array" } }, required: ["entries", "date_cloture"] } } },
+  { type: "function", function: { name: "generate_audit_report", description: "[DueDeck] Rapport audit complet avec opinion.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, exercice: { type: "string" }, date_rapport: { type: "string" }, auditeur_nom: { type: "string" }, opinion: { type: "string" }, reserves: { type: "array" }, paragraphes_observation: { type: "array" }, bilan_synthese: { type: "object" }, donnees_cles: { type: "object" } }, required: ["raison_sociale", "exercice", "date_rapport", "auditeur_nom", "opinion"] } } },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1577,7 +1663,112 @@ export async function runTool(
         args as Parameters<typeof workflowAnalyseClient360>[1],
       );
 
+    // ─── WORKFLOWS v2 (3) ───
+    case "workflow_closing_annuel":
+      return await workflowClosingAnnuel(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowClosingAnnuel>[1],
+      );
+    case "workflow_paie_mensuelle":
+      return await workflowPaieMensuelle(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowPaieMensuelle>[1],
+      );
+    case "workflow_audit_juridique":
+      return await workflowAuditJuridique(
+        (n, a) => runTool(n as ToolName, a, ctx),
+        args as Parameters<typeof workflowAuditJuridique>[1],
+      );
+
+    // ─── META-tools (3) ───
+    case "load_domain_tools": {
+      const map = buildToolDomainMapStatic();
+      return loadDomainTools(args as Parameters<typeof loadDomainTools>[0], TOOL_DECLARATIONS, map);
+    }
+    case "list_available_tools": {
+      const map = buildToolDomainMapStatic();
+      return listAvailableTools(TOOL_DECLARATIONS, map);
+    }
+    case "describe_tool":
+      return describeTool(args as Parameters<typeof describeTool>[0], TOOL_DECLARATIONS);
+
+    // ─── L3 Cockpit FA (8) ───
+    case "compute_kpi_dashboard":
+      return computeKpiDashboard(args as Parameters<typeof computeKpiDashboard>[0]);
+    case "detect_cycle_breaks":
+      return detectCycleBreaks(args as Parameters<typeof detectCycleBreaks>[0]);
+    case "forecast_dso_evolution":
+      return forecastDsoEvolution(args as Parameters<typeof forecastDsoEvolution>[0]);
+    case "compute_grand_livre_summary":
+      return computeGrandLivreSummary(args as Parameters<typeof computeGrandLivreSummary>[0]);
+    case "validate_clos_exercice":
+      return validateClosExercice(args as Parameters<typeof validateClosExercice>[0]);
+    case "compute_immobilisations_amortissements":
+      return computeImmobilisationsAmortissements(args as Parameters<typeof computeImmobilisationsAmortissements>[0]);
+    case "detect_ecart_inventaire":
+      return detectEcartInventaire(args as Parameters<typeof detectEcartInventaire>[0]);
+    case "generate_situation_intermediaire":
+      return generateSituationIntermediaire(args as Parameters<typeof generateSituationIntermediaire>[0]);
+
+    // ─── L3 WiseHR / Paie (6) ───
+    case "compute_paie_batch":
+      return computePaieBatch(args as Parameters<typeof computePaieBatch>[0]);
+    case "compute_indemnite_transport":
+      return computeIndemniteTransport(args as Parameters<typeof computeIndemniteTransport>[0]);
+    case "compute_heures_supp":
+      return computeHeuresSupp(args as Parameters<typeof computeHeuresSupp>[0]);
+    case "validate_avenant_salaire":
+      return validateAvenantSalaire(args as Parameters<typeof validateAvenantSalaire>[0]);
+    case "compute_solde_tout_compte":
+      return computeSoldeToutCompte(args as Parameters<typeof computeSoldeToutCompte>[0]);
+    case "forecast_masse_salariale":
+      return forecastMasseSalariale(args as Parameters<typeof forecastMasseSalariale>[0]);
+
+    // ─── L3 DueDeck / Audit (6) ───
+    case "generate_lettre_affirmation":
+      return generateLettreAffirmation(args as Parameters<typeof generateLettreAffirmation>[0]);
+    case "compute_risk_assessment_matrix":
+      return computeRiskAssessmentMatrix(args as Parameters<typeof computeRiskAssessmentMatrix>[0]);
+    case "detect_round_tripping":
+      return detectRoundTripping(args as Parameters<typeof detectRoundTripping>[0]);
+    case "compute_substantive_test":
+      return computeSubstantiveTest(args as Parameters<typeof computeSubstantiveTest>[0]);
+    case "analyze_journal_entries_anomalies":
+      return analyzeJournalEntriesAnomalies(args as Parameters<typeof analyzeJournalEntriesAnomalies>[0]);
+    case "generate_audit_report":
+      return generateAuditReport(args as Parameters<typeof generateAuditReport>[0]);
+
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
+}
+
+// Helper static : tool->domain map (cache une seule fois au boot)
+let _toolDomainMapCache: Map<string, string> | null = null;
+function buildToolDomainMapStatic(): Map<string, string> {
+  if (_toolDomainMapCache) return _toolDomainMapCache;
+  const m = new Map<string, string>();
+  // Core L1 + meta
+  for (const t of ["get_financial_data", "search_knowledge", "search_documents", "get_memory", "generate_alert", "save_business_rule", "compute_ratio", "compute_tva", "apply_prorata_360", "format_money_fcfa", "convert_currency", "plan_task", "chain_of_thought", "verify_hypothesis", "route_to_model", "save_episodic_memory", "save_semantic_memory", "recall_similar_cases", "update_memory", "forget_memory", "search_app_knowledge", "search_tenant_documents", "index_document", "generate_report", "send_notification", "log_decision", "extract_from_image", "parse_document_visual", "verify_rls_context", "audit_trail_write", "check_compliance", "load_domain_tools", "list_available_tools", "describe_tool"]) m.set(t, "core");
+  // L2 finance
+  for (const t of ["parse_grand_livre", "generate_balance_sheet", "generate_compte_resultat", "apply_benford_law", "reconcile_bank_statement", "compute_irpp_uemoa", "compute_is_uemoa", "compute_cnss_contribution", "validate_journal_entry", "detect_accounting_anomalies"]) m.set(t, "finance");
+  for (const t of ["compute_smig", "compute_salaire_net", "compute_iuts", "compute_its", "compute_taxes_parafiscales", "compute_conges_payes", "compute_indemnite_licenciement", "compute_prime_anciennete", "generate_fiche_paie", "simulate_embauche_cost"]) m.set(t, "rh");
+  for (const t of ["compute_loyer_revise", "compute_depot_garantie", "compute_taxe_fonciere", "compute_charges_copropriete", "compute_rendement_locatif"]) m.set(t, "immobilier");
+  for (const t of ["compute_marge_brute", "compute_taux_marque", "compute_rotation_stocks", "compute_point_mort", "compute_panier_moyen"]) m.set(t, "retail");
+  for (const t of ["classify_document", "extract_document_metadata", "compute_legal_retention", "detect_document_duplicates", "generate_archive_index"]) m.set(t, "documentaire");
+  for (const t of ["compute_audit_sample", "compute_materiality", "test_balance_general", "analyze_variance_interperiode", "score_internal_control"]) m.set(t, "audit");
+  for (const t of ["forecast_cashflow", "compute_decouvert_cost", "compute_escompte_commercial", "compute_factoring_cost", "score_bank_health"]) m.set(t, "tresorerie");
+  for (const t of ["score_lead", "compute_commission", "forecast_pipeline", "score_churn_risk", "analyze_customer_segment"]) m.set(t, "commercial");
+  for (const t of ["compute_irvm", "compute_droit_enregistrement", "compute_minimum_forfaitaire", "forecast_dsf", "compute_credit_tva"]) m.set(t, "fiscal");
+  for (const t of ["compute_capital_minimum", "validate_societe_creation", "forecast_ag_quorum", "compute_mise_demeure_delai", "analyze_contract_clauses"]) m.set(t, "juridique");
+  for (const t of ["compute_cac_ltv_ratio", "compute_campaign_roi", "ab_test_significance", "compute_conversion_funnel", "forecast_growth_compound"]) m.set(t, "marketing");
+  for (const t of ["prioritize_tasks", "compute_meeting_efficiency", "schedule_optimization", "estimate_project_duration", "compute_team_capacity"]) m.set(t, "productivite");
+  for (const t of ["compute_csat_nps", "score_ticket_priority", "compute_sla_compliance", "predict_resolution_time", "analyze_ticket_categories"]) m.set(t, "support");
+  for (const t of ["workflow_audit_complet_societe", "workflow_closing_mensuel", "workflow_due_diligence_lite", "workflow_simulation_recrutement", "workflow_analyse_client_360", "workflow_closing_annuel", "workflow_paie_mensuelle", "workflow_audit_juridique"]) m.set(t, "workflows");
+  // L3
+  for (const t of ["compute_kpi_dashboard", "detect_cycle_breaks", "forecast_dso_evolution", "compute_grand_livre_summary", "validate_clos_exercice", "compute_immobilisations_amortissements", "detect_ecart_inventaire", "generate_situation_intermediaire"]) m.set(t, "cockpit-fa");
+  for (const t of ["compute_paie_batch", "compute_indemnite_transport", "compute_heures_supp", "validate_avenant_salaire", "compute_solde_tout_compte", "forecast_masse_salariale"]) m.set(t, "wisehr");
+  for (const t of ["generate_lettre_affirmation", "compute_risk_assessment_matrix", "detect_round_tripping", "compute_substantive_test", "analyze_journal_entries_anomalies", "generate_audit_report"]) m.set(t, "duedeck");
+  _toolDomainMapCache = m;
+  return m;
 }
