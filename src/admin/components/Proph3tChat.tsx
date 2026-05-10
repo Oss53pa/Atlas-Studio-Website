@@ -82,9 +82,19 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
 
     try {
       // Call new proph3t-ask edge function (CDC v2 ReAct orchestrator)
-      const { data, error } = await supabase.functions.invoke("proph3t-ask", {
+      let { data, error } = await supabase.functions.invoke("proph3t-ask", {
         body: { message: content, conversation_id: conversationId, product: "admin" },
       });
+
+      // Si 401 : essayer un refresh session puis rejouer une fois
+      if (error && (error as any)?.context?.response?.status === 401) {
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (refreshed?.session) {
+          ({ data, error } = await supabase.functions.invoke("proph3t-ask", {
+            body: { message: content, conversation_id: conversationId, product: "admin" },
+          }));
+        }
+      }
 
       if (error) throw error;
       if (data?.conversation_id) setConversationId(data.conversation_id);
@@ -94,19 +104,29 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
         message_id: data?.message_id,
         role: "assistant",
         content: data?.answer || "Réponse reçue.",
+        model_used: data?.model_used,
         citations: data?.citations,
         confidence: data?.confidence,
         created_at: new Date().toISOString(),
       }]);
     } catch (err) {
-      // Fallback: generate insights locally from Supabase data
-      const errMessage = (err as Error)?.message || "Erreur inconnue";
-      console.error("[proph3t-chat] proph3t-ask failed:", err);
+      // Extraire le vrai message d'erreur du body (FunctionsHttpError encapsule la response)
+      let errMessage = (err as Error)?.message || "Erreur inconnue";
+      let errHint = "";
+      try {
+        const ctxResp = (err as any)?.context?.response;
+        if (ctxResp && typeof ctxResp.json === "function") {
+          const body = await ctxResp.json();
+          if (body?.error) errMessage = body.error;
+          if (body?.hint) errHint = `\n\n_Hint :_ ${body.hint}`;
+        }
+      } catch { /* ignore parse failure */ }
+      console.error("[proph3t-chat] proph3t-ask failed:", err, errMessage);
       const response = await generateLocalInsight(content);
       setMessages(prev => [...prev, {
         id: Date.now().toString() + "_r",
         role: "assistant",
-        content: response + `\n\n_⚠️ Mode dégradé : Edge function **proph3t-ask** indisponible — ${errMessage}_`,
+        content: response + `\n\n_⚠️ Mode dégradé : Edge function **proph3t-ask** indisponible — ${errMessage}_` + errHint,
         model_used: "local-fallback",
         created_at: new Date().toISOString(),
       }]);
