@@ -89,6 +89,10 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
       created_at: new Date().toISOString(),
     }]);
 
+    // Timers (déclarés ici pour être accessibles dans le finally)
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let inactivityChecker: ReturnType<typeof setInterval> | null = null;
+
     try {
       // Récupérer le JWT user pour l'auth header
       const { data: { session }, error: sessErr } = await supabase.auth.getSession();
@@ -100,6 +104,17 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
       const token = (await supabase.auth.getSession()).data.session?.access_token;
 
       // Appel SSE via fetch (pas EventSource car POST + body)
+      // Timeout global 60s pour éviter le hang si le serveur arrête d'envoyer
+      const abortController = new AbortController();
+      timeoutId = setTimeout(() => abortController.abort(new Error("Timeout 60s — pas de réponse serveur")), 60000);
+      // Reset le timeout à chaque event reçu (sliding window)
+      let lastEventAt = Date.now();
+      inactivityChecker = setInterval(() => {
+        if (Date.now() - lastEventAt > 30000) {
+          abortController.abort(new Error("Inactivité 30s — stream interrompu"));
+        }
+      }, 5000);
+
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
       const res = await fetch(`${supabaseUrl}/functions/v1/proph3t-ask-stream`, {
         method: "POST",
@@ -109,6 +124,7 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
           "Accept": "text/event-stream",
         },
         body: JSON.stringify({ message: content, conversation_id: conversationId, product: "admin" }),
+        signal: abortController.signal,
       });
 
       if (!res.ok || !res.body) {
@@ -127,6 +143,7 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+        lastEventAt = Date.now(); // reset inactivity timer
         buffer += decoder.decode(value, { stream: true });
         const events = buffer.split("\n\n");
         buffer = events.pop() || "";
@@ -202,6 +219,10 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
           model_used: "local-fallback",
         } : m
       ));
+    } finally {
+      // Cleanup timers
+      if (timeoutId) clearTimeout(timeoutId);
+      if (inactivityChecker) clearInterval(inactivityChecker);
     }
 
     setAttachment(null);
