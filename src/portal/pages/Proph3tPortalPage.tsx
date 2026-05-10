@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Sparkles, Loader2, Calculator, FileText, Receipt, Shield, BarChart3, BookOpen } from "lucide-react";
+import { Send, Bot, User, Sparkles, Loader2, Calculator, FileText, Receipt, Shield, BarChart3, BookOpen, Zap } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { Proph3tWorkflowStream } from "../components/Proph3tWorkflowStream";
 
 interface Message {
   id: string;
@@ -27,6 +28,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [activeWorkflow, setActiveWorkflow] = useState<{ name: string; args: Record<string, unknown> } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -221,6 +223,27 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
           </div>
         )}
 
+        {/* Workflow shortcuts */}
+        {messages.length <= 1 && (
+          <div className="px-6 py-3 border-t border-white/5">
+            <div className="text-[11px] text-neutral-500 uppercase tracking-wider mb-2 font-semibold flex items-center gap-2">
+              <Zap size={12} /> Workflows en 1 clic (streaming live)
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+              <button onClick={() => setActiveWorkflow({ name: "workflow_audit_complet_societe", args: { raison_sociale: "Demo SA", exercice: "2025", entries: [{ compte: "411000", debit_centimes: "1000000", credit_centimes: "0", date: "2025-01-15", numero_piece: "P001" }, { compte: "701000", debit_centimes: "0", credit_centimes: "1000000", date: "2025-01-15", numero_piece: "P001" }] } })}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 hover:bg-gold/20 text-gold text-[12px] text-left transition-colors border border-gold/30">
+                <Sparkles size={14} className="flex-shrink-0" />
+                <span className="truncate">Audit complet societe (demo)</span>
+              </button>
+              <button onClick={() => setActiveWorkflow({ name: "workflow_simulation_recrutement", args: { poste: "Comptable", salaire_brut_mensuel_centimes: "60000000", pays: "CI", duree_mois: 12 } })}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 hover:bg-gold/20 text-gold text-[12px] text-left transition-colors border border-gold/30">
+                <Sparkles size={14} className="flex-shrink-0" />
+                <span className="truncate">Simulation recrutement comptable (CI)</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Input */}
         <div className="px-5 pb-5 pt-3 border-t border-white/10">
           <div className="flex gap-2 items-end">
@@ -252,6 +275,16 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
           </div>
         </div>
       </div>
+
+      {/* Workflow streaming modal */}
+      {activeWorkflow && (
+        <Proph3tWorkflowStream
+          open={true}
+          workflow_name={activeWorkflow.name}
+          args={activeWorkflow.args}
+          onClose={() => setActiveWorkflow(null)}
+        />
+      )}
     </div>
   );
 }

@@ -97,6 +97,8 @@ import {
 } from "./l3_atlas_audit.ts";
 // Meta tools
 import { loadDomainTools, listAvailableTools, describeTool } from "./meta_tools.ts";
+// L3 Phase 7 (60 tools sur 12 apps)
+import { L3_DISPATCHER, getL3PhaseDeclarations } from "./tools_l3_dispatcher.ts";
 
 export type ToolName =
   // Data L1 (legacy + core)
@@ -1184,6 +1186,9 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
   { type: "function", function: { name: "compute_substantive_test", description: "[DueDeck] Tests substantifs bilan + variations N/N-1.", parameters: { type: "object", properties: { bilan_n: { type: "object" }, bilan_n_minus_1: { type: "object" } }, required: ["bilan_n"] } } },
   { type: "function", function: { name: "analyze_journal_entries_anomalies", description: "[DueDeck] JET ISA 240 anomalies ecritures.", parameters: { type: "object", properties: { entries: { type: "array" }, date_cloture: { type: "string" }, seuil_signification_centimes: { type: "string" }, comptes_suspects: { type: "array" } }, required: ["entries", "date_cloture"] } } },
   { type: "function", function: { name: "generate_audit_report", description: "[DueDeck] Rapport audit complet avec opinion.", parameters: { type: "object", properties: { raison_sociale: { type: "string" }, exercice: { type: "string" }, date_rapport: { type: "string" }, auditeur_nom: { type: "string" }, opinion: { type: "string" }, reserves: { type: "array" }, paragraphes_observation: { type: "array" }, bilan_synthese: { type: "object" }, donnees_cles: { type: "object" } }, required: ["raison_sociale", "exercice", "date_rapport", "auditeur_nom", "opinion"] } } },
+
+  // ─────────────── L3 Phase 7 — 60 tools sur 12 apps (advist, atlasbanx, atlastrade, cashpilot, cockpit-journey, docjourney, liasspilot, tablesmart, atlas-fa, atlas-lease, atlas-mall-suite, wisefm) ───────────────
+  ...getL3PhaseDeclarations(),
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1739,6 +1744,11 @@ export async function runTool(
       return generateAuditReport(args as Parameters<typeof generateAuditReport>[0]);
 
     default:
+      // ─── L3 Phase 7 (60 tools) via dispatcher ───
+      // Permet de gerer les tools L3 sans bloater le switch
+      if (L3_DISPATCHER[name as string]) {
+        return L3_DISPATCHER[name as string](args);
+      }
       throw new Error(`Unknown tool: ${name}`);
   }
 }

@@ -1,0 +1,27 @@
+{
+  "name": "@atlas-studio/proph3t-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server exposing Proph3t's 197 tools to Claude Desktop, Cursor, and other MCP clients",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "proph3t-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": ["dist"],
+  "keywords": ["mcp", "claude", "proph3t", "atlas-studio", "syscohada", "ohada"],
+  "author": "Atlas Studio",
+  "license": "MIT"
+}
