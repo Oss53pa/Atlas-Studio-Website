@@ -15,6 +15,7 @@ import { TeamPage } from "./pages/TeamPage";
 import { ActivatePage } from "./pages/ActivatePage";
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { UpgradePage } from "./pages/UpgradePage";
+import { Proph3tPortalPage } from "./pages/Proph3tPortalPage";
 
 const WelcomePage = lazy(() => import("./pages/WelcomePage"));
 const LaunchPage = lazy(() => import("./pages/LaunchPage"));
@@ -45,6 +46,7 @@ function PortalDashboard() {
         {page === "activate" && <ActivatePage userId={user?.id} />}
         {page === "subscription" && <SubscriptionPage userId={user?.id} />}
         {page === "upgrade" && <UpgradePage userId={user?.id} />}
+        {page === "proph3t" && <Proph3tPortalPage userId={user?.id} />}
         {page === "settings" && <SettingsPage />}
       </main>
     </div>

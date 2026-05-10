@@ -9,7 +9,28 @@ import { supabaseAdmin } from "../_shared/supabase.ts";
 import { chat, type OllamaMessage } from "../_shared/proph3t/ollama.ts";
 import { anthropicChat, getAnthropicKeyForUser } from "../_shared/proph3t/anthropic.ts";
 import { geminiChat, getGeminiKeyForUser } from "../_shared/proph3t/gemini.ts";
+import { groqChat, getGroqApiKey, getGroqModel } from "../_shared/proph3t/groq.ts";
 import { TOOL_DECLARATIONS, runTool, type ToolName } from "../_shared/proph3t/tools.ts";
+import {
+  detectDomains, filterToolsByDomains, buildToolDomainMap,
+  L2_TOOLS_BY_DOMAIN, L3_TOOLS_BY_APP, CORE_L1_TOOLS,
+} from "../_shared/proph3t/routing.ts";
+
+// Build la map tool->domain une seule fois au boot (CDC §5.3 routing).
+const TOOL_DOMAIN_MAP = buildToolDomainMap(CORE_L1_TOOLS, L2_TOOLS_BY_DOMAIN, L3_TOOLS_BY_APP);
+
+// Tools qui ne dependent PAS d'Ollama embeddings (utilisables avec Anthropic/Gemini/Groq).
+// Sont retires : search_knowledge et search_documents (legacy, necessitent Ollama embeddings).
+// Sont retires : get_financial_data (stub jusqu'a Phase 1 CDC).
+// search_app_knowledge / search_tenant_documents : fallback ilike sans embedding -> ok cloud.
+// extract_from_image / parse_document_visual : OK si user a Gemini BYOK.
+const TOOLS_NO_OLLAMA = TOOL_DECLARATIONS.filter(t =>
+  !["search_knowledge", "search_documents", "get_financial_data"].includes(t.function.name)
+);
+// Pour les providers SANS support vision (Groq Llama 3.3 par defaut), on retire aussi vision.
+const TOOLS_NO_VISION = TOOLS_NO_OLLAMA.filter(t =>
+  !["extract_from_image", "parse_document_visual"].includes(t.function.name)
+);
 import { appendAudit } from "../_shared/proph3t/audit.ts";
 
 const MAX_ITERATIONS = 5;
@@ -59,7 +80,11 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    // 2bis. Determiner le provider LLM (BYOK Anthropic, Gemini, ou fallback Ollama)
+    // 2bis. Determiner le provider LLM, dans cet ordre :
+    //   1. BYOK Anthropic (si user a saisi sa cle)
+    //   2. BYOK Gemini (si user a saisi sa cle)
+    //   3. Groq fallback central (si secret GROQ_API_KEY defini cote serveur)
+    //   4. Ollama self-hosted (fallback ultime, si OLLAMA_URL defini)
     const [anthropic, gemini] = await Promise.all([
       getAnthropicKeyForUser(supabaseAdmin, user.id).catch((e) => {
         console.warn("[proph3t-ask] BYOK Anthropic indisponible:", (e as Error).message);
@@ -72,6 +97,9 @@ Deno.serve(async (req) => {
     ]);
     const useAnthropic = !!anthropic;
     const useGemini = !useAnthropic && !!gemini;
+    const groqKey = (!useAnthropic && !useGemini) ? getGroqApiKey() : undefined;
+    const useGroq = !!groqKey;
+    const groqModel = useGroq ? getGroqModel() : null;
 
     // 3. Charger les messages précédents de la conversation (contexte court)
     const { data: history } = await supabaseAdmin
@@ -101,7 +129,32 @@ Deno.serve(async (req) => {
       ? anthropic!.model
       : useGemini
         ? gemini!.model
-        : "llama3.1:8b-instruct-q4_K_M";
+        : useGroq
+          ? groqModel!
+          : "llama3.1:8b-instruct-q4_K_M";
+
+    // Strategie tools selon provider (CDC §3 tools registry L1, 28 tools) :
+    // - Ollama self-hosted : TOUS tools, y compris vision si modele multimodal
+    // - Anthropic / Gemini : TOOLS_NO_OLLAMA (vision OK, embeddings via fallback texte)
+    // - Groq Llama 3.3     : TOOLS_NO_VISION (pas de vision native)
+    // CDC §5.3 routing : detecter les domaines pertinents pour reduire le contexte LLM
+    const domainDetection = detectDomains({
+      message: body.message,
+      product: body.product,
+      conversation_history: (history || []).map(h => h.content),
+      max_domains: 3,
+    });
+    console.log(`[proph3t-ask] domains: ${domainDetection.domains.join(",") || "(core only)"} — ${domainDetection.reason}`);
+
+    // Base : selection par provider (compatibilite vision / embeddings)
+    const baseTools = useGroq
+      ? TOOLS_NO_VISION
+      : (useAnthropic || useGemini)
+        ? TOOLS_NO_OLLAMA
+        : TOOL_DECLARATIONS;
+
+    // Puis filtre par domaine detecte (Core L1 + tools L2 des domaines)
+    const tools = filterToolsByDomains(baseTools, TOOL_DOMAIN_MAP, domainDetection.domains);
 
     for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
       const result = useAnthropic
@@ -109,7 +162,7 @@ Deno.serve(async (req) => {
             apiKey: anthropic!.apiKey,
             model: anthropic!.model,
             messages,
-            tools: TOOL_DECLARATIONS,
+            tools,
             temperature: 0.2,
           })
         : useGemini
@@ -117,14 +170,22 @@ Deno.serve(async (req) => {
               apiKey: gemini!.apiKey,
               model: gemini!.model,
               messages,
-              tools: TOOL_DECLARATIONS,
+              tools,
               temperature: 0.2,
             })
-          : await chat({
-              messages,
-              tools: TOOL_DECLARATIONS,
-              temperature: 0.2,
-            });
+          : useGroq
+            ? await groqChat({
+                apiKey: groqKey!,
+                model: groqModel!,
+                messages,
+                tools,
+                temperature: 0.2,
+              })
+            : await chat({
+                messages,
+                tools: TOOL_DECLARATIONS,
+                temperature: 0.2,
+              });
 
       const toolCalls = result.message.tool_calls || [];
       if (toolCalls.length === 0) {
@@ -138,8 +199,14 @@ Deno.serve(async (req) => {
         const toolName = tc.function.name as ToolName;
         let toolResult: unknown;
         try {
-          toolResult = await runTool(toolName, tc.function.arguments);
-          if (toolName === "search_knowledge" || toolName === "search_documents") {
+          toolResult = await runTool(toolName, tc.function.arguments, { user_id: user.id });
+          if (
+            toolName === "search_knowledge" ||
+            toolName === "search_documents" ||
+            toolName === "search_app_knowledge" ||
+            toolName === "search_tenant_documents" ||
+            toolName === "recall_similar_cases"
+          ) {
             citations.push({ tool: toolName, args: tc.function.arguments, hits: toolResult });
           }
         } catch (err) {
