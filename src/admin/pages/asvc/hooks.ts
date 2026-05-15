@@ -872,7 +872,30 @@ export function useOAuthTokens() {
     [refresh],
   );
 
-  return { tokens, loading, refresh, startGmailOAuth, revoke, revoking };
+  // Stocke un PAT (GitHub pour l'instant). Renvoie {ok, error?, account?}
+  const setPat = useCallback(
+    async (provider: 'github', token: string): Promise<{ ok: boolean; account?: string; error?: string }> => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) return { ok: false, error: 'Session manquante' };
+
+        const { data, error: invokeErr } = await supabase.functions.invoke('asvc-oauth-pat-set', {
+          body: { provider, token },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (invokeErr) return { ok: false, error: invokeErr.message };
+        if (data?.error) return { ok: false, error: data.error };
+        await refresh();
+        return { ok: true, account: data?.account_email };
+      } catch (e) {
+        return { ok: false, error: (e as Error).message };
+      }
+    },
+    [refresh],
+  );
+
+  return { tokens, loading, refresh, startGmailOAuth, revoke, revoking, setPat };
 }
 
 // Helper: temps relatif en fr
