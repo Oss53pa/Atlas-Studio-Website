@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, Users, KeyRound, Menu, X, Sparkles, type LucideIcon } from "lucide-react";
+import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, Users, KeyRound, Menu, X, Sparkles, ArrowLeft, type LucideIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { NotificationBell } from "../components/ui/NotificationBell";
 import type { Profile } from "../lib/database.types";
@@ -72,6 +72,13 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
       </nav>
 
       <div className="border-t border-white/10 pt-4">
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-neutral-500 text-[13px] hover:text-neutral-light hover:bg-white/5 transition-all duration-200 mb-2"
+        >
+          <ArrowLeft size={14} strokeWidth={1.5} />
+          Retour au site
+        </Link>
         <div className="flex items-center gap-2.5 px-2">
           <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-onyx text-[12px] font-bold shrink-0">
             {initials}

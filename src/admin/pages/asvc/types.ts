@@ -3,6 +3,162 @@
 
 export type Department = 'direction' | 'sav' | 'marketing' | 'ventes' | 'finance';
 
+// ───────────────────────────────────────────────────────────────────────────
+// v2.0 — Pipeline Produit (R&D + Production)
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface PipelineIdea {
+  id: string;
+  title: string;
+  category: string | null;
+  rice_score: number | null;
+  effort_estimate: string | null;
+  created_at: string;
+}
+
+export interface PipelineResearch {
+  id: string;
+  title: string;
+  opportunity_id: string;
+  created_at: string;
+  has_brief: boolean;
+}
+
+export interface PipelineSpec {
+  id: string;
+  title: string;
+  spec_version: string;
+  story_points: number | null;
+  estimated_weeks: number | null;
+  status: string;
+  created_at: string;
+}
+
+export interface PipelinePr {
+  id: string;
+  title: string;
+  repo: string;
+  branch_name: string;
+  github_pr_url: string | null;
+  qa_status: string;
+  test_coverage_percent?: number | null;
+  status: string;
+  created_at: string;
+}
+
+export interface PipelineDeployment {
+  id: string;
+  app_name: string;
+  environment: string;
+  deployment_url: string | null;
+  status: string;
+  approved_by_ceo: boolean;
+  created_at: string;
+  pr_title: string | null;
+}
+
+export interface PipelineIncident {
+  id: string;
+  app_concerned: string;
+  severity: 'P0' | 'P1' | 'P2' | 'P3';
+  title: string;
+  status: string;
+  detected_at: string;
+}
+
+export interface PipelineSummary {
+  as_of: string;
+  ideas: PipelineIdea[];
+  research: PipelineResearch[];
+  specs: PipelineSpec[];
+  build: PipelinePr[];
+  qa: PipelinePr[];
+  release: PipelineDeployment[];
+  recent_incidents: PipelineIncident[];
+  counts: {
+    ideas: number;
+    research: number;
+    specs: number;
+    build: number;
+    qa: number;
+    release: number;
+    open_incidents: number;
+  };
+}
+
+export type DeployEnvironment = 'preview' | 'staging' | 'production';
+
+export type SignalSource =
+  | 'competitor_watch'
+  | 'customer_feedback'
+  | 'regulation_change'
+  | 'market_trend'
+  | 'internal_idea';
+
+export const SIGNAL_SOURCE_LABELS: Record<SignalSource, string> = {
+  competitor_watch: 'Veille concurrentielle',
+  customer_feedback: 'Feedback client',
+  regulation_change: 'Évolution réglementaire',
+  market_trend: 'Tendance marché',
+  internal_idea: 'Idée interne',
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// v2.0 — Hardening / Health
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface HealthCheck {
+  as_of: string;
+  agents: {
+    total: number;
+    active: number;
+    paused: number;
+    by_department: Record<string, number>;
+  };
+  sessions_24h: {
+    total: number;
+    completed: number;
+    failed: number;
+    total_tokens: number;
+    total_cost_usd: number;
+  };
+  actions_24h: {
+    proposed: number;
+    approved: number;
+    rejected: number;
+    pending_now: number;
+    pending_critical: number;
+  };
+  kill_switches_active: number;
+  audit_log: {
+    total_entries: number;
+    last_entry_at: string | null;
+    entries_24h: number;
+  };
+  last_brief: {
+    brief_type: string;
+    brief_date: string;
+    created_at: string;
+    arbitrations_pending: number;
+    arbitrations_urgent: number;
+  } | null;
+}
+
+export interface AuditIntegrity {
+  total_entries_scanned: number;
+  entries_valid: number;
+  mismatch_count: number;
+  integrity_ok: boolean;
+  mismatches: Array<{
+    id: string;
+    ts: string;
+    event_type: string;
+    expected_hash: string;
+    actual_hash: string;
+  }>;
+  verified_at: string;
+}
+
 export type ReminderLevel =
   | 'pre_due'
   | 'level_1_friendly'

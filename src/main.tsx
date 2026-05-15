@@ -72,6 +72,8 @@ const AsvcCustomersPage = lazy(() => import('./admin/pages/asvc/AsvcCustomersPag
 const AsvcContentPage = lazy(() => import('./admin/pages/asvc/AsvcContentPage'));
 const AsvcLeadsPage = lazy(() => import('./admin/pages/asvc/AsvcLeadsPage'));
 const AsvcFinancePage = lazy(() => import('./admin/pages/asvc/AsvcFinancePage'));
+const AsvcPipelinePage = lazy(() => import('./admin/pages/asvc/AsvcPipelinePage'));
+const AsvcHealthPage = lazy(() => import('./admin/pages/asvc/AsvcHealthPage'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const AdminAccessPage = lazy(() => import('./pages/AdminAccessPage'));
 
@@ -244,6 +246,8 @@ root.render(
               <Route path="asvc/content" element={<Suspense fallback={<AdminLoader />}><AsvcContentPage /></Suspense>} />
               <Route path="asvc/leads" element={<Suspense fallback={<AdminLoader />}><AsvcLeadsPage /></Suspense>} />
               <Route path="asvc/finance" element={<Suspense fallback={<AdminLoader />}><AsvcFinancePage /></Suspense>} />
+              <Route path="asvc/pipeline" element={<Suspense fallback={<AdminLoader />}><AsvcPipelinePage /></Suspense>} />
+              <Route path="asvc/health" element={<Suspense fallback={<AdminLoader />}><AsvcHealthPage /></Suspense>} />
             </Route>
           </Route>
 
