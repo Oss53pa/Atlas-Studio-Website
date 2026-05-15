@@ -19,6 +19,7 @@ import { isGmailConfigured } from "../_shared/asvc/gmail.ts";
 import { isGithubConfigured } from "../_shared/asvc/github.ts";
 import { isVercelConfigured } from "../_shared/asvc/vercel.ts";
 import { isCinetpayConfigured, isStripeConfigured, pickDefaultProvider } from "../_shared/asvc/payments.ts";
+import { isWhatsappConfigured } from "../_shared/asvc/whatsapp.ts";
 
 interface SingleBody { action_id?: string }
 interface BatchBody { action_ids?: string[] }
@@ -51,6 +52,11 @@ const PAYMENT_ROUTED_TYPES = new Set([
   "generate_invoice_payment_link",
 ]);
 
+// Action types qui peuvent être routés via WhatsApp si configuré.
+const WHATSAPP_ROUTED_TYPES = new Set([
+  "send_whatsapp_message",
+]);
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -60,7 +66,8 @@ async function callConnector(
     | "asvc-connector-github"
     | "asvc-connector-vercel"
     | "asvc-connector-cinetpay"
-    | "asvc-connector-stripe",
+    | "asvc-connector-stripe"
+    | "asvc-connector-whatsapp",
   actionId: string,
 ): Promise<{ ok: boolean; result?: unknown; error?: string }> {
   try {
@@ -97,6 +104,7 @@ async function executeOne(
   vercelReady: boolean,
   cinetpayReady: boolean,
   stripeReady: boolean,
+  whatsappReady: boolean,
 ): Promise<ExecutionResult> {
   try {
     // Récupère le type pour décider du chemin
@@ -116,6 +124,65 @@ async function executeOne(
         ok: false,
         error: `Status="${action.status}", attendu "approved" ou "modified"`,
       };
+    }
+
+    // Si action_type est send_whatsapp_message ET WhatsApp configuré → connecteur
+    if (whatsappReady && WHATSAPP_ROUTED_TYPES.has(action.action_type)) {
+      const wa = await callConnector("asvc-connector-whatsapp", actionId);
+      if (wa.ok) {
+        return {
+          action_id: actionId,
+          ok: true,
+          kind: "internal",
+          result: { connector: "whatsapp", ...((wa.result as Record<string, unknown>) ?? {}) },
+        };
+      }
+      await supabaseAdmin.rpc("asvc_log_audit", {
+        p_actor_type: actorIsCron ? "system" : "ceo",
+        p_actor_id: actorId,
+        p_event_type: "whatsapp_failed_fallback_internal",
+        p_resource_type: "asvc_agent_actions",
+        p_resource_id: actionId,
+        p_payload: { whatsapp_error: wa.error },
+      });
+    }
+
+    // Pour send_ticket_response : si le ticket source=whatsapp ET WhatsApp configuré,
+    // route via WhatsApp AU LIEU de Gmail.
+    if (whatsappReady && action.action_type === "send_ticket_response") {
+      const { data: full } = await supabaseAdmin
+        .from("asvc_agent_actions")
+        .select("proposed_payload")
+        .eq("id", actionId)
+        .single();
+      const tid = (full?.proposed_payload as { ticket_id?: string } | null)?.ticket_id;
+      if (tid) {
+        const { data: t } = await supabaseAdmin
+          .from("asvc_tickets")
+          .select("source")
+          .eq("id", tid)
+          .maybeSingle();
+        if (t?.source === "whatsapp") {
+          const wa = await callConnector("asvc-connector-whatsapp", actionId);
+          if (wa.ok) {
+            return {
+              action_id: actionId,
+              ok: true,
+              kind: "internal",
+              result: { connector: "whatsapp", ...((wa.result as Record<string, unknown>) ?? {}) },
+            };
+          }
+          // Si fail, on tombe sur Gmail comme fallback (si dispo)
+          await supabaseAdmin.rpc("asvc_log_audit", {
+            p_actor_type: actorIsCron ? "system" : "ceo",
+            p_actor_id: actorId,
+            p_event_type: "whatsapp_ticket_failed_fallback_gmail",
+            p_resource_type: "asvc_agent_actions",
+            p_resource_id: actionId,
+            p_payload: { whatsapp_error: wa.error },
+          });
+        }
+      }
     }
 
     // Si action_type routable via Gmail ET un compte est connecté → connecteur
@@ -307,13 +374,14 @@ Deno.serve(async (req) => {
   ]);
   const cinetpayReady = isCinetpayConfigured();
   const stripeReady = isStripeConfigured();
+  const whatsappReady = isWhatsappConfigured();
 
   // Exécute en série (séquentiel pour ordre déterministe et éviter contentions)
   const results: ExecutionResult[] = [];
   for (const id of ids) {
     results.push(await executeOne(
       id, authz.isCron, authz.actor,
-      gmailReady, githubReady, vercelReady, cinetpayReady, stripeReady,
+      gmailReady, githubReady, vercelReady, cinetpayReady, stripeReady, whatsappReady,
     ));
   }
 

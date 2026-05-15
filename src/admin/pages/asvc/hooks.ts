@@ -904,7 +904,13 @@ export function useOAuthTokens() {
 
 export interface ConnectorStatusEnv {
   cinetpay: { configured: boolean; site_id_present: boolean; api_key_present: boolean };
-  stripe: { configured: boolean; api_key_present: boolean };
+  stripe: { configured: boolean; api_key_present: boolean; webhook_secret_present?: boolean };
+  whatsapp: {
+    configured: boolean;
+    token_present: boolean;
+    phone_number_id_present: boolean;
+    webhook_configured: boolean;
+  };
   gmail_oauth: { configured: boolean; client_id_present: boolean };
   encryption: { configured: boolean };
 }

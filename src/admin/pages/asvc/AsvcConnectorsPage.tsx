@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useOAuthTokens, useEnvConnectorsStatus, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
@@ -122,6 +122,14 @@ export default function AsvcConnectorsPage() {
             envKeys={['STRIPE_SECRET_KEY', 'ASVC_STRIPE_WEBHOOK_SECRET']}
             extraNote="Configurer côté Supabase Edge Functions → Secrets. Endpoint webhook à enregistrer côté Stripe Dashboard → Webhooks : /functions/v1/asvc-payment-webhook-stripe (event checkout.session.completed). ASVC_STRIPE_WEBHOOK_SECRET distinct de STRIPE_WEBHOOK_SECRET (billing principal) pour éviter les conflits."
           />
+          <EnvConnectorCard
+            Icon={MessageCircle}
+            label="WhatsApp Business"
+            description="Canal SAV / SDR n°1 en UEMOA. Tickets entrants automatiquement créés (source='whatsapp'). Réponses Support N1 routées via WA quand le ticket est WhatsApp. Outbound SDR via send_whatsapp_message."
+            configured={envStatus?.whatsapp.configured ?? false}
+            envKeys={['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID', 'WHATSAPP_WEBHOOK_VERIFY_TOKEN', 'WHATSAPP_APP_SECRET']}
+            extraNote="Setup Meta : (1) developers.facebook.com → créer app Business + ajouter produit WhatsApp. (2) Ajouter un numéro WA Business, récupérer le PHONE_NUMBER_ID. (3) Générer System User Token (Business Manager). (4) Configurer Webhook → URL /functions/v1/asvc-whatsapp-webhook, verify token = celui dans WHATSAPP_WEBHOOK_VERIFY_TOKEN. (5) Subscribe au champ 'messages'. Webhook config = 2 secrets distincts : verify_token (handshake GET) + app_secret (signature POST)."
+          />
         </div>
       </section>
 
@@ -131,7 +139,6 @@ export default function AsvcConnectorsPage() {
         </h2>
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
           <li><strong>LinkedIn / X / Meta</strong> — publication des posts Content Agent</li>
-          <li><strong>WhatsApp Business</strong> — réponses Support N1 et SDR sur ce canal</li>
           <li><strong>Sentry</strong> — observability post-deploy pour DevOps Agent</li>
         </ul>
       </section>
