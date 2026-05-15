@@ -19,6 +19,11 @@ import type {
   FinanceDashboard,
   ReminderLevel,
   AccountingFlowKind,
+  PipelineSummary,
+  HealthCheck,
+  AuditIntegrity,
+  DeployEnvironment,
+  SignalSource,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -586,6 +591,136 @@ export function useTreasury() {
   }, [refresh]);
 
   return { dashboard, loading, generating, genError, refresh, triggerBrief };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// v2.0 — Pipeline Produit (Kanban)
+// ───────────────────────────────────────────────────────────────────────────
+
+export function usePipelineSummary() {
+  const [summary, setSummary] = useState<PipelineSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    const { data, error: err } = await supabase.rpc('asvc_pipeline_summary');
+    if (err) setError(err.message);
+    else setSummary(data as unknown as PipelineSummary);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const invokeRdProd = useCallback(
+    async (fnName: string, body: Record<string, unknown>) => {
+      setPending(true);
+      setActionError(null);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) throw new Error('Session manquante');
+        const { data, error: err } = await supabase.functions.invoke(fnName, {
+          body,
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (err) throw new Error(err.message);
+        if (data?.error) throw new Error(data.error);
+        await refresh();
+      } catch (e) {
+        setActionError((e as Error).message);
+      } finally {
+        setPending(false);
+      }
+    },
+    [refresh],
+  );
+
+  const detectSignal = useCallback(
+    (source: SignalSource, signalText: string) =>
+      invokeRdProd('asvc-veille', { source, signal_text: signalText }),
+    [invokeRdProd],
+  );
+
+  const launchResearch = useCallback(
+    (opportunityId: string) =>
+      invokeRdProd('asvc-user-research', { opportunity_id: opportunityId }),
+    [invokeRdProd],
+  );
+
+  const draftSpec = useCallback(
+    (opportunityId: string) =>
+      invokeRdProd('asvc-product-designer', { opportunity_id: opportunityId }),
+    [invokeRdProd],
+  );
+
+  const draftDev = useCallback(
+    (specId: string, repo: string) =>
+      invokeRdProd('asvc-dev', { spec_id: specId, repo }),
+    [invokeRdProd],
+  );
+
+  const runQa = useCallback(
+    (prId: string) => invokeRdProd('asvc-qa', { pr_id: prId }),
+    [invokeRdProd],
+  );
+
+  const prepareDeploy = useCallback(
+    (prId: string, environment: DeployEnvironment, appName: string) =>
+      invokeRdProd('asvc-devops-release', {
+        pr_id: prId,
+        environment,
+        app_name: appName,
+      }),
+    [invokeRdProd],
+  );
+
+  return {
+    summary,
+    loading,
+    error,
+    refresh,
+    pending,
+    actionError,
+    detectSignal,
+    launchResearch,
+    draftSpec,
+    draftDev,
+    runQa,
+    prepareDeploy,
+  };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// v2.0 — Health check + audit integrity
+// ───────────────────────────────────────────────────────────────────────────
+
+export function useHealthCheck() {
+  const [health, setHealth] = useState<HealthCheck | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [verifying, setVerifying] = useState(false);
+  const [integrity, setIntegrity] = useState<AuditIntegrity | null>(null);
+
+  const refresh = useCallback(async () => {
+    const { data } = await supabase.rpc('asvc_health_check');
+    setHealth(data as unknown as HealthCheck);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const verifyAuditChain = useCallback(async (limit = 1000) => {
+    setVerifying(true);
+    try {
+      const { data } = await supabase.rpc('asvc_verify_audit_chain', { p_limit: limit });
+      setIntegrity(data as unknown as AuditIntegrity);
+    } finally {
+      setVerifying(false);
+    }
+  }, []);
+
+  return { health, loading, refresh, verifying, integrity, verifyAuditChain };
 }
 
 // Helper: temps relatif en fr
