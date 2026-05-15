@@ -4,6 +4,21 @@
 export type Department = 'direction' | 'sav' | 'marketing' | 'ventes' | 'finance';
 
 // ───────────────────────────────────────────────────────────────────────────
+// Connecteurs OAuth
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface OAuthToken {
+  provider: string;
+  account_email: string;
+  account_label: string | null;
+  status: 'active' | 'revoked' | 'expired';
+  scope: string | null;
+  last_used_at: string | null;
+  last_refresh_at: string | null;
+  created_at: string;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
 // Execution orchestrator
 // ───────────────────────────────────────────────────────────────────────────
 

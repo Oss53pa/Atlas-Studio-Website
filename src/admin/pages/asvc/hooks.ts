@@ -27,6 +27,7 @@ import type {
   PendingExecution,
   BatchExecutionSummary,
   ExecutionResult,
+  OAuthToken,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -786,6 +787,92 @@ export function usePendingExecutions() {
   );
 
   return { rows, loading, executing, error, lastSummary, refresh, executeOne, executeBatch };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// OAuth Connectors
+// ───────────────────────────────────────────────────────────────────────────
+
+export function useOAuthTokens() {
+  const [tokens, setTokens] = useState<OAuthToken[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [revoking, setRevoking] = useState(false);
+
+  const refresh = useCallback(async () => {
+    const { data } = await supabase.rpc('asvc_oauth_list');
+    setTokens((data as unknown as OAuthToken[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  // Écoute les messages window.postMessage envoyés par le popup de callback
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data && typeof e.data === 'object' && (e.data as { type?: string }).type === 'asvc-oauth-connected') {
+        refresh();
+      }
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [refresh]);
+
+  const startGmailOAuth = useCallback(async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      alert('Session manquante');
+      return;
+    }
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+    if (!supabaseUrl) {
+      alert('VITE_SUPABASE_URL introuvable');
+      return;
+    }
+    const startUrl = `${supabaseUrl}/functions/v1/asvc-oauth-start?provider=gmail`;
+    // L'endpoint exige Authorization Bearer; fetch en redirect:manual pour
+    // récupérer Location, puis ouvrir Google directement dans un popup.
+    let location: string | null = null;
+    try {
+      const res = await fetch(startUrl, {
+        method: 'GET',
+        redirect: 'manual',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      location = res.headers.get('location');
+      if (!location) {
+        const text = await res.text().catch(() => '');
+        alert(`OAuth start a échoué : ${text.slice(0, 200)}`);
+        return;
+      }
+    } catch (e) {
+      alert(`OAuth start failed: ${(e as Error).message}`);
+      return;
+    }
+    const popup = window.open(location, 'asvc-oauth', 'width=520,height=680');
+    if (!popup) {
+      alert('Popup bloqué — autorise les popups pour ce site');
+    }
+  }, []);
+
+  const revoke = useCallback(
+    async (provider: string, accountEmail: string) => {
+      if (!confirm(`Révoquer le connecteur ${provider} pour ${accountEmail} ?`)) return;
+      setRevoking(true);
+      try {
+        await supabase.rpc('asvc_oauth_revoke', {
+          p_provider: provider,
+          p_account_email: accountEmail,
+        });
+        await refresh();
+      } finally {
+        setRevoking(false);
+      }
+    },
+    [refresh],
+  );
+
+  return { tokens, loading, refresh, startGmailOAuth, revoke, revoking };
 }
 
 // Helper: temps relatif en fr
