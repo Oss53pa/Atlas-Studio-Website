@@ -66,7 +66,7 @@ export function Proph3tChat({ open, onClose }: { open: boolean; onClose: () => v
   };
 
   const promptCorrection = (messageId: string) => {
-    const correction = window.prompt("Quelle est la bonne réponse ? PROPH3T va apprendre de votre correction.");
+    const correction = window.prompt("Quelle est la bonne réponse ? Proph3t va apprendre de votre correction.");
     if (correction && correction.trim()) {
       sendFeedback(messageId, "correction", correction.trim());
     }

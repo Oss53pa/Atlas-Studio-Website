@@ -1,0 +1,46 @@
+{
+  "name": "@atlas-studio/proph3t-client",
+  "version": "0.1.0",
+  "description": "Federation client for Atlas Studio Proph3t — let local app agents tap into the central memory, knowledge base, tools registry and audit log",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "src", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo 'TODO: vitest' && exit 0"
+  },
+  "keywords": [
+    "proph3t",
+    "atlas-studio",
+    "ohada",
+    "syscohada",
+    "ai",
+    "rag",
+    "federation"
+  ],
+  "author": "Atlas Studio",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  },
+  "peerDependencies": {
+    "@supabase/supabase-js": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@supabase/supabase-js": { "optional": true }
+  }
+}

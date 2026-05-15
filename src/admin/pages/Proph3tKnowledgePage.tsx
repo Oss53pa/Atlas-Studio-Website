@@ -13,7 +13,7 @@ import { ADMIN_INPUT_CLASS } from "../components/AdminFormField";
 import { useToast } from "../contexts/ToastContext";
 import { formatSupabaseError } from "../../lib/errorMessages";
 
-// PROPH3T v2 — page connaissance.
+// Proph3t v2 — page connaissance.
 // Deux sources distinctes :
 //   - proph3t_knowledge_base : référentiel système (SYSCOHADA, OHADA, fiscal…)
 //     pré-indexé, géré par l'équipe Atlas. Pas d'upload utilisateur.
@@ -187,7 +187,7 @@ export default function Proph3tKnowledgePage() {
 
   return (
     <div>
-      <AdminPageHeader title="Connaissance PROPH3T" subtitle="Référentiel SYSCOHADA/OHADA et documents indexés via RAG vectoriel">
+      <AdminPageHeader title="Connaissance Proph3t" subtitle="Référentiel SYSCOHADA/OHADA et documents indexés via RAG vectoriel">
         {tab === "kb" ? (
           <AdminButton icon={Plus} onClick={() => setShowAddKb(true)}>Ajouter une entrée</AdminButton>
         ) : (
