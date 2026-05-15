@@ -17,6 +17,7 @@ import { supabaseAdmin } from "../_shared/supabase.ts";
 import { authorizeRequest } from "../_shared/asvc/auth.ts";
 import { isGmailConfigured } from "../_shared/asvc/gmail.ts";
 import { isGithubConfigured } from "../_shared/asvc/github.ts";
+import { isVercelConfigured } from "../_shared/asvc/vercel.ts";
 
 interface SingleBody { action_id?: string }
 interface BatchBody { action_ids?: string[] }
@@ -37,11 +38,18 @@ const GITHUB_ROUTED_TYPES = new Set([
   "create_github_issue",
 ]);
 
+// Action types qui peuvent être routés via Vercel si un compte est connecté.
+const VERCEL_ROUTED_TYPES = new Set([
+  "deploy_to_preview",
+  "deploy_to_staging",
+  "deploy_to_production",
+]);
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 async function callConnector(
-  name: "asvc-connector-gmail" | "asvc-connector-github",
+  name: "asvc-connector-gmail" | "asvc-connector-github" | "asvc-connector-vercel",
   actionId: string,
 ): Promise<{ ok: boolean; result?: unknown; error?: string }> {
   try {
@@ -75,6 +83,7 @@ async function executeOne(
   actorId: string,
   gmailReady: boolean,
   githubReady: boolean,
+  vercelReady: boolean,
 ): Promise<ExecutionResult> {
   try {
     // Récupère le type pour décider du chemin
@@ -136,6 +145,28 @@ async function executeOne(
         p_resource_type: "asvc_agent_actions",
         p_resource_id: actionId,
         p_payload: { github_error: github.error },
+      });
+    }
+
+    // Si action_type routable via Vercel ET un compte est connecté → connecteur
+    if (vercelReady && VERCEL_ROUTED_TYPES.has(action.action_type)) {
+      const vercel = await callConnector("asvc-connector-vercel", actionId);
+      if (vercel.ok) {
+        return {
+          action_id: actionId,
+          ok: true,
+          kind: "internal",
+          result: { connector: "vercel", ...((vercel.result as Record<string, unknown>) ?? {}) },
+        };
+      }
+      // Fallback: dispatcher SQL marquera le deployment 'success' (stub interne)
+      await supabaseAdmin.rpc("asvc_log_audit", {
+        p_actor_type: actorIsCron ? "system" : "ceo",
+        p_actor_id: actorId,
+        p_event_type: "vercel_failed_fallback_internal",
+        p_resource_type: "asvc_agent_actions",
+        p_resource_id: actionId,
+        p_payload: { vercel_error: vercel.error },
       });
     }
 
@@ -206,15 +237,16 @@ Deno.serve(async (req) => {
   });
 
   // Pré-check connecteurs (1 fois pour tout le batch)
-  const [gmailReady, githubReady] = await Promise.all([
+  const [gmailReady, githubReady, vercelReady] = await Promise.all([
     isGmailConfigured().catch(() => false),
     isGithubConfigured().catch(() => false),
+    isVercelConfigured().catch(() => false),
   ]);
 
   // Exécute en série (séquentiel pour ordre déterministe et éviter contentions)
   const results: ExecutionResult[] = [];
   for (const id of ids) {
-    results.push(await executeOne(id, authz.isCron, authz.actor, gmailReady, githubReady));
+    results.push(await executeOne(id, authz.isCron, authz.actor, gmailReady, githubReady, vercelReady));
   }
 
   const summary = {

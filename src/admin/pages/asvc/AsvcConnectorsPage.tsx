@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useOAuthTokens, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
@@ -35,11 +35,20 @@ const CONNECTORS: ConnectorMeta[] = [
     setupNote: 'Génère un fine-grained PAT sur github.com/settings/personal-access-tokens (durée illimitée recommandée), restreint aux repos atlas-studio/* avec scopes Contents (Read+Write), Pull requests (Read+Write), Issues (Read+Write).',
     auth_kind: 'pat',
   },
+  {
+    provider: 'vercel',
+    label: 'Vercel',
+    description: 'Résolution preview URL + promotion preview→production par DevOps/Release Agent. Vercel auto-déploie depuis git push; le connecteur récupère et promeut.',
+    Icon: Triangle,
+    scopes: 'read+write deployments, projects',
+    setupNote: 'Génère un token sur vercel.com/account/tokens (scope: Full Account ou par-projet). Si compte Team, exporter ASVC_VERCEL_TEAM_ID côté Supabase Edge Functions env.',
+    auth_kind: 'pat',
+  },
 ];
 
 export default function AsvcConnectorsPage() {
   const { tokens, loading, startGmailOAuth, setPat, revoke, revoking } = useOAuthTokens();
-  const [patModalOpen, setPatModalOpen] = useState<null | 'github'>(null);
+  const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel'>(null);
 
   const tokenFor = (provider: string) =>
     tokens.filter((t) => t.provider === provider && t.status === 'active');
@@ -65,8 +74,8 @@ export default function AsvcConnectorsPage() {
           const handleConnect = () => {
             if (meta.auth_kind === 'oauth' && meta.provider === 'gmail') {
               startGmailOAuth();
-            } else if (meta.auth_kind === 'pat' && meta.provider === 'github') {
-              setPatModalOpen('github');
+            } else if (meta.auth_kind === 'pat' && (meta.provider === 'github' || meta.provider === 'vercel')) {
+              setPatModalOpen(meta.provider);
             }
           };
           return (
@@ -87,10 +96,10 @@ export default function AsvcConnectorsPage() {
           Connecteurs à venir
         </h2>
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
-          <li><strong>Vercel</strong> — déploiements production réels (préparés par DevOps Agent)</li>
-          <li><strong>LinkedIn / X / Meta</strong> — publication des posts Content Agent</li>
           <li><strong>CinetPay / Stripe</strong> — paiements et webhooks pour Facturation Agent</li>
+          <li><strong>LinkedIn / X / Meta</strong> — publication des posts Content Agent</li>
           <li><strong>WhatsApp Business</strong> — réponses Support N1 et SDR sur ce canal</li>
+          <li><strong>Sentry</strong> — observability post-deploy pour DevOps Agent</li>
         </ul>
       </section>
 
@@ -104,6 +113,25 @@ export default function AsvcConnectorsPage() {
           onClose={() => setPatModalOpen(null)}
           onSubmit={async (token) => {
             const r = await setPat('github', token);
+            if (r.ok) {
+              setPatModalOpen(null);
+              return { ok: true };
+            }
+            return { ok: false, error: r.error };
+          }}
+        />
+      )}
+
+      {patModalOpen === 'vercel' && (
+        <PatModal
+          provider="vercel"
+          title="Connecter Vercel"
+          subtitle="Colle un token API Vercel"
+          helpUrl="https://vercel.com/account/tokens"
+          helpText="Génère un token sur vercel.com/account/tokens (scope Full Account ou scopes spécifiques projets atlas-studio/*). Pour un compte Team, exporter ASVC_VERCEL_TEAM_ID côté Supabase env."
+          onClose={() => setPatModalOpen(null)}
+          onSubmit={async (token) => {
+            const r = await setPat('vercel', token);
             if (r.ok) {
               setPatModalOpen(null);
               return { ok: true };

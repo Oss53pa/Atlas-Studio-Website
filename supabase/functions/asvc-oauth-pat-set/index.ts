@@ -10,8 +10,8 @@ import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { authorizeRequest } from "../_shared/asvc/auth.ts";
 
-type Provider = "github";
-const VALID_PROVIDERS: Provider[] = ["github"];
+type Provider = "github" | "vercel";
+const VALID_PROVIDERS: Provider[] = ["github", "vercel"];
 
 interface Body {
   provider?: Provider;
@@ -25,6 +25,46 @@ interface ValidationResult {
   account_label: string;
   scope: string;
   error?: string;
+}
+
+/** Valide un PAT Vercel via /v2/user. */
+async function validateVercelPat(token: string): Promise<ValidationResult> {
+  try {
+    const teamId = Deno.env.get("ASVC_VERCEL_TEAM_ID");
+    const url = new URL("https://api.vercel.com/v2/user");
+    if (teamId) url.searchParams.set("teamId", teamId);
+    const res = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return {
+        ok: false,
+        account_email: "",
+        account_label: "",
+        scope: "",
+        error: `Vercel /v2/user (${res.status}): ${text.slice(0, 200)}`,
+      };
+    }
+    const data = await res.json();
+    const user = data.user ?? data;        // selon la version d'API
+    const accountEmail = (user.email as string) ?? (user.username as string) ?? "vercel-user";
+    const accountLabel = (user.name as string) ?? (user.username as string) ?? accountEmail;
+    return {
+      ok: true,
+      account_email: accountEmail,
+      account_label: accountLabel,
+      scope: teamId ? `team:${teamId}` : "personal",
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      account_email: "",
+      account_label: "",
+      scope: "",
+      error: (e as Error).message,
+    };
+  }
 }
 
 /** Valide un PAT GitHub en appelant /user et en récupérant l'identité. */
@@ -97,6 +137,9 @@ Deno.serve(async (req) => {
   switch (body.provider) {
     case "github":
       validation = await validateGithubPat(body.token);
+      break;
+    case "vercel":
+      validation = await validateVercelPat(body.token);
       break;
   }
 
