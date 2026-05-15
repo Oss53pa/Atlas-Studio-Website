@@ -1,10 +1,12 @@
-// PROPH3T Tool Direct — execute un tool unique (utilise par MCP server externe).
+// PROPH3T Tool Direct — execute un tool unique (utilise par MCP server externe
+// + apps satellites via le SDK @atlas-studio/proph3t-client).
 // Body : { tool_name, args }
-// Auth : JWT user OU service_role (avec apikey)
+// Auth : JWT Supabase user OU SSO JWT (HS256, signe par JWT_SECRET, mint par
+//        app-token) OU service_role (avec apikey).
 
 import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { runTool, type ToolName } from "../_shared/proph3t/tools.ts";
-import { supabaseAdmin } from "../_shared/supabase.ts";
+import { getFederationUser } from "../_shared/federation_auth.ts";
 import { appendAudit } from "../_shared/proph3t/audit.ts";
 
 interface DirectBody {
@@ -16,19 +18,14 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    // Auth flexible : JWT user OU service_role
+    // Auth flexible : Supabase JWT / SSO JWT / service_role
+    const user = await getFederationUser(req);
     const auth = req.headers.get("authorization") ?? "";
-    let userId: string | undefined;
+    const isServiceRole = auth.includes(
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "__never__",
+    );
 
-    if (auth.startsWith("Bearer ")) {
-      const token = auth.slice(7);
-      try {
-        const { data } = await supabaseAdmin.auth.getUser(token);
-        if (data.user) userId = data.user.id;
-      } catch { /* token peut etre service_role */ }
-    }
-
-    if (!userId && !auth.includes(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "__never__")) {
+    if (!user && !isServiceRole) {
       return errorResponse("Unauthorized", 401);
     }
 
@@ -36,13 +33,23 @@ Deno.serve(async (req) => {
     if (!body.tool_name) return errorResponse("tool_name requis", 400);
 
     const t0 = Date.now();
-    const result = await runTool(body.tool_name as ToolName, body.args ?? {}, { user_id: userId });
+    const result = await runTool(
+      body.tool_name as ToolName,
+      body.args ?? {},
+      { user_id: user?.id },
+    );
 
     // Audit
     await appendAudit({
       action: "proph3t_tool_direct",
-      actor_user_id: userId,
-      content: { tool: body.tool_name, args_keys: Object.keys(body.args ?? {}), duration_ms: Date.now() - t0 },
+      actor_user_id: user?.id,
+      content: {
+        tool: body.tool_name,
+        args_keys: Object.keys(body.args ?? {}),
+        duration_ms: Date.now() - t0,
+        auth_source: user?.source ?? (isServiceRole ? "service_role" : "unknown"),
+        app_id: user?.appId ?? (body.args?.app_id as string | undefined),
+      },
     });
 
     return jsonResponse({
