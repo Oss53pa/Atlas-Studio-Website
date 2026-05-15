@@ -17,6 +17,7 @@ import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { authorizeRequest } from "../_shared/asvc/auth.ts";
 import { sendGmailMessage, getDefaultGmailAccount } from "../_shared/asvc/gmail.ts";
+import { ensureCinetpayPaymentLink, isCinetpayConfigured, getInvoicePaymentUrl } from "../_shared/asvc/payments.ts";
 
 interface Body {
   action_id?: string;
@@ -137,6 +138,37 @@ Deno.serve(async (req) => {
     fields = extractEmailFields(action as ActionRow);
   } catch (e) {
     return errorResponse((e as Error).message, 400);
+  }
+
+  // ⭐ Auto-append payment URL pour les relances factures (si CinetPay configuré)
+  if ((action as ActionRow).action_type === "send_invoice_reminder") {
+    const invoiceId = ((action as ActionRow).proposed_payload as { invoice_id?: string }).invoice_id;
+    if (invoiceId) {
+      let paymentUrl = await getInvoicePaymentUrl(invoiceId).catch(() => null);
+      if (!paymentUrl && isCinetpayConfigured()) {
+        try {
+          const generated = await ensureCinetpayPaymentLink(invoiceId);
+          paymentUrl = generated.payment_url;
+        } catch (e) {
+          // Échec génération payment link → on continue l'envoi sans URL
+          await supabaseAdmin.rpc("asvc_log_audit", {
+            p_actor_type: authz.isCron ? "system" : "ceo",
+            p_actor_id: authz.actor,
+            p_event_type: "cinetpay_link_generation_failed_in_reminder",
+            p_resource_type: "asvc_invoices",
+            p_resource_id: invoiceId,
+            p_payload: { error: (e as Error).message },
+          });
+        }
+      }
+      if (paymentUrl) {
+        fields.body =
+          fields.body +
+          `\n\n---\n` +
+          `💳 Pour régler en ligne (Mobile Money / Carte) : ${paymentUrl}\n` +
+          `\nMerci de votre confiance,\nL'équipe Atlas Studio`;
+      }
+    }
   }
 
   // Envoie via Gmail

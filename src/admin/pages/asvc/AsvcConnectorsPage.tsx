@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
-import { useOAuthTokens, timeAgoFr } from './hooks';
+import { useOAuthTokens, useEnvConnectorsStatus, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
 
 type ConnectorAuthKind = 'oauth' | 'pat';
@@ -48,6 +48,7 @@ const CONNECTORS: ConnectorMeta[] = [
 
 export default function AsvcConnectorsPage() {
   const { tokens, loading, startGmailOAuth, setPat, revoke, revoking } = useOAuthTokens();
+  const { status: envStatus } = useEnvConnectorsStatus();
   const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel'>(null);
 
   const tokenFor = (provider: string) =>
@@ -91,12 +92,45 @@ export default function AsvcConnectorsPage() {
         })}
       </div>
 
+      <section className="mt-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Server size={14} className="text-admin-accent" />
+          <h2 className="text-neutral-light text-[13px] font-semibold">
+            Connecteurs configurés côté serveur (env vars)
+          </h2>
+        </div>
+        <p className="text-neutral-400 text-[12px] mb-3">
+          Pour les services à API key fixe (paiements, monitoring), la configuration
+          se fait dans <em>Supabase Edge Functions → Secrets</em>. Le statut ci-dessous
+          reflète ce que le serveur voit en ce moment.
+        </p>
+
+        <div className="space-y-2">
+          <EnvConnectorCard
+            Icon={CreditCard}
+            label="CinetPay"
+            description="Génère un lien Mobile Money / Carte attaché aux relances factures. Webhook public marque l'invoice paid après vérification."
+            configured={envStatus?.cinetpay.configured ?? false}
+            envKeys={['CINETPAY_API_KEY', 'CINETPAY_SITE_ID']}
+            extraNote="Configurer côté Supabase Edge Functions → Secrets. notify_url à enregistrer côté CinetPay : /functions/v1/asvc-payment-webhook-cinetpay"
+          />
+          <EnvConnectorCard
+            Icon={CreditCard}
+            label="Stripe"
+            description="Paiements internationaux (cartes USD/EUR) — à câbler dans un commit séparé."
+            configured={envStatus?.stripe.configured ?? false}
+            envKeys={['STRIPE_SECRET_KEY']}
+            extraNote="L'infrastructure de paiement Stripe existe déjà côté Atlas Studio principal. L'intégration ASVC arrive dans une prochaine itération."
+            soon
+          />
+        </div>
+      </section>
+
       <section className="mt-6 rounded-xl border border-white/10 bg-onyx-light/20 p-5">
         <h2 className="text-neutral-light text-[13px] font-semibold mb-2">
           Connecteurs à venir
         </h2>
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
-          <li><strong>CinetPay / Stripe</strong> — paiements et webhooks pour Facturation Agent</li>
           <li><strong>LinkedIn / X / Meta</strong> — publication des posts Content Agent</li>
           <li><strong>WhatsApp Business</strong> — réponses Support N1 et SDR sur ce canal</li>
           <li><strong>Sentry</strong> — observability post-deploy pour DevOps Agent</li>
@@ -241,6 +275,75 @@ function ConnectorCard({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function EnvConnectorCard({
+  Icon,
+  label,
+  description,
+  configured,
+  envKeys,
+  extraNote,
+  soon = false,
+}: {
+  Icon: typeof CreditCard;
+  label: string;
+  description: string;
+  configured: boolean;
+  envKeys: string[];
+  extraNote?: string;
+  soon?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-onyx-light/30 p-4">
+      <div className="flex items-start gap-3">
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+          configured ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/5 text-neutral-500'
+        }`}>
+          <Icon size={16} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+            <h3 className="text-neutral-light text-[13.5px] font-semibold">{label}</h3>
+            {configured ? (
+              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded">
+                <CheckCircle2 size={10} /> Configuré
+              </span>
+            ) : soon ? (
+              <span className="inline-flex items-center gap-1 text-[10px] text-neutral-500 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+                À venir
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/30 px-1.5 py-0.5 rounded">
+                <AlertCircle size={10} /> À configurer
+              </span>
+            )}
+          </div>
+          <p className="text-neutral-400 text-[12px] leading-relaxed mb-2">{description}</p>
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {envKeys.map((k) => (
+              <span
+                key={k}
+                className={`inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                  configured
+                    ? 'border-emerald-500/30 text-emerald-300 bg-emerald-500/5'
+                    : 'border-white/10 text-neutral-500'
+                }`}
+              >
+                {configured ? '✓' : '○'} {k}
+              </span>
+            ))}
+          </div>
+          {extraNote && (
+            <p className="text-neutral-600 text-[10.5px] italic flex items-start gap-1.5">
+              <AlertCircle size={10} className="mt-0.5 flex-shrink-0" />
+              {extraNote}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

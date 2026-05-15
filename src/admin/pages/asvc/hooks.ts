@@ -898,6 +898,47 @@ export function useOAuthTokens() {
   return { tokens, loading, refresh, startGmailOAuth, revoke, revoking, setPat };
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Env-based connectors (CinetPay, Stripe, etc.) status
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface ConnectorStatusEnv {
+  cinetpay: { configured: boolean; site_id_present: boolean; api_key_present: boolean };
+  stripe: { configured: boolean; api_key_present: boolean };
+  gmail_oauth: { configured: boolean; client_id_present: boolean };
+  encryption: { configured: boolean };
+}
+
+export function useEnvConnectorsStatus() {
+  const [status, setStatus] = useState<ConnectorStatusEnv | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) return;
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+      if (!supabaseUrl) return;
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/asvc-connectors-status`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) {
+        setStatus(await res.json());
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { status, loading, refresh };
+}
+
 // Helper: temps relatif en fr
 export function timeAgoFr(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
