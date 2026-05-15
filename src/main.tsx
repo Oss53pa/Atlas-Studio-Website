@@ -61,6 +61,17 @@ const AdminsPage = lazy(() => import('./admin/pages/AdminsPage'));
 const ErrorMonitorIndexPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorIndexPage'));
 const ErrorMonitorAppPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorAppPage'));
 const ErrorMonitorDetailPage = lazy(() => import('./admin/pages/error-monitor/ErrorMonitorDetailPage'));
+const AsvcHubPage = lazy(() => import('./admin/pages/asvc/AsvcHubPage'));
+const AsvcArbitrationsPage = lazy(() => import('./admin/pages/asvc/AsvcArbitrationsPage'));
+const AsvcAgentsPage = lazy(() => import('./admin/pages/asvc/AsvcAgentsPage'));
+const AsvcActionsLogPage = lazy(() => import('./admin/pages/asvc/AsvcActionsLogPage'));
+const AsvcKillSwitchPage = lazy(() => import('./admin/pages/asvc/AsvcKillSwitchPage'));
+const AsvcConfigPage = lazy(() => import('./admin/pages/asvc/AsvcConfigPage'));
+const AsvcTicketsPage = lazy(() => import('./admin/pages/asvc/AsvcTicketsPage'));
+const AsvcCustomersPage = lazy(() => import('./admin/pages/asvc/AsvcCustomersPage'));
+const AsvcContentPage = lazy(() => import('./admin/pages/asvc/AsvcContentPage'));
+const AsvcLeadsPage = lazy(() => import('./admin/pages/asvc/AsvcLeadsPage'));
+const AsvcFinancePage = lazy(() => import('./admin/pages/asvc/AsvcFinancePage'));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const AdminAccessPage = lazy(() => import('./pages/AdminAccessPage'));
 
@@ -222,6 +233,17 @@ root.render(
               <Route path="error-monitor" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorIndexPage /></Suspense>} />
               <Route path="error-monitor/:appSlug" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorAppPage /></Suspense>} />
               <Route path="error-monitor/:appSlug/:errorId" element={<Suspense fallback={<AdminLoader />}><ErrorMonitorDetailPage /></Suspense>} />
+              <Route path="asvc" element={<Suspense fallback={<AdminLoader />}><AsvcHubPage /></Suspense>} />
+              <Route path="asvc/arbitrations" element={<Suspense fallback={<AdminLoader />}><AsvcArbitrationsPage /></Suspense>} />
+              <Route path="asvc/agents" element={<Suspense fallback={<AdminLoader />}><AsvcAgentsPage /></Suspense>} />
+              <Route path="asvc/actions" element={<Suspense fallback={<AdminLoader />}><AsvcActionsLogPage /></Suspense>} />
+              <Route path="asvc/kill-switch" element={<Suspense fallback={<AdminLoader />}><AsvcKillSwitchPage /></Suspense>} />
+              <Route path="asvc/config" element={<Suspense fallback={<AdminLoader />}><AsvcConfigPage /></Suspense>} />
+              <Route path="asvc/tickets" element={<Suspense fallback={<AdminLoader />}><AsvcTicketsPage /></Suspense>} />
+              <Route path="asvc/customers" element={<Suspense fallback={<AdminLoader />}><AsvcCustomersPage /></Suspense>} />
+              <Route path="asvc/content" element={<Suspense fallback={<AdminLoader />}><AsvcContentPage /></Suspense>} />
+              <Route path="asvc/leads" element={<Suspense fallback={<AdminLoader />}><AsvcLeadsPage /></Suspense>} />
+              <Route path="asvc/finance" element={<Suspense fallback={<AdminLoader />}><AsvcFinancePage /></Suspense>} />
             </Route>
           </Route>
 

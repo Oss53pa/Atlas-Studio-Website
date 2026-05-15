@@ -5,6 +5,7 @@ import {
   ClipboardList, MessageSquare, Mail, BarChart3, ArrowLeft, LogOut,
   CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database, AlertTriangle,
   Crown, Home, Package, Wrench, PanelLeftClose, PanelLeftOpen,
+  Bot, Inbox, ScrollText, Power, SlidersHorizontal, LifeBuoy, UserCheck, Calendar, Target, Wallet,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -87,6 +88,24 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/proph3t-memory", icon: Database, label: "Mémoires" },
       { to: "/admin/proph3t-plans", icon: ListChecks, label: "Plans d'action" },
       { to: "/admin/proph3t-knowledge", icon: BookOpen, label: "Base RAG" },
+    ],
+  },
+  {
+    id: "asvc",
+    label: "ASVC — Virtual Company",
+    icon: Bot,
+    items: [
+      { to: "/admin/asvc", icon: Inbox, label: "Brief & Inbox" },
+      { to: "/admin/asvc/arbitrations", icon: ListChecks, label: "Arbitrages" },
+      { to: "/admin/asvc/agents", icon: Bot, label: "Agents" },
+      { to: "/admin/asvc/tickets", icon: LifeBuoy, label: "Tickets SAV" },
+      { to: "/admin/asvc/customers", icon: UserCheck, label: "Customer Lifecycle" },
+      { to: "/admin/asvc/content", icon: Calendar, label: "Content Calendar" },
+      { to: "/admin/asvc/leads", icon: Target, label: "Pipeline Ventes" },
+      { to: "/admin/asvc/finance", icon: Wallet, label: "Finance" },
+      { to: "/admin/asvc/actions", icon: ScrollText, label: "Journal actions" },
+      { to: "/admin/asvc/kill-switch", icon: Power, label: "Kill Switch" },
+      { to: "/admin/asvc/config", icon: SlidersHorizontal, label: "Configuration" },
     ],
   },
   {
