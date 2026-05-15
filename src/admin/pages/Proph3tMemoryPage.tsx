@@ -11,7 +11,7 @@ import { AdminConfirmDialog } from "../components/AdminConfirmDialog";
 import { useToast } from "../contexts/ToastContext";
 import { formatSupabaseError } from "../../lib/errorMessages";
 
-// PROPH3T v2 — page mémoire administrative.
+// Proph3t v2 — page mémoire administrative.
 // Le CDC v2 split l'ancienne table proph3t_memory en 3 tables distinctes :
 //   - proph3t_observations (KPIs, anomalies, alertes datées par société)
 //   - proph3t_business_rules (règles métier auto-générées par feedback)
@@ -102,7 +102,7 @@ export default function Proph3tMemoryPage() {
 
   const deleteEntry = (table: string, id: string, label: string) => {
     setConfirmDialog({
-      open: true, title: "Supprimer l'entrée ?", message: `${label} sera supprimée de la mémoire PROPH3T.`,
+      open: true, title: "Supprimer l'entrée ?", message: `${label} sera supprimée de la mémoire Proph3t.`,
       onConfirm: async () => {
         const { error } = await supabase.from(table).delete().eq("id", id);
         setConfirmDialog(prev => ({ ...prev, open: false }));
@@ -124,7 +124,7 @@ export default function Proph3tMemoryPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Mémoire PROPH3T" subtitle="Observations, règles métier auto-générées et Q/R validées par les utilisateurs">
+      <AdminPageHeader title="Mémoire Proph3t" subtitle="Observations, règles métier auto-générées et Q/R validées par les utilisateurs">
         <AdminButton icon={RefreshCw} variant="secondary" onClick={fetchAll}>Rafraîchir</AdminButton>
       </AdminPageHeader>
 

@@ -10,7 +10,7 @@ import { AdminModal } from "../components/AdminModal";
 import { useToast } from "../contexts/ToastContext";
 import { formatSupabaseError } from "../../lib/errorMessages";
 
-// Cette page remplace l'ancienne "Plans agents" (v1) par une vue "Activité PROPH3T v2".
+// Cette page remplace l'ancienne "Plans agents" (v1) par une vue "Activité Proph3t v2".
 // L'orchestrateur ReAct n'écrit plus de plans persistés (déplacé inline dans proph3t-ask),
 // donc cette page expose désormais 2 vues : conversations récentes et alertes proactives.
 
@@ -124,7 +124,7 @@ export default function Proph3tPlansPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Activité PROPH3T" subtitle="Conversations utilisateurs et alertes proactives générées par le monitoring continu">
+      <AdminPageHeader title="Activité Proph3t" subtitle="Conversations utilisateurs et alertes proactives générées par le monitoring continu">
         <AdminButton icon={RefreshCw} variant="secondary" onClick={fetchAll}>Rafraîchir</AdminButton>
       </AdminPageHeader>
 

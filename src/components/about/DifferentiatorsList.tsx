@@ -1,5 +1,6 @@
 import { ScrollReveal } from "../ui/ScrollReveal";
 import { SectionLabel } from "../shared/SectionLabel";
+import { StyledText } from "../ui/StyledText";
 
 interface Differentiator {
   num: string;
@@ -31,7 +32,7 @@ const ITEMS: Differentiator[] = [
     num: "04",
     title: "Votre IA connaît votre entreprise — et ne partage rien avec personne",
     desc:
-      "PROPH3T, notre moteur IA, tourne en local sur votre infrastructure via Ollama. Il connaît vos données en temps réel, connaît SYSCOHADA et la fiscalité de votre pays. Vos données financières ne transitent pas par des serveurs tiers. Le cloud reste une option — jamais une obligation.",
+      "Proph3t, notre moteur IA, tourne en local sur votre infrastructure via Ollama. Il connaît vos données en temps réel, connaît SYSCOHADA et la fiscalité de votre pays. Vos données financières ne transitent pas par des serveurs tiers. Le cloud reste une option — jamais une obligation.",
   },
   {
     num: "05",
@@ -68,10 +69,10 @@ export function DifferentiatorsList() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-neutral-light text-base md:text-lg font-semibold leading-snug mb-2 tracking-tight group-hover:text-gold transition-colors duration-300">
-                    {item.title}
+                    <StyledText>{item.title}</StyledText>
                   </h3>
                   <p className="text-neutral-muted text-[13px] md:text-sm font-light leading-relaxed">
-                    {item.desc}
+                    <StyledText>{item.desc}</StyledText>
                   </p>
                 </div>
               </div>

@@ -268,7 +268,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
           </div>
           <div className="text-[10.5px] text-neutral-600 mt-2 flex items-center justify-between">
             <span>
-              <strong className="text-neutral-500">Disclaimer :</strong> Proph3t est un assistant.
+              <strong className="text-neutral-500">Disclaimer :</strong> <span className="font-logo">Proph3t</span> est un assistant.
               Les decisions financieres et fiscales restent sous votre responsabilite.
             </span>
             <span>{userId ? "session authentifiee" : ""}</span>

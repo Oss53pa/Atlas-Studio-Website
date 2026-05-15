@@ -1,5 +1,6 @@
 import { ScrollReveal } from "../ui/ScrollReveal";
 import { SectionLabel } from "../shared/SectionLabel";
+import { StyledText } from "../ui/StyledText";
 
 interface Commitment {
   title: string;
@@ -15,7 +16,7 @@ const COMMITMENTS: Commitment[] = [
   {
     title: "Vos données vous appartiennent",
     desc:
-      "PROPH3T en local. Synchronisation transparente. Aucune dépendance à une plateforme étrangère pour accéder à vos propres données.",
+      "Proph3t en local. Synchronisation transparente. Aucune dépendance à une plateforme étrangère pour accéder à vos propres données.",
   },
   {
     title: "Fonctionne partout, toujours",
@@ -58,10 +59,10 @@ export function CommitmentsGrid() {
                   style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
                 />
                 <h3 className="text-neutral-light text-base md:text-lg font-semibold mb-3 leading-snug tracking-tight">
-                  {c.title}
+                  <StyledText>{c.title}</StyledText>
                 </h3>
                 <p className="text-neutral-muted text-[13px] md:text-sm font-light leading-relaxed">
-                  {c.desc}
+                  <StyledText>{c.desc}</StyledText>
                 </p>
               </div>
             </ScrollReveal>
