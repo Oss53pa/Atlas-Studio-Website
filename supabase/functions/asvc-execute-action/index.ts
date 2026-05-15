@@ -18,7 +18,7 @@ import { authorizeRequest } from "../_shared/asvc/auth.ts";
 import { isGmailConfigured } from "../_shared/asvc/gmail.ts";
 import { isGithubConfigured } from "../_shared/asvc/github.ts";
 import { isVercelConfigured } from "../_shared/asvc/vercel.ts";
-import { isCinetpayConfigured } from "../_shared/asvc/payments.ts";
+import { isCinetpayConfigured, isStripeConfigured, pickDefaultProvider } from "../_shared/asvc/payments.ts";
 
 interface SingleBody { action_id?: string }
 interface BatchBody { action_ids?: string[] }
@@ -46,8 +46,8 @@ const VERCEL_ROUTED_TYPES = new Set([
   "deploy_to_production",
 ]);
 
-// Action types qui peuvent être routés via CinetPay si configuré.
-const CINETPAY_ROUTED_TYPES = new Set([
+// Action types "paiement" routables via CinetPay OU Stripe selon le payload.
+const PAYMENT_ROUTED_TYPES = new Set([
   "generate_invoice_payment_link",
 ]);
 
@@ -55,7 +55,12 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 async function callConnector(
-  name: "asvc-connector-gmail" | "asvc-connector-github" | "asvc-connector-vercel" | "asvc-connector-cinetpay",
+  name:
+    | "asvc-connector-gmail"
+    | "asvc-connector-github"
+    | "asvc-connector-vercel"
+    | "asvc-connector-cinetpay"
+    | "asvc-connector-stripe",
   actionId: string,
 ): Promise<{ ok: boolean; result?: unknown; error?: string }> {
   try {
@@ -91,6 +96,7 @@ async function executeOne(
   githubReady: boolean,
   vercelReady: boolean,
   cinetpayReady: boolean,
+  stripeReady: boolean,
 ): Promise<ExecutionResult> {
   try {
     // Récupère le type pour décider du chemin
@@ -155,25 +161,54 @@ async function executeOne(
       });
     }
 
-    // Si action_type routable via CinetPay ET configuré → connecteur
-    if (cinetpayReady && CINETPAY_ROUTED_TYPES.has(action.action_type)) {
-      const cp = await callConnector("asvc-connector-cinetpay", actionId);
-      if (cp.ok) {
-        return {
-          action_id: actionId,
-          ok: true,
-          kind: "internal",
-          result: { connector: "cinetpay", ...((cp.result as Record<string, unknown>) ?? {}) },
-        };
+    // Si action_type est de la famille "paiement" → choisit cinetpay vs stripe
+    // selon payload.payment_provider (override) ou pickDefaultProvider(country).
+    if (PAYMENT_ROUTED_TYPES.has(action.action_type)) {
+      // Charge le payload pour décider
+      const { data: full } = await supabaseAdmin
+        .from("asvc_agent_actions")
+        .select("proposed_payload, modified_payload")
+        .eq("id", actionId)
+        .single();
+      const p = (full?.modified_payload ?? full?.proposed_payload ?? {}) as Record<string, unknown>;
+      const explicitProvider = p.payment_provider as "stripe" | "cinetpay" | undefined;
+      const invoiceId = p.invoice_id as string | undefined;
+
+      let provider: "stripe" | "cinetpay" =
+        explicitProvider === "stripe" || explicitProvider === "cinetpay"
+          ? explicitProvider
+          : "cinetpay";
+
+      if (!explicitProvider && invoiceId) {
+        try {
+          provider = await pickDefaultProvider(invoiceId);
+        } catch { /* fallback cinetpay */ }
       }
-      await supabaseAdmin.rpc("asvc_log_audit", {
-        p_actor_type: actorIsCron ? "system" : "ceo",
-        p_actor_id: actorId,
-        p_event_type: "cinetpay_failed_fallback_internal",
-        p_resource_type: "asvc_agent_actions",
-        p_resource_id: actionId,
-        p_payload: { cinetpay_error: cp.error },
-      });
+
+      // Bascule si le provider choisi n'est pas configuré
+      if (provider === "stripe" && !stripeReady && cinetpayReady) provider = "cinetpay";
+      if (provider === "cinetpay" && !cinetpayReady && stripeReady) provider = "stripe";
+
+      if ((provider === "cinetpay" && cinetpayReady) || (provider === "stripe" && stripeReady)) {
+        const connectorName = provider === "stripe" ? "asvc-connector-stripe" : "asvc-connector-cinetpay";
+        const pay = await callConnector(connectorName, actionId);
+        if (pay.ok) {
+          return {
+            action_id: actionId,
+            ok: true,
+            kind: "internal",
+            result: { connector: provider, ...((pay.result as Record<string, unknown>) ?? {}) },
+          };
+        }
+        await supabaseAdmin.rpc("asvc_log_audit", {
+          p_actor_type: actorIsCron ? "system" : "ceo",
+          p_actor_id: actorId,
+          p_event_type: `${provider}_failed_fallback_internal`,
+          p_resource_type: "asvc_agent_actions",
+          p_resource_id: actionId,
+          p_payload: { error: pay.error },
+        });
+      }
     }
 
     // Si action_type routable via Vercel ET un compte est connecté → connecteur
@@ -271,13 +306,14 @@ Deno.serve(async (req) => {
     isVercelConfigured().catch(() => false),
   ]);
   const cinetpayReady = isCinetpayConfigured();
+  const stripeReady = isStripeConfigured();
 
   // Exécute en série (séquentiel pour ordre déterministe et éviter contentions)
   const results: ExecutionResult[] = [];
   for (const id of ids) {
     results.push(await executeOne(
       id, authz.isCron, authz.actor,
-      gmailReady, githubReady, vercelReady, cinetpayReady,
+      gmailReady, githubReady, vercelReady, cinetpayReady, stripeReady,
     ));
   }
 

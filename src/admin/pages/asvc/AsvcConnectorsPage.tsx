@@ -117,11 +117,10 @@ export default function AsvcConnectorsPage() {
           <EnvConnectorCard
             Icon={CreditCard}
             label="Stripe"
-            description="Paiements internationaux (cartes USD/EUR) — à câbler dans un commit séparé."
+            description="Paiements internationaux (cartes USD/EUR via Checkout Session). Sélectionné automatiquement quand le client est hors UEMOA/CEMAC. Webhook vérifie la signature avant tout update."
             configured={envStatus?.stripe.configured ?? false}
-            envKeys={['STRIPE_SECRET_KEY']}
-            extraNote="L'infrastructure de paiement Stripe existe déjà côté Atlas Studio principal. L'intégration ASVC arrive dans une prochaine itération."
-            soon
+            envKeys={['STRIPE_SECRET_KEY', 'ASVC_STRIPE_WEBHOOK_SECRET']}
+            extraNote="Configurer côté Supabase Edge Functions → Secrets. Endpoint webhook à enregistrer côté Stripe Dashboard → Webhooks : /functions/v1/asvc-payment-webhook-stripe (event checkout.session.completed). ASVC_STRIPE_WEBHOOK_SECRET distinct de STRIPE_WEBHOOK_SECRET (billing principal) pour éviter les conflits."
           />
         </div>
       </section>
