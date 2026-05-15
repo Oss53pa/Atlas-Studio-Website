@@ -24,6 +24,9 @@ import type {
   AuditIntegrity,
   DeployEnvironment,
   SignalSource,
+  PendingExecution,
+  BatchExecutionSummary,
+  ExecutionResult,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -721,6 +724,68 @@ export function useHealthCheck() {
   }, []);
 
   return { health, loading, refresh, verifying, integrity, verifyAuditChain };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Execution orchestrator
+// ───────────────────────────────────────────────────────────────────────────
+
+export function usePendingExecutions() {
+  const [rows, setRows] = useState<PendingExecution[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [executing, setExecuting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastSummary, setLastSummary] = useState<BatchExecutionSummary | null>(null);
+
+  const refresh = useCallback(async () => {
+    const { data, error: err } = await supabase.rpc('asvc_pending_executions', { p_limit: 100 });
+    if (err) setError(err.message);
+    else setRows((data as unknown as PendingExecution[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const executeBatch = useCallback(
+    async (actionIds: string[]) => {
+      if (actionIds.length === 0) return;
+      setExecuting(true);
+      setError(null);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) throw new Error('Session manquante');
+
+        const { data, error: invokeErr } = await supabase.functions.invoke('asvc-execute-action', {
+          body: { action_ids: actionIds },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (invokeErr) throw new Error(invokeErr.message);
+        if (data?.error) throw new Error(data.error);
+
+        const summary = data?.summary as BatchExecutionSummary | undefined;
+        const results = data?.results as ExecutionResult[] | undefined;
+        if (summary) setLastSummary(summary);
+        await refresh();
+
+        // Si un seul a échoué, surface l'erreur la plus parlante
+        const firstError = results?.find((r) => !r.ok && r.error)?.error;
+        if (firstError) setError(firstError);
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setExecuting(false);
+      }
+    },
+    [refresh],
+  );
+
+  const executeOne = useCallback(
+    (actionId: string) => executeBatch([actionId]),
+    [executeBatch],
+  );
+
+  return { rows, loading, executing, error, lastSummary, refresh, executeOne, executeBatch };
 }
 
 // Helper: temps relatif en fr

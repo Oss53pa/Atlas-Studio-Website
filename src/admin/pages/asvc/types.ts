@@ -4,6 +4,37 @@
 export type Department = 'direction' | 'sav' | 'marketing' | 'ventes' | 'finance';
 
 // ───────────────────────────────────────────────────────────────────────────
+// Execution orchestrator
+// ───────────────────────────────────────────────────────────────────────────
+
+export type ExecutionKind = 'internal' | 'external' | 'unknown';
+
+export interface PendingExecution {
+  action_id: string;
+  action_type: string;
+  criticality: Criticality;
+  title: string;
+  agent_code: string | null;
+  approved_at: string | null;
+  execution_kind: ExecutionKind;
+}
+
+export interface ExecutionResult {
+  action_id: string;
+  ok: boolean;
+  kind?: 'internal' | 'external_required';
+  result?: unknown;
+  error?: string;
+}
+
+export interface BatchExecutionSummary {
+  total: number;
+  succeeded_internal: number;
+  pending_external: number;
+  failed: number;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
 // v2.0 — Pipeline Produit (R&D + Production)
 // ───────────────────────────────────────────────────────────────────────────
 
