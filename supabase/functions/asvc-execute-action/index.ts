@@ -20,6 +20,7 @@ import { isGithubConfigured } from "../_shared/asvc/github.ts";
 import { isVercelConfigured } from "../_shared/asvc/vercel.ts";
 import { isCinetpayConfigured, isStripeConfigured, pickDefaultProvider } from "../_shared/asvc/payments.ts";
 import { isWhatsappConfigured } from "../_shared/asvc/whatsapp.ts";
+import { isLinkedinConfigured } from "../_shared/asvc/linkedin.ts";
 
 interface SingleBody { action_id?: string }
 interface BatchBody { action_ids?: string[] }
@@ -67,7 +68,8 @@ async function callConnector(
     | "asvc-connector-vercel"
     | "asvc-connector-cinetpay"
     | "asvc-connector-stripe"
-    | "asvc-connector-whatsapp",
+    | "asvc-connector-whatsapp"
+    | "asvc-connector-linkedin",
   actionId: string,
 ): Promise<{ ok: boolean; result?: unknown; error?: string }> {
   try {
@@ -105,6 +107,7 @@ async function executeOne(
   cinetpayReady: boolean,
   stripeReady: boolean,
   whatsappReady: boolean,
+  linkedinReady: boolean,
 ): Promise<ExecutionResult> {
   try {
     // Récupère le type pour décider du chemin
@@ -124,6 +127,35 @@ async function executeOne(
         ok: false,
         error: `Status="${action.status}", attendu "approved" ou "modified"`,
       };
+    }
+
+    // Si action_type est publish_post ET payload.channel='linkedin' ET LinkedIn connecté
+    if (linkedinReady && action.action_type === "publish_post") {
+      const { data: full } = await supabaseAdmin
+        .from("asvc_agent_actions")
+        .select("proposed_payload, modified_payload")
+        .eq("id", actionId)
+        .single();
+      const p = (full?.modified_payload ?? full?.proposed_payload ?? {}) as Record<string, unknown>;
+      if (p.channel === "linkedin") {
+        const li = await callConnector("asvc-connector-linkedin", actionId);
+        if (li.ok) {
+          return {
+            action_id: actionId,
+            ok: true,
+            kind: "internal",
+            result: { connector: "linkedin", ...((li.result as Record<string, unknown>) ?? {}) },
+          };
+        }
+        await supabaseAdmin.rpc("asvc_log_audit", {
+          p_actor_type: actorIsCron ? "system" : "ceo",
+          p_actor_id: actorId,
+          p_event_type: "linkedin_failed_fallback_internal",
+          p_resource_type: "asvc_agent_actions",
+          p_resource_id: actionId,
+          p_payload: { linkedin_error: li.error },
+        });
+      }
     }
 
     // Si action_type est send_whatsapp_message ET WhatsApp configuré → connecteur
@@ -367,10 +399,11 @@ Deno.serve(async (req) => {
   });
 
   // Pré-check connecteurs (1 fois pour tout le batch)
-  const [gmailReady, githubReady, vercelReady] = await Promise.all([
+  const [gmailReady, githubReady, vercelReady, linkedinReady] = await Promise.all([
     isGmailConfigured().catch(() => false),
     isGithubConfigured().catch(() => false),
     isVercelConfigured().catch(() => false),
+    isLinkedinConfigured().catch(() => false),
   ]);
   const cinetpayReady = isCinetpayConfigured();
   const stripeReady = isStripeConfigured();
@@ -381,7 +414,7 @@ Deno.serve(async (req) => {
   for (const id of ids) {
     results.push(await executeOne(
       id, authz.isCron, authz.actor,
-      gmailReady, githubReady, vercelReady, cinetpayReady, stripeReady, whatsappReady,
+      gmailReady, githubReady, vercelReady, cinetpayReady, stripeReady, whatsappReady, linkedinReady,
     ));
   }
 

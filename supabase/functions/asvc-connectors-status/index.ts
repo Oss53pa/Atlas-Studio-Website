@@ -20,6 +20,7 @@ Deno.serve(async (req) => {
   const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
   const stripeWebhook = Deno.env.get("ASVC_STRIPE_WEBHOOK_SECRET");
   const googleClient = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
+  const liClient = Deno.env.get("LINKEDIN_OAUTH_CLIENT_ID");
   const masterKey = Deno.env.get("APP_ENCRYPTION_KEY");
   const waToken = Deno.env.get("WHATSAPP_TOKEN");
   const waPhoneId = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
@@ -46,6 +47,10 @@ Deno.serve(async (req) => {
     gmail_oauth: {
       configured: !!googleClient,
       client_id_present: !!googleClient,
+    },
+    linkedin_oauth: {
+      configured: !!liClient,
+      client_id_present: !!liClient,
     },
     encryption: {
       configured: !!(masterKey && masterKey.length >= 16),

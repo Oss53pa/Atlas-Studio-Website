@@ -817,7 +817,7 @@ export function useOAuthTokens() {
     return () => window.removeEventListener('message', onMsg);
   }, [refresh]);
 
-  const startGmailOAuth = useCallback(async () => {
+  const startOAuth = useCallback(async (kind: 'gmail' | 'linkedin') => {
     const { data: sessionData } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.access_token;
     if (!accessToken) {
@@ -829,9 +829,9 @@ export function useOAuthTokens() {
       alert('VITE_SUPABASE_URL introuvable');
       return;
     }
-    const startUrl = `${supabaseUrl}/functions/v1/asvc-oauth-start?provider=gmail`;
-    // L'endpoint exige Authorization Bearer; fetch en redirect:manual pour
-    // récupérer Location, puis ouvrir Google directement dans un popup.
+    const startUrl = kind === 'linkedin'
+      ? `${supabaseUrl}/functions/v1/asvc-oauth-linkedin-start`
+      : `${supabaseUrl}/functions/v1/asvc-oauth-start?provider=gmail`;
     let location: string | null = null;
     try {
       const res = await fetch(startUrl, {
@@ -850,10 +850,11 @@ export function useOAuthTokens() {
       return;
     }
     const popup = window.open(location, 'asvc-oauth', 'width=520,height=680');
-    if (!popup) {
-      alert('Popup bloqué — autorise les popups pour ce site');
-    }
+    if (!popup) alert('Popup bloqué — autorise les popups pour ce site');
   }, []);
+
+  const startGmailOAuth = useCallback(() => startOAuth('gmail'), [startOAuth]);
+  const startLinkedinOAuth = useCallback(() => startOAuth('linkedin'), [startOAuth]);
 
   const revoke = useCallback(
     async (provider: string, accountEmail: string) => {
@@ -895,7 +896,7 @@ export function useOAuthTokens() {
     [refresh],
   );
 
-  return { tokens, loading, refresh, startGmailOAuth, revoke, revoking, setPat };
+  return { tokens, loading, refresh, startGmailOAuth, startLinkedinOAuth, revoke, revoking, setPat };
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -912,6 +913,7 @@ export interface ConnectorStatusEnv {
     webhook_configured: boolean;
   };
   gmail_oauth: { configured: boolean; client_id_present: boolean };
+  linkedin_oauth: { configured: boolean; client_id_present: boolean };
   encryption: { configured: boolean };
 }
 

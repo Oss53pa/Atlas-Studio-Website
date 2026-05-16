@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert, Linkedin } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useOAuthTokens, useEnvConnectorsStatus, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
@@ -53,10 +53,19 @@ const CONNECTORS: ConnectorMeta[] = [
     setupNote: 'Génère un token sur sentry.io/settings/account/api/auth-tokens/ avec les scopes org:read, project:read, event:read. Pour self-hosted, exporter ASVC_SENTRY_HOST côté Supabase. Seuil event rate ajustable via ASVC_DEPLOY_ERROR_RATE_THRESHOLD (défaut 0.5 events/min).',
     auth_kind: 'pat',
   },
+  {
+    provider: 'linkedin',
+    label: 'LinkedIn',
+    description: 'Publication des posts Content Agent sur LinkedIn (UGC Posts). Token valide 60j (LinkedIn n\'émet pas de refresh — reconnexion manuelle à expiration).',
+    Icon: Linkedin,
+    scopes: 'openid profile email w_member_social',
+    setupNote: 'Setup Meta (LinkedIn) : créer app sur linkedin.com/developers, requérir le produit "Share on LinkedIn" (approval 24-48h), récupérer Client ID + Secret, configurer Redirect URI: /functions/v1/asvc-oauth-linkedin-callback. Configurer LINKEDIN_OAUTH_CLIENT_ID + LINKEDIN_OAUTH_CLIENT_SECRET côté Supabase env.',
+    auth_kind: 'oauth',
+  },
 ];
 
 export default function AsvcConnectorsPage() {
-  const { tokens, loading, startGmailOAuth, setPat, revoke, revoking } = useOAuthTokens();
+  const { tokens, loading, startGmailOAuth, startLinkedinOAuth, setPat, revoke, revoking } = useOAuthTokens();
   const { status: envStatus } = useEnvConnectorsStatus();
   const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel' | 'sentry'>(null);
 
@@ -84,6 +93,8 @@ export default function AsvcConnectorsPage() {
           const handleConnect = () => {
             if (meta.auth_kind === 'oauth' && meta.provider === 'gmail') {
               startGmailOAuth();
+            } else if (meta.auth_kind === 'oauth' && meta.provider === 'linkedin') {
+              startLinkedinOAuth();
             } else if (meta.auth_kind === 'pat' && (meta.provider === 'github' || meta.provider === 'vercel' || meta.provider === 'sentry')) {
               setPatModalOpen(meta.provider);
             }
@@ -147,7 +158,8 @@ export default function AsvcConnectorsPage() {
           Connecteurs à venir
         </h2>
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
-          <li><strong>LinkedIn / X / Meta</strong> — publication des posts Content Agent</li>
+          <li><strong>X / Meta (Instagram, Facebook)</strong> — publication des posts Content Agent sur les autres canaux</li>
+          <li><strong>Apollo / LinkedIn Sales Nav</strong> — enrichissement leads pour Prospection Agent</li>
         </ul>
       </section>
 
