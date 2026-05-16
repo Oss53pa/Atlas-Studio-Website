@@ -29,3 +29,5 @@ supabase/.temp/
 
 # Claude Code session-specific config
 .claude/settings.local.json
+.claude/.test-creds
+.claude/.test-creds.*

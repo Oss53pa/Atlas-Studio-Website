@@ -1,7 +1,134 @@
 // ASVC — Atlas Studio Virtual Company
 // Types TS miroir du schema Supabase (asvc_*)
 
-export type Department = 'direction' | 'sav' | 'marketing' | 'ventes' | 'finance';
+export type Department = 'direction' | 'rd' | 'production' | 'sav' | 'marketing' | 'ventes' | 'finance';
+
+// ───────────────────────────────────────────────────────────────────────────
+// Annexe C — Test cases catalog + readiness
+// ───────────────────────────────────────────────────────────────────────────
+
+export type TestCategory =
+  | 'nominal'
+  | 'edge'
+  | 'security'
+  | 'compliance'
+  | 'syscohada'
+  | 'resilience'
+  | 'performance';
+
+export type TestStatus = 'pending' | 'passed' | 'failed' | 'skipped' | 'flaky';
+
+export type TestScope = 'agent' | 'transverse';
+
+export interface TestCase {
+  id: string;
+  agent_code: string | null;
+  test_id: string;
+  scope: TestScope;
+  category: TestCategory;
+  is_critical: boolean;
+  scenario: string;
+  expected_outcome: string;
+  last_run_at: string | null;
+  last_status: TestStatus;
+  last_run_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ReadinessStage =
+  | 'no_tests_defined'
+  | 'needs_work'
+  | 'ready_for_shadow'
+  | 'ready_for_production';
+
+export interface AgentReadiness {
+  agent_code: string;
+  name: string;
+  department: Department;
+  agent_status: string;
+  total_tests: number;
+  passed: number;
+  failed: number;
+  pending: number;
+  skipped: number;
+  flaky: number;
+  critical_pending: number;
+  readiness_pct: number;
+  stage_recommended: ReadinessStage;
+}
+
+export const TEST_CATEGORY_LABELS: Record<TestCategory, string> = {
+  nominal: 'Nominal',
+  edge: 'Edge case',
+  security: 'Sécurité',
+  compliance: 'Conformité',
+  syscohada: 'SYSCOHADA',
+  resilience: 'Résilience',
+  performance: 'Performance',
+};
+
+export const TEST_CATEGORY_CLASSES: Record<TestCategory, string> = {
+  nominal: 'bg-white/5 text-neutral-400 border-white/10',
+  edge: 'bg-blue-500/10 text-blue-300 border-blue-500/30',
+  security: 'bg-red-500/15 text-red-300 border-red-500/30',
+  compliance: 'bg-violet-500/10 text-violet-300 border-violet-500/30',
+  syscohada: 'bg-admin-accent/20 text-admin-accent border-admin-accent/30',
+  resilience: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30',
+  performance: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
+};
+
+export const TEST_STATUS_LABELS: Record<TestStatus, string> = {
+  pending: 'En attente',
+  passed: 'Passé',
+  failed: 'Échoué',
+  skipped: 'Ignoré',
+  flaky: 'Flaky',
+};
+
+export const TEST_STATUS_CLASSES: Record<TestStatus, string> = {
+  pending: 'bg-white/5 text-neutral-500 border-white/10',
+  passed: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  failed: 'bg-red-500/15 text-red-300 border-red-500/30',
+  skipped: 'bg-neutral-500/10 text-neutral-400 border-neutral-500/20',
+  flaky: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+};
+
+export const READINESS_STAGE_LABELS: Record<ReadinessStage, string> = {
+  no_tests_defined: 'Aucun test défini',
+  needs_work: 'À compléter',
+  ready_for_shadow: 'Prêt pour shadow',
+  ready_for_production: 'Prêt pour prod',
+};
+
+export const READINESS_STAGE_CLASSES: Record<ReadinessStage, string> = {
+  no_tests_defined: 'bg-white/5 text-neutral-500 border-white/10',
+  needs_work: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  ready_for_shadow: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+  ready_for_production: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Annexe F — Templates partagés (asvc_agent_memory_shared)
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface SharedTemplateRow {
+  id: string;
+  key: string;
+  value: {
+    subject?: string;
+    body: string;
+    variables?: string[];
+    version?: number;
+    source_annexe?: 'F' | 'G';
+    platform?: string;
+    type?: string;
+    hashtags?: string[];
+    [k: string]: unknown;
+  };
+  description: string | null;
+  updated_at: string;
+}
 
 // ───────────────────────────────────────────────────────────────────────────
 // Connecteurs OAuth
@@ -522,7 +649,7 @@ export const STAGE_TO_GOAL: Record<LifecycleStage, OutreachGoal | null> = {
   churned: null,
 };
 
-export type Criticality = 'low' | 'normal' | 'high' | 'critical';
+export type Criticality = 'low' | 'normal' | 'orange' | 'high' | 'purple' | 'critical';
 
 export type ActionStatus =
   | 'proposed'
@@ -700,6 +827,8 @@ export interface AuditLogEntry {
 
 export const DEPARTMENT_LABELS: Record<Department, string> = {
   direction: 'Direction',
+  rd: 'R&D',
+  production: 'Production',
   sav: 'SAV',
   marketing: 'Marketing',
   ventes: 'Ventes',
@@ -707,22 +836,28 @@ export const DEPARTMENT_LABELS: Record<Department, string> = {
 };
 
 export const CRITICALITY_LABELS: Record<Criticality, string> = {
-  critical: 'Urgent',
+  critical: 'Critical',
+  purple: 'Deploy prod',
   high: 'Important',
+  orange: 'Preview/PR',
   normal: 'Normal',
   low: 'Info',
 };
 
 export const CRITICALITY_CLASSES: Record<Criticality, string> = {
   critical: 'border-red-500/50 bg-red-500/5',
+  purple: 'border-purple-500/50 bg-purple-500/5',
   high: 'border-admin-accent/50 bg-admin-accent/5',
+  orange: 'border-orange-500/40 bg-orange-500/5',
   normal: 'border-white/10 bg-onyx-light/30',
   low: 'border-white/5 bg-onyx-light/10',
 };
 
 export const CRITICALITY_BADGE_CLASSES: Record<Criticality, string> = {
   critical: 'bg-red-500/20 text-red-300 border-red-500/30',
+  purple: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
   high: 'bg-admin-accent/20 text-admin-accent border-admin-accent/30',
+  orange: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
   normal: 'bg-white/10 text-neutral-300 border-white/20',
   low: 'bg-white/5 text-neutral-500 border-white/10',
 };
