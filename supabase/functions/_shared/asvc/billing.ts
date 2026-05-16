@@ -9,6 +9,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput, fcfa } from "./sales-common.ts";
 
 export type ReminderLevel =
@@ -147,7 +148,7 @@ Draft la relance maintenant selon le niveau.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: BILLING_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("facturation", BILLING_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.3,

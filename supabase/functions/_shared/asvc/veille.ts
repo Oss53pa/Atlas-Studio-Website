@@ -9,6 +9,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 const VEILLE_SYSTEM = `Tu es Veille Agent de Atlas Studio. Tu détectes des opportunités produit/marché.
@@ -95,7 +96,7 @@ export async function detectOpportunity(
     apiKey,
     model,
     messages: [
-      { role: "system", content: VEILLE_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("veille", VEILLE_SYSTEM) },
       {
         role: "user",
         content: `SOURCE: ${params.source}\n\nSIGNAL:\n${params.signalText}\n\nQualifie l'opportunité.`,

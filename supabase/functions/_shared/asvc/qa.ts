@@ -10,6 +10,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 const QA_SYSTEM = `Tu es QA Agent de Atlas Studio. Quality Assurance senior, paranoïaque par design.
@@ -143,7 +144,7 @@ Génère le plan de tests JSON complet. Si module finance et SYSCOHADA non couve
     apiKey,
     model,
     messages: [
-      { role: "system", content: QA_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("qa", QA_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.2,

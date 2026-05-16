@@ -11,6 +11,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 
 interface Ticket {
   id: string;
@@ -219,7 +220,7 @@ Rédige le draft de réponse maintenant, puis la ligne META.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: SUPPORT_N1_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("support_n1", SUPPORT_N1_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.4,

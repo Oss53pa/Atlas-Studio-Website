@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 export type DocType =
@@ -116,7 +117,7 @@ Produis le JSON du document.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: DOC_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("documentation", DOC_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.4,

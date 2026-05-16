@@ -12,6 +12,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 const DEVOPS_SYSTEM = `Tu es DevOps/Release Agent de Atlas Studio. SRE virtuel.
@@ -149,7 +150,7 @@ Produis le plan de déploiement JSON.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: DEVOPS_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("devops_release", DEVOPS_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.1,

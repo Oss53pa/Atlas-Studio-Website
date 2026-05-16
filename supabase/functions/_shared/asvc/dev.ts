@@ -11,6 +11,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 const DEV_SYSTEM = `Tu es Dev Agent de Atlas Studio. Senior fullstack virtuel.
@@ -141,7 +142,7 @@ RAPPEL: pas de commit direct main, branche asvc/feature-* obligatoire.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: DEV_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("dev", DEV_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.2,

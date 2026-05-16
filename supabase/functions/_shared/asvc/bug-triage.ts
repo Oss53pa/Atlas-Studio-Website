@@ -13,6 +13,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 
 interface Ticket {
   id: string;
@@ -258,7 +259,7 @@ Qualifie ce bug et produis le JSON de triage.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: BUG_TRIAGE_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("bug_triage", BUG_TRIAGE_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.2,

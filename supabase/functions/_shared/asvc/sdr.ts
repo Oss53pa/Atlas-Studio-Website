@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import {
   fetchLead,
   fetchRecentInteractions,
@@ -124,7 +125,7 @@ Produis le JSON de l'outreach maintenant.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: SDR_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("sdr", SDR_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.5,
