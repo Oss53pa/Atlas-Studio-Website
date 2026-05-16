@@ -1,3 +1,4 @@
+import { Plane } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useActionsLog, timeAgoFr } from './hooks';
 import {
@@ -17,6 +18,8 @@ const STATUS_COLOR: Record<ActionStatus, string> = {
   failed: 'text-red-300 bg-red-500/15',
   cancelled: 'text-neutral-500 bg-neutral-500/5',
 };
+
+const VACATION_SILENCED_ERROR = 'silenced_during_vacation';
 
 export default function AsvcActionsLogPage() {
   const { actions, loading } = useActionsLog(200);
@@ -41,29 +44,46 @@ export default function AsvcActionsLogPage() {
             </tr>
           </thead>
           <tbody>
-            {actions.map((a) => (
-              <tr key={a.id} className="border-t border-white/5 hover:bg-white/[0.02]">
-                <td className="px-3 py-2.5 text-neutral-500 text-[11px] whitespace-nowrap">
-                  {timeAgoFr(a.created_at)}
-                </td>
-                <td className="px-3 py-2.5">
-                  <div className="text-neutral-light truncate max-w-md">{a.title}</div>
-                  <div className="text-neutral-600 text-[10.5px] font-mono">{a.action_type}</div>
-                </td>
-                <td className="px-3 py-2.5">
-                  <span
-                    className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded border ${CRITICALITY_BADGE_CLASSES[a.criticality]}`}
-                  >
-                    {CRITICALITY_LABELS[a.criticality]}
-                  </span>
-                </td>
-                <td className="px-3 py-2.5">
-                  <span className={`text-[11px] px-2 py-0.5 rounded ${STATUS_COLOR[a.status]}`}>
-                    {STATUS_LABELS[a.status]}
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {actions.map((a) => {
+              const silenced = a.status === 'cancelled' && a.execution_error === VACATION_SILENCED_ERROR;
+              return (
+                <tr
+                  key={a.id}
+                  className={`border-t border-white/5 hover:bg-white/[0.02] ${silenced ? 'italic opacity-70' : ''}`}
+                >
+                  <td className="px-3 py-2.5 text-neutral-500 text-[11px] whitespace-nowrap">
+                    {timeAgoFr(a.created_at)}
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="text-neutral-light truncate max-w-md">{a.title}</div>
+                      {silenced && (
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold border border-sky-500/30 bg-sky-500/10 text-sky-300"
+                          title="Action silencée pendant le mode vacances — non notifiée au CEO"
+                        >
+                          <Plane size={10} />
+                          Vacances
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-neutral-600 text-[10.5px] font-mono">{a.action_type}</div>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <span
+                      className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded border ${CRITICALITY_BADGE_CLASSES[a.criticality]}`}
+                    >
+                      {CRITICALITY_LABELS[a.criticality]}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <span className={`text-[11px] px-2 py-0.5 rounded ${STATUS_COLOR[a.status]}`}>
+                      {silenced ? 'Silencée (vacances)' : STATUS_LABELS[a.status]}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
             {!loading && actions.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-3 py-10 text-center text-neutral-500 text-sm">
