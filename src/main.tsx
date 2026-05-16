@@ -1,13 +1,13 @@
 import { StrictMode, lazy, Suspense } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './lib/auth';
 import { initErrorMonitor, AtlasErrorBoundary } from './lib/error-sdk';
 import { Layout } from './components/layout/Layout';
 import { RequireAdmin } from './components/guards/RequireAdmin';
 import { RequireSuperAdmin } from './components/guards/RequireSuperAdmin';
+import { ScrollToTop, AdminLoader } from './components/layout/RouteHelpers';
 import { AdminLayout } from './admin/AdminLayout';
 import AdminLoginPage from './admin/AdminLoginPage';
 import HomePage from './pages/HomePage';
@@ -86,22 +86,6 @@ const AsvcDeploymentDetailPage = lazy(() => import('./admin/pages/asvc/AsvcDeplo
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const AdminAccessPage = lazy(() => import('./pages/AdminAccessPage'));
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-  return null;
-}
-
-function AdminLoader() {
-  return (
-    <div className="flex items-center justify-center py-20">
-      <div className="text-neutral-muted text-sm">Chargement...</div>
-    </div>
-  );
-}
-
 const ATLAS_APP_ID = 'atlas-studio';
 
 // Silently swallow AbortError unhandled rejections.
@@ -174,9 +158,15 @@ if (import.meta.env.PROD) {
   }).catch(() => { /* SW registration is non-critical */ });
 }
 
-const container = document.getElementById('root')!;
-const root = (container as any).__root ?? createRoot(container);
-(container as any).__root = root;
+// Cache le Root sur l'élément pour éviter de re-créer une racine React
+// pendant le HMR (Vite réexécute main.tsx). Sans ce cache, React émet le
+// warning "createRoot() on a container that has already been passed".
+interface RootContainer extends HTMLElement {
+  __reactRoot?: Root;
+}
+const container = document.getElementById('root')! as RootContainer;
+const root: Root = container.__reactRoot ?? createRoot(container);
+container.__reactRoot = root;
 root.render(
   <StrictMode>
     <AtlasErrorBoundary appId={ATLAS_APP_ID}>
