@@ -862,7 +862,7 @@ export function useOAuthTokens() {
     return () => window.removeEventListener('message', onMsg);
   }, [refresh]);
 
-  const startOAuth = useCallback(async (kind: 'gmail' | 'linkedin') => {
+  const startOAuth = useCallback(async (kind: 'gmail' | 'linkedin' | 'meta') => {
     const { data: sessionData } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.access_token;
     if (!accessToken) {
@@ -876,7 +876,9 @@ export function useOAuthTokens() {
     }
     const startUrl = kind === 'linkedin'
       ? `${supabaseUrl}/functions/v1/asvc-oauth-linkedin-start`
-      : `${supabaseUrl}/functions/v1/asvc-oauth-start?provider=gmail`;
+      : kind === 'meta'
+        ? `${supabaseUrl}/functions/v1/asvc-oauth-meta-start`
+        : `${supabaseUrl}/functions/v1/asvc-oauth-start?provider=gmail`;
     let location: string | null = null;
     try {
       const res = await fetch(startUrl, {
@@ -900,6 +902,7 @@ export function useOAuthTokens() {
 
   const startGmailOAuth = useCallback(() => startOAuth('gmail'), [startOAuth]);
   const startLinkedinOAuth = useCallback(() => startOAuth('linkedin'), [startOAuth]);
+  const startMetaOAuth = useCallback(() => startOAuth('meta'), [startOAuth]);
 
   const revoke = useCallback(
     async (provider: string, accountEmail: string) => {
@@ -941,7 +944,7 @@ export function useOAuthTokens() {
     [refresh],
   );
 
-  return { tokens, loading, refresh, startGmailOAuth, startLinkedinOAuth, revoke, revoking, setPat };
+  return { tokens, loading, refresh, startGmailOAuth, startLinkedinOAuth, startMetaOAuth, revoke, revoking, setPat };
 }
 
 // ───────────────────────────────────────────────────────────────────────────

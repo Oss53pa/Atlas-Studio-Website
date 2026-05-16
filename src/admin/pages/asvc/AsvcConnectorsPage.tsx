@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert, Linkedin, UserSearch } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert, Linkedin, UserSearch, Facebook } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useOAuthTokens, useEnvConnectorsStatus, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
@@ -71,10 +71,19 @@ const CONNECTORS: ConnectorMeta[] = [
     setupNote: 'Setup Meta (LinkedIn) : créer app sur linkedin.com/developers, requérir le produit "Share on LinkedIn" (approval 24-48h), récupérer Client ID + Secret, configurer Redirect URI: /functions/v1/asvc-oauth-linkedin-callback. Configurer LINKEDIN_OAUTH_CLIENT_ID + LINKEDIN_OAUTH_CLIENT_SECRET côté Supabase env.',
     auth_kind: 'oauth',
   },
+  {
+    provider: 'meta',
+    label: 'Meta (Facebook + Instagram)',
+    description: 'Publication des posts Content Agent sur Facebook Pages et Instagram Business. 1 Meta = N Pages liées + IG Business si rattaché à la Page. Page Access Tokens never-expiring (scope business_management).',
+    Icon: Facebook,
+    scopes: 'pages_manage_posts, pages_read_engagement, instagram_basic, instagram_content_publish, business_management',
+    setupNote: 'Setup Meta : (1) developers.facebook.com/apps → créer app Business. (2) Ajouter produits "Facebook Login for Business" + "Instagram Graph API". (3) Configurer Redirect URI : /functions/v1/asvc-oauth-meta-callback. (4) App Review pour pages_manage_posts + instagram_content_publish (Business Verification requise — 1-2 semaines). (5) Configurer META_OAUTH_CLIENT_ID + META_OAUTH_CLIENT_SECRET côté Supabase env. (6) IG : la Page Facebook doit être liée à un compte IG Business/Creator.',
+    auth_kind: 'oauth',
+  },
 ];
 
 export default function AsvcConnectorsPage() {
-  const { tokens, loading, startGmailOAuth, startLinkedinOAuth, setPat, revoke, revoking } = useOAuthTokens();
+  const { tokens, loading, startGmailOAuth, startLinkedinOAuth, startMetaOAuth, setPat, revoke, revoking } = useOAuthTokens();
   const { status: envStatus } = useEnvConnectorsStatus();
   const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel' | 'sentry' | 'apollo'>(null);
 
@@ -104,6 +113,8 @@ export default function AsvcConnectorsPage() {
               startGmailOAuth();
             } else if (meta.auth_kind === 'oauth' && meta.provider === 'linkedin') {
               startLinkedinOAuth();
+            } else if (meta.auth_kind === 'oauth' && meta.provider === 'meta') {
+              startMetaOAuth();
             } else if (meta.auth_kind === 'pat' && (meta.provider === 'github' || meta.provider === 'vercel' || meta.provider === 'sentry' || meta.provider === 'apollo')) {
               setPatModalOpen(meta.provider);
             }
@@ -167,8 +178,9 @@ export default function AsvcConnectorsPage() {
           Connecteurs à venir
         </h2>
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
-          <li><strong>X / Meta (Instagram, Facebook)</strong> — publication des posts Content Agent sur les autres canaux</li>
+          <li><strong>X (ex-Twitter)</strong> — API payante depuis 2023 ($200/mois min), reportée tant que le ROI n'est pas démontré sur les autres canaux</li>
           <li><strong>LinkedIn Sales Navigator</strong> — enrichissement avancé en complément d'Apollo</li>
+          <li><strong>Mintlify</strong> — publication automatique de la documentation par Documentation Agent</li>
         </ul>
       </section>
 
