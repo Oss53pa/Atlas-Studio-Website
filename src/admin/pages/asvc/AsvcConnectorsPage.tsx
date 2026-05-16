@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert, Linkedin } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert, Linkedin, UserSearch } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useOAuthTokens, useEnvConnectorsStatus, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
@@ -54,6 +54,15 @@ const CONNECTORS: ConnectorMeta[] = [
     auth_kind: 'pat',
   },
   {
+    provider: 'apollo',
+    label: 'Apollo',
+    description: 'Enrichissement leads par email/domain pour Prospection Agent. Récupère titre, LinkedIn, taille société, secteur, tech stack. Silencieux si pas de clé : l\'agent retombe sur sa checklist de recherche.',
+    Icon: UserSearch,
+    scopes: 'people:enrich, organizations:enrich',
+    setupNote: 'Génère une clé API sur app.apollo.io/settings/integrations/api-keys (free tier limité — vérifie les crédits avant prod). Aucun setup côté Supabase env requis ; la clé est stockée chiffrée AES-256 comme les autres PATs.',
+    auth_kind: 'pat',
+  },
+  {
     provider: 'linkedin',
     label: 'LinkedIn',
     description: 'Publication des posts Content Agent sur LinkedIn (UGC Posts). Token valide 60j (LinkedIn n\'émet pas de refresh — reconnexion manuelle à expiration).',
@@ -67,7 +76,7 @@ const CONNECTORS: ConnectorMeta[] = [
 export default function AsvcConnectorsPage() {
   const { tokens, loading, startGmailOAuth, startLinkedinOAuth, setPat, revoke, revoking } = useOAuthTokens();
   const { status: envStatus } = useEnvConnectorsStatus();
-  const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel' | 'sentry'>(null);
+  const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel' | 'sentry' | 'apollo'>(null);
 
   const tokenFor = (provider: string) =>
     tokens.filter((t) => t.provider === provider && t.status === 'active');
@@ -95,7 +104,7 @@ export default function AsvcConnectorsPage() {
               startGmailOAuth();
             } else if (meta.auth_kind === 'oauth' && meta.provider === 'linkedin') {
               startLinkedinOAuth();
-            } else if (meta.auth_kind === 'pat' && (meta.provider === 'github' || meta.provider === 'vercel' || meta.provider === 'sentry')) {
+            } else if (meta.auth_kind === 'pat' && (meta.provider === 'github' || meta.provider === 'vercel' || meta.provider === 'sentry' || meta.provider === 'apollo')) {
               setPatModalOpen(meta.provider);
             }
           };
@@ -159,7 +168,7 @@ export default function AsvcConnectorsPage() {
         </h2>
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
           <li><strong>X / Meta (Instagram, Facebook)</strong> — publication des posts Content Agent sur les autres canaux</li>
-          <li><strong>Apollo / LinkedIn Sales Nav</strong> — enrichissement leads pour Prospection Agent</li>
+          <li><strong>LinkedIn Sales Navigator</strong> — enrichissement avancé en complément d'Apollo</li>
         </ul>
       </section>
 
@@ -211,6 +220,25 @@ export default function AsvcConnectorsPage() {
           onClose={() => setPatModalOpen(null)}
           onSubmit={async (token) => {
             const r = await setPat('sentry', token);
+            if (r.ok) {
+              setPatModalOpen(null);
+              return { ok: true };
+            }
+            return { ok: false, error: r.error };
+          }}
+        />
+      )}
+
+      {patModalOpen === 'apollo' && (
+        <PatModal
+          provider="apollo"
+          title="Connecter Apollo"
+          subtitle="Colle une clé API Apollo (X-Api-Key)"
+          helpUrl="https://app.apollo.io/settings/integrations/api-keys"
+          helpText="Génère une clé API sur app.apollo.io/settings/integrations/api-keys. La clé est validée contre /v1/auth/health avant stockage. Free tier limité : monitore tes crédits."
+          onClose={() => setPatModalOpen(null)}
+          onSubmit={async (token) => {
+            const r = await setPat('apollo', token);
             if (r.ok) {
               setPatModalOpen(null);
               return { ok: true };

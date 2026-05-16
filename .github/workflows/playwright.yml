@@ -1,0 +1,64 @@
+name: Playwright E2E
+
+# Lance les tests Playwright sur PR + push main.
+#
+# Smoke tests : tournent toujours (pas de creds requises).
+# Tests admin : skip auto si E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD pas définis
+# en secrets repo.
+#
+# Pour activer les tests authentifiés :
+#   Settings → Secrets and variables → Actions → ajouter :
+#     - E2E_ADMIN_EMAIL    : email d'un compte admin sur l'app
+#     - E2E_ADMIN_PASSWORD : son mot de passe
+#     - VITE_SUPABASE_URL  : URL Supabase (sinon le client supabase n'init pas)
+#     - VITE_SUPABASE_ANON_KEY : clé anon
+#
+# Sans ces secrets, le workflow tourne quand même mais ne fait que les smoke
+# tests (pages publiques + routes protégées redirigent OK).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build (vite preview sera servi par Playwright)
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          CI: 'true'
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

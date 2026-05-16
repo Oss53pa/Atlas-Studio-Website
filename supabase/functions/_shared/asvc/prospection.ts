@@ -15,6 +15,20 @@ import {
   parseJsonOutput,
   leadContextString,
 } from "./sales-common.ts";
+import {
+  isApolloConfigured,
+  enrichByEmail,
+  enrichByDomain,
+  summarizeApolloEnrichment,
+  type ApolloEnrichmentResult,
+} from "./apollo.ts";
+
+function domainFromEmail(email: string | null): string | null {
+  if (!email) return null;
+  const at = email.lastIndexOf("@");
+  if (at < 0 || at === email.length - 1) return null;
+  return email.slice(at + 1).toLowerCase();
+}
 
 const PROSPECTION_SYSTEM = `Tu es Prospection Agent de Atlas Studio.
 Tu enrichis et qualifies des leads B2B francophones (UEMOA + CEMAC).
@@ -87,6 +101,32 @@ export async function enrichLead(leadId: string): Promise<EnrichLeadResult> {
   const lead = await fetchLead(leadId);
   const agentId = await fetchAgentIdByCode("prospection");
 
+  // Enrichissement Apollo (silencieux si pas de clé configurée)
+  let apollo: ApolloEnrichmentResult | null = null;
+  let apolloSource: "email" | "domain" | "none" = "none";
+  if (await isApolloConfigured()) {
+    try {
+      if (lead.contact_email) {
+        apollo = await enrichByEmail(lead.contact_email);
+        apolloSource = "email";
+      }
+      if ((!apollo || !apollo.found) && lead.contact_email) {
+        const domain = domainFromEmail(lead.contact_email);
+        if (domain) {
+          apollo = await enrichByDomain(domain);
+          apolloSource = "domain";
+        }
+      }
+    } catch (e) {
+      console.warn(`[prospection] apollo enrichment échec: ${(e as Error).message}`);
+      apollo = null;
+    }
+  }
+
+  const apolloBlock = apollo
+    ? `\n\nENRICHISSEMENT APOLLO (source=${apolloSource})\n${summarizeApolloEnrichment(apollo)}`
+    : "";
+
   const chat = await anthropicChat({
     apiKey,
     model,
@@ -94,7 +134,7 @@ export async function enrichLead(leadId: string): Promise<EnrichLeadResult> {
       { role: "system", content: await loadAgentSystemPrompt("prospection", PROSPECTION_SYSTEM) },
       {
         role: "user",
-        content: `Lead à qualifier:\n\n${leadContextString(lead)}\n\nProduis le JSON de qualification.`,
+        content: `Lead à qualifier:\n\n${leadContextString(lead)}${apolloBlock}\n\nProduis le JSON de qualification.`,
       },
     ],
     temperature: 0.3,
@@ -154,6 +194,9 @@ export async function enrichLead(leadId: string): Promise<EnrichLeadResult> {
         previous_stage: lead.stage,
         previous_score: lead.score,
         model,
+        apollo_used: apollo !== null,
+        apollo_source: apolloSource,
+        apollo_match: apollo?.found ?? false,
       },
       status: "proposed",
     })
