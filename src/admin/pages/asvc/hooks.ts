@@ -24,16 +24,10 @@ import type {
   AuditIntegrity,
   DeployEnvironment,
   SignalSource,
-  PendingExecution,
-  BatchExecutionSummary,
-  ExecutionResult,
-  OAuthToken,
-  AgentActionStats,
-  VacationStatus,
-  AutoApproveCandidate,
-  AutoApprovePattern,
-  Criticality,
-  AgentPromptVersion,
+  AgentReadiness,
+  TestCase,
+  TestStatus,
+  SharedTemplateRow,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -131,7 +125,6 @@ export function useAgents() {
 
   return { agents, loading };
 }
-
 export function useAgentStats(days = 7) {
   const [stats, setStats] = useState<Record<string, AgentActionStats>>({});
   const [loading, setLoading] = useState(true);
@@ -170,6 +163,8 @@ export function useBriefsHistory(limit = 50) {
 
   return { briefs, loading, refresh };
 }
+
+
 
 export function useLatestBrief(briefType: 'morning' | 'evening' = 'morning') {
   const [brief, setBrief] = useState<CooBrief | null>(null);
@@ -773,8 +768,171 @@ export function useHealthCheck() {
 }
 
 // ───────────────────────────────────────────────────────────────────────────
-// Execution orchestrator
+// Annexe C — Tests readiness par agent
 // ───────────────────────────────────────────────────────────────────────────
+
+export function useAgentReadiness() {
+  const [rows, setRows] = useState<AgentReadiness[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase
+        .from('v_asvc_agent_readiness')
+        .select('*')
+        .order('department')
+        .order('agent_code');
+      if (err) {
+        console.error('[useAgentReadiness] error', err);
+        setError(err.message);
+      } else {
+        setRows((data as unknown as AgentReadiness[]) ?? []);
+      }
+    } catch (e) {
+      console.error('[useAgentReadiness] thrown', e);
+      setError((e as Error).message ?? 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { rows, loading, error, refresh };
+}
+
+export function useTestCases(agentCode: string | null) {
+  const [cases, setCases] = useState<TestCase[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!agentCode) {
+      setCases([]);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const query = supabase
+        .from('asvc_agent_test_cases')
+        .select('*')
+        .order('is_critical', { ascending: false })
+        .order('category')
+        .order('test_id');
+
+      const { data, error: err } =
+        agentCode === '_transverse'
+          ? await query.is('agent_code', null)
+          : await query.eq('agent_code', agentCode);
+
+      if (err) {
+        console.error('[useTestCases] error', err);
+        setError(err.message);
+      } else {
+        setCases((data as unknown as TestCase[]) ?? []);
+      }
+    } catch (e) {
+      console.error('[useTestCases] thrown', e);
+      setError((e as Error).message ?? 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  }, [agentCode]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const recordResult = useCallback(
+    async (testCase: TestCase, status: TestStatus, notes?: string) => {
+      setPendingId(testCase.id);
+      setError(null);
+      try {
+        const { error: err } = await supabase.rpc('asvc_record_test_result', {
+          p_agent_code: testCase.agent_code,
+          p_test_id: testCase.test_id,
+          p_status: status,
+          p_notes: notes ?? null,
+        });
+        if (err) throw err;
+        await refresh();
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setPendingId(null);
+      }
+    },
+    [refresh],
+  );
+
+  return { cases, loading, error, refresh, recordResult, pendingId };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Annexe F — Templates partagés (asvc_agent_memory_shared)
+// ───────────────────────────────────────────────────────────────────────────
+
+export function useSharedTemplates() {
+  const [rows, setRows] = useState<SharedTemplateRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase
+        .from('asvc_agent_memory_shared')
+        .select('id, key, value, description, updated_at')
+        .like('key', 'template_%')
+        .order('key');
+      if (err) {
+        console.error('[useSharedTemplates] error', err);
+        setError(err.message);
+      } else {
+        setRows((data as unknown as SharedTemplateRow[]) ?? []);
+      }
+    } catch (e) {
+      console.error('[useSharedTemplates] thrown', e);
+      setError((e as Error).message ?? 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const updateTemplate = useCallback(
+    async (id: string, value: SharedTemplateRow['value']) => {
+      setSaving(true);
+      setError(null);
+      try {
+        const nextValue = {
+          ...value,
+          version: typeof value.version === 'number' ? value.version + 1 : 2,
+        };
+        const { error: err } = await supabase
+          .from('asvc_agent_memory_shared')
+          .update({ value: nextValue, updated_at: new Date().toISOString() })
+          .eq('id', id);
+        if (err) throw err;
+        await refresh();
+      } catch (e) {
+        setError((e as Error).message);
+        throw e;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [refresh],
+  );
+
+  return { rows, loading, error, refresh, updateTemplate, saving };
+}
 
 export function usePendingExecutions() {
   const [rows, setRows] = useState<PendingExecution[]>([]);
@@ -1180,6 +1338,8 @@ export function useAgentPromptVersions(agentCode: string | null) {
 
   return { versions, loading, saving, error, refresh, createVersion, activateVersion, deactivateActive };
 }
+
+
 
 // Helper: temps relatif en fr
 export function timeAgoFr(iso: string): string {
