@@ -6,7 +6,7 @@ import {
   CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database, AlertTriangle,
   Crown, Home, Package, Wrench, PanelLeftClose, PanelLeftOpen,
   Bot, Inbox, ScrollText, Power, SlidersHorizontal, LifeBuoy, UserCheck, Calendar, Target, Wallet,
-  Workflow, Shield, Plug,
+  Workflow, Shield, Plug, History,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -106,6 +106,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/asvc/leads", icon: Target, label: "Pipeline Ventes" },
       { to: "/admin/asvc/finance", icon: Wallet, label: "Finance" },
       { to: "/admin/asvc/health", icon: Shield, label: "Health & Audit" },
+      { to: "/admin/asvc/briefs", icon: History, label: "Historique briefs" },
       { to: "/admin/asvc/connectors", icon: Plug, label: "Connecteurs" },
       { to: "/admin/asvc/actions", icon: ScrollText, label: "Journal actions" },
       { to: "/admin/asvc/kill-switch", icon: Power, label: "Kill Switch" },

@@ -28,6 +28,7 @@ import type {
   BatchExecutionSummary,
   ExecutionResult,
   OAuthToken,
+  AgentActionStats,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -124,6 +125,45 @@ export function useAgents() {
   }, []);
 
   return { agents, loading };
+}
+
+export function useAgentStats(days = 7) {
+  const [stats, setStats] = useState<Record<string, AgentActionStats>>({});
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    const { data } = await supabase.rpc('asvc_action_stats', { p_days: days });
+    const map: Record<string, AgentActionStats> = {};
+    for (const row of (data as AgentActionStats[] | null) ?? []) {
+      map[row.agent_code] = row;
+    }
+    setStats(map);
+    setLoading(false);
+  }, [days]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { stats, loading, refresh };
+}
+
+export function useBriefsHistory(limit = 50) {
+  const [briefs, setBriefs] = useState<CooBrief[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    const { data } = await supabase
+      .from('asvc_coo_briefs')
+      .select('*')
+      .order('brief_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    setBriefs((data as unknown as CooBrief[]) ?? []);
+    setLoading(false);
+  }, [limit]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { briefs, loading, refresh };
 }
 
 export function useLatestBrief(briefType: 'morning' | 'evening' = 'morning') {

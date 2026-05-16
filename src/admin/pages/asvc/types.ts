@@ -7,6 +7,19 @@ export type Department = 'direction' | 'sav' | 'marketing' | 'ventes' | 'finance
 // Connecteurs OAuth
 // ───────────────────────────────────────────────────────────────────────────
 
+export interface AgentActionStats {
+  agent_code: string;
+  agent_name: string;
+  department: Department;
+  total: number;
+  approved: number;
+  rejected: number;
+  executed: number;
+  failed: number;
+  approval_rate: number;
+  avg_validation_minutes: number;
+}
+
 export interface OAuthToken {
   provider: string;
   account_email: string;
