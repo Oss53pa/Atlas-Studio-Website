@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert, Linkedin, UserSearch, Facebook } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert, Linkedin, UserSearch, Facebook, BookOpen } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useOAuthTokens, useEnvConnectorsStatus, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
@@ -163,6 +163,14 @@ export default function AsvcConnectorsPage() {
             extraNote="Configurer côté Supabase Edge Functions → Secrets. Endpoint webhook à enregistrer côté Stripe Dashboard → Webhooks : /functions/v1/asvc-payment-webhook-stripe (event checkout.session.completed). ASVC_STRIPE_WEBHOOK_SECRET distinct de STRIPE_WEBHOOK_SECRET (billing principal) pour éviter les conflits."
           />
           <EnvConnectorCard
+            Icon={BookOpen}
+            label="Mintlify"
+            description="Documentation Agent push les docs générées dans le repo GitHub configuré (asvc/docs/...) en ouvrant une PR. Mintlify auto-rebuild au merge. Pas de clé API Mintlify nécessaire (la connexion GitHub → Mintlify se fait côté Mintlify Dashboard une fois pour toutes). Réutilise le PAT GitHub déjà configuré."
+            configured={envStatus?.mintlify.configured ?? false}
+            envKeys={['ASVC_MINTLIFY_DOCS_REPO', 'ASVC_MINTLIFY_DOCS_BASE_PATH (optionnel)']}
+            extraNote={`Setup : (1) Côté Mintlify Dashboard, connecte ton repo docs (ex: atlas-studio/docs). (2) Côté Supabase Edge Functions → Secrets, configure ASVC_MINTLIFY_DOCS_REPO="owner/repo" et optionnellement ASVC_MINTLIFY_DOCS_BASE_PATH="docs" si le contenu n'est pas à la racine. (3) Le PAT GitHub configuré plus haut sert à pousser les MDX. Fichiers créés sur des branches asvc/docs/* avec PR ouverte automatiquement.${envStatus?.mintlify.repo ? ` Repo cible actuel : ${envStatus.mintlify.repo}` : ''}`}
+          />
+          <EnvConnectorCard
             Icon={MessageCircle}
             label="WhatsApp Business"
             description="Canal SAV / SDR n°1 en UEMOA. Tickets entrants automatiquement créés (source='whatsapp'). Réponses Support N1 routées via WA quand le ticket est WhatsApp. Outbound SDR via send_whatsapp_message."
@@ -180,7 +188,6 @@ export default function AsvcConnectorsPage() {
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
           <li><strong>X (ex-Twitter)</strong> — API payante depuis 2023 ($200/mois min), reportée tant que le ROI n'est pas démontré sur les autres canaux</li>
           <li><strong>LinkedIn Sales Navigator</strong> — enrichissement avancé en complément d'Apollo</li>
-          <li><strong>Mintlify</strong> — publication automatique de la documentation par Documentation Agent</li>
         </ul>
       </section>
 

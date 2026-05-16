@@ -962,6 +962,8 @@ export interface ConnectorStatusEnv {
   };
   gmail_oauth: { configured: boolean; client_id_present: boolean };
   linkedin_oauth: { configured: boolean; client_id_present: boolean };
+  meta_oauth: { configured: boolean; client_id_present: boolean };
+  mintlify: { configured: boolean; repo_present: boolean; repo: string | null };
   encryption: { configured: boolean };
 }
 

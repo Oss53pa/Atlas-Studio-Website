@@ -22,6 +22,7 @@ import { isCinetpayConfigured, isStripeConfigured, pickDefaultProvider } from ".
 import { isWhatsappConfigured } from "../_shared/asvc/whatsapp.ts";
 import { isLinkedinConfigured } from "../_shared/asvc/linkedin.ts";
 import { isMetaConfigured } from "../_shared/asvc/meta.ts";
+import { isMintlifyConfigured } from "../_shared/asvc/mintlify.ts";
 
 interface SingleBody { action_id?: string }
 interface BatchBody { action_ids?: string[] }
@@ -71,7 +72,8 @@ async function callConnector(
     | "asvc-connector-stripe"
     | "asvc-connector-whatsapp"
     | "asvc-connector-linkedin"
-    | "asvc-connector-meta",
+    | "asvc-connector-meta"
+    | "asvc-connector-mintlify",
   actionId: string,
 ): Promise<{ ok: boolean; result?: unknown; error?: string }> {
   try {
@@ -111,6 +113,7 @@ async function executeOne(
   whatsappReady: boolean,
   linkedinReady: boolean,
   metaReady: boolean,
+  mintlifyReady: boolean,
 ): Promise<ExecutionResult> {
   try {
     // Récupère le type pour décider du chemin
@@ -159,6 +162,27 @@ async function executeOne(
           p_payload: { linkedin_error: li.error },
         });
       }
+    }
+
+    // publish_documentation via connecteur Mintlify (push GitHub + PR)
+    if (mintlifyReady && action.action_type === "publish_documentation") {
+      const mt = await callConnector("asvc-connector-mintlify", actionId);
+      if (mt.ok) {
+        return {
+          action_id: actionId,
+          ok: true,
+          kind: "internal",
+          result: { connector: "mintlify", ...((mt.result as Record<string, unknown>) ?? {}) },
+        };
+      }
+      await supabaseAdmin.rpc("asvc_log_audit", {
+        p_actor_type: actorIsCron ? "system" : "ceo",
+        p_actor_id: actorId,
+        p_event_type: "mintlify_failed_fallback_internal",
+        p_resource_type: "asvc_agent_actions",
+        p_resource_id: actionId,
+        p_payload: { mintlify_error: mt.error },
+      });
     }
 
     // publish_post sur Facebook ou Instagram via connecteur Meta
@@ -431,12 +455,13 @@ Deno.serve(async (req) => {
   });
 
   // Pré-check connecteurs (1 fois pour tout le batch)
-  const [gmailReady, githubReady, vercelReady, linkedinReady, metaReady] = await Promise.all([
+  const [gmailReady, githubReady, vercelReady, linkedinReady, metaReady, mintlifyReady] = await Promise.all([
     isGmailConfigured().catch(() => false),
     isGithubConfigured().catch(() => false),
     isVercelConfigured().catch(() => false),
     isLinkedinConfigured().catch(() => false),
     isMetaConfigured().catch(() => false),
+    isMintlifyConfigured().catch(() => false),
   ]);
   const cinetpayReady = isCinetpayConfigured();
   const stripeReady = isStripeConfigured();
@@ -447,7 +472,7 @@ Deno.serve(async (req) => {
   for (const id of ids) {
     results.push(await executeOne(
       id, authz.isCron, authz.actor,
-      gmailReady, githubReady, vercelReady, cinetpayReady, stripeReady, whatsappReady, linkedinReady, metaReady,
+      gmailReady, githubReady, vercelReady, cinetpayReady, stripeReady, whatsappReady, linkedinReady, metaReady, mintlifyReady,
     ));
   }
 
