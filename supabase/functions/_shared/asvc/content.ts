@@ -9,6 +9,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 
 export type ContentChannel =
   | "linkedin"
@@ -145,7 +146,7 @@ Produis le JSON maintenant.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: CONTENT_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("content", CONTENT_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.7,

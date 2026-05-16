@@ -56,6 +56,16 @@ export interface OAuthToken {
   created_at: string;
 }
 
+export interface AgentPromptVersion {
+  id: string;
+  version: number;
+  content: string;
+  notes: string | null;
+  is_active: boolean;
+  created_by: string | null;
+  created_at: string;
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 // Execution orchestrator
 // ───────────────────────────────────────────────────────────────────────────

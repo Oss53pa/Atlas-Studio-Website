@@ -12,6 +12,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 
 export type SocialChannel = "linkedin" | "x" | "instagram" | "facebook";
 
@@ -137,7 +138,7 @@ Classifie et draft la réponse.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: COMMUNITY_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("community", COMMUNITY_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.3,

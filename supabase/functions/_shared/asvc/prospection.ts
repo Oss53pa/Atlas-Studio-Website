@@ -8,6 +8,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import {
   fetchLead,
   fetchAgentIdByCode,
@@ -90,7 +91,7 @@ export async function enrichLead(leadId: string): Promise<EnrichLeadResult> {
     apiKey,
     model,
     messages: [
-      { role: "system", content: PROSPECTION_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("prospection", PROSPECTION_SYSTEM) },
       {
         role: "user",
         content: `Lead à qualifier:\n\n${leadContextString(lead)}\n\nProduis le JSON de qualification.`,

@@ -9,6 +9,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 const PRODUCT_DESIGNER_SYSTEM = `Tu es Product Designer Agent de Atlas Studio.
@@ -130,7 +131,7 @@ Produis la product spec JSON complète maintenant.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: PRODUCT_DESIGNER_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("product_designer", PRODUCT_DESIGNER_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.3,

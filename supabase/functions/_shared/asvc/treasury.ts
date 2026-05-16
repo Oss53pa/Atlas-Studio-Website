@@ -8,6 +8,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 interface FinanceDashboard {
@@ -144,7 +145,7 @@ Rédige le brief JSON maintenant.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: TREASURY_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("tresorerie", TREASURY_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.2,

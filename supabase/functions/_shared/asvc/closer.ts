@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import {
   fetchLead,
   fetchRecentInteractions,
@@ -108,7 +109,7 @@ Draft la proposition commerciale au format demandé.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: CLOSER_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("closer", CLOSER_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.3,

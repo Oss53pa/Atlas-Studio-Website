@@ -33,6 +33,7 @@ import type {
   AutoApproveCandidate,
   AutoApprovePattern,
   Criticality,
+  AgentPromptVersion,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -1085,6 +1086,94 @@ export function useAutoApprovePatterns(threshold = 5) {
   );
 
   return { candidates, patterns, loading, saving, refresh, setPattern };
+}
+
+// ─── Agent prompts (versionnés en DB) ──────────────────────────────────────
+export function useAgentPromptVersions(agentCode: string | null) {
+  const [versions, setVersions] = useState<AgentPromptVersion[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!agentCode) {
+      setVersions([]);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    const { data, error: err } = await supabase.rpc('asvc_list_agent_prompt_versions', {
+      p_agent_code: agentCode,
+    });
+    if (err) setError(err.message);
+    setVersions((data as AgentPromptVersion[] | null) ?? []);
+    setLoading(false);
+  }, [agentCode]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const createVersion = useCallback(
+    async (content: string, notes: string | null) => {
+      if (!agentCode) return;
+      setSaving(true);
+      setError(null);
+      try {
+        const { error: err } = await supabase.rpc('asvc_create_agent_prompt_version', {
+          p_agent_code: agentCode,
+          p_content: content,
+          p_notes: notes,
+        });
+        if (err) throw err;
+        await refresh();
+      } catch (e) {
+        setError((e as Error).message);
+        throw e;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [agentCode, refresh],
+  );
+
+  const activateVersion = useCallback(
+    async (promptId: string) => {
+      setSaving(true);
+      setError(null);
+      try {
+        const { error: err } = await supabase.rpc('asvc_activate_agent_prompt', {
+          p_prompt_id: promptId,
+        });
+        if (err) throw err;
+        await refresh();
+      } catch (e) {
+        setError((e as Error).message);
+        throw e;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [refresh],
+  );
+
+  const deactivateActive = useCallback(async () => {
+    if (!agentCode) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const { error: err } = await supabase.rpc('asvc_deactivate_agent_prompt', {
+        p_agent_code: agentCode,
+      });
+      if (err) throw err;
+      await refresh();
+    } catch (e) {
+      setError((e as Error).message);
+      throw e;
+    } finally {
+      setSaving(false);
+    }
+  }, [agentCode, refresh]);
+
+  return { versions, loading, saving, error, refresh, createVersion, activateVersion, deactivateActive };
 }
 
 // Helper: temps relatif en fr

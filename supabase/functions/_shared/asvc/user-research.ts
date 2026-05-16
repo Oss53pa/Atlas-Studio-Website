@@ -11,6 +11,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { anthropicChat } from "../proph3t/anthropic.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
 const USER_RESEARCH_SYSTEM = `Tu es User Research Agent de Atlas Studio.
@@ -114,7 +115,7 @@ Produis le research brief JSON maintenant.`;
     apiKey,
     model,
     messages: [
-      { role: "system", content: USER_RESEARCH_SYSTEM },
+      { role: "system", content: await loadAgentSystemPrompt("user_research", USER_RESEARCH_SYSTEM) },
       { role: "user", content: userPrompt },
     ],
     temperature: 0.3,
