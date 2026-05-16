@@ -26,6 +26,8 @@ Deno.serve(async (req) => {
   const waPhoneId = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
   const waVerifyToken = Deno.env.get("WHATSAPP_WEBHOOK_VERIFY_TOKEN");
   const waAppSecret = Deno.env.get("WHATSAPP_APP_SECRET");
+  const metaOauthClient = Deno.env.get("META_OAUTH_CLIENT_ID");
+  const mintlifyRepo = Deno.env.get("ASVC_MINTLIFY_DOCS_REPO");
 
   return jsonResponse({
     cinetpay: {
@@ -51,6 +53,15 @@ Deno.serve(async (req) => {
     linkedin_oauth: {
       configured: !!liClient,
       client_id_present: !!liClient,
+    },
+    meta_oauth: {
+      configured: !!metaOauthClient,
+      client_id_present: !!metaOauthClient,
+    },
+    mintlify: {
+      configured: !!mintlifyRepo,
+      repo_present: !!mintlifyRepo,
+      repo: mintlifyRepo ?? null,
     },
     encryption: {
       configured: !!(masterKey && masterKey.length >= 16),
