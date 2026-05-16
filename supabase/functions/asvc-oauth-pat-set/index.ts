@@ -10,8 +10,8 @@ import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { authorizeRequest } from "../_shared/asvc/auth.ts";
 
-type Provider = "github" | "vercel";
-const VALID_PROVIDERS: Provider[] = ["github", "vercel"];
+type Provider = "github" | "vercel" | "sentry";
+const VALID_PROVIDERS: Provider[] = ["github", "vercel", "sentry"];
 
 interface Body {
   provider?: Provider;
@@ -55,6 +55,51 @@ async function validateVercelPat(token: string): Promise<ValidationResult> {
       account_email: accountEmail,
       account_label: accountLabel,
       scope: teamId ? `team:${teamId}` : "personal",
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      account_email: "",
+      account_label: "",
+      scope: "",
+      error: (e as Error).message,
+    };
+  }
+}
+
+/** Valide un PAT Sentry via /api/0/. Récupère l'org si possible. */
+async function validateSentryPat(token: string): Promise<ValidationResult> {
+  try {
+    const sentryHost = Deno.env.get("ASVC_SENTRY_HOST") ?? "https://sentry.io";
+    const res = await fetch(`${sentryHost}/api/0/organizations/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return {
+        ok: false,
+        account_email: "",
+        account_label: "",
+        scope: "",
+        error: `Sentry /organizations/ (${res.status}): ${text.slice(0, 200)}`,
+      };
+    }
+    const orgs = await res.json();
+    if (!Array.isArray(orgs) || orgs.length === 0) {
+      return {
+        ok: false,
+        account_email: "",
+        account_label: "",
+        scope: "",
+        error: "Aucune organisation Sentry accessible avec ce token",
+      };
+    }
+    const org = orgs[0] as { slug: string; name: string };
+    return {
+      ok: true,
+      account_email: org.slug,                  // slug = ID stable côté Sentry
+      account_label: org.name,
+      scope: "org:read project:read event:read",
     };
   } catch (e) {
     return {
@@ -140,6 +185,9 @@ Deno.serve(async (req) => {
       break;
     case "vercel":
       validation = await validateVercelPat(body.token);
+      break;
+    case "sentry":
+      validation = await validateSentryPat(body.token);
       break;
   }
 

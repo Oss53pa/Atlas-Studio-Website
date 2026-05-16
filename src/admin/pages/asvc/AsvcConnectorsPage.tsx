@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle } from 'lucide-react';
+import { Mail, Github, Plug, CheckCircle2, AlertCircle, Loader2, X, Key, Triangle, CreditCard, Server, MessageCircle, ShieldAlert } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useOAuthTokens, useEnvConnectorsStatus, timeAgoFr } from './hooks';
 import type { OAuthToken } from './types';
@@ -44,12 +44,21 @@ const CONNECTORS: ConnectorMeta[] = [
     setupNote: 'Génère un token sur vercel.com/account/tokens (scope: Full Account ou par-projet). Si compte Team, exporter ASVC_VERCEL_TEAM_ID côté Supabase Edge Functions env.',
     auth_kind: 'pat',
   },
+  {
+    provider: 'sentry',
+    label: 'Sentry',
+    description: 'Monitoring post-deploy par DevOps Agent. Cron post_deploy_monitor interroge Sentry toutes les N min, déclenche un rollback si error_rate > seuil. Crée des incidents asvc_production_incidents auto.',
+    Icon: ShieldAlert,
+    scopes: 'org:read project:read event:read',
+    setupNote: 'Génère un token sur sentry.io/settings/account/api/auth-tokens/ avec les scopes org:read, project:read, event:read. Pour self-hosted, exporter ASVC_SENTRY_HOST côté Supabase. Seuil event rate ajustable via ASVC_DEPLOY_ERROR_RATE_THRESHOLD (défaut 0.5 events/min).',
+    auth_kind: 'pat',
+  },
 ];
 
 export default function AsvcConnectorsPage() {
   const { tokens, loading, startGmailOAuth, setPat, revoke, revoking } = useOAuthTokens();
   const { status: envStatus } = useEnvConnectorsStatus();
-  const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel'>(null);
+  const [patModalOpen, setPatModalOpen] = useState<null | 'github' | 'vercel' | 'sentry'>(null);
 
   const tokenFor = (provider: string) =>
     tokens.filter((t) => t.provider === provider && t.status === 'active');
@@ -75,7 +84,7 @@ export default function AsvcConnectorsPage() {
           const handleConnect = () => {
             if (meta.auth_kind === 'oauth' && meta.provider === 'gmail') {
               startGmailOAuth();
-            } else if (meta.auth_kind === 'pat' && (meta.provider === 'github' || meta.provider === 'vercel')) {
+            } else if (meta.auth_kind === 'pat' && (meta.provider === 'github' || meta.provider === 'vercel' || meta.provider === 'sentry')) {
               setPatModalOpen(meta.provider);
             }
           };
@@ -139,7 +148,6 @@ export default function AsvcConnectorsPage() {
         </h2>
         <ul className="text-neutral-400 text-[12px] space-y-1.5 list-disc list-inside marker:text-admin-accent">
           <li><strong>LinkedIn / X / Meta</strong> — publication des posts Content Agent</li>
-          <li><strong>Sentry</strong> — observability post-deploy pour DevOps Agent</li>
         </ul>
       </section>
 
@@ -172,6 +180,25 @@ export default function AsvcConnectorsPage() {
           onClose={() => setPatModalOpen(null)}
           onSubmit={async (token) => {
             const r = await setPat('vercel', token);
+            if (r.ok) {
+              setPatModalOpen(null);
+              return { ok: true };
+            }
+            return { ok: false, error: r.error };
+          }}
+        />
+      )}
+
+      {patModalOpen === 'sentry' && (
+        <PatModal
+          provider="sentry"
+          title="Connecter Sentry"
+          subtitle="Colle un Auth Token Sentry"
+          helpUrl="https://sentry.io/settings/account/api/auth-tokens/"
+          helpText="Génère un token sur sentry.io avec les scopes : org:read, project:read, event:read. Pour Sentry self-hosted, configure ASVC_SENTRY_HOST côté Supabase env."
+          onClose={() => setPatModalOpen(null)}
+          onSubmit={async (token) => {
+            const r = await setPat('sentry', token);
             if (r.ok) {
               setPatModalOpen(null);
               return { ok: true };

@@ -21,6 +21,13 @@
 import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { authorizeRequest } from "../_shared/asvc/auth.ts";
+import {
+  fetchSentryPat,
+  getDefaultSentryOrg,
+  isSentryConfigured,
+  getProjectErrorStats,
+  computeErrorRate,
+} from "../_shared/asvc/sentry.ts";
 
 type CronTask =
   | "morning_brief"
@@ -29,7 +36,8 @@ type CronTask =
   | "treasury_brief"
   | "overdue_invoices_scan"
   | "lifecycle_scan"
-  | "auto_execute_internal";
+  | "auto_execute_internal"
+  | "post_deploy_monitor";
 
 const VALID_TASKS: CronTask[] = [
   "morning_brief",
@@ -39,6 +47,7 @@ const VALID_TASKS: CronTask[] = [
   "overdue_invoices_scan",
   "lifecycle_scan",
   "auto_execute_internal",
+  "post_deploy_monitor",
 ];
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -128,6 +137,136 @@ async function runLifecycleScan() {
   return { processed: results.length, results };
 }
 
+async function runPostDeployMonitor() {
+  if (!(await isSentryConfigured())) {
+    return { skipped: "sentry_not_configured" };
+  }
+  const org = await getDefaultSentryOrg();
+  if (!org) return { skipped: "no_sentry_org" };
+  const creds = await fetchSentryPat(org);
+  if (!creds) return { skipped: "no_sentry_creds" };
+
+  // Deployments en cours de monitoring (production uniquement pour l'instant)
+  const { data: deployments } = await supabaseAdmin
+    .from("asvc_deployments")
+    .select("id, app_name, environment, deployed_at, monitoring_window_minutes, error_rate_percent, alerts_triggered")
+    .eq("status", "monitoring")
+    .eq("environment", "production");
+
+  if (!deployments || deployments.length === 0) {
+    return { processed: 0 };
+  }
+
+  const errorRateThreshold = parseFloat(Deno.env.get("ASVC_DEPLOY_ERROR_RATE_THRESHOLD") ?? "0.5");
+  const results: Array<{ deployment_id: string; status: string; events: number; rate: number }> = [];
+
+  for (const dep of deployments) {
+    const deployedAt = dep.deployed_at ? new Date(dep.deployed_at) : null;
+    if (!deployedAt) continue;
+
+    const windowMin = dep.monitoring_window_minutes ?? 30;
+    const windowEnd = new Date(deployedAt.getTime() + windowMin * 60 * 1000);
+    const now = new Date();
+    const until = now < windowEnd ? now : windowEnd;
+
+    try {
+      const stats = await getProjectErrorStats(creds.token, org, dep.app_name, deployedAt, until);
+      const rate = computeErrorRate(stats.total_events, stats.since, stats.until);
+
+      await supabaseAdmin
+        .from("asvc_deployments")
+        .update({
+          error_rate_percent: rate,
+          alerts_triggered: stats.total_events,
+        })
+        .eq("id", dep.id);
+
+      // Spike détecté → crée un incident + suggère rollback
+      if (rate > errorRateThreshold) {
+        // Trouve l'agent devops_release
+        const { data: agent } = await supabaseAdmin
+          .from("asvc_agents")
+          .select("id")
+          .eq("code", "devops_release")
+          .single();
+
+        const { data: incident } = await supabaseAdmin
+          .from("asvc_production_incidents")
+          .insert({
+            detected_by_agent_id: agent?.id ?? null,
+            app_concerned: dep.app_name,
+            related_deployment_id: dep.id,
+            severity: rate > errorRateThreshold * 5 ? "P0" : "P1",
+            title: `Spike d'erreurs post-deploy ${dep.app_name} (${rate.toFixed(2)} events/min)`,
+            description: stats.top_issue
+              ? `Top issue: ${stats.top_issue.title} (${stats.top_issue.count}× ${stats.top_issue.level})`
+              : "Spike détecté sans top issue identifiable",
+            error_logs: stats as unknown as Record<string, unknown>,
+            status: "open",
+          })
+          .select("id")
+          .single();
+
+        // Action proposée: rollback
+        const { data: session } = await supabaseAdmin
+          .from("asvc_agent_sessions")
+          .insert({
+            agent_id: agent?.id ?? null,
+            trigger_type: "post_deploy_monitor",
+            trigger_payload: { deployment_id: dep.id, error_rate: rate },
+            status: "completed",
+            ended_at: new Date().toISOString(),
+          })
+          .select("id")
+          .single();
+
+        await supabaseAdmin.from("asvc_agent_actions").insert({
+          session_id: session?.id ?? null,
+          agent_id: agent?.id ?? null,
+          action_type: "trigger_rollback",
+          criticality: "critical",
+          title: `🚨 ROLLBACK suggéré — ${dep.app_name} (${rate.toFixed(2)} events/min)`,
+          description: `Sentry détecte ${stats.total_events} erreurs sur ${windowMin} min post-deploy. Seuil dépassé (${errorRateThreshold} events/min). Top issue : ${stats.top_issue?.title ?? "n/a"}.`,
+          proposed_payload: {
+            deployment_id: dep.id,
+            app_name: dep.app_name,
+            incident_id: incident?.id,
+            error_rate: rate,
+            top_issue: stats.top_issue,
+            sentry_org: org,
+          },
+          context: {
+            source: "post_deploy_monitor_cron",
+            window_minutes: windowMin,
+          },
+          status: "proposed",
+        });
+
+        // Marque le deployment comme failed (CEO décide du rollback)
+        await supabaseAdmin
+          .from("asvc_deployments")
+          .update({ status: "failed" })
+          .eq("id", dep.id);
+
+        results.push({ deployment_id: dep.id, status: "rollback_proposed", events: stats.total_events, rate });
+      } else if (now >= windowEnd) {
+        // Fenêtre écoulée sans spike → success final
+        await supabaseAdmin
+          .from("asvc_deployments")
+          .update({ status: "success" })
+          .eq("id", dep.id);
+        results.push({ deployment_id: dep.id, status: "success_after_window", events: stats.total_events, rate });
+      } else {
+        results.push({ deployment_id: dep.id, status: "monitoring_continues", events: stats.total_events, rate });
+      }
+    } catch (e) {
+      results.push({ deployment_id: dep.id, status: `error: ${(e as Error).message}`, events: 0, rate: 0 });
+    }
+  }
+
+  return { processed: deployments.length, results };
+}
+
 async function runAutoExecuteInternal() {
   // Récupère les actions approved dont l'execution_kind = 'internal'
   const { data, error } = await supabaseAdmin.rpc("asvc_pending_executions", { p_limit: 50 });
@@ -174,6 +313,7 @@ Deno.serve(async (req) => {
       case "overdue_invoices_scan": result = await runOverdueInvoicesScan(); break;
       case "lifecycle_scan": result = await runLifecycleScan(); break;
       case "auto_execute_internal": result = await runAutoExecuteInternal(); break;
+      case "post_deploy_monitor": result = await runPostDeployMonitor(); break;
     }
 
     await supabaseAdmin.rpc("asvc_log_audit", {
