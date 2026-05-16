@@ -29,6 +29,10 @@ import type {
   ExecutionResult,
   OAuthToken,
   AgentActionStats,
+  VacationStatus,
+  AutoApproveCandidate,
+  AutoApprovePattern,
+  Criticality,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -985,6 +989,102 @@ export function useEnvConnectorsStatus() {
   useEffect(() => { refresh(); }, [refresh]);
 
   return { status, loading, refresh };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Vacation mode + Auto-approve patterns
+// ───────────────────────────────────────────────────────────────────────────
+
+export function useVacationMode() {
+  const [status, setStatus] = useState<VacationStatus>({ enabled: false });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    const { data, error: err } = await supabase.rpc('asvc_get_vacation_status');
+    if (err) setError(err.message);
+    else setStatus((data as VacationStatus | null) ?? { enabled: false });
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const enable = useCallback(
+    async (start: string, end: string, behavior: 'strict' | 'moderate' | 'full_pause') => {
+      setSaving(true);
+      setError(null);
+      try {
+        const { error: err } = await supabase.rpc('asvc_set_vacation_mode', {
+          p_start: start,
+          p_end: end,
+          p_behavior: behavior,
+        });
+        if (err) throw new Error(err.message);
+        await refresh();
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setSaving(false);
+      }
+    },
+    [refresh],
+  );
+
+  const disable = useCallback(async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const { error: err } = await supabase.rpc('asvc_disable_vacation_mode');
+      if (err) throw new Error(err.message);
+      await refresh();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }, [refresh]);
+
+  return { status, loading, saving, error, enable, disable };
+}
+
+export function useAutoApprovePatterns(threshold = 5) {
+  const [candidates, setCandidates] = useState<AutoApproveCandidate[]>([]);
+  const [patterns, setPatterns] = useState<AutoApprovePattern[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const refresh = useCallback(async () => {
+    const [c, p] = await Promise.all([
+      supabase.rpc('asvc_get_autoapprove_candidates', { p_threshold: threshold }),
+      supabase.rpc('asvc_list_autoapprove_patterns'),
+    ]);
+    setCandidates((c.data as AutoApproveCandidate[] | null) ?? []);
+    setPatterns((p.data as AutoApprovePattern[] | null) ?? []);
+    setLoading(false);
+  }, [threshold]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const setPattern = useCallback(
+    async (agentCode: string, actionType: string, criticality: Criticality, enabled: boolean) => {
+      setSaving(true);
+      try {
+        await supabase.rpc('asvc_set_autoapprove_pattern', {
+          p_agent_code: agentCode,
+          p_action_type: actionType,
+          p_criticality: criticality,
+          p_enabled: enabled,
+        });
+        await refresh();
+      } finally {
+        setSaving(false);
+      }
+    },
+    [refresh],
+  );
+
+  return { candidates, patterns, loading, saving, refresh, setPattern };
 }
 
 // Helper: temps relatif en fr

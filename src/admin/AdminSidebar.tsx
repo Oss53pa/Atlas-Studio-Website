@@ -108,6 +108,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/asvc/health", icon: Shield, label: "Health & Audit" },
       { to: "/admin/asvc/briefs", icon: History, label: "Historique briefs" },
       { to: "/admin/asvc/connectors", icon: Plug, label: "Connecteurs" },
+      { to: "/admin/asvc/settings", icon: Settings, label: "Préférences CEO" },
       { to: "/admin/asvc/actions", icon: ScrollText, label: "Journal actions" },
       { to: "/admin/asvc/kill-switch", icon: Power, label: "Kill Switch" },
       { to: "/admin/asvc/config", icon: SlidersHorizontal, label: "Configuration" },

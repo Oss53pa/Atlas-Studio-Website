@@ -20,6 +20,31 @@ export interface AgentActionStats {
   avg_validation_minutes: number;
 }
 
+export interface VacationStatus {
+  enabled: boolean;
+  active_now?: boolean;
+  start?: string;
+  end?: string;
+  behavior?: 'strict' | 'moderate' | 'full_pause';
+}
+
+export interface AutoApproveCandidate {
+  agent_code: string;
+  action_type: string;
+  criticality: 'low' | 'normal' | 'high' | 'critical';
+  consecutive_approvals: number;
+  last_decision_at: string;
+  already_auto_approved: boolean;
+}
+
+export interface AutoApprovePattern {
+  agent_code: string;
+  action_type: string;
+  criticality: 'low' | 'normal' | 'high' | 'critical';
+  enabled: boolean;
+  set_at: string;
+}
+
 export interface OAuthToken {
   provider: string;
   account_email: string;

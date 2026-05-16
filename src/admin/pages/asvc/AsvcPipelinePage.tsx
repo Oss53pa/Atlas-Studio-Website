@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Lightbulb, Microscope, FileText, Code2, FlaskConical, Rocket,
-  AlertOctagon, Plus, Loader2, AlertCircle, X as XIcon, Sparkles,
+  AlertOctagon, Plus, Loader2, AlertCircle, X as XIcon, Sparkles, ExternalLink,
 } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { usePipelineSummary, timeAgoFr } from './hooks';
@@ -305,7 +306,12 @@ function SpecCard({
 
   return (
     <div className="rounded-lg border border-white/10 bg-onyx-light/40 p-2.5 text-[11.5px]">
-      <div className="text-neutral-light font-medium leading-snug mb-1">{spec.title}</div>
+      <Link
+        to={`/admin/asvc/specs/${spec.id}`}
+        className="text-neutral-light font-medium leading-snug mb-1 block hover:text-admin-accent transition"
+      >
+        {spec.title} <ExternalLink size={9} className="inline opacity-60" />
+      </Link>
       <div className="flex flex-wrap gap-2 text-neutral-600 text-[10px] mb-2">
         <span>v{spec.spec_version}</span>
         {spec.story_points && <span>· {spec.story_points} SP</span>}
@@ -374,7 +380,12 @@ function PrCard({
 }) {
   return (
     <div className="rounded-lg border border-white/10 bg-onyx-light/40 p-2.5 text-[11.5px]">
-      <div className="text-neutral-light font-medium leading-snug mb-1">{pr.title}</div>
+      <Link
+        to={`/admin/asvc/prs/${pr.id}`}
+        className="text-neutral-light font-medium leading-snug mb-1 block hover:text-admin-accent transition"
+      >
+        {pr.title} <ExternalLink size={9} className="inline opacity-60" />
+      </Link>
       <div className="text-neutral-600 text-[10px] font-mono mb-1 truncate">{pr.repo}</div>
       <div className="flex flex-wrap gap-2 text-neutral-600 text-[10px] mb-2">
         <span>{pr.branch_name}</span>
@@ -493,7 +504,12 @@ function DeploymentCard({ deployment }: { deployment: PipelineDeployment }) {
 
   return (
     <div className="rounded-lg border border-white/10 bg-onyx-light/40 p-2.5 text-[11.5px]">
-      <div className="text-neutral-light font-medium leading-snug mb-1">{deployment.app_name}</div>
+      <Link
+        to={`/admin/asvc/deployments/${deployment.id}`}
+        className="text-neutral-light font-medium leading-snug mb-1 block hover:text-admin-accent transition"
+      >
+        {deployment.app_name} <ExternalLink size={9} className="inline opacity-60" />
+      </Link>
       {deployment.pr_title && (
         <div className="text-neutral-500 text-[10px] mb-1 truncate">{deployment.pr_title}</div>
       )}
