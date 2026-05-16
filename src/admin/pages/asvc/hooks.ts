@@ -24,6 +24,10 @@ import type {
   AuditIntegrity,
   DeployEnvironment,
   SignalSource,
+  PendingExecution,
+  BatchExecutionSummary,
+  ExecutionResult,
+  OAuthToken,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -721,6 +725,226 @@ export function useHealthCheck() {
   }, []);
 
   return { health, loading, refresh, verifying, integrity, verifyAuditChain };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Execution orchestrator
+// ───────────────────────────────────────────────────────────────────────────
+
+export function usePendingExecutions() {
+  const [rows, setRows] = useState<PendingExecution[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [executing, setExecuting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastSummary, setLastSummary] = useState<BatchExecutionSummary | null>(null);
+
+  const refresh = useCallback(async () => {
+    const { data, error: err } = await supabase.rpc('asvc_pending_executions', { p_limit: 100 });
+    if (err) setError(err.message);
+    else setRows((data as unknown as PendingExecution[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const executeBatch = useCallback(
+    async (actionIds: string[]) => {
+      if (actionIds.length === 0) return;
+      setExecuting(true);
+      setError(null);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) throw new Error('Session manquante');
+
+        const { data, error: invokeErr } = await supabase.functions.invoke('asvc-execute-action', {
+          body: { action_ids: actionIds },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (invokeErr) throw new Error(invokeErr.message);
+        if (data?.error) throw new Error(data.error);
+
+        const summary = data?.summary as BatchExecutionSummary | undefined;
+        const results = data?.results as ExecutionResult[] | undefined;
+        if (summary) setLastSummary(summary);
+        await refresh();
+
+        // Si un seul a échoué, surface l'erreur la plus parlante
+        const firstError = results?.find((r) => !r.ok && r.error)?.error;
+        if (firstError) setError(firstError);
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setExecuting(false);
+      }
+    },
+    [refresh],
+  );
+
+  const executeOne = useCallback(
+    (actionId: string) => executeBatch([actionId]),
+    [executeBatch],
+  );
+
+  return { rows, loading, executing, error, lastSummary, refresh, executeOne, executeBatch };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// OAuth Connectors
+// ───────────────────────────────────────────────────────────────────────────
+
+export function useOAuthTokens() {
+  const [tokens, setTokens] = useState<OAuthToken[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [revoking, setRevoking] = useState(false);
+
+  const refresh = useCallback(async () => {
+    const { data } = await supabase.rpc('asvc_oauth_list');
+    setTokens((data as unknown as OAuthToken[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  // Écoute les messages window.postMessage envoyés par le popup de callback
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data && typeof e.data === 'object' && (e.data as { type?: string }).type === 'asvc-oauth-connected') {
+        refresh();
+      }
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [refresh]);
+
+  const startOAuth = useCallback(async (kind: 'gmail' | 'linkedin') => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      alert('Session manquante');
+      return;
+    }
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+    if (!supabaseUrl) {
+      alert('VITE_SUPABASE_URL introuvable');
+      return;
+    }
+    const startUrl = kind === 'linkedin'
+      ? `${supabaseUrl}/functions/v1/asvc-oauth-linkedin-start`
+      : `${supabaseUrl}/functions/v1/asvc-oauth-start?provider=gmail`;
+    let location: string | null = null;
+    try {
+      const res = await fetch(startUrl, {
+        method: 'GET',
+        redirect: 'manual',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      location = res.headers.get('location');
+      if (!location) {
+        const text = await res.text().catch(() => '');
+        alert(`OAuth start a échoué : ${text.slice(0, 200)}`);
+        return;
+      }
+    } catch (e) {
+      alert(`OAuth start failed: ${(e as Error).message}`);
+      return;
+    }
+    const popup = window.open(location, 'asvc-oauth', 'width=520,height=680');
+    if (!popup) alert('Popup bloqué — autorise les popups pour ce site');
+  }, []);
+
+  const startGmailOAuth = useCallback(() => startOAuth('gmail'), [startOAuth]);
+  const startLinkedinOAuth = useCallback(() => startOAuth('linkedin'), [startOAuth]);
+
+  const revoke = useCallback(
+    async (provider: string, accountEmail: string) => {
+      if (!confirm(`Révoquer le connecteur ${provider} pour ${accountEmail} ?`)) return;
+      setRevoking(true);
+      try {
+        await supabase.rpc('asvc_oauth_revoke', {
+          p_provider: provider,
+          p_account_email: accountEmail,
+        });
+        await refresh();
+      } finally {
+        setRevoking(false);
+      }
+    },
+    [refresh],
+  );
+
+  // Stocke un PAT. Renvoie {ok, error?, account?}
+  const setPat = useCallback(
+    async (provider: 'github' | 'vercel' | 'sentry', token: string): Promise<{ ok: boolean; account?: string; error?: string }> => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) return { ok: false, error: 'Session manquante' };
+
+        const { data, error: invokeErr } = await supabase.functions.invoke('asvc-oauth-pat-set', {
+          body: { provider, token },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (invokeErr) return { ok: false, error: invokeErr.message };
+        if (data?.error) return { ok: false, error: data.error };
+        await refresh();
+        return { ok: true, account: data?.account_email };
+      } catch (e) {
+        return { ok: false, error: (e as Error).message };
+      }
+    },
+    [refresh],
+  );
+
+  return { tokens, loading, refresh, startGmailOAuth, startLinkedinOAuth, revoke, revoking, setPat };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Env-based connectors (CinetPay, Stripe, etc.) status
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface ConnectorStatusEnv {
+  cinetpay: { configured: boolean; site_id_present: boolean; api_key_present: boolean };
+  stripe: { configured: boolean; api_key_present: boolean; webhook_secret_present?: boolean };
+  whatsapp: {
+    configured: boolean;
+    token_present: boolean;
+    phone_number_id_present: boolean;
+    webhook_configured: boolean;
+  };
+  gmail_oauth: { configured: boolean; client_id_present: boolean };
+  linkedin_oauth: { configured: boolean; client_id_present: boolean };
+  encryption: { configured: boolean };
+}
+
+export function useEnvConnectorsStatus() {
+  const [status, setStatus] = useState<ConnectorStatusEnv | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) return;
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+      if (!supabaseUrl) return;
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/asvc-connectors-status`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) {
+        setStatus(await res.json());
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { status, loading, refresh };
 }
 
 // Helper: temps relatif en fr

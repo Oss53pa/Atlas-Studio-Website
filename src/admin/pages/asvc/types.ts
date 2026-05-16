@@ -4,6 +4,52 @@
 export type Department = 'direction' | 'sav' | 'marketing' | 'ventes' | 'finance';
 
 // ───────────────────────────────────────────────────────────────────────────
+// Connecteurs OAuth
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface OAuthToken {
+  provider: string;
+  account_email: string;
+  account_label: string | null;
+  status: 'active' | 'revoked' | 'expired';
+  scope: string | null;
+  last_used_at: string | null;
+  last_refresh_at: string | null;
+  created_at: string;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Execution orchestrator
+// ───────────────────────────────────────────────────────────────────────────
+
+export type ExecutionKind = 'internal' | 'external' | 'unknown';
+
+export interface PendingExecution {
+  action_id: string;
+  action_type: string;
+  criticality: Criticality;
+  title: string;
+  agent_code: string | null;
+  approved_at: string | null;
+  execution_kind: ExecutionKind;
+}
+
+export interface ExecutionResult {
+  action_id: string;
+  ok: boolean;
+  kind?: 'internal' | 'external_required';
+  result?: unknown;
+  error?: string;
+}
+
+export interface BatchExecutionSummary {
+  total: number;
+  succeeded_internal: number;
+  pending_external: number;
+  failed: number;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
 // v2.0 — Pipeline Produit (R&D + Production)
 // ───────────────────────────────────────────────────────────────────────────
 
