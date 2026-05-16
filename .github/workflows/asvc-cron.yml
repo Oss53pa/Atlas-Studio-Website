@@ -1,0 +1,113 @@
+name: ASVC Cron
+
+# Déclenche les 8 tâches périodiques d'ASVC (briefs, scans, monitoring).
+#
+# Toutes les heures sont en UTC. Atlas Studio cible UEMOA/CEMAC :
+#   - UTC = WAT/GMT (Abidjan, Dakar, Bamako) → pas de décalage
+#   - WAT+1 (Douala, Libreville, Brazzaville) → +1h locale
+#
+# Plages CEO supposées : journée de travail africaine 07:00 → 19:00 UTC.
+#
+# Tâches & cadences (alignées CDC ASVC) :
+#   - morning_brief         : weekdays 07:00 UTC  (avant le café CEO)
+#   - evening_brief         : weekdays 18:00 UTC  (récap fin de journée)
+#   - weekly_brief          : lundi   06:30 UTC  (synthèse semaine)
+#   - treasury_brief        : daily   06:00 UTC  (cash position du jour)
+#   - overdue_invoices_scan : daily   09:00 UTC  (relances factures)
+#   - lifecycle_scan        : daily   10:00 UTC  (onboarding / churn / upsell)
+#   - auto_execute_internal : every   15 min     (vide la queue d'actions internes)
+#   - post_deploy_monitor   : every    5 min     (détecte les spikes post-deploy)
+#
+# Secrets requis (Settings → Secrets and variables → Actions) :
+#   - SUPABASE_URL          : URL Supabase projet (https://xxx.supabase.co)
+#   - CRON_SHARED_SECRET    : secret partagé pour authentifier les crons côté Edge
+
+on:
+  schedule:
+    - cron: '0 7 * * 1-5'    # morning_brief
+    - cron: '0 18 * * 1-5'   # evening_brief
+    - cron: '30 6 * * 1'     # weekly_brief
+    - cron: '0 6 * * *'      # treasury_brief
+    - cron: '0 9 * * *'      # overdue_invoices_scan
+    - cron: '0 10 * * *'     # lifecycle_scan
+    - cron: '*/15 * * * *'   # auto_execute_internal
+    - cron: '*/5 * * * *'    # post_deploy_monitor
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Tâche cron à exécuter manuellement'
+        required: true
+        type: choice
+        options:
+          - morning_brief
+          - evening_brief
+          - weekly_brief
+          - treasury_brief
+          - overdue_invoices_scan
+          - lifecycle_scan
+          - auto_execute_internal
+          - post_deploy_monitor
+
+concurrency:
+  group: asvc-cron-${{ github.event.schedule || github.event.inputs.task }}
+  cancel-in-progress: false
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Résoudre la tâche depuis le cron ou le dispatch
+        id: resolve
+        run: |
+          if [ -n "${{ github.event.inputs.task }}" ]; then
+            TASK="${{ github.event.inputs.task }}"
+          else
+            case "${{ github.event.schedule }}" in
+              "0 7 * * 1-5")    TASK="morning_brief" ;;
+              "0 18 * * 1-5")   TASK="evening_brief" ;;
+              "30 6 * * 1")     TASK="weekly_brief" ;;
+              "0 6 * * *")      TASK="treasury_brief" ;;
+              "0 9 * * *")      TASK="overdue_invoices_scan" ;;
+              "0 10 * * *")     TASK="lifecycle_scan" ;;
+              "*/15 * * * *")   TASK="auto_execute_internal" ;;
+              "*/5 * * * *")    TASK="post_deploy_monitor" ;;
+              *) echo "Cron inconnu : ${{ github.event.schedule }}" && exit 1 ;;
+            esac
+          fi
+          echo "task=$TASK" >> "$GITHUB_OUTPUT"
+          echo "Tâche résolue : $TASK"
+
+      - name: Vérifier les secrets requis
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then
+            echo "::error::SUPABASE_URL secret manquant"
+            exit 1
+          fi
+          if [ -z "${{ secrets.CRON_SHARED_SECRET }}" ]; then
+            echo "::error::CRON_SHARED_SECRET secret manquant"
+            exit 1
+          fi
+
+      - name: POST /asvc-cron
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SHARED_SECRET: ${{ secrets.CRON_SHARED_SECRET }}
+          TASK: ${{ steps.resolve.outputs.task }}
+        run: |
+          set -e
+          RESPONSE=$(mktemp)
+          STATUS=$(curl -sS -o "$RESPONSE" -w "%{http_code}" \
+            -X POST "$SUPABASE_URL/functions/v1/asvc-cron" \
+            -H "Authorization: Bearer $CRON_SHARED_SECRET" \
+            -H "Content-Type: application/json" \
+            --max-time 540 \
+            -d "{\"task\":\"$TASK\"}")
+          echo "HTTP $STATUS"
+          echo "--- réponse ---"
+          cat "$RESPONSE"
+          echo
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
+            echo "::error::Cron $TASK failed (HTTP $STATUS)"
+            exit 1
+          fi
