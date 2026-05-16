@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, X, Edit3, Loader2 } from 'lucide-react';
+import { Check, X, Edit3, Loader2, Rocket, AlertOctagon } from 'lucide-react';
 import {
   type AgentActionWithAgent,
   CRITICALITY_CLASSES,
@@ -8,6 +8,10 @@ import {
   DEPARTMENT_LABELS,
 } from '../types';
 import { timeAgoFr } from '../hooks';
+import { DeploymentRequestModal } from './DeploymentRequestModal';
+
+// Types qui exigent un workflow de confirmation typée
+const TYPED_CONFIRMATION_TYPES = new Set(['deploy_to_production', 'trigger_rollback']);
 
 interface Props {
   action: AgentActionWithAgent;
@@ -19,6 +23,9 @@ interface Props {
 export function ArbitrationCard({ action, onApprove, onReject, onModify }: Props) {
   const [pending, setPending] = useState<'approve' | 'reject' | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const requiresTypedConfirmation = TYPED_CONFIRMATION_TYPES.has(action.action_type);
 
   const runAction = async (fn: () => Promise<void>, kind: 'approve' | 'reject') => {
     setPending(kind);
@@ -26,6 +33,14 @@ export function ArbitrationCard({ action, onApprove, onReject, onModify }: Props
       await fn();
     } finally {
       setPending(null);
+    }
+  };
+
+  const handleApproveClick = () => {
+    if (requiresTypedConfirmation) {
+      setModalOpen(true);
+    } else {
+      runAction(() => onApprove(action.id), 'approve');
     }
   };
 
@@ -82,15 +97,29 @@ export function ArbitrationCard({ action, onApprove, onReject, onModify }: Props
         <button
           type="button"
           disabled={pending !== null}
-          onClick={() => runAction(() => onApprove(action.id), 'approve')}
-          className="flex-1 min-w-[110px] inline-flex items-center justify-center gap-1.5 bg-admin-accent hover:bg-admin-accent/90 disabled:opacity-50 disabled:cursor-not-allowed text-onyx font-semibold text-[12px] py-2 rounded-lg transition"
+          onClick={handleApproveClick}
+          className={`flex-1 min-w-[140px] inline-flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-[12px] py-2 rounded-lg transition ${
+            requiresTypedConfirmation
+              ? action.action_type === 'trigger_rollback'
+                ? 'bg-red-500/30 hover:bg-red-500/40 text-red-100 border border-red-500/40'
+                : 'bg-violet-500/30 hover:bg-violet-500/40 text-violet-100 border border-violet-500/40'
+              : 'bg-admin-accent hover:bg-admin-accent/90 text-onyx'
+          }`}
         >
           {pending === 'approve' ? (
             <Loader2 size={13} className="animate-spin" />
+          ) : action.action_type === 'trigger_rollback' ? (
+            <AlertOctagon size={13} />
+          ) : requiresTypedConfirmation ? (
+            <Rocket size={13} />
           ) : (
             <Check size={13} strokeWidth={2.5} />
           )}
-          Approuver
+          {action.action_type === 'trigger_rollback'
+            ? 'Examiner & rollback'
+            : requiresTypedConfirmation
+              ? 'Examiner & déployer'
+              : 'Approuver'}
         </button>
 
         {onModify && (
@@ -119,6 +148,17 @@ export function ArbitrationCard({ action, onApprove, onReject, onModify }: Props
           Rejeter
         </button>
       </div>
+
+      {modalOpen && (
+        <DeploymentRequestModal
+          action={action}
+          onCancel={() => setModalOpen(false)}
+          onConfirm={async (id) => {
+            await onApprove(id);
+            setModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
