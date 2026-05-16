@@ -920,7 +920,7 @@ export function useOAuthTokens() {
 
   // Stocke un PAT. Renvoie {ok, error?, account?}
   const setPat = useCallback(
-    async (provider: 'github' | 'vercel' | 'sentry', token: string): Promise<{ ok: boolean; account?: string; error?: string }> => {
+    async (provider: 'github' | 'vercel' | 'sentry' | 'apollo', token: string): Promise<{ ok: boolean; account?: string; error?: string }> => {
       try {
         const { data: sessionData } = await supabase.auth.getSession();
         const accessToken = sessionData.session?.access_token;

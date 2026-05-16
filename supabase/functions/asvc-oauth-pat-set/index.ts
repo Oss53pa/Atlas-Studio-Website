@@ -10,8 +10,8 @@ import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { authorizeRequest } from "../_shared/asvc/auth.ts";
 
-type Provider = "github" | "vercel" | "sentry";
-const VALID_PROVIDERS: Provider[] = ["github", "vercel", "sentry"];
+type Provider = "github" | "vercel" | "sentry" | "apollo";
+const VALID_PROVIDERS: Provider[] = ["github", "vercel", "sentry", "apollo"];
 
 interface Body {
   provider?: Provider;
@@ -112,6 +112,53 @@ async function validateSentryPat(token: string): Promise<ValidationResult> {
   }
 }
 
+/** Valide une API key Apollo en appelant /v1/auth/health. */
+async function validateApolloKey(token: string): Promise<ValidationResult> {
+  try {
+    const res = await fetch("https://api.apollo.io/v1/auth/health", {
+      method: "POST",
+      headers: {
+        "Cache-Control": "no-cache",
+        "Content-Type": "application/json",
+        "X-Api-Key": token,
+      },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return {
+        ok: false,
+        account_email: "",
+        account_label: "",
+        scope: "",
+        error: `Apollo /v1/auth/health (${res.status}): ${text.slice(0, 200)}`,
+      };
+    }
+    const data = await res.json().catch(() => ({} as Record<string, unknown>));
+    const ok = (data as { is_logged_in?: boolean }).is_logged_in !== false;
+    if (!ok) {
+      return {
+        ok: false, account_email: "", account_label: "", scope: "",
+        error: "Apollo: clé non authentifiée (is_logged_in=false)",
+      };
+    }
+    return {
+      ok: true,
+      account_email: "apollo-default",   // Apollo n'expose pas l'email via auth/health
+      account_label: "Apollo workspace",
+      scope: "people:enrich people:search organizations:enrich",
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      account_email: "",
+      account_label: "",
+      scope: "",
+      error: (e as Error).message,
+    };
+  }
+}
+
 /** Valide un PAT GitHub en appelant /user et en récupérant l'identité. */
 async function validateGithubPat(token: string): Promise<ValidationResult> {
   try {
@@ -188,6 +235,9 @@ Deno.serve(async (req) => {
       break;
     case "sentry":
       validation = await validateSentryPat(body.token);
+      break;
+    case "apollo":
+      validation = await validateApolloKey(body.token);
       break;
   }
 
