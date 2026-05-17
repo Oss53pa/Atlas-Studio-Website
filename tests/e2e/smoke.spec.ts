@@ -17,11 +17,23 @@ test.describe('Smoke — pages publiques', () => {
   });
 
   test('la page admin-access charge', async ({ page }) => {
-    await page.goto('/admin-access');
+    // La route est /admin-access/:token (token obligatoire). Sans token réel,
+    // la page bascule en état "loader" puis "erreur lien invalide" — on
+    // valide simplement que le composant mount et affiche du contenu (loader
+    // ou message d'erreur), pas un input form (ce dernier n'est rendu qu'avec
+    // un token valide qui passe la validation côté serveur).
+    await page.goto('/admin-access/e2e-smoke-fake-token');
     await expect(page.locator('body')).toBeVisible();
-    // Doit afficher un formulaire (input email ou similaire)
-    const inputs = page.locator('input').first();
-    await expect(inputs).toBeVisible({ timeout: 10_000 });
+
+    // Attendre qu'un des trois états s'affiche :
+    //   - loader pendant fetch validate-admin-link
+    //   - message d'erreur "Lien invalide" après réponse 4xx
+    //   - form (cas extrêmement improbable avec un fake token, mais on
+    //     l'inclut pour robustesse si Supabase est down et le fetch jette)
+    const loaderOrError = page.getByText(
+      /chargement|loader|invalide|expire|expir.|administrateur|access/i,
+    );
+    await expect(loaderOrError.first()).toBeVisible({ timeout: 10_000 });
   });
 });
 
