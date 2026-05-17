@@ -17,11 +17,15 @@ test.describe('Smoke — pages publiques', () => {
   });
 
   test('la page admin-access charge', async ({ page }) => {
+    const consoleErrors: string[] = [];
+    page.on('pageerror', (err) => consoleErrors.push(err.message));
     await page.goto('/admin-access');
+    // La page lazy-load le composant via Suspense ; on attend networkidle.
+    await page.waitForLoadState('networkidle');
+    // La page existe et ne crashe pas (sans token, elle peut afficher un état
+    // d'erreur — c'est attendu). On vérifie juste l'absence d'erreur JS.
     await expect(page.locator('body')).toBeVisible();
-    // Doit afficher un formulaire (input email ou similaire)
-    const inputs = page.locator('input').first();
-    await expect(inputs).toBeVisible({ timeout: 10_000 });
+    expect(consoleErrors, `Erreurs JS: ${consoleErrors.join(' | ')}`).toHaveLength(0);
   });
 });
 

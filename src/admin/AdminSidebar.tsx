@@ -96,6 +96,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "ASVC — Virtual Company",
     icon: Bot,
     items: [
+      { to: "/admin/asvc/setup-guide", icon: BookOpen, label: "Guide de démarrage" },
       { to: "/admin/asvc", icon: Inbox, label: "Brief & Inbox" },
       { to: "/admin/asvc/arbitrations", icon: ListChecks, label: "Arbitrages" },
       { to: "/admin/asvc/pipeline", icon: Workflow, label: "Pipeline Produit" },
