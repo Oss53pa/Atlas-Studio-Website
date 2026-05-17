@@ -12,6 +12,8 @@ import {
   FileText,
   ArrowDownToLine,
   XCircle,
+  Loader2,
+  PlayCircle,
 } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { AdminModal } from '../../components/AdminModal';
@@ -36,12 +38,20 @@ import {
 const PRIORITY_ORDER: TechDebtPriority[] = ['P0', 'P1', 'P2', 'P3'];
 
 export default function AsvcTechDebtPage() {
-  const { rows, loading, error, updateStatus } = useTechDebtPriority();
-  const { latest: audits, loading: auditsLoading } = useCodeHealthAudits(30);
+  const {
+    rows, loading, error, updateStatus,
+    scanning, scanError, lastScanSummary, triggerScan,
+  } = useTechDebtPriority();
+  const { latest: audits, loading: auditsLoading, refresh: refreshAudits } = useCodeHealthAudits(30);
   const [selected, setSelected] = useState<TechDebtPriorityRow | null>(null);
   const [appFilter, setAppFilter] = useState<string | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<TechDebtPriority | 'all'>('all');
   const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const handleScan = async () => {
+    await triggerScan('full');
+    await refreshAudits();
+  };
 
   // ─── Derived stats ─────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -91,10 +101,42 @@ export default function AsvcTechDebtPage() {
 
   return (
     <div className="max-w-6xl">
-      <AdminPageHeader
-        title="Tech Debt"
-        subtitle="Audit code health hebdomadaire — backlog priorisé P0-P3 des 14 apps Atlas Studio"
-      />
+      <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
+        <AdminPageHeader
+          title="Tech Debt"
+          subtitle="Audit code health hebdomadaire — backlog priorisé P0-P3 des 14 apps Atlas Studio"
+        />
+        <button
+          type="button"
+          onClick={handleScan}
+          disabled={scanning}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-admin-accent/30 bg-admin-accent/15 hover:bg-admin-accent/25 text-admin-accent text-[12px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          {scanning ? (
+            <Loader2 size={13} className="animate-spin" />
+          ) : (
+            <PlayCircle size={13} />
+          )}
+          {scanning ? 'Scan en cours...' : 'Lancer un scan'}
+        </button>
+      </div>
+
+      {scanError && (
+        <div className="mb-4 px-3 py-2 rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 text-[12px]">
+          Erreur scan : {scanError}
+        </div>
+      )}
+
+      {lastScanSummary && (
+        <div className="mb-4 px-3 py-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-[12px]">
+          ✓ Scan terminé : <strong>{lastScanSummary.apps_scanned}</strong> apps scannées,{' '}
+          <strong>{lastScanSummary.total_items_detected}</strong> items détectés
+          {lastScanSummary.total_critical > 0 && (
+            <>, dont <strong>{lastScanSummary.total_critical}</strong> critiques</>
+          )}
+          .
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 px-3 py-2 rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 text-[12px]">

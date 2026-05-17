@@ -1350,6 +1350,13 @@ export function useTechDebtPriority() {
   const [rows, setRows] = useState<TechDebtPriorityRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [lastScanSummary, setLastScanSummary] = useState<{
+    apps_scanned: number;
+    total_items_detected: number;
+    total_critical: number;
+  } | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -1389,7 +1396,37 @@ export function useTechDebtPriority() {
     [refresh],
   );
 
-  return { rows, loading, error, refresh, updateStatus };
+  const triggerScan = useCallback(
+    async (mode: 'full' | 'internal_only' | 'lighthouse_only' = 'full') => {
+      setScanning(true);
+      setScanError(null);
+      setLastScanSummary(null);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) throw new Error('Session manquante');
+
+        const { data, error: err } = await supabase.functions.invoke('asvc-tech-debt-scan', {
+          body: { mode },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (err) throw new Error(err.message);
+        if (data?.error) throw new Error(data.error);
+        if (data?.summary) setLastScanSummary(data.summary);
+        await refresh();
+      } catch (e) {
+        setScanError((e as Error).message);
+      } finally {
+        setScanning(false);
+      }
+    },
+    [refresh],
+  );
+
+  return {
+    rows, loading, error, refresh, updateStatus,
+    scanning, scanError, lastScanSummary, triggerScan,
+  };
 }
 
 export function useCodeHealthAudits(daysWindow = 30) {
