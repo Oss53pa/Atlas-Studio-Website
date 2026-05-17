@@ -107,6 +107,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/asvc/finance", icon: Wallet, label: "Finance" },
       { to: "/admin/asvc/health", icon: Shield, label: "Health & Audit" },
       { to: "/admin/asvc/tests", icon: CheckSquare, label: "Tests Readiness" },
+      { to: "/admin/asvc/tech-debt", icon: Wrench, label: "Tech Debt" },
       { to: "/admin/asvc/briefs", icon: History, label: "Historique briefs" },
       { to: "/admin/asvc/connectors", icon: Plug, label: "Connecteurs" },
       { to: "/admin/asvc/templates", icon: Files, label: "Templates" },

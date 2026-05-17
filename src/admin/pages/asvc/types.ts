@@ -872,3 +872,152 @@ export const STATUS_LABELS: Record<ActionStatus, string> = {
   failed: 'Échec',
   cancelled: 'Annulée',
 };
+
+// ───────────────────────────────────────────────────────────────────────────
+// ASVC v2.1 — Tech Debt Agent (audit code health hebdo)
+// ───────────────────────────────────────────────────────────────────────────
+
+export type TechDebtCategory =
+  | 'duplication'
+  | 'complexity'
+  | 'unused_code'
+  | 'outdated_dep'
+  | 'vulnerability'
+  | 'perf_regression'
+  | 'arch_smell'
+  | 'bundle_bloat'
+  | 'rls_missing'
+  | 'security_definer_search_path'
+  | 'i18n_missing';
+
+export type TechDebtSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type TechDebtPriority = 'P0' | 'P1' | 'P2' | 'P3';
+export type TechDebtStatus =
+  | 'detected'
+  | 'qualified'
+  | 'in_backlog'
+  | 'in_progress'
+  | 'fixed'
+  | 'wont_fix'
+  | 'duplicate';
+export type TechDebtEffort = 'XS' | 'S' | 'M' | 'L' | 'XL';
+export type CodeHealthTrend = 'improving' | 'stable' | 'degrading';
+
+export interface TechDebtItem {
+  id: string;
+  detected_by_agent_id: string | null;
+  audit_id: string | null;
+  app_concerned: string;
+  category: TechDebtCategory;
+  title: string;
+  description: string | null;
+  severity: TechDebtSeverity;
+  priority: TechDebtPriority;
+  file_paths: string[] | null;
+  detected_metric: Record<string, unknown> | null;
+  effort_estimate: TechDebtEffort | null;
+  status: TechDebtStatus;
+  related_pr_id: string | null;
+  related_action_id: string | null;
+  fix_branch: string | null;
+  resolved_at: string | null;
+  resolution_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TechDebtPriorityRow {
+  id: string;
+  app_concerned: string;
+  category: TechDebtCategory;
+  title: string;
+  description: string | null;
+  severity: TechDebtSeverity;
+  priority: TechDebtPriority;
+  status: TechDebtStatus;
+  effort_estimate: TechDebtEffort | null;
+  file_paths: string[] | null;
+  files_count: number;
+  detected_metric: Record<string, unknown> | null;
+  fix_branch: string | null;
+  created_at: string;
+  updated_at: string;
+  sort_order: number;
+}
+
+export interface CodeHealthAudit {
+  id: string;
+  agent_id: string | null;
+  app_concerned: string;
+  audit_date: string;
+  score: number | null;
+  metrics: Record<string, unknown>;
+  items_detected_count: number;
+  items_critical_count: number;
+  trend: CodeHealthTrend | null;
+  previous_score: number | null;
+  scan_tools_used: string[];
+  scan_duration_seconds: number | null;
+  related_action_id: string | null;
+  created_at: string;
+}
+
+export const TECH_DEBT_CATEGORY_LABELS: Record<TechDebtCategory, string> = {
+  duplication: 'Duplication',
+  complexity: 'Complexité',
+  unused_code: 'Code mort',
+  outdated_dep: 'Dépendance obsolète',
+  vulnerability: 'Vulnérabilité',
+  perf_regression: 'Régression perf',
+  arch_smell: 'Anti-pattern',
+  bundle_bloat: 'Bundle bloat',
+  rls_missing: 'RLS manquant',
+  security_definer_search_path: 'SD search_path',
+  i18n_missing: 'i18n manquant',
+};
+
+export const TECH_DEBT_PRIORITY_CLASSES: Record<TechDebtPriority, string> = {
+  P0: 'bg-red-500/20 text-red-300 border-red-500/40',
+  P1: 'bg-admin-accent/20 text-admin-accent border-admin-accent/40',
+  P2: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+  P3: 'bg-white/5 text-neutral-400 border-white/10',
+};
+
+export const TECH_DEBT_SEVERITY_CLASSES: Record<TechDebtSeverity, string> = {
+  critical: 'bg-red-500/20 text-red-300 border-red-500/40',
+  high: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+  medium: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  low: 'bg-white/5 text-neutral-400 border-white/10',
+};
+
+export const TECH_DEBT_STATUS_LABELS: Record<TechDebtStatus, string> = {
+  detected: 'Détecté',
+  qualified: 'Qualifié',
+  in_backlog: 'Backlog',
+  in_progress: 'En cours',
+  fixed: 'Résolu',
+  wont_fix: 'Ignoré',
+  duplicate: 'Doublon',
+};
+
+export const TECH_DEBT_STATUS_CLASSES: Record<TechDebtStatus, string> = {
+  detected: 'bg-white/5 text-neutral-400 border-white/10',
+  qualified: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+  in_backlog: 'bg-violet-500/10 text-violet-300 border-violet-500/30',
+  in_progress: 'bg-admin-accent/15 text-admin-accent border-admin-accent/30',
+  fixed: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  wont_fix: 'bg-neutral-500/10 text-neutral-500 border-neutral-500/20',
+  duplicate: 'bg-neutral-500/10 text-neutral-500 border-neutral-500/20',
+};
+
+export const TREND_LABELS: Record<CodeHealthTrend, string> = {
+  improving: 'En amélioration',
+  stable: 'Stable',
+  degrading: 'En dégradation',
+};
+
+export const TREND_CLASSES: Record<CodeHealthTrend, string> = {
+  improving: 'text-emerald-300',
+  stable: 'text-neutral-400',
+  degrading: 'text-red-300',
+};
