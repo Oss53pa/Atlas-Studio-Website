@@ -28,6 +28,9 @@ import type {
   TestCase,
   TestStatus,
   SharedTemplateRow,
+  TechDebtPriorityRow,
+  TechDebtStatus,
+  CodeHealthAudit,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
@@ -1339,7 +1342,95 @@ export function useAgentPromptVersions(agentCode: string | null) {
   return { versions, loading, saving, error, refresh, createVersion, activateVersion, deactivateActive };
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// ASVC v2.1 — Tech Debt Agent
+// ───────────────────────────────────────────────────────────────────────────
 
+export function useTechDebtPriority() {
+  const [rows, setRows] = useState<TechDebtPriorityRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase
+        .from('v_asvc_tech_debt_priority')
+        .select('*');
+      if (err) {
+        console.error('[useTechDebtPriority] error', err);
+        setError(err.message);
+      } else {
+        setRows((data as unknown as TechDebtPriorityRow[]) ?? []);
+      }
+    } catch (e) {
+      console.error('[useTechDebtPriority] thrown', e);
+      setError((e as Error).message ?? 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const updateStatus = useCallback(
+    async (id: string, status: TechDebtStatus, notes?: string) => {
+      const patch: Record<string, unknown> = { status, updated_at: new Date().toISOString() };
+      if (status === 'fixed') patch.resolved_at = new Date().toISOString();
+      if (notes) patch.resolution_notes = notes;
+      const { error: err } = await supabase
+        .from('asvc_tech_debt_items')
+        .update(patch)
+        .eq('id', id);
+      if (err) throw err;
+      await refresh();
+    },
+    [refresh],
+  );
+
+  return { rows, loading, error, refresh, updateStatus };
+}
+
+export function useCodeHealthAudits(daysWindow = 30) {
+  const [latest, setLatest] = useState<CodeHealthAudit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const since = new Date(Date.now() - daysWindow * 86400000).toISOString().slice(0, 10);
+      const { data, error: err } = await supabase
+        .from('asvc_code_health_audits')
+        .select('*')
+        .gte('audit_date', since)
+        .order('audit_date', { ascending: false })
+        .order('app_concerned');
+      if (err) {
+        console.error('[useCodeHealthAudits] error', err);
+        setError(err.message);
+      } else {
+        // Pour chaque app : ne garder que le dernier audit
+        const byApp: Record<string, CodeHealthAudit> = {};
+        for (const row of (data as unknown as CodeHealthAudit[]) ?? []) {
+          if (!byApp[row.app_concerned]) byApp[row.app_concerned] = row;
+        }
+        setLatest(Object.values(byApp));
+      }
+    } catch (e) {
+      console.error('[useCodeHealthAudits] thrown', e);
+      setError((e as Error).message ?? 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  }, [daysWindow]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  return { latest, loading, error, refresh };
+}
 
 // Helper: temps relatif en fr
 export function timeAgoFr(iso: string): string {
