@@ -115,6 +115,23 @@ Deno.serve(async (req) => {
       mfa: "Voici votre code d'authentification :",
     }[purpose] || "Voici votre code :";
 
+    // CTA URL : la page de saisie du code, avec email pre-rempli pour skipper
+    // l'etape "entrer son email" et aller directement aux 6 inputs OTP.
+    const portalUrl = Deno.env.get("ASVC_PORTAL_URL") ?? "https://atlas-studio.org";
+    const ctaPath = {
+      first_login: "/portal/login",
+      recovery: "/portal/forgot-password",
+      reset_password: "/portal/forgot-password",
+      mfa: "/portal/login",
+    }[purpose] || "/portal/forgot-password";
+    const ctaUrl = `${portalUrl}${ctaPath}?email=${encodeURIComponent(normalizedEmail)}&step=otp`;
+    const ctaLabel = {
+      first_login: "Valider mon email",
+      recovery: "Saisir mon code",
+      reset_password: "Saisir mon code",
+      mfa: "Continuer",
+    }[purpose] || "Saisir mon code";
+
     const html = `<!DOCTYPE html>
 <html lang="fr">
 <body style="margin:0;padding:0;background:#F5F5F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
@@ -140,6 +157,16 @@ Deno.serve(async (req) => {
               ${code}
             </div>
             <div style="color:#999;font-size:11px;margin-top:8px;">Expire dans ${OTP_EXPIRY_MINUTES} minutes</div>
+          </div>
+
+          <!-- CTA Button : ouvre la page de saisie du code -->
+          <div style="text-align:center;margin:28px 0;">
+            <a href="${ctaUrl}" style="display:inline-block;padding:14px 36px;background:#EF9F27;color:#0A0A0A;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.3px;">
+              ${escapeHtml(ctaLabel)} →
+            </a>
+            <div style="color:#999;font-size:11px;margin-top:10px;">
+              ou copie/colle ce lien : <span style="color:#666;word-break:break-all;font-family:monospace;font-size:10px;">${ctaUrl}</span>
+            </div>
           </div>
 
           <div style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:14px 18px;border-radius:8px;margin:20px 0;">
