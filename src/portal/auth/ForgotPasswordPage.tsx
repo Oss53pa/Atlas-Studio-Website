@@ -1,22 +1,60 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { CheckCircle2, ArrowRight, Loader2, Mail } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthLayout } from "./AuthLayout";
 import { AuthInput } from "./AuthInput";
+import { OTPVerification } from "../components/OTPVerification";
 
 /**
  * /portal/forgot-password — Demande de réinitialisation de mot de passe.
- * L'utilisateur saisit son email, Supabase envoie un magic link vers
- * /portal/reset-password (avec token dans l'URL).
+ *
+ * Flow OTP (centralisé Atlas Studio) :
+ *   1. Utilisateur saisit email → POST /functions/v1/send-otp { purpose: "reset_password" }
+ *      → email Atlas Studio brandé avec code 6 chiffres
+ *   2. UI bascule sur OTPVerification → l'utilisateur saisit le code
+ *   3. POST /functions/v1/verify-otp valide → retourne token_hash recovery
+ *   4. On consomme le token_hash via supabase.auth.verifyOtp({ type: "recovery" })
+ *      → session de recovery établie
+ *   5. Navigation vers /portal/reset-password (qui détecte la session active)
  */
 export default function ForgotPasswordPage() {
+  const navigate = useNavigate();
+
+  const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
+  const [emailHint, setEmailHint] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [exchanging, setExchanging] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+  const sendCode = async (targetEmail: string) => {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Configuration Supabase manquante");
+    }
+    const res = await fetch(`${supabaseUrl}/functions/v1/send-otp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: supabaseAnonKey,
+      },
+      body: JSON.stringify({ email: targetEmail, purpose: "reset_password" }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      // Cas particulier rate limit
+      if (res.status === 429) {
+        throw new Error("Trop de demandes. Réessayez dans quelques minutes.");
+      }
+      throw new Error(data?.error || "Impossible d'envoyer le code");
+    }
+    return data as { email_hint?: string };
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -31,46 +69,72 @@ export default function ForgotPasswordPage() {
     }
 
     setLoading(true);
-    const redirectTo = `${window.location.origin}/portal/reset-password`;
-    const { error: err } = await supabase.auth.resetPasswordForEmail(trimmed, {
-      redirectTo,
-    });
-    setLoading(false);
-
-    if (err) {
-      // Pour la sécurité, on ne révèle pas si l'email existe ou non.
-      // On affiche le succès dans tous les cas SAUF si c'est un rate limit.
-      if (err.message.toLowerCase().includes("rate limit")) {
-        setError("Trop de demandes. Réessayez dans quelques minutes.");
-        return;
-      }
+    try {
+      const out = await sendCode(trimmed);
+      setEmailHint(out.email_hint || trimmed);
+      setStep("otp");
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
     }
-    // Toujours afficher le message de succès pour ne pas leak l'existence d'un compte
-    setSent(true);
   };
 
-  if (sent) {
+  const handleOtpSuccess = async (data: { token_hash?: string; action_link?: string }) => {
+    if (!data.token_hash) {
+      setError("Réponse invalide du serveur (token_hash manquant)");
+      setStep("email");
+      return;
+    }
+    setExchanging(true);
+    // Échange le token_hash recovery contre une session de recovery active
+    const { error: vErr } = await supabase.auth.verifyOtp({
+      token_hash: data.token_hash,
+      type: "recovery",
+    });
+    setExchanging(false);
+    if (vErr) {
+      setError(`Impossible d'établir la session : ${vErr.message}`);
+      setStep("email");
+      return;
+    }
+    // Session recovery établie — ResetPasswordPage la détectera
+    navigate("/portal/reset-password", { replace: true });
+  };
+
+  const handleResend = async () => {
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed) throw new Error("Email manquant");
+    await sendCode(trimmed);
+  };
+
+  if (step === "otp") {
     return (
       <AuthLayout
-        title="Email envoyé"
+        title="Réinitialisation"
         backHref="/portal/login"
         backLabel="Retour à la connexion"
       >
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-500/30 flex items-center justify-center">
-            <CheckCircle2 size={32} className="text-emerald-400" strokeWidth={1.8} />
+        {exchanging ? (
+          <div className="flex flex-col items-center justify-center py-8 gap-3">
+            <Loader2 size={24} className="animate-spin text-gold" />
+            <p className="text-neutral-muted text-sm">Établissement de la session…</p>
           </div>
-          <p className="text-neutral-light text-sm leading-relaxed mb-3">
-            Si un compte existe avec <span className="font-semibold text-gold">{email}</span>,
-            vous recevrez un email avec un lien pour réinitialiser votre mot de passe.
-          </p>
-          <p className="text-neutral-muted text-[12px] leading-relaxed">
-            Pensez à vérifier votre dossier spam si vous ne recevez rien sous quelques minutes.
-          </p>
-          <Link to="/portal/login" className="btn-outline-light w-full mt-7 inline-block">
-            Retour à la connexion
-          </Link>
-        </div>
+        ) : (
+          <OTPVerification
+            email={email}
+            emailHint={emailHint}
+            purpose="reset_password"
+            onSuccess={handleOtpSuccess}
+            onBack={() => { setStep("email"); setError(""); }}
+            onResend={handleResend}
+          />
+        )}
+        {error && (
+          <div className="mt-4 px-3.5 py-2.5 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[12px]">
+            {error}
+          </div>
+        )}
       </AuthLayout>
     );
   }
@@ -78,11 +142,11 @@ export default function ForgotPasswordPage() {
   return (
     <AuthLayout
       title="Mot de passe oublié"
-      subtitle="Entrez votre email — nous vous enverrons un lien pour le réinitialiser."
+      subtitle="Entrez votre email — nous vous enverrons un code à 6 chiffres."
       backHref="/portal/login"
       backLabel="Retour à la connexion"
     >
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleEmailSubmit} noValidate>
         <AuthInput
           label="Email"
           type="email"
@@ -107,11 +171,15 @@ export default function ForgotPasswordPage() {
           ) : (
             <>
               <Mail size={16} strokeWidth={2} />
-              Envoyer le lien
+              Envoyer le code
               <ArrowRight size={16} strokeWidth={2.2} />
             </>
           )}
         </button>
+
+        <p className="text-neutral-muted text-[11.5px] text-center mt-4 leading-relaxed">
+          Tu n'as pas de compte ? <Link to="/portal/login" className="text-gold hover:underline">Connexion</Link>
+        </p>
       </form>
     </AuthLayout>
   );
