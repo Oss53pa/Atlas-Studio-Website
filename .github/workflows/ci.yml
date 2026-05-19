@@ -28,3 +28,41 @@ jobs:
         run: supabase db push
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+  deploy-functions:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Tourne en parallèle avec migrate (pas de dépendance)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase project
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      # Déploie TOUTES les edge functions du dossier supabase/functions/
+      # (sauf les dossiers _shared et tests qui commencent par _ ou .)
+      # --no-verify-jwt car certaines fonctions sont publiques (webhooks)
+      # et chacune gère son auth via le helper authorizeRequest interne.
+      - name: Deploy all edge functions
+        run: |
+          set -e
+          for fn in supabase/functions/*/; do
+            name=$(basename "$fn")
+            # Skip les dossiers techniques (_shared, _internal, .vscode, etc.)
+            if [[ "$name" == _* || "$name" == .* ]]; then
+              echo "⏭  Skip $name (utility folder)"
+              continue
+            fi
+            echo "▶ Deploying $name…"
+            supabase functions deploy "$name" --no-verify-jwt
+          done
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

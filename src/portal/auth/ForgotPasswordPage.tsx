@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { AuthLayout } from "./AuthLayout";
@@ -20,13 +20,35 @@ import { OTPVerification } from "../components/OTPVerification";
  */
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
 
-  const [step, setStep] = useState<"email" | "otp">("email");
-  const [email, setEmail] = useState("");
-  const [emailHint, setEmailHint] = useState("");
+  // Si on arrive depuis le lien dans l'email (?email=...&step=otp),
+  // on saute l'étape email et on affiche direct les inputs OTP.
+  const initialEmail = params.get("email")?.trim().toLowerCase() ?? "";
+  const initialStep = params.get("step") === "otp" && initialEmail ? "otp" : "email";
+
+  const [step, setStep] = useState<"email" | "otp">(initialStep);
+  const [email, setEmail] = useState(initialEmail);
+  const [emailHint, setEmailHint] = useState(initialEmail ? maskEmail(initialEmail) : "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [exchanging, setExchanging] = useState(false);
+
+  // Si on arrive avec ?step=otp&email=... directement, on suppose que le code
+  // vient d'être envoyé (la personne a cliqué sur le bouton de l'email).
+  // On affiche le step OTP sans re-déclencher un send-otp (l'utilisateur a
+  // déjà reçu son code, il n'y a qu'à le saisir).
+  useEffect(() => {
+    // Si l'URL contient des params sensibles, on les nettoie après lecture
+    // pour éviter qu'ils traînent dans l'historique du navigateur.
+    if (initialEmail || params.get("step")) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("email");
+      url.searchParams.delete("step");
+      window.history.replaceState({}, "", url.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -183,4 +205,12 @@ export default function ForgotPasswordPage() {
       </form>
     </AuthLayout>
   );
+}
+
+/** Masque un email pour l'afficher au user (`v***@domain.com`). */
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) return "***";
+  const visible = Math.min(2, local.length);
+  return `${local.slice(0, visible)}${"*".repeat(Math.max(0, local.length - visible))}@${domain}`;
 }
