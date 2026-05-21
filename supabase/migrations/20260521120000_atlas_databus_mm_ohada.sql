@@ -226,30 +226,32 @@ CREATE POLICY "ohada_admin_write" ON public.ohada_country_tax
 GRANT SELECT ON public.ohada_country_tax TO anon, authenticated;
 GRANT ALL    ON public.ohada_country_tax TO service_role;
 
--- Seed des 17 États membres OHADA. Zone + devise = faits ; TVA/IS = indicatifs.
+-- Seed des 17 États membres OHADA. Zone + devise = faits stables.
+-- TVA/IS recoupés sur PwC Worldwide Tax Summaries : rates_verified = true.
+-- Sources divergentes ou taux récents : rates_verified = false (à confirmer).
 INSERT INTO public.ohada_country_tax
-  (country_code, country_name, zone, currency, vat_standard_rate, corporate_tax_rate, tax_authority, notes)
+  (country_code, country_name, zone, currency, vat_standard_rate, corporate_tax_rate, tax_authority, rates_verified, notes)
 VALUES
   -- UEMOA (XOF)
-  ('BJ', 'Bénin',                    'UEMOA', 'XOF', 18.00, 30.00, 'DGI', 'Taux indicatifs à valider'),
-  ('BF', 'Burkina Faso',             'UEMOA', 'XOF', 18.00, 27.50, 'DGI', 'Taux indicatifs à valider'),
-  ('CI', 'Côte d''Ivoire',           'UEMOA', 'XOF', 18.00, 25.00, 'DGI', 'IMF 0,5% du CA ; taux à valider'),
-  ('GW', 'Guinée-Bissau',            'UEMOA', 'XOF', 19.00, 25.00, 'DGCI','TVA récente ; taux à valider'),
-  ('ML', 'Mali',                     'UEMOA', 'XOF', 18.00, 30.00, 'DGI', 'Taux indicatifs à valider'),
-  ('NE', 'Niger',                    'UEMOA', 'XOF', 19.00, 30.00, 'DGI', 'Taux indicatifs à valider'),
-  ('SN', 'Sénégal',                  'UEMOA', 'XOF', 18.00, 30.00, 'DGID','Taux indicatifs à valider'),
-  ('TG', 'Togo',                     'UEMOA', 'XOF', 18.00, 27.00, 'OTR', 'Taux indicatifs à valider'),
+  ('BJ', 'Bénin',                    'UEMOA', 'XOF', 18.00, 30.00, 'DGI',  true,  NULL),
+  ('BF', 'Burkina Faso',             'UEMOA', 'XOF', 18.00, 27.50, 'DGI',  true,  NULL),
+  ('CI', 'Côte d''Ivoire',           'UEMOA', 'XOF', 18.00, 25.00, 'DGI',  true,  'IS 30% pour télécoms/TIC ; IMF 0,5% du CA'),
+  ('GW', 'Guinée-Bissau',            'UEMOA', 'XOF', 19.00, 25.00, 'DGCI', false, 'TVA introduite 2023 (Loi 4/2022) — taux à confirmer'),
+  ('ML', 'Mali',                     'UEMOA', 'XOF', 18.00, 30.00, 'DGI',  true,  NULL),
+  ('NE', 'Niger',                    'UEMOA', 'XOF', 19.00, 30.00, 'DGI',  true,  NULL),
+  ('SN', 'Sénégal',                  'UEMOA', 'XOF', 18.00, 30.00, 'DGID', true,  NULL),
+  ('TG', 'Togo',                     'UEMOA', 'XOF', 18.00, 27.00, 'OTR',  true,  NULL),
   -- CEMAC (XAF)
-  ('CM', 'Cameroun',                 'CEMAC', 'XAF', 19.25, 33.00, 'DGI', 'IS 33% (CAC inclus) ; à valider'),
-  ('CF', 'Centrafrique',             'CEMAC', 'XAF', 19.00, 30.00, 'DGID','Taux indicatifs à valider'),
-  ('TD', 'Tchad',                    'CEMAC', 'XAF', 18.00, 35.00, 'DGI', 'Taux indicatifs à valider'),
-  ('CG', 'Congo (Brazzaville)',      'CEMAC', 'XAF', 18.90, 28.00, 'DGID','TVA 18,9% (surtaxe incluse) ; à valider'),
-  ('GQ', 'Guinée équatoriale',       'CEMAC', 'XAF', 15.00, 35.00, 'DGI', 'Taux indicatifs à valider'),
-  ('GA', 'Gabon',                    'CEMAC', 'XAF', 18.00, 30.00, 'DGI', 'Taux indicatifs à valider'),
+  ('CM', 'Cameroun',                 'CEMAC', 'XAF', 19.25, 33.00, 'DGI',  true,  'TVA 19,25% (CAC inclus) ; IS 33% (CAC inclus)'),
+  ('CF', 'Centrafrique',             'CEMAC', 'XAF', 19.00, 30.00, 'DGID', false, 'À confirmer'),
+  ('TD', 'Tchad',                    'CEMAC', 'XAF', 18.00, 35.00, 'DGI',  false, 'IS 35% (certaines sources indiquent 40% / secteur pétrolier)'),
+  ('CG', 'Congo (Brazzaville)',      'CEMAC', 'XAF', 18.90, 28.00, 'DGID', false, 'TVA 18,9% (surtaxe incluse) ; IS 28% — sources divergentes (30%)'),
+  ('GQ', 'Guinée équatoriale',       'CEMAC', 'XAF', 15.00, 35.00, 'DGI',  false, 'IS 35% (PwC) — une source indique 25%'),
+  ('GA', 'Gabon',                    'CEMAC', 'XAF', 18.00, 30.00, 'DGI',  true,  'IS 35% pour pétrole/mines'),
   -- Hors UEMOA/CEMAC
-  ('KM', 'Comores',                  'other', 'KMF', NULL,  35.00, 'AGID','Pas de TVA standard ; à valider'),
-  ('GN', 'Guinée (Conakry)',         'other', 'GNF', 18.00, 25.00, 'DGI', 'Taux indicatifs à valider'),
-  ('CD', 'RD Congo',                 'other', 'CDF', 16.00, 30.00, 'DGI', 'Taux indicatifs à valider')
+  ('KM', 'Comores',                  'other', 'KMF', NULL,  35.00, 'AGID', true,  'Pas de TVA standard ; IS 50% pour entreprises publiques > 500M KMF'),
+  ('GN', 'Guinée (Conakry)',         'other', 'GNF', 18.00, 25.00, 'DGI',  true,  'IS 30/35% pour mines & hydrocarbures'),
+  ('CD', 'RD Congo',                 'other', 'CDF', 16.00, 30.00, 'DGI',  true,  NULL)
 ON CONFLICT (country_code) DO UPDATE SET
   country_name       = EXCLUDED.country_name,
   zone               = EXCLUDED.zone,
@@ -257,5 +259,6 @@ ON CONFLICT (country_code) DO UPDATE SET
   vat_standard_rate  = EXCLUDED.vat_standard_rate,
   corporate_tax_rate = EXCLUDED.corporate_tax_rate,
   tax_authority      = EXCLUDED.tax_authority,
+  rates_verified     = EXCLUDED.rates_verified,
   notes              = EXCLUDED.notes,
   updated_at         = now();

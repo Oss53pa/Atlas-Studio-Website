@@ -19,7 +19,7 @@ export function useOhadaCountries() {
         const { data, error } = await supabase
           .from("ohada_country_tax")
           .select(
-            "country_code, country_name, zone, currency, vat_standard_rate, corporate_tax_rate, tax_authority, rates_verified",
+            "country_code, country_name, zone, currency, vat_standard_rate, corporate_tax_rate, tax_authority, rates_verified, notes",
           )
           .order("country_name");
         if (error) throw error;
