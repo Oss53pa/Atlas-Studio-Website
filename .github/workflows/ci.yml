@@ -24,8 +24,15 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-      - name: Push migrations
-        run: supabase db push
+      # Les migrations de ce projet sont appliquées via l'outil Supabase
+      # (MCP / dashboard), pas via `db push`. L'historique distant et le
+      # dossier supabase/migrations/ sont divergents (versions quasi
+      # disjointes), donc `db push` échouerait à chaque merge. On le lance
+      # en best-effort pour ne pas bloquer le pipeline. Pour réactiver le
+      # GitOps des migrations, re-baseliner d'abord le dossier sur la prod
+      # (supabase db pull / migration repair).
+      - name: Push migrations (best-effort)
+        run: supabase db push || echo "::warning::db push ignoré — migrations gérées via l'outil Supabase (MCP/dashboard) pour ce projet"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
