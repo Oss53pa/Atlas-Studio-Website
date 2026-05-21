@@ -163,6 +163,78 @@ export interface ErrorLogRow {
   created_at: string;
 }
 
+export interface DataBusObjectRow {
+  id: string;
+  owner_id: string;
+  company_id: string | null;
+  producer_app: string;
+  consumer_app: string | null;
+  object_type: string;
+  schema_version: number;
+  status: 'pending' | 'claimed' | 'consumed' | 'failed' | 'archived';
+  payload: Record<string, any>;
+  idempotency_key: string | null;
+  error: string | null;
+  created_at: string;
+  claimed_at: string | null;
+  consumed_at: string | null;
+  consumed_by: string | null;
+}
+
+export interface MobileMoneyStatementRow {
+  id: string;
+  owner_id: string;
+  company_id: string | null;
+  provider: 'orange_money' | 'wave' | 'mtn_momo' | 'moov_money' | 'free_money' | 'mpesa' | 'airtel_money' | 'other';
+  account_label: string | null;
+  account_msisdn: string | null;
+  currency: string;
+  period_start: string | null;
+  period_end: string | null;
+  opening_balance: number | null;
+  closing_balance: number | null;
+  source: 'file' | 'cinetpay' | 'api' | 'manual';
+  external_ref: string | null;
+  tx_count: number;
+  created_at: string;
+}
+
+export interface MobileMoneyTransactionRow {
+  id: string;
+  statement_id: string;
+  owner_id: string;
+  occurred_at: string;
+  direction: 'debit' | 'credit';
+  amount: number;
+  fee: number;
+  balance_after: number | null;
+  counterparty: string | null;
+  counterparty_msisdn: string | null;
+  reference: string | null;
+  raw_label: string | null;
+  category: string | null;
+  reconciled: boolean;
+  raw: Record<string, any> | null;
+  created_at: string;
+}
+
+export interface OhadaCountryTaxRow {
+  country_code: string;
+  country_name: string;
+  zone: 'UEMOA' | 'CEMAC' | 'other';
+  currency: string;
+  vat_standard_rate: number | null;
+  vat_rates: any[];
+  corporate_tax_rate: number | null;
+  min_tax: Record<string, any>;
+  tax_authority: string | null;
+  efiling_url: string | null;
+  syscohada_variant: string;
+  rates_verified: boolean;
+  notes: string | null;
+  updated_at: string;
+}
+
 // ─── Generic shape compatible with @supabase/postgrest-js v2.95+ ──────────
 // Chaque table doit fournir Row / Insert / Update / Relationships pour
 // satisfaire `GenericTable`. On factorise via le helper `Table<R, I>`.
@@ -214,6 +286,10 @@ export interface Database {
         fingerprint: string;
         environment: ErrorEnvironmentDb;
       }>;
+      databus_objects: Table<DataBusObjectRow, Partial<DataBusObjectRow> & { owner_id: string; producer_app: string; object_type: string; payload: Record<string, any> }>;
+      mobile_money_statements: Table<MobileMoneyStatementRow, Partial<MobileMoneyStatementRow> & { owner_id: string; provider: MobileMoneyStatementRow['provider'] }>;
+      mobile_money_transactions: Table<MobileMoneyTransactionRow, Partial<MobileMoneyTransactionRow> & { statement_id: string; owner_id: string; occurred_at: string; direction: 'debit' | 'credit'; amount: number }>;
+      ohada_country_tax: Table<OhadaCountryTaxRow, Partial<OhadaCountryTaxRow> & { country_code: string; country_name: string; zone: OhadaCountryTaxRow['zone']; currency: string }>;
       // ── Tables sans modele TS dedie (typage permissif compatible GenericTable) ──
       plans: LooseTable;
       app_settings: LooseTable;
@@ -255,6 +331,14 @@ export interface Database {
     CompositeTypes: Record<string, never>;
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      databus_claim: {
+        Args: { p_consumer_app: string; p_owner_id?: string | null; p_object_type?: string | null; p_limit?: number };
+        Returns: DataBusObjectRow[];
+      };
+      databus_ack: {
+        Args: { p_ids: string[]; p_consumer: string; p_status?: string; p_error?: string | null };
+        Returns: number;
+      };
       admin_revenue_summary: { Args: Record<string, never>; Returns: Record<string, any> };
       admin_dashboard_stats: { Args: Record<string, never>; Returns: Record<string, any> };
       upsert_error_log: {
