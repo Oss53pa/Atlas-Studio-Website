@@ -68,6 +68,7 @@ export const DEFAULT_CONTENT: SiteContent = {
   ],
   trustBar: [
     "SYSCOHADA révisé natif",
+    "Paiement Mobile Money",
     "Mode offline (PWA)",
     "IA Proph3t intégrée",
     "Données sécurisées",
@@ -135,7 +136,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     { q: "Faut-il installer quelque chose ?", a: "Non. 100% en ligne, accessible depuis n'importe quel navigateur. Certaines apps sont aussi disponibles sur mobile." },
     { q: "Mes données sont-elles sécurisées ?", a: "Oui. Chiffrement SSL, sauvegardes quotidiennes, conformité internationale." },
     { q: "Puis-je combiner plusieurs apps ?", a: "Oui, chaque app est indépendante. Combinez modules ERP et apps standalone selon vos besoins." },
-    { q: "Quels moyens de paiement ?", a: "Carte bancaire, virement. Mobile Money bientôt disponible." },
+    { q: "Quels moyens de paiement ?", a: "Carte bancaire (Visa, Mastercard), Mobile Money (Orange Money, MTN, Wave) et virement bancaire." },
   ],
   contact: { email: "contact@atlasstudio.com", phone: "+225 XX XX XX XX", city: "Abidjan, Côte d'Ivoire" },
 };
