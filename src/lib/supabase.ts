@@ -26,6 +26,33 @@ if (!supabaseUrl || !supabaseAnonKey) {
  * If you ever need to re-enable it, import `processLock` from @supabase/auth-js
  * and pass it here instead — it uses an in-memory queue instead of navigator.locks.
  */
+
+/**
+ * fetch résilient : réessaie sur les erreurs réseau transitoires
+ * ("TypeError: Failed to fetch"), fréquentes lors d'un refresh de token
+ * Supabase quand la connexion vacille (réveil d'onglet, réseau mobile
+ * instable). Un échec réseau signifie que la requête n'a jamais atteint le
+ * serveur — la rejouer est donc sûr, même pour un POST. Les annulations
+ * volontaires (AbortError) ne sont jamais rejouées.
+ */
+const FETCH_MAX_RETRIES = 2;
+async function resilientFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= FETCH_MAX_RETRIES; attempt++) {
+    try {
+      return await fetch(input, init);
+    } catch (err) {
+      lastErr = err;
+      const aborted =
+        (err instanceof DOMException && err.name === 'AbortError') ||
+        Boolean(init?.signal?.aborted);
+      if (aborted || attempt === FETCH_MAX_RETRIES) break;
+      await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+    }
+  }
+  throw lastErr;
+}
+
 export const supabase = createClient<Database>(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder',
@@ -34,6 +61,9 @@ export const supabase = createClient<Database>(
       lock: async <R>(_name: string, _acquireTimeout: number, fn: () => Promise<R>): Promise<R> => {
         return await fn();
       },
+    },
+    global: {
+      fetch: resilientFetch,
     },
   },
 );
