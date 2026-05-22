@@ -30,6 +30,30 @@ let currentConfig: MonitorConfig | null = null;
 let globalHandlersInstalled = false;
 
 /**
+ * Erreurs transitoires/attendues qu'on ne traite PAS comme de vraies erreurs :
+ * - AbortError : navigation pendant un fetch en cours.
+ * - Échecs réseau ("Failed to fetch" et variantes navigateurs) : surviennent
+ *   sur connexion instable (refresh de token Supabase, réveil d'onglet) et
+ *   récupèrent d'eux-mêmes. Les remonter ne ferait que polluer le monitoring.
+ */
+function isIgnorableError(reason: unknown): boolean {
+  const name = (reason as { name?: string } | null)?.name;
+  if (name === 'AbortError') return true;
+  const msg = String(
+    (reason as { message?: string } | null)?.message ??
+      (typeof reason === 'string' ? reason : ''),
+  ).toLowerCase();
+  return (
+    msg.includes('signal is aborted') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('networkerror when attempting') ||
+    msg.includes('load failed') ||
+    msg.includes('network connection was lost') ||
+    msg.includes('the internet connection appears to be offline')
+  );
+}
+
+/**
  * Détermine l'environnement depuis les variables Vite.
  */
 function detectEnvironment(): 'production' | 'staging' | 'dev' {
@@ -131,6 +155,7 @@ export function initErrorMonitor(
   if (globalHandlersInstalled || typeof window === 'undefined') return;
 
   window.addEventListener('error', (event) => {
+    if (isIgnorableError(event.error) || isIgnorableError(event.message)) return;
     void captureError(appId, {
       message: event.message || 'Unknown error',
       stack: event.error?.stack,
@@ -147,14 +172,10 @@ export function initErrorMonitor(
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
 
-    // Skip AbortError — these are expected when navigating away mid-fetch
-    // and should not be tracked as real errors.
-    if (
-      (reason instanceof DOMException && reason.name === 'AbortError') ||
-      (reason && typeof reason === 'object' &&
-        ((reason as { name?: string }).name === 'AbortError' ||
-          String((reason as { message?: string }).message || '').includes('signal is aborted')))
-    ) {
+    // Erreurs transitoires/attendues (AbortError, échecs réseau) : on supprime
+    // le log rouge par défaut (preventDefault) et on ne remonte rien.
+    if (isIgnorableError(reason)) {
+      event.preventDefault();
       return;
     }
 
