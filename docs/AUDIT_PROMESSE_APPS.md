@@ -27,7 +27,10 @@ qui est bien présente dans ce dépôt et a donc pu être contrôlée directemen
 Le manifeste de marque contient **deux promesses dures** :
 
 - **Promesse A — « Fini le retraitement »** : le logiciel sort le **livrable fini directement**,
-  pas de cycle *Export Excel → retraitement → mise en forme → ré-export*.
+  sans le cycle pénible *retraitement → mise en forme → ré-export*. L'objectif n'est **pas de
+  supprimer Excel** (indispensable pour les données externes : relevés tiers, fichier d'un
+  expert-comptable… — ou par simple préférence) mais d'**offrir un chemin automatique en plus**,
+  au choix de l'utilisateur (« depuis Atlas » **ou** « fichier Excel »).
 - **Promesse B — « Pensé pour les réalités africaines »** : SYSCOHADA/OHADA natif,
   **Mobile Money**, **mode hors-ligne / connexion limitée**, multi-devises,
   **règles fiscales locales par pays**, langues locales, banques locales.
@@ -104,13 +107,16 @@ Relevés en entrée → anomalies classées + rapport SYSCOHADA signable.
 
 ## 4. Manquements transverses (niveau Atlas Studio)
 
-1. **La boucle Excel ressurgit ENTRE vos apps — manquement n°1.**
-   Chaque app importe en Excel/CSV et exporte en Excel/PDF. Pour faire circuler la donnée
-   *d'une app Atlas à une autre*, l'utilisateur refait *Export → Import*.
-   La FAQ affirme « les modules ERP partagent une base commune et s'interconnectent » — vrai
-   **uniquement à l'intérieur d'Atlas F&A**. Cockpit, Liass'Pilot, AtlasBanx, TableSmart sont des **îlots**
-   qui se ré-importent. **C'est la trahison la plus directe de la promesse.**
-   Il manque un **bus de données / source unique partagée**.
+1. **Pas de circulation automatique des données ENTRE vos apps — manquement n°1.**
+   Aujourd'hui, le **seul** chemin pour faire passer la donnée *d'une app Atlas à une autre*
+   est l'Export → Import Excel manuel. La FAQ affirme « les modules ERP partagent une base
+   commune et s'interconnectent » — vrai **uniquement à l'intérieur d'Atlas F&A**. Cockpit,
+   Liass'Pilot, AtlasBanx, TableSmart sont des **îlots**.
+   Il manque un **chemin automatique (API / bus de données partagé)** — **en complément**, pas
+   en remplacement, de l'import Excel : l'utilisateur choisit « depuis Atlas (API) » ou
+   « fichier Excel » selon le cas (l'Excel reste requis pour les données externes).
+   → **Amorce livrée côté hub** : endpoints `data-exports` / `export-balance` / `balance-exports`
+   (publish + pull, tout type de données). Reste à brancher l'option dans chaque app (leurs repos).
 
 2. **Bandeau : deux promesses tenues à moitié.**
    - **« Mode offline (PWA) »** : réellement tenu par **TableSmart** (et partiellement Cockpit).
@@ -149,7 +155,7 @@ Contrôle direct dans ce dépôt :
 
 | Priorité | Action | Pourquoi |
 |---|---|---|
-| 🔴 P0 | **Connecteurs natifs inter-apps** (F&A → Cockpit → Liass'Pilot ; TableSmart → F&A) sans export Excel | Tient la promesse #1 au niveau suite |
+| 🔴 P0 | **Connecteurs natifs inter-apps** (F&A → Cockpit → Liass'Pilot ; TableSmart → F&A), **en complément** de l'import Excel (au choix) — *amorce hub livrée : `data-exports`* | Tient la promesse #1 au niveau suite |
 | 🟠 P1 | **Offline/PWA** pour Atlas F&A et AtlasBanx ; **Proph3t** dans Advist | Aligner les apps sur les promesses de bandeau |
 | 🟠 P1 | **Liass'Pilot : fiscalité multi-pays réelle** (pas seulement plan comptable) ; **déployer Liass'Pilot & Advist** | Tenir « 17 pays OHADA » côté fiscal + sortir les apps |
 | 🟡 P2 | **AtlasBanx : module audit frais Mobile Money** ; **connecteurs/agrégation bancaire** | Couvrir l'angle mort africain n°1 |
@@ -163,6 +169,6 @@ Contrôle direct dans ce dépôt :
 Non, toutes les apps ne tiennent pas **encore** pleinement la promesse :
 
 - **TableSmart** la tient le mieux (les deux piliers).
-- **Atlas F&A, Cockpit, Liass'Pilot, AtlasBanx** la tiennent *à la sortie* mais **rouvrent la boucle Excel à l'entrée** (import manuel).
+- **Atlas F&A, Cockpit, Liass'Pilot, AtlasBanx** la tiennent *à la sortie* mais, **à l'entrée**, n'offrent que l'import Excel manuel — il leur manque le chemin automatique **en option** (API), Excel restant disponible au choix.
 - **Advist** est le plus en décalage avec les promesses transverses (ni IA, ni offline).
 - Au niveau suite, **l'absence de circulation automatique des données entre vos propres apps** est le manquement le plus contraire au manifeste.
