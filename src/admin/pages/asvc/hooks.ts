@@ -31,6 +31,16 @@ import type {
   TechDebtPriorityRow,
   TechDebtStatus,
   CodeHealthAudit,
+  AgentActionStats,
+  PendingExecution,
+  BatchExecutionSummary,
+  ExecutionResult,
+  OAuthToken,
+  VacationStatus,
+  AutoApproveCandidate,
+  AutoApprovePattern,
+  Criticality,
+  AgentPromptVersion,
 } from './types';
 
 // Toutes les listes pendantes (à valider par la CEO)
