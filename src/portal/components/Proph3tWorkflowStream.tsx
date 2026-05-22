@@ -177,7 +177,7 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
             </div>
           ))}
 
-          {status === "complete" && finalResult && (
+          {status === "complete" && !!finalResult && (
             <div className="border border-gold/30 bg-gold/10 rounded-lg p-3 mt-3">
               <div className="flex items-center gap-2 text-gold text-[13px] font-semibold mb-2">
                 <CheckCircle2 size={14} /> Workflow termine avec succes

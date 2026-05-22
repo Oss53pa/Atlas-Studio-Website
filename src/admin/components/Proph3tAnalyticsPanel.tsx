@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BarChart3, Loader2, Activity, Cpu, Database, X, RefreshCw } from "lucide-react";
+import { BarChart3, Loader2, Activity, Cpu, Database, RefreshCw } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 
 interface AnalyticsReport {
