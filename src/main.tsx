@@ -109,47 +109,46 @@ if (typeof window !== 'undefined') {
 
 initErrorMonitor(ATLAS_APP_ID);
 
-// ── Service Worker auto-update ─────────────────────────────────────────
-// IMPORTANT: l'ancien code (updateSW(true).then(reload)) creait une BOUCLE
-// INFINIE de mises a jour combine a skipWaiting+clientsClaim. Versions
-// 2807 -> 3442 observees en moins d'1h sur atlas-studio.org.
-//
-// Nouveau flow (sans boucle):
-// - registerType: 'prompt' (vite.config) -> on detecte la nouvelle version
-//   sans l'activer automatiquement.
-// - On stocke un flag dans sessionStorage pour empecher de retrigger un
-//   updateSW() apres un reload (au cas ou la detection se repeterait).
-// - On marque l'usage de updateSW manuel: l'utilisateur recupere la nouvelle
-//   version au prochain hard-refresh ou a la prochaine session.
+// ── Service Worker auto-update (avec disjoncteur anti-boucle) ──────────
+// Historique : updateSW(true) + skipWaiting/clientsClaim a déjà causé une
+// BOUCLE INFINIE de reloads. Garde-fous actuels :
+//   - vite.config : skipWaiting:false, clientsClaim:false (le SW attend).
+//   - Ici : un DISJONCTEUR. On journalise les reloads d'update dans
+//     localStorage (persistant, contrairement à sessionStorage). Au-delà de
+//     MAX_RELOADS sur une fenêtre glissante, on COUPE l'auto-reload et on
+//     demande un refresh manuel — une boucle infinie devient impossible.
 if (import.meta.env.PROD) {
-  const ALREADY_UPDATED_KEY = 'atlas_sw_updated_at';
+  const RELOAD_LOG_KEY = 'atlas_sw_reloads';
+  const WINDOW_MS = 10 * 60 * 1000;   // fenêtre glissante
+  const MAX_RELOADS = 2;              // au-delà = boucle probable → on coupe
+
   import('virtual:pwa-register').then(({ registerSW }) => {
     const updateSW = registerSW({
       immediate: false,
       onNeedRefresh() {
-        // Anti-loop: si on a deja applique un update il y a moins de 5 min,
-        // on ne re-déclenche pas (sinon = boucle infinie de reload).
-        const last = Number(sessionStorage.getItem(ALREADY_UPDATED_KEY) || 0);
-        if (Date.now() - last < 5 * 60 * 1000) {
-          console.info('[atlas-sw] Nouvelle version detectee mais cooldown actif (anti-loop).');
-          return;
+        const now = Date.now();
+        let reloads: number[] = [];
+        try {
+          reloads = (JSON.parse(localStorage.getItem(RELOAD_LOG_KEY) || '[]') as number[])
+            .filter((t) => now - t < WINDOW_MS);
+        } catch { /* storage illisible — on repart de zéro */ }
+
+        if (reloads.length >= MAX_RELOADS) {
+          console.warn('[atlas-sw] Boucle de mise à jour détectée — auto-reload coupé. Rafraîchissez manuellement (Ctrl+Shift+R).');
+          return; // disjoncteur : aucune boucle infinie possible
         }
-        sessionStorage.setItem(ALREADY_UPDATED_KEY, String(Date.now()));
-        console.info('[atlas-sw] Nouvelle version disponible — auto-reload dans 2s...');
-        // Auto-reload pour eviter que l'utilisateur reste bloque sur l'ancien
-        // bundle (sinon il doit faire Ctrl+Shift+R manuellement et son auth
-        // ne marche plus avec les vieilles cles cachees).
-        // updateSW(true) = skipWaiting + reload automatique.
+
+        reloads.push(now);
+        try { localStorage.setItem(RELOAD_LOG_KEY, JSON.stringify(reloads)); } catch { /* ignore */ }
+        console.info('[atlas-sw] Nouvelle version — application dans 2s...');
         setTimeout(() => {
-          updateSW(true).catch((err) => {
-            console.warn('[atlas-sw] updateSW failed, fallback reload:', err);
-            window.location.reload();
-          });
+          // updateSW(true) = skipWaiting + reload. Pas de fallback reload ici :
+          // un reload non gardé pourrait relancer la boucle.
+          updateSW(true).catch((err) => console.warn('[atlas-sw] updateSW échoué:', err));
         }, 2000);
       },
       onRegisteredSW(_swUrl, registration) {
-        // Check des updates toutes les 30min (plus reactif sans risque de loop
-        // grace au sessionStorage cooldown).
+        // Check des updates toutes les 30 min (le disjoncteur protège du loop).
         if (registration) {
           setInterval(() => {
             registration.update().catch(() => { /* ignore */ });
