@@ -10,6 +10,7 @@ interface InviteInfo {
   needs_signup?: boolean;
   token_hash?: string;
   email?: string;
+  app_id?: string;
   message?: string;
 }
 
@@ -62,7 +63,7 @@ export default function InvitePage() {
           setShowSignup(true);
         } else if (data.token_hash) {
           // Step 3: user already exists -- auto-login via magic link
-          await loginWithOtp(data.token_hash, data.email);
+          await loginWithOtp(data.token_hash, data.email, false, data.app_id);
         } else {
           throw new Error("Reponse inattendue du serveur.");
         }
@@ -77,7 +78,7 @@ export default function InvitePage() {
   }, [token]);
 
   // Login helper using verifyOtp
-  const loginWithOtp = async (tokenHash: string, _email?: string, isNewSignup = false) => {
+  const loginWithOtp = async (tokenHash: string, _email?: string, isNewSignup = false, appId?: string) => {
     const { error: otpError } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: "magiclink",
@@ -87,9 +88,14 @@ export default function InvitePage() {
       throw new Error(otpError.message || "Erreur lors de la connexion.");
     }
 
-    // Brief 2026-05-07 : nouveaux comptes -> /portal/welcome (landing post-signup).
-    // Comptes existants -> /portal direct (workflow inchange).
-    navigate(isNewSignup ? "/portal/welcome" : "/portal");
+    // Invité sur une app précise -> on le lance directement dans l'app (SSO via
+    // /portal/launch, qui gère app-token et l'erreur si l'accès manque).
+    // Sinon : nouveaux comptes -> /portal/welcome ; comptes existants -> /portal.
+    if (appId) {
+      navigate(`/portal/launch?appId=${encodeURIComponent(appId)}`);
+    } else {
+      navigate(isNewSignup ? "/portal/welcome" : "/portal");
+    }
   };
 
   // Step 4: After signup, call accept-invitation again with password + names
@@ -134,9 +140,9 @@ export default function InvitePage() {
       // Step 5: On success, establish session and redirect to /portal/welcome
       // (nouveau compte = premiere connexion, on affiche la landing dediee).
       if (data.token_hash) {
-        await loginWithOtp(data.token_hash, data.email, true);
+        await loginWithOtp(data.token_hash, data.email, true, data.app_id);
       } else {
-        navigate("/portal/welcome");
+        navigate(data.app_id ? `/portal/launch?appId=${encodeURIComponent(data.app_id)}` : "/portal/welcome");
       }
     } catch (err: any) {
       setError(err.message || "Erreur lors de l'inscription.");
