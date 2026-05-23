@@ -15,6 +15,7 @@ import {
   detectDomains, filterToolsByDomains, buildToolDomainMap,
   L2_TOOLS_BY_DOMAIN, L3_TOOLS_BY_APP, CORE_L1_TOOLS,
 } from "../_shared/proph3t/routing.ts";
+import { Sensitivity, allowedProviders } from "../_shared/proph3t/provider_router.ts";
 
 // Build la map tool->domain une seule fois au boot (CDC §5.3 routing).
 const TOOL_DOMAIN_MAP = buildToolDomainMap(CORE_L1_TOOLS, L2_TOOLS_BY_DOMAIN, L3_TOOLS_BY_APP);
@@ -50,6 +51,8 @@ interface AskBody {
   conversation_id?: string;
   product: string;
   society_id?: string;
+  /** Sensibilité des données (gouvernance providers). Défaut: internal. */
+  sensitivity?: "confidential" | "internal" | "public";
 }
 
 Deno.serve(async (req) => {
@@ -95,12 +98,20 @@ Deno.serve(async (req) => {
         return null;
       }),
     ]);
-    const useAnthropic = !!anthropic;
-    const useGemini = !useAnthropic && !!gemini;
-    const groqKey = (!useAnthropic && !useGemini) ? getGroqApiKey() : undefined;
+    // Gouvernance par sensibilité : on ne retient que les providers autorisés.
+    // CONFIDENTIAL → ollama + claude uniquement (pas de tier à rétention).
+    // Défaut INTERNAL → tous autorisés (comportement historique inchangé).
+    const sensitivity = body.sensitivity === "confidential" ? Sensitivity.CONFIDENTIAL
+      : body.sensitivity === "public" ? Sensitivity.PUBLIC
+      : Sensitivity.INTERNAL;
+    const allowed = new Set(allowedProviders(sensitivity));
+
+    const useAnthropic = allowed.has("claude") && !!anthropic;
+    const useGemini = allowed.has("gemini") && !useAnthropic && !!gemini;
+    const groqKey = (allowed.has("groq") && !useAnthropic && !useGemini) ? getGroqApiKey() : undefined;
     const useGroq = !!groqKey;
     const groqModel = useGroq ? getGroqModel() : null;
-    const ollamaConfigured = !!Deno.env.get("OLLAMA_URL");
+    const ollamaConfigured = allowed.has("ollama") && !!Deno.env.get("OLLAMA_URL");
 
     // Si AUCUN provider LLM dispo : retourner reponse claire au lieu de timeout
     if (!useAnthropic && !useGemini && !useGroq && !ollamaConfigured) {

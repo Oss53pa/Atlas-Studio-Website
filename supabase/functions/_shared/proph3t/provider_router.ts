@@ -116,7 +116,7 @@ export const PROVIDERS: Record<ProviderId, ProviderProfile> = {
  * Règle de gouvernance, déclarative et auditable.
  * Le confidentiel est verrouillé sur les fournisseurs sans rétention.
  */
-function allowedProviders(sensitivity: Sensitivity): ProviderId[] {
+export function allowedProviders(sensitivity: Sensitivity): ProviderId[] {
   switch (sensitivity) {
     case Sensitivity.CONFIDENTIAL:
       // Uniquement local + payant à non-rétention garantie.
