@@ -1,7 +1,7 @@
 // ASVC — Atlas Studio Virtual Company
 // Types TS miroir du schema Supabase (asvc_*)
 
-export type Department = 'direction' | 'sav' | 'marketing' | 'ventes' | 'finance';
+export type Department = 'direction' | 'rd' | 'production' | 'sav' | 'marketing' | 'ventes' | 'finance' | 'securite';
 
 // ───────────────────────────────────────────────────────────────────────────
 // v2.0 — Pipeline Produit (R&D + Production)
@@ -606,10 +606,13 @@ export interface AuditLogEntry {
 
 export const DEPARTMENT_LABELS: Record<Department, string> = {
   direction: 'Direction',
+  rd: 'R&D',
+  production: 'Production',
   sav: 'SAV',
   marketing: 'Marketing',
   ventes: 'Ventes',
   finance: 'Finance',
+  securite: 'Sécurité',
 };
 
 export const CRITICALITY_LABELS: Record<Criticality, string> = {

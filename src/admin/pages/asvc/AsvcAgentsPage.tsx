@@ -3,7 +3,7 @@ import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useAgents } from './hooks';
 import { DEPARTMENT_LABELS, type Department } from './types';
 
-const DEPT_ORDER: Department[] = ['direction', 'sav', 'marketing', 'ventes', 'finance'];
+const DEPT_ORDER: Department[] = ['direction', 'rd', 'production', 'sav', 'marketing', 'ventes', 'finance', 'securite'];
 
 export default function AsvcAgentsPage() {
   const { agents, loading } = useAgents();

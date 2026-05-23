@@ -179,14 +179,14 @@ export function ErrorTable({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Rechercher un message..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-sm text-neutral-text dark:text-admin-text outline-none shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all"
           />
         </div>
 
         <select
           value={severityFilter}
           onChange={e => setSeverityFilter(e.target.value as ErrorSeverity | 'all')}
-          className="px-3 py-2 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer"
+          className="px-3.5 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all"
         >
           <option value="all">Toutes sévérités</option>
           {SEVERITIES.map(s => (
@@ -197,7 +197,7 @@ export function ErrorTable({
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value as ErrorStatus | 'all')}
-          className="px-3 py-2 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer"
+          className="px-3.5 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all"
         >
           <option value="all">Tous statuts</option>
           {STATUSES.map(s => (
@@ -209,7 +209,7 @@ export function ErrorTable({
           <select
             value={appFilter}
             onChange={e => setAppFilter(e.target.value)}
-            className="px-3 py-2 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer"
+            className="px-3.5 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all"
           >
             <option value="all">Toutes les apps</option>
             {apps.map(a => (
@@ -242,7 +242,7 @@ export function ErrorTable({
       <div className="md:hidden space-y-3">
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4 animate-pulse h-24" />
+            <div key={i} className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl shadow-sm dark:shadow-premium p-4 animate-pulse h-24" />
           ))
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-neutral-muted dark:text-admin-muted text-sm">
@@ -256,7 +256,7 @@ export function ErrorTable({
                 key={log.id}
                 type="button"
                 onClick={() => onRowClick(log)}
-                className="w-full text-left bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors"
+                className="w-full text-left bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl shadow-sm dark:shadow-premium p-4 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <SeverityBadge severity={log.severity} />

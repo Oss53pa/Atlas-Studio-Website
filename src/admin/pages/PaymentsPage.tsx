@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { CreditCard, DollarSign, AlertTriangle, CheckCircle2, XCircle, Download } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { PremiumBarChart } from "../../components/ui/charts/PremiumCharts";
 import { supabase } from "../../lib/supabase";
 import { AdminTable } from "../components/AdminTable";
 import { AdminCard } from "../components/AdminCard";
@@ -118,23 +118,16 @@ export default function PaymentsPage() {
       </div>
 
       {methodChart.length > 0 && (
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-6">
-          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Revenus par méthode de paiement</h2>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={methodChart} layout="vertical">
-              <XAxis type="number" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} tickFormatter={v => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)} />
-              <YAxis type="category" dataKey="method" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} width={120} />
-              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={((v: number) => [`${fmt(v)} FCFA`, "Revenus"]) as any} />
-              <Bar dataKey="amount" fill="#C8A960" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 mb-6 shadow-sm dark:shadow-premium">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-5">Revenus par méthode de paiement</h2>
+          <PremiumBarChart data={methodChart.map(m => ({ label: m.method, value: m.amount }))} height={190} unit="FCFA" />
         </div>
       )}
 
       <div className="flex items-center gap-4 mb-6 flex-wrap">
         <AdminFilterPills filters={statusFilters} value={statusFilter} onChange={setStatusFilter} />
         <select value={methodFilter} onChange={e => setMethodFilter(e.target.value)}
-          className="px-3 py-2 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer">
+          className="px-3.5 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-[12px] text-neutral-text dark:text-admin-text outline-none cursor-pointer shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all">
           <option value="all">Toutes méthodes</option>
           {[...new Set(payments.map(p => p.method))].map(m => <option key={m} value={m}>{METHOD_LABELS[m] || m}</option>)}
         </select>

@@ -12,14 +12,14 @@ export function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
     <div
       className={`relative bg-ink-200 border rounded-2xl mb-3 cursor-pointer overflow-hidden transition-all duration-300 ${
         isOpen
-          ? "border-gold/40 shadow-[0_0_0_1px_rgba(16,185,129,0.15),0_8px_28px_-8px_rgba(16,185,129,0.2)]"
-          : "border-white/[0.06] hover:border-white/[0.12]"
+          ? "border-gold/40 shadow-[0_0_0_1px_rgba(169,181,126,0.15),0_8px_28px_-8px_rgba(169,181,126,0.2)]"
+          : "border-white/[0.06] shadow-elev-1 hover:border-white/[0.12]"
       }`}
       onClick={onToggle}
     >
       {isOpen && (
         <div className="absolute -top-px left-[8%] right-[8%] h-px"
-          style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.6) 50%, transparent 100%)" }}
+          style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.6) 50%, transparent 100%)" }}
         />
       )}
       <div className="px-6 py-5 flex justify-between items-center gap-4">

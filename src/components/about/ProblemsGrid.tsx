@@ -53,10 +53,10 @@ export function ProblemsGrid() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {PROBLEMS.map((p, i) => (
             <ScrollReveal key={p.title} delay={i * 80}>
-              <div className="relative h-full bg-ink-100 border border-white/[0.06] rounded-2xl p-8 card-hover overflow-hidden">
+              <div className="relative h-full bg-ink-100 border border-white/[0.05] rounded-2xl p-8 card-hover shadow-premium overflow-hidden">
                 <div
                   className="absolute top-0 left-0 bottom-0 w-[3px]"
-                  style={{ background: "linear-gradient(180deg, #10B981 0%, rgba(16,185,129,0.2) 100%)" }}
+                  style={{ background: "linear-gradient(180deg, #A9B57E 0%, rgba(169,181,126,0.2) 100%)" }}
                 />
                 <h3 className="text-neutral-light text-base md:text-lg font-semibold mb-3 leading-snug tracking-tight">
                   {p.title}

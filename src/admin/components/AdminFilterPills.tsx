@@ -17,10 +17,10 @@ export function AdminFilterPills({ filters, value, onChange }: AdminFilterPillsP
         <button
           key={f.value}
           onClick={() => onChange(f.value)}
-          className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
+          className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-200 ${
             value === f.value
-              ? "bg-gold dark:bg-admin-accent text-onyx"
-              : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-body dark:text-admin-text hover:border-gold/40 dark:hover:border-admin-accent/40"
+              ? "bg-gold dark:bg-admin-accent text-onyx shadow-sm dark:shadow-gold"
+              : "bg-white dark:bg-admin-surface-alt/40 border border-warm-border dark:border-white/10 text-neutral-body dark:text-admin-text hover:border-gold/40 dark:hover:border-admin-accent/40 hover:shadow-sm"
           }`}
         >
           {f.label}

@@ -38,7 +38,7 @@ export default function MethodSelector({ methods, selected, onChange, savedMetho
               gap: 12,
               padding: '14px 16px',
               background: '#FFFFFF',
-              border: `2px solid ${isSelected ? '#EF9F27' : '#E8E8E0'}`,
+              border: `2px solid ${isSelected ? '#A9B57E' : '#E8E8E0'}`,
               borderRadius: 10,
               cursor: 'pointer',
               transition: 'border-color 0.15s',
@@ -51,7 +51,7 @@ export default function MethodSelector({ methods, selected, onChange, savedMetho
                 width: 20,
                 height: 20,
                 borderRadius: '50%',
-                border: `2px solid ${isSelected ? '#EF9F27' : '#E8E8E0'}`,
+                border: `2px solid ${isSelected ? '#A9B57E' : '#E8E8E0'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -64,7 +64,7 @@ export default function MethodSelector({ methods, selected, onChange, savedMetho
                     width: 10,
                     height: 10,
                     borderRadius: '50%',
-                    background: '#EF9F27',
+                    background: '#A9B57E',
                   }}
                 />
               )}
@@ -96,7 +96,7 @@ export default function MethodSelector({ methods, selected, onChange, savedMetho
                 {m.description}
               </span>
               {saved.length > 0 && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#EF9F27', marginTop: 4 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#A9B57E', marginTop: 4 }}>
                   <Check size={12} />
                   {saved[0].phone_number ?? saved[0].card_last4 ?? 'Enregistr\u00e9'}
                 </span>

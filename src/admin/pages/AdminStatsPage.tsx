@@ -131,7 +131,7 @@ export default function AdminStatsPage() {
 
   if (error || !stats) {
     return (
-      <div className="bg-admin-error/10 border border-admin-error/30 text-red-400 rounded-xl p-6">
+      <div className="bg-red-50 dark:bg-admin-error/10 border border-red-200 dark:border-admin-error/30 text-red-700 dark:text-red-400 rounded-2xl p-6 shadow-sm dark:shadow-premium">
         {error || "Impossible de charger les statistiques."}
       </div>
     );
@@ -148,7 +148,7 @@ export default function AdminStatsPage() {
         <button
           onClick={() => loadStats()}
           disabled={loading}
-          className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-semibold text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2 disabled:opacity-50"
+          className="px-5 py-2.5 bg-white dark:bg-admin-surface-alt/40 border border-warm-border dark:border-white/10 rounded-full text-[13px] font-semibold text-neutral-text dark:text-admin-text/80 shadow-sm dark:shadow-none hover:border-gold/40 dark:hover:border-admin-accent/40 hover:shadow-md transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
         >
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Rafraichir
         </button>
@@ -175,7 +175,7 @@ export default function AdminStatsPage() {
       </div>
 
       {/* Repartition par app */}
-      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-8">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 mb-8 shadow-sm dark:shadow-premium">
         <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">
           Repartition par application (abonnements actifs)
         </h2>
@@ -202,8 +202,8 @@ export default function AdminStatsPage() {
                       <td className="py-3 pr-4 text-gold dark:text-admin-accent text-sm font-mono font-semibold">{fmt(a.mrr)} FCFA</td>
                       <td className="py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-warm-bg dark:bg-admin-surface-alt rounded-full overflow-hidden max-w-[200px]">
-                            <div className="h-full bg-gold dark:bg-admin-accent rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          <div className="flex-1 h-2 bg-warm-bg dark:bg-admin-surface-alt rounded-full overflow-hidden max-w-[200px] shadow-inner">
+                            <div className="h-full bg-gold dark:bg-admin-accent rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                           </div>
                           <span className="text-neutral-muted dark:text-admin-muted text-[12px] min-w-[36px]">{pct.toFixed(0)}%</span>
                         </div>
@@ -218,9 +218,9 @@ export default function AdminStatsPage() {
       </div>
 
       {/* Trials qui expirent */}
-      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
         <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold flex items-center gap-2 mb-4">
-          <AlarmClock size={16} className="text-admin-accent" strokeWidth={1.5} />
+          <AlarmClock size={16} className="text-gold dark:text-admin-accent" strokeWidth={1.5} />
           Trials en cours
           <span className="text-neutral-muted dark:text-admin-muted text-[11px] font-normal">({stats.trials_expiring.length})</span>
         </h2>
@@ -240,12 +240,12 @@ export default function AdminStatsPage() {
               <tbody>
                 {stats.trials_expiring.map((t, i) => {
                   const tone = t.days_left <= 0
-                    ? "bg-admin-error/20 text-red-400 border-admin-error/30"
+                    ? "bg-red-50 text-red-700 border-red-200 dark:bg-admin-error/20 dark:text-red-400 dark:border-admin-error/30"
                     : t.days_left <= 3
-                      ? "bg-admin-error/15 text-red-400 border-admin-error/30"
+                      ? "bg-red-50 text-red-700 border-red-200 dark:bg-admin-error/15 dark:text-red-400 dark:border-admin-error/30"
                       : t.days_left <= 7
-                        ? "bg-admin-warning/20 text-orange-400 border-admin-warning/30"
-                        : "bg-admin-success/20 text-green-400 border-admin-success/30";
+                        ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-admin-warning/20 dark:text-orange-400 dark:border-admin-warning/30"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-admin-success/20 dark:text-green-400 dark:border-admin-success/30";
                   return (
                     <tr key={`${t.user_email}-${t.app_id}-${i}`} className="border-b border-warm-bg dark:border-admin-surface-alt/50 last:border-b-0">
                       <td className="py-3 pr-4">
@@ -277,12 +277,12 @@ function KpiCard({ label, value, sub, icon: Icon }: {
   label: string; value: string; sub?: string; icon: React.ComponentType<any>;
 }) {
   return (
-    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-elev-3">
       <div className="flex items-center justify-between mb-1">
         <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
-        <Icon size={18} className="text-neutral-muted dark:text-admin-muted/60" strokeWidth={1.5} />
+        <Icon size={18} className="text-neutral-placeholder dark:text-admin-muted/50" strokeWidth={1.5} />
       </div>
-      <div className="text-gold dark:text-admin-accent text-2xl font-semibold">{value}</div>
+      <div className="text-gold dark:text-admin-accent text-2xl font-mono font-semibold">{value}</div>
       {sub && <div className="text-neutral-muted dark:text-admin-muted text-[11px] mt-0.5">{sub}</div>}
     </div>
   );
@@ -290,7 +290,7 @@ function KpiCard({ label, value, sub, icon: Icon }: {
 
 function ActivityCard({ title, rows }: { title: string; rows: { label: string; value: number }[] }) {
   return (
-    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
       <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-3">{title}</h3>
       <div className="space-y-1">
         {rows.map((r) => (

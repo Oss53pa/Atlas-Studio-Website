@@ -84,7 +84,7 @@ export function AdminTable<T>({
   const clearSelection = () => setSelected(new Set());
 
   return (
-    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-2xl overflow-hidden">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl overflow-hidden shadow-sm dark:shadow-premium">
       {/* Bulk actions */}
       {selectable && someSelected && (
         <div className="px-4 py-3 bg-gold/5 dark:bg-admin-accent/10 border-b border-gold/20 dark:border-admin-accent/20 flex items-center gap-4 flex-wrap">

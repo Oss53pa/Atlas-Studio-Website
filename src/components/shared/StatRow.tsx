@@ -11,7 +11,7 @@ export function StatRow({ stats }: { stats: Stat[] }) {
     <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 pt-10 mt-12">
       <div
         className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.3) 50%, transparent 100%)" }}
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.3) 50%, transparent 100%)" }}
       />
       {stats.map((s) => (
         <div key={s.label}>

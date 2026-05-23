@@ -50,7 +50,7 @@ export function Footer() {
     <footer className="relative bg-onyx text-neutral-light border-t border-white/[0.06] overflow-hidden">
       {/* Top gradient line */}
       <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.3) 50%, transparent 100%)" }}
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.3) 50%, transparent 100%)" }}
       />
       <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[300px] glow-gold opacity-30 pointer-events-none" />

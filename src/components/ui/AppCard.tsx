@@ -24,9 +24,9 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
   const minPrice = Math.min(...Object.values(app.pricing));
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === 'coming_soon';
-  const accent = app.color || '#10B981';
+  const accent = app.color || '#A9B57E';
 
-  const sharedClassName = `relative block bg-ink-100 border border-white/[0.06] rounded-2xl p-6 card-hover group overflow-hidden ${isComingSoon ? 'opacity-85' : ''}`;
+  const sharedClassName = `relative block bg-ink-100 border border-white/[0.05] rounded-2xl p-6 card-hover shadow-premium group overflow-hidden ${isComingSoon ? 'opacity-85' : ''}`;
   const sharedStyle = { animationDelay: `${index * 60}ms` };
 
   const content = (

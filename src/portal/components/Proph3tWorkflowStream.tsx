@@ -131,7 +131,7 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-onyx border border-white/10 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-ink-100 border border-white/[0.06] rounded-3xl shadow-elev-5 max-w-2xl w-full max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <div>
@@ -154,7 +154,7 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
           )}
 
           {steps.map(s => (
-            <div key={s.step} className={`border rounded-lg p-3 ${
+            <div key={s.step} className={`border rounded-xl p-3.5 transition-colors ${
               s.status === "running" ? "border-gold/50 bg-gold/5"
               : s.status === "done" ? "border-emerald-500/30 bg-emerald-500/5"
               : "border-red-500/30 bg-red-500/5"
@@ -178,12 +178,12 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
           ))}
 
           {status === "complete" && finalResult && (
-            <div className="border border-gold/30 bg-gold/10 rounded-lg p-3 mt-3">
+            <div className="border border-gold/30 bg-gold/10 rounded-xl p-3.5 mt-3">
               <div className="flex items-center gap-2 text-gold text-[13px] font-semibold mb-2">
                 <CheckCircle2 size={14} /> Workflow termine avec succes
               </div>
               {(finalResult as any)?.report_markdown ? (
-                <div className="text-neutral-light text-[12px] whitespace-pre-wrap max-h-64 overflow-y-auto bg-onyx/50 p-3 rounded">
+                <div className="text-neutral-light text-[12px] whitespace-pre-wrap max-h-64 overflow-y-auto bg-onyx/50 p-3.5 rounded-lg">
                   {(finalResult as any).report_markdown.slice(0, 2000)}
                   {(finalResult as any).report_markdown.length > 2000 && "\n\n... (tronque)"}
                 </div>
@@ -194,7 +194,7 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
           )}
 
           {error && (
-            <div className="border border-red-500/30 bg-red-500/10 rounded-lg p-3 mt-3">
+            <div className="border border-red-500/30 bg-red-500/10 rounded-xl p-3.5 mt-3">
               <div className="text-red-400 text-[13px] font-semibold">Erreur</div>
               <div className="text-red-300 text-[12px] mt-1">{error}</div>
             </div>
@@ -206,7 +206,7 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
           <span className="text-neutral-500 text-[11px]">
             {steps.length} etapes {status === "complete" ? "completees" : status === "running" ? "en cours" : ""}
           </span>
-          <button onClick={onClose} className="text-[12px] px-4 py-1.5 bg-white/10 hover:bg-white/20 text-neutral-light rounded-lg">
+          <button onClick={onClose} className="text-[12px] px-4 py-2 bg-white/10 hover:bg-white/[0.16] text-neutral-light rounded-xl transition-colors">
             Fermer
           </button>
         </div>

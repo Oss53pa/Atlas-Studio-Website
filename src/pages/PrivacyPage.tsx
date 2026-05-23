@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <ScrollReveal key={i}>
             <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-8 mb-4 overflow-hidden">
               <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
               />
               <h3 className="text-neutral-light text-lg font-semibold mb-3 tracking-tight">{s.heading}</h3>
               <p className="text-neutral-muted text-sm leading-relaxed whitespace-pre-line font-light">{s.content}</p>

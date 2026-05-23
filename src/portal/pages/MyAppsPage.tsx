@@ -68,7 +68,7 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
       {/* Payment method modal */}
       {paymentModal && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5" onClick={() => setPaymentModal(null)}>
-          <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl p-8 max-w-md w-full border border-warm-border shadow-2xl">
+          <div onClick={e => e.stopPropagation()} className="bg-white rounded-3xl p-8 max-w-md w-full border border-warm-border shadow-[0_30px_70px_-20px_rgba(0,0,0,0.4)]">
             <h3 className="text-neutral-text text-lg font-bold mb-4">
               {paymentModal.type === "regularize" ? "Régulariser le paiement" : "Réactiver l'abonnement"}
             </h3>
@@ -95,7 +95,7 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
           const daysRemaining = Math.ceil((new Date(sub.current_period_end).getTime() - Date.now()) / 86400000);
 
           return (
-            <div key={sub.id} className="bg-white border border-warm-border rounded-2xl p-6 card-hover">
+            <div key={sub.id} className="bg-white border border-warm-border rounded-3xl p-6 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-12px_rgba(0,0,0,0.16)] hover:border-gold/30 transition-all duration-300">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <AppLogo name={appName} size={22} color="text-gold" />
@@ -104,8 +104,8 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
                   </div>
                 </div>
                 <div
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-warm-border text-xs font-medium"
-                  style={{ color: statusConf.color }}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ color: statusConf.color, background: `${statusConf.color}14`, border: `1px solid ${statusConf.color}33` }}
                 >
                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: statusConf.dotColor }} />
                   {statusConf.label}
@@ -139,7 +139,7 @@ export function MyAppsPage({ userId, onOpenApp, onNavigate }: MyAppsPageProps) {
                     subId: sub.id,
                     type: sub.status === "suspended" ? "regularize" : "reactivate",
                   })}
-                  className="w-full py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] font-semibold hover:border-gold/40 transition-colors"
+                  className="w-full py-2.5 border border-warm-border rounded-xl text-neutral-body text-[13px] font-semibold hover:border-gold/40 hover:bg-gold/[0.04] transition-colors"
                 >
                   {sub.status === "suspended" ? "Régulariser le paiement" : "Réactiver"}
                 </button>

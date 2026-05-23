@@ -26,7 +26,7 @@ import {
 /* ── design tokens ── */
 const BG = "#FAFAF7";
 const SURFACE = "#FFFFFF";
-const ACCENT = "#EF9F27";
+const ACCENT = "#A9B57E";
 const TEXT = "#1A1A1A";
 const MUTED = "#888";
 const BORDER = "#E8E8E0";
@@ -99,8 +99,8 @@ export function TeamPage({ userId }: { userId?: string }) {
             <select
               value={effectiveLicenceId}
               onChange={(e) => setSelectedLicenceId(e.target.value)}
-              className="appearance-none pr-8 pl-4 py-2 rounded-xl text-sm font-medium outline-none cursor-pointer"
-              style={{ background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT }}
+              className="appearance-none pr-9 pl-4 py-2.5 rounded-xl text-sm font-medium outline-none cursor-pointer transition-shadow"
+              style={{ background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT, boxShadow: "0 2px 8px -4px rgba(0,0,0,0.10)" }}
             >
               {activeLicences.map((l) => (
                 <option key={l.id} value={l.id}>
@@ -120,11 +120,13 @@ export function TeamPage({ userId }: { userId?: string }) {
           return (
             <div
               key={lic.id}
-              className="p-5 rounded-2xl cursor-pointer transition-shadow"
+              className="p-6 rounded-3xl cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
               style={{
                 background: SURFACE,
                 border: `1px solid ${lic.id === effectiveLicenceId ? ACCENT : BORDER}`,
-                boxShadow: lic.id === effectiveLicenceId ? `0 0 0 2px ${ACCENT}33` : "none",
+                boxShadow: lic.id === effectiveLicenceId
+                  ? `0 0 0 2px ${ACCENT}33, 0 10px 28px -12px rgba(0,0,0,0.18)`
+                  : "0 4px 18px -8px rgba(0,0,0,0.10)",
               }}
               onClick={() => setSelectedLicenceId(lic.id)}
             >
@@ -247,7 +249,7 @@ function LicenceDetail({ licenceId, tenantId, currentUserId }: { licenceId: stri
         <h2 className="flex items-center gap-2 text-lg font-bold mb-4" style={{ color: TEXT }}>
           <Users size={20} style={{ color: ACCENT }} /> Membres ({activeSeats.length})
         </h2>
-        <div className="overflow-x-auto rounded-2xl" style={{ border: `1px solid ${BORDER}` }}>
+        <div className="overflow-x-auto rounded-3xl" style={{ border: `1px solid ${BORDER}`, boxShadow: "0 4px 20px -8px rgba(0,0,0,0.12)" }}>
           <table className="w-full text-sm" style={{ background: SURFACE }}>
             <thead>
               <tr style={{ background: BG, color: MUTED }}>
@@ -276,7 +278,7 @@ function LicenceDetail({ licenceId, tenantId, currentUserId }: { licenceId: stri
                         <span>{seat.email}</span>
                         {isMe && (
                           <span
-                            className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                            className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
                             style={{ background: ACCENT, color: "#fff" }}
                           >
                             vous

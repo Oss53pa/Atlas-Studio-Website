@@ -41,19 +41,19 @@ export function AdminModal({ open, onClose, title, subtitle, children, footer, w
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative bg-admin-surface shadow-2xl h-full flex flex-col animate-slide-in-right ${sizeClass}`}>
-        <div className="sticky top-0 bg-admin-surface border-b border-admin-surface-alt px-6 py-4 flex items-center justify-between z-10 flex-shrink-0">
+      <div className={`relative bg-admin-surface shadow-2xl dark:shadow-elev-5 h-full flex flex-col animate-slide-in-right border-l border-white/5 ${sizeClass}`}>
+        <div className="sticky top-0 bg-admin-surface border-b border-white/5 px-6 py-4 flex items-center justify-between z-10 flex-shrink-0">
           <div>
             <h2 className="text-admin-text text-lg font-bold">{title}</h2>
             {subtitle && <p className="text-admin-muted text-[13px] mt-0.5">{subtitle}</p>}
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-admin-surface-alt text-admin-muted transition-colors" title="Fermer (Echap)">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-admin-surface-alt text-admin-muted transition-colors" title="Fermer (Echap)">
             <X size={18} />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-6">{children}</div>
         {footer && (
-          <div className="sticky bottom-0 bg-admin-surface border-t border-admin-surface-alt px-6 py-4 flex items-center justify-end gap-3 flex-shrink-0">
+          <div className="sticky bottom-0 bg-admin-surface border-t border-white/5 px-6 py-4 flex items-center justify-end gap-3 flex-shrink-0">
             {footer}
           </div>
         )}

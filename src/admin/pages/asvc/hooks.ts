@@ -692,6 +692,52 @@ export function usePipelineSummary() {
   };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SecOps — passe CTEM (Continuous Threat Exposure Management)
+// ─────────────────────────────────────────────────────────────────────────────
+export interface SecOpsScanResult {
+  id: string;
+  posture_score: number;
+  findings_count: number;
+  critical_count: number;
+  criticality: 'low' | 'normal' | 'high' | 'critical';
+  summary: string;
+}
+
+export function useSecOpsScan() {
+  const [running, setRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<SecOpsScanResult | null>(null);
+
+  const runScan = useCallback(
+    async (input: { scope?: string; dependencies?: string[]; surface?: string[]; notes?: string } = {}) => {
+      setRunning(true);
+      setError(null);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) throw new Error('Session manquante');
+
+        const { data, error: invokeErr } = await supabase.functions.invoke('asvc-secops', {
+          body: input,
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (invokeErr) throw new Error(invokeErr.message);
+        if (data?.error) throw new Error(data.error);
+        if (data?.action) setResult(data.action as SecOpsScanResult);
+        return data?.action as SecOpsScanResult | undefined;
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setRunning(false);
+      }
+    },
+    [],
+  );
+
+  return { running, error, result, runScan };
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 // v2.0 — Health check + audit integrity
 // ───────────────────────────────────────────────────────────────────────────

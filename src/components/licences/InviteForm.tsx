@@ -123,7 +123,7 @@ export function InviteForm({ licenceId, tenantId, quota, onInvited }: Props) {
         disabled={sending || !canInvite}
         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
         style={{
-          background: canInvite ? "#EF9F27" : "#E8E8E0",
+          background: canInvite ? "#A9B57E" : "#E8E8E0",
           color: canInvite ? "#FFFFFF" : "#888",
           cursor: canInvite && !sending ? "pointer" : "not-allowed",
           border: "none",

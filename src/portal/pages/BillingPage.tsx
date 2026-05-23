@@ -65,22 +65,22 @@ export function BillingPage({ userId }: BillingPageProps) {
       <p className="text-neutral-muted text-sm mb-7">Gérez vos paiements et factures</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white border border-warm-border rounded-2xl p-5">
-          <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-1">Mensualité</div>
-          <div className="text-gold text-3xl font-extrabold">{totalMonthly}</div>
-          <div className="text-neutral-placeholder text-xs">/mois</div>
+        <div className="bg-white border border-warm-border rounded-3xl p-6 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.10)]">
+          <div className="text-neutral-muted text-[11px] font-bold uppercase tracking-[0.12em] mb-2">Mensualité</div>
+          <div className="text-gold text-4xl font-extrabold tracking-tight leading-none">{totalMonthly}</div>
+          <div className="text-neutral-placeholder text-xs mt-1.5">/mois</div>
         </div>
-        <div className="bg-white border border-warm-border rounded-2xl p-5">
-          <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-1">Apps actives</div>
-          <div className="text-gold text-3xl font-extrabold">{activeSubs.length}</div>
-          <div className="text-neutral-placeholder text-xs">sur {subscriptions.length} abonnements</div>
+        <div className="bg-white border border-warm-border rounded-3xl p-6 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.10)]">
+          <div className="text-neutral-muted text-[11px] font-bold uppercase tracking-[0.12em] mb-2">Apps actives</div>
+          <div className="text-gold text-4xl font-extrabold tracking-tight leading-none">{activeSubs.length}</div>
+          <div className="text-neutral-placeholder text-xs mt-1.5">sur {subscriptions.length} abonnements</div>
         </div>
-        <div className="bg-white border border-warm-border rounded-2xl p-5">
-          <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-1">Prochain paiement</div>
-          <div className="text-gold text-3xl font-extrabold">
+        <div className="bg-white border border-warm-border rounded-3xl p-6 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.10)]">
+          <div className="text-neutral-muted text-[11px] font-bold uppercase tracking-[0.12em] mb-2">Prochain paiement</div>
+          <div className="text-gold text-4xl font-extrabold tracking-tight leading-none">
             {nextPaymentDate ? `${String(nextPaymentDate.getDate()).padStart(2, '0')}/${String(nextPaymentDate.getMonth() + 1).padStart(2, '0')}` : '—'}
           </div>
-          <div className="text-neutral-placeholder text-xs">
+          <div className="text-neutral-placeholder text-xs mt-1.5">
             {nextPaymentDate ? nextPaymentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Aucun'}
           </div>
         </div>
@@ -88,7 +88,7 @@ export function BillingPage({ userId }: BillingPageProps) {
 
       <button
         onClick={handleManagePayment}
-        className="flex items-center gap-2 px-5 py-3 border border-warm-border rounded-lg bg-white text-neutral-body text-sm font-medium hover:border-gold/40 transition-colors mb-8"
+        className="flex items-center gap-2 px-5 py-3 border border-warm-border rounded-xl bg-white text-neutral-body text-sm font-medium hover:border-gold/40 hover:bg-gold/[0.04] hover:-translate-y-0.5 transition-all duration-300 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.08)] mb-8"
       >
         <CreditCard size={16} strokeWidth={1.5} className="text-gold" />
         Gérer mes moyens de paiement
@@ -96,11 +96,11 @@ export function BillingPage({ userId }: BillingPageProps) {
 
       <h2 className="text-neutral-text text-lg font-bold mb-4">Historique des factures</h2>
       {invoices.length === 0 ? (
-        <div className="bg-white border border-warm-border rounded-2xl p-8 text-center">
+        <div className="bg-white border border-warm-border rounded-3xl p-10 text-center shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)]">
           <p className="text-neutral-muted text-sm">Aucune facture pour le moment.</p>
         </div>
       ) : (
-        <div className="bg-white border border-warm-border rounded-2xl overflow-x-auto">
+        <div className="bg-white border border-warm-border rounded-3xl overflow-x-auto shadow-[0_4px_20px_-6px_rgba(0,0,0,0.10)]">
           <table className="w-full border-collapse min-w-[640px]">
             <thead>
               <tr className="border-b border-warm-border">
@@ -135,7 +135,7 @@ export function BillingPage({ userId }: BillingPageProps) {
                       {inv.status === "paid" && (
                         <button
                           onClick={() => handleDownloadPDF(inv.id, inv.invoice_number)}
-                          className="p-1.5 rounded hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors"
+                          className="p-2 rounded-lg hover:bg-warm-bg text-neutral-muted hover:text-gold transition-colors"
                           title="Télécharger le PDF"
                         >
                           <Download size={14} strokeWidth={1.5} />

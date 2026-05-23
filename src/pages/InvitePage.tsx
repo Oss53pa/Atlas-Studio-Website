@@ -146,15 +146,15 @@ export default function InvitePage() {
   };
 
   const inputClass =
-    "w-full px-4 py-3 bg-[#141414] border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-[#EF9F27] transition-colors placeholder:text-[#666]";
+    "w-full px-4 py-3 bg-[#141414] border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-[#A9B57E] transition-colors placeholder:text-[#666]";
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#131316] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-[#EF9F27] flex items-center justify-center">
-            <span className="text-[#0A0A0A] text-xl font-bold">A</span>
+          <div className="w-12 h-12 rounded-full bg-[#A9B57E] flex items-center justify-center">
+            <span className="text-[#131316] text-xl font-bold">A</span>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export default function InvitePage() {
           {/* Loading state */}
           {loading && (
             <div className="text-center py-8">
-              <Loader2 size={32} className="animate-spin text-[#EF9F27] mx-auto mb-4" />
+              <Loader2 size={32} className="animate-spin text-[#A9B57E] mx-auto mb-4" />
               <p className="text-[#999] text-sm">Verification de l'invitation...</p>
             </div>
           )}
@@ -185,12 +185,12 @@ export default function InvitePage() {
                 </h2>
                 {inviteInfo.product_name && (
                   <p className="text-[#999] text-sm mb-1">
-                    Produit : <span className="text-[#EF9F27]">{inviteInfo.product_name}</span>
+                    Produit : <span className="text-[#A9B57E]">{inviteInfo.product_name}</span>
                   </p>
                 )}
                 {inviteInfo.role && (
                   <p className="text-[#999] text-sm">
-                    Role : <span className="text-[#EF9F27]">{inviteInfo.role}</span>
+                    Role : <span className="text-[#A9B57E]">{inviteInfo.role}</span>
                   </p>
                 )}
               </div>
@@ -250,7 +250,7 @@ export default function InvitePage() {
                 <button
                   onClick={handleSignup}
                   disabled={submitting}
-                  className="w-full py-3 bg-[#EF9F27] hover:bg-[#d88f22] text-[#0A0A0A] font-medium text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#A9B57E] hover:bg-[#d88f22] text-[#131316] font-medium text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
@@ -268,7 +268,7 @@ export default function InvitePage() {
           {/* Auto-login in progress (user exists) */}
           {!loading && !error && !showSignup && (
             <div className="text-center py-8">
-              <CheckCircle size={40} className="text-[#EF9F27] mx-auto mb-4" strokeWidth={1.5} />
+              <CheckCircle size={40} className="text-[#A9B57E] mx-auto mb-4" strokeWidth={1.5} />
               <p className="text-[#e5e5e5] text-sm">Connexion en cours...</p>
             </div>
           )}

@@ -99,7 +99,7 @@ export function ProductPlanComparison({
       <div className="flex items-center gap-2">
         {productIcon && <span className="text-lg">{productIcon}</span>}
         <h2 className="text-lg font-semibold text-[#F5F5F5]">{productName}</h2>
-        <span className="text-[11px] text-[#888] bg-[#2A2A3A] px-2 py-0.5 rounded-full">
+        <span className="text-[11px] text-[#888] bg-[#2a2a30] px-2 py-0.5 rounded-full">
           Comparaison des plans
         </span>
       </div>
@@ -117,20 +117,20 @@ export function ProductPlanComparison({
           return (
             <div
               key={plan.id}
-              className={`relative bg-[#1E1E2E] border rounded-xl p-6 transition-colors ${
+              className={`relative bg-[#1c1c20] border rounded-xl p-6 transition-colors ${
                 plan.is_popular
-                  ? "border-[#EF9F27]/60 shadow-[0_0_0_1px_rgba(239,159,39,0.15)]"
-                  : "border-[#2A2A3A] hover:border-[#EF9F27]/30"
+                  ? "border-[#A9B57E]/60 shadow-[0_0_0_1px_rgba(239,159,39,0.15)]"
+                  : "border-[#2a2a30] hover:border-[#A9B57E]/30"
               }`}
             >
               {/* Badges */}
               {plan.is_popular && (
-                <div className="absolute -top-2.5 left-4 flex items-center gap-1 bg-[#EF9F27] text-[#0A0A0A] text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
+                <div className="absolute -top-2.5 left-4 flex items-center gap-1 bg-[#A9B57E] text-[#131316] text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
                   <Star size={10} /> Populaire
                 </div>
               )}
               {isPremium && !plan.is_popular && premiumBadge && (
-                <div className="absolute -top-2.5 left-4 flex items-center gap-1 bg-gradient-to-r from-[#EF9F27] to-[#f4b653] text-[#0A0A0A] text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
+                <div className="absolute -top-2.5 left-4 flex items-center gap-1 bg-gradient-to-r from-[#A9B57E] to-[#B5C07D] text-[#131316] text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
                   <PremiumIcon size={10} /> {premiumBadge.label}
                 </div>
               )}
@@ -148,7 +148,7 @@ export function ProductPlanComparison({
               {/* Prix */}
               <div className="space-y-1 mb-4">
                 <div>
-                  <span className="font-mono text-3xl font-bold text-[#EF9F27]">
+                  <span className="font-mono text-3xl font-bold text-[#A9B57E]">
                     {fmt(plan.price_monthly)}
                   </span>
                   <span className="text-[13px] text-[#888] ml-2">FCFA / mois</span>
@@ -166,8 +166,8 @@ export function ProductPlanComparison({
               {/* Limites structurelles */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {plan.max_companies !== undefined && (
-                  <div className="flex items-center gap-1.5 bg-[#0A0A0A] border border-[#2A2A3A] rounded-lg px-2.5 py-1">
-                    <Building2 size={12} className="text-[#EF9F27]" />
+                  <div className="flex items-center gap-1.5 bg-[#131316] border border-[#2a2a30] rounded-lg px-2.5 py-1">
+                    <Building2 size={12} className="text-[#A9B57E]" />
                     <span className="text-[12px] text-[#F5F5F5]">
                       {(plan.max_companies ?? -1) === -1
                         ? `${companyLabel.charAt(0).toUpperCase()}${companyLabel.slice(1)}s illimitées`
@@ -175,8 +175,8 @@ export function ProductPlanComparison({
                     </span>
                   </div>
                 )}
-                <div className="flex items-center gap-1.5 bg-[#0A0A0A] border border-[#2A2A3A] rounded-lg px-2.5 py-1">
-                  <Users size={12} className="text-[#EF9F27]" />
+                <div className="flex items-center gap-1.5 bg-[#131316] border border-[#2a2a30] rounded-lg px-2.5 py-1">
+                  <Users size={12} className="text-[#A9B57E]" />
                   <span className="text-[12px] text-[#F5F5F5]">
                     {(plan.max_seats ?? -1) === -1
                       ? "Utilisateurs illimités"
@@ -207,7 +207,7 @@ export function ProductPlanComparison({
 
               {/* Features locked */}
               {locked.length > 0 && (
-                <div className="border-t border-[#2A2A3A] pt-3">
+                <div className="border-t border-[#2a2a30] pt-3">
                   <div className="flex items-center gap-1.5 mb-2">
                     <X size={12} className="text-red-400/70" />
                     <span className="text-[11px] uppercase tracking-wider text-red-400/70 font-semibold">
@@ -228,7 +228,7 @@ export function ProductPlanComparison({
               )}
 
               {/* Stats abonnements */}
-              <div className="border-t border-[#2A2A3A] pt-3 mt-3 grid grid-cols-2 gap-3">
+              <div className="border-t border-[#2a2a30] pt-3 mt-3 grid grid-cols-2 gap-3">
                 <div>
                   <div className="text-[10px] text-[#888] uppercase font-semibold mb-0.5">Actifs</div>
                   <div className="font-mono text-lg font-bold text-green-400">{stats.active}</div>

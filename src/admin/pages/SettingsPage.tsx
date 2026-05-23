@@ -221,7 +221,7 @@ export default function SettingsPage() {
       )}
 
       {tab !== "proph3t" && (
-      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 max-w-2xl">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl shadow-sm dark:shadow-premium p-6 max-w-2xl">
         {/* Profile */}
         {tab === "profile" && (
           <div className="space-y-4">

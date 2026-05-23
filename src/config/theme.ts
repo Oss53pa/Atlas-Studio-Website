@@ -1,8 +1,8 @@
 export const THEME = {
   colors: {
-    onyx: '#0A0A0A',
-    gold: '#C8A960',
-    goldLight: '#D4BC7C',
+    onyx: '#131316',
+    gold: '#8E9A63',
+    goldLight: '#C2CC92',
     goldDark: '#B89A50',
     warmBg: '#FAFAF8',
     warmCard: '#FFFFFF',

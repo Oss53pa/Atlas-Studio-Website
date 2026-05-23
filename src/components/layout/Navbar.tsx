@@ -45,7 +45,7 @@ export function Navbar() {
           }`}
           style={{
             background:
-              "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.35) 50%, transparent 100%)",
+              "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.35) 50%, transparent 100%)",
           }}
         />
 

@@ -18,7 +18,7 @@ export function SectionHeading({ title, subtitle, className = "" }: SectionHeadi
       )}
       <div className="relative w-16 h-px mx-auto mt-5 overflow-hidden">
         <div className="h-px reveal-line"
-          style={{ background: "linear-gradient(90deg, transparent 0%, #10B981 50%, transparent 100%)" }}
+          style={{ background: "linear-gradient(90deg, transparent 0%, #A9B57E 50%, transparent 100%)" }}
         />
       </div>
     </div>

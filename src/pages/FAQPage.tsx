@@ -34,7 +34,7 @@ export default function FAQPage() {
         <ScrollReveal>
           <div className="relative text-center mt-14 bg-ink-100 border border-white/[0.06] rounded-2xl p-9 overflow-hidden shadow-premium">
             <div className="absolute -top-px left-[10%] right-[10%] h-px"
-              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.55) 50%, transparent 100%)" }}
+              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.55) 50%, transparent 100%)" }}
             />
             <h3 className="text-neutral-light text-lg font-semibold mb-2 tracking-tight">Vous n'avez pas trouvé votre réponse ?</h3>
             <p className="text-neutral-muted text-sm font-light mb-7">Notre équipe est là pour vous aider.</p>
