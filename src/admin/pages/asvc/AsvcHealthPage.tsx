@@ -1,6 +1,6 @@
-import { Activity, Shield, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Activity, Shield, CheckCircle2, AlertCircle, Loader2, ShieldAlert } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
-import { useHealthCheck, timeAgoFr } from './hooks';
+import { useHealthCheck, useSecOpsScan, timeAgoFr } from './hooks';
 
 function fmtNumber(n: number): string {
   return new Intl.NumberFormat('fr-FR').format(n);
@@ -12,6 +12,7 @@ function fmtUsd(n: number): string {
 
 export default function AsvcHealthPage() {
   const { health, loading, refresh, verifying, integrity, verifyAuditChain } = useHealthCheck();
+  const { running: scanning, error: scanError, result: scanResult, runScan } = useSecOpsScan();
 
   return (
     <div className="max-w-5xl">
@@ -21,6 +22,15 @@ export default function AsvcHealthPage() {
       >
         <button
           type="button"
+          onClick={() => runScan()}
+          disabled={scanning}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/[0.12] border border-gold/30 text-admin-accent text-[11px] font-semibold hover:bg-gold/20 hover:shadow-gold-sm disabled:opacity-50 transition-all"
+        >
+          {scanning ? <Loader2 size={12} className="animate-spin" /> : <ShieldAlert size={12} />}
+          {scanning ? 'Passe CTEM…' : 'Lancer une passe CTEM'}
+        </button>
+        <button
+          type="button"
           onClick={refresh}
           className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-white/10 hover:bg-white/5 text-neutral-300 text-[11px] rounded-md transition"
         >
@@ -28,6 +38,43 @@ export default function AsvcHealthPage() {
           Rafraîchir
         </button>
       </AdminPageHeader>
+
+      {/* Résultat de la passe CTEM (SecOps) */}
+      {(scanResult || scanError) && (
+        <div
+          className={`mb-5 rounded-2xl border p-4 shadow-premium ${
+            scanError
+              ? 'border-red-500/30 bg-red-500/5'
+              : scanResult && scanResult.critical_count > 0
+                ? 'border-red-500/30 bg-red-500/5'
+                : 'border-gold/25 bg-gold/5'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <ShieldAlert size={18} className={scanError || (scanResult && scanResult.critical_count > 0) ? 'text-red-400' : 'text-admin-accent'} strokeWidth={1.75} />
+            <div className="min-w-0 flex-1">
+              <div className="text-neutral-light text-[13px] font-semibold mb-0.5">SecOps · passe CTEM</div>
+              {scanError ? (
+                <p className="text-red-300 text-[12px]">{scanError}</p>
+              ) : scanResult ? (
+                <>
+                  <p className="text-neutral-400 text-[12px] leading-snug mb-2">{scanResult.summary}</p>
+                  <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                    <span className="pill pill-neutral">Posture {scanResult.posture_score}/100</span>
+                    <span className="pill">{scanResult.findings_count} findings</span>
+                    {scanResult.critical_count > 0 && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full font-semibold bg-red-500/15 text-red-300 border border-red-500/30">
+                        {scanResult.critical_count} critique{scanResult.critical_count > 1 ? 's' : ''}
+                      </span>
+                    )}
+                    <span className="text-neutral-600">→ plan de remédiation proposé (Arbitrages)</span>
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading && <p className="text-neutral-500 text-sm">Chargement...</p>}
 

@@ -187,7 +187,7 @@ export default function AdminsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1 flex items-center gap-2">
-            <Crown size={22} className="text-[#EF9F27]" />
+            <Crown size={22} className="text-[#A9B57E]" />
             Gestion des Admins
           </h1>
           <p className="text-neutral-muted dark:text-admin-muted text-sm">
@@ -196,7 +196,7 @@ export default function AdminsPage() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#EF9F27] text-[#0A0A0B] rounded-lg text-sm font-semibold hover:bg-[#D4B872] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#A9B57E] text-[#131316] rounded-lg text-sm font-semibold hover:bg-[#C2CC92] transition-colors"
         >
           <Plus size={15} />
           Nouvel admin
@@ -205,7 +205,7 @@ export default function AdminsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <StatCard label="Total admins" value={admins.length} icon={ShieldCheck} color="#EF9F27" />
+        <StatCard label="Total admins" value={admins.length} icon={ShieldCheck} color="#A9B57E" />
         <StatCard label="Actifs" value={admins.filter(a => a.is_active).length} icon={Check} color="#22C55E" />
         <StatCard label="Super Admin" value={admins.filter(a => a.role === "super_admin").length} icon={Crown} color="#A855F7" />
       </div>
@@ -213,14 +213,14 @@ export default function AdminsPage() {
       {/* List */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2 size={24} className="animate-spin text-[#EF9F27]" />
+          <Loader2 size={24} className="animate-spin text-[#A9B57E]" />
         </div>
       ) : admins.length === 0 ? (
         <div className="text-center py-20 text-neutral-muted dark:text-admin-muted">
           Aucun admin trouvé
         </div>
       ) : (
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl shadow-sm dark:shadow-premium overflow-hidden">
           <table className="w-full">
             <thead className="bg-warm-bg dark:bg-admin-surface-alt border-b border-warm-border dark:border-admin-surface-alt">
               <tr>
@@ -240,7 +240,7 @@ export default function AdminsPage() {
                   <tr key={admin.id} className="border-b border-warm-border dark:border-admin-surface-alt last:border-0 hover:bg-warm-bg/50 dark:hover:bg-admin-surface-alt/30 transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold ${isSuperAdmin ? "bg-purple-500/15 text-purple-400" : "bg-[#EF9F27]/15 text-[#EF9F27]"}`}>
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold ${isSuperAdmin ? "bg-purple-500/15 text-purple-400" : "bg-[#A9B57E]/15 text-[#A9B57E]"}`}>
                           {(admin.full_name || admin.email).split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
                         </div>
                         <div>
@@ -259,7 +259,7 @@ export default function AdminsPage() {
                           Super Admin
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#EF9F27]/15 text-[#EF9F27] text-[11px] font-semibold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#A9B57E]/15 text-[#A9B57E] text-[11px] font-semibold">
                           <ShieldCheck size={11} />
                           Admin
                         </span>
@@ -292,7 +292,7 @@ export default function AdminsPage() {
                               onClick={() => handleToggleActive(admin)}
                               disabled={isLoading}
                               title={admin.is_active ? "Désactiver" : "Réactiver"}
-                              className="p-1.5 rounded hover:bg-warm-bg dark:hover:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-[#EF9F27] transition-colors"
+                              className="p-1.5 rounded hover:bg-warm-bg dark:hover:bg-admin-surface-alt text-neutral-muted dark:text-admin-muted hover:text-[#A9B57E] transition-colors"
                             >
                               {admin.is_active ? <ShieldOff size={14} /> : <ShieldCheck size={14} />}
                             </button>
@@ -319,10 +319,10 @@ export default function AdminsPage() {
       {/* Create modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl shadow-2xl w-full max-w-md">
+          <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-3xl shadow-2xl dark:shadow-elev-5 w-full max-w-md">
             <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border dark:border-admin-surface-alt">
               <h3 className="text-neutral-text dark:text-admin-text font-bold text-lg">Créer un nouvel admin</h3>
-              <button onClick={() => setShowCreate(false)} className="text-neutral-muted dark:text-admin-muted hover:text-[#EF9F27]">
+              <button onClick={() => setShowCreate(false)} className="text-neutral-muted dark:text-admin-muted hover:text-[#A9B57E]">
                 <X size={18} />
               </button>
             </div>
@@ -332,7 +332,7 @@ export default function AdminsPage() {
                   value={form.full_name}
                   onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
                   placeholder="Jean Dupont"
-                  className="w-full px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-[#EF9F27]"
+                  className="w-full px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-[#A9B57E]"
                 />
               </Field>
               <Field label="Email professionnel" icon={Mail}>
@@ -341,7 +341,7 @@ export default function AdminsPage() {
                   value={form.email}
                   onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                   placeholder="admin@atlasstudio.org"
-                  className="w-full px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-[#EF9F27]"
+                  className="w-full px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-[#A9B57E]"
                 />
               </Field>
               <Field label="Téléphone (optionnel)">
@@ -349,13 +349,13 @@ export default function AdminsPage() {
                   value={form.phone}
                   onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                   placeholder="+225 07 00 00 00 00"
-                  className="w-full px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-[#EF9F27]"
+                  className="w-full px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-[#A9B57E]"
                 />
               </Field>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-[11px] font-semibold text-neutral-muted dark:text-admin-muted uppercase tracking-wider">Mot de passe initial</label>
-                  <button onClick={generatePassword} className="text-[10px] text-[#EF9F27] hover:underline">Générer</button>
+                  <button onClick={generatePassword} className="text-[10px] text-[#A9B57E] hover:underline">Générer</button>
                 </div>
                 <div className="relative">
                   <input
@@ -363,11 +363,11 @@ export default function AdminsPage() {
                     value={form.password}
                     onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                     placeholder="Min. 8 caractères"
-                    className="w-full px-3 py-2 pr-10 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm font-mono text-neutral-text dark:text-admin-text outline-none focus:border-[#EF9F27]"
+                    className="w-full px-3 py-2 pr-10 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm font-mono text-neutral-text dark:text-admin-text outline-none focus:border-[#A9B57E]"
                   />
                   <button
                     onClick={() => setShowPassword(s => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted hover:text-[#EF9F27]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted hover:text-[#A9B57E]"
                     type="button"
                   >
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -385,7 +385,7 @@ export default function AdminsPage() {
               <button
                 onClick={handleCreate}
                 disabled={actionLoading === "create"}
-                className="px-4 py-2 bg-[#EF9F27] text-[#0A0A0B] rounded-lg text-sm font-semibold hover:bg-[#D4B872] disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 bg-[#A9B57E] text-[#131316] rounded-lg text-sm font-semibold hover:bg-[#C2CC92] disabled:opacity-50 flex items-center gap-2"
               >
                 {actionLoading === "create" ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                 Créer l'admin
@@ -436,7 +436,7 @@ export default function AdminsPage() {
 
 function StatCard({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) {
   return (
-    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl shadow-sm dark:shadow-premium p-5">
       <div className="flex items-center justify-between mb-2">
         <span className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</span>
         <Icon size={16} style={{ color }} />

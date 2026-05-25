@@ -77,16 +77,16 @@ export function LockScreen({ onUnlock, onSignOut }: LockScreenProps) {
         {/* Logo */}
         <div className="text-center mb-8">
           <Logo size={32} color="text-neutral-light" />
-          <div className="text-[#EF9F27] text-[10px] font-bold uppercase tracking-widest mt-1">
+          <div className="text-[#A9B57E] text-[10px] font-bold uppercase tracking-widest mt-1">
             Console Administration
           </div>
         </div>
 
         {/* Lock card */}
-        <div className="bg-[#0F0F15] border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-[#131316] border border-white/10 rounded-2xl p-8 shadow-2xl">
           <div className="flex justify-center mb-5">
-            <div className="w-14 h-14 rounded-full bg-[#EF9F27]/15 border border-[#EF9F27]/30 flex items-center justify-center">
-              <Lock size={22} className="text-[#EF9F27]" />
+            <div className="w-14 h-14 rounded-full bg-[#A9B57E]/15 border border-[#A9B57E]/30 flex items-center justify-center">
+              <Lock size={22} className="text-[#A9B57E]" />
             </div>
           </div>
 
@@ -100,7 +100,7 @@ export function LockScreen({ onUnlock, onSignOut }: LockScreenProps) {
 
           {/* User pill */}
           <div className="flex items-center gap-3 px-3 py-2 bg-white/5 border border-white/10 rounded-lg mb-4">
-            <div className="w-8 h-8 rounded-full bg-[#EF9F27] flex items-center justify-center text-[#0A0A0B] text-[11px] font-bold flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#A9B57E] flex items-center justify-center text-[#131316] text-[11px] font-bold flex-shrink-0">
               {initials}
             </div>
             <div className="flex-1 min-w-0">
@@ -121,7 +121,7 @@ export function LockScreen({ onUnlock, onSignOut }: LockScreenProps) {
               onKeyDown={handleKeyDown}
               placeholder="Mot de passe"
               disabled={loading}
-              className="w-full px-3 py-2.5 pr-10 bg-[#1A1A22] border border-white/10 rounded-lg text-white text-[13px] placeholder-white/30 focus:border-[#EF9F27]/50 outline-none transition-colors"
+              className="w-full px-3 py-2.5 pr-10 bg-[#1c1c20] border border-white/10 rounded-lg text-white text-[13px] placeholder-white/30 focus:border-[#A9B57E]/50 outline-none transition-colors"
               autoComplete="current-password"
             />
             <button
@@ -141,7 +141,7 @@ export function LockScreen({ onUnlock, onSignOut }: LockScreenProps) {
           <button
             onClick={handleUnlock}
             disabled={loading || !password}
-            className="w-full mt-4 py-2.5 bg-[#EF9F27] text-[#0A0A0B] rounded-lg font-semibold text-[13px] hover:bg-[#D4B872] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full mt-4 py-2.5 bg-[#A9B57E] text-[#131316] rounded-lg font-semibold text-[13px] hover:bg-[#C2CC92] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

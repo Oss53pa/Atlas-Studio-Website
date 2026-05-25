@@ -96,7 +96,7 @@ export default function CampaignsPage() {
     ? Math.round(campaigns.reduce((s, c) => s + (c.recipient_count > 0 ? (c.open_count / c.recipient_count) * 100 : 0), 0) / Math.max(1, campaigns.filter(c => c.recipient_count > 0).length))
     : 0;
 
-  const inputClass = "w-full px-4 py-3 bg-warm-bg dark:bg-admin-surface-alt border border-warm-border dark:border-admin-surface-alt rounded-lg text-neutral-text dark:text-admin-text text-sm outline-none focus:border-gold dark:focus:border-admin-accent transition-colors";
+  const inputClass = "w-full px-4 py-3 bg-warm-bg dark:bg-admin-surface-alt/60 border border-warm-border dark:border-white/10 rounded-xl text-neutral-text dark:text-admin-text text-sm outline-none shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all placeholder:text-neutral-placeholder dark:placeholder:text-admin-muted/40";
 
   return (
     <div>
@@ -105,23 +105,23 @@ export default function CampaignsPage() {
           <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Campagnes Newsletter</h1>
           <p className="text-neutral-muted dark:text-admin-muted text-sm">{campaigns.length} campagnes — {totalSent} envoyées — {totalRecipients} emails envoyés</p>
         </div>
-        <button onClick={openCreate} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-4 py-2.5 hover:bg-gold-dark dark:hover:bg-admin-accent-dark transition-colors text-[13px] flex items-center gap-2">
+        <button onClick={openCreate} className="bg-gold dark:bg-admin-accent text-black font-semibold rounded-full px-5 py-2.5 shadow-sm dark:shadow-gold hover:bg-gold-dark dark:hover:bg-admin-accent-dark dark:hover:shadow-gold-glow transition-all duration-300 text-[13px] flex items-center gap-2">
           <Plus size={14} /> Nouvelle campagne
         </button>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
-          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Campagnes envoyées</div>
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Campagnes envoyées</div>
           <div className="text-gold dark:text-admin-accent text-2xl font-mono font-semibold">{totalSent}</div>
         </div>
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
-          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Total emails</div>
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Total emails</div>
           <div className="text-gold dark:text-admin-accent text-2xl font-mono font-semibold">{totalRecipients.toLocaleString("fr-FR")}</div>
         </div>
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
-          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase mb-1">Taux d'ouverture moy.</div>
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+          <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider mb-1">Taux d'ouverture moy.</div>
           <div className="text-gold dark:text-admin-accent text-2xl font-mono font-semibold">{avgOpenRate}%</div>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function CampaignsPage() {
       <div className="relative mb-6 max-w-sm">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted dark:text-admin-muted" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..."
-          className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors" />
+          className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-sm text-neutral-text dark:text-admin-text outline-none shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all" />
       </div>
 
       <AdminTable
@@ -173,8 +173,8 @@ export default function CampaignsPage() {
       <AdminModal open={!!editCampaign} onClose={() => setEditCampaign(null)} title={isNew ? "Nouvelle campagne" : `Modifier : ${editCampaign?.name || ""}`} size="xl"
         footer={
           <>
-            <button onClick={() => setEditCampaign(null)} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-medium text-neutral-body dark:text-admin-text transition-colors">Annuler</button>
-            <button onClick={handleSave} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg px-5 py-2.5 transition-colors text-[13px] ${saving ? "opacity-50" : ""}`}>{saving ? "..." : isNew ? "Créer" : "Sauvegarder"}</button>
+            <button onClick={() => setEditCampaign(null)} className="px-5 py-2.5 border border-warm-border dark:border-white/10 rounded-full text-[13px] font-medium text-neutral-body dark:text-admin-text hover:bg-warm-bg dark:hover:bg-admin-surface-alt transition-colors">Annuler</button>
+            <button onClick={handleSave} disabled={saving} className={`bg-gold dark:bg-admin-accent text-black font-semibold rounded-full px-6 py-2.5 shadow-sm dark:shadow-gold hover:shadow-md dark:hover:shadow-gold-glow transition-all duration-300 text-[13px] ${saving ? "opacity-50" : ""}`}>{saving ? "..." : isNew ? "Créer" : "Sauvegarder"}</button>
           </>
         }>
         {editCampaign && (

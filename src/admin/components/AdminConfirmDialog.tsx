@@ -27,9 +27,9 @@ export function AdminConfirmDialog({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-admin-surface border border-admin-surface-alt rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+      <div className="relative bg-admin-surface border border-white/5 rounded-3xl shadow-2xl dark:shadow-elev-5 w-full max-w-md mx-4 p-7">
         <div className="flex items-start gap-4">
-          <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center flex-shrink-0`}>
+          <div className={`w-11 h-11 rounded-2xl ${colors.bg} flex items-center justify-center flex-shrink-0`}>
             <AlertTriangle size={20} className={colors.icon} />
           </div>
           <div className="flex-1 min-w-0">
@@ -39,11 +39,11 @@ export function AdminConfirmDialog({
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button onClick={onCancel} disabled={loading}
-            className="px-4 py-2.5 border border-admin-surface-alt rounded-lg text-sm font-medium text-admin-muted hover:bg-admin-surface-alt transition-colors">
+            className="px-5 py-2.5 border border-white/10 rounded-full text-sm font-medium text-admin-muted hover:bg-admin-surface-alt transition-colors">
             {cancelLabel}
           </button>
           <button onClick={onConfirm} disabled={loading}
-            className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${colors.btn} ${loading ? "opacity-60" : ""}`}>
+            className={`px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-300 ${colors.btn} ${loading ? "opacity-60" : ""}`}>
             {loading ? "..." : confirmLabel}
           </button>
         </div>

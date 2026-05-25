@@ -13,7 +13,7 @@ interface AdminCardProps {
 export function AdminCard({ label, value, sub, icon: Icon, trend, loading, onClick }: AdminCardProps) {
   if (loading) {
     return (
-      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 space-y-3">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 space-y-3 shadow-sm dark:shadow-premium">
         <div className="flex justify-between">
           <div className="h-3 w-24 bg-warm-bg dark:bg-admin-surface-alt rounded animate-pulse" />
           <div className="h-5 w-5 bg-warm-bg dark:bg-admin-surface-alt rounded animate-pulse" />
@@ -25,7 +25,7 @@ export function AdminCard({ label, value, sub, icon: Icon, trend, loading, onCli
   }
 
   return (
-    <div className={`bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5 ${onClick ? "cursor-pointer hover:border-gold/30 dark:hover:border-admin-accent/30 transition-colors" : ""}`}
+    <div className={`bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium transition-all duration-300 ${onClick ? "cursor-pointer hover:-translate-y-0.5 hover:border-gold/30 dark:hover:border-admin-accent/30 hover:shadow-md dark:hover:shadow-elev-3" : ""}`}
       onClick={onClick}>
       <div className="flex items-center justify-between mb-1">
         <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>

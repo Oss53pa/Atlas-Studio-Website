@@ -137,10 +137,10 @@ export default function LicencesPage() {
   /* Seats bar */
   const SeatsBar = ({ used, max }: { used: number; max: number }) => (
     <div className="flex items-center gap-2 min-w-[120px]">
-      <div className="flex-1 h-1.5 rounded-full" style={{ background: "#2A2A3A" }}>
-        <div className="h-full rounded-full transition-all" style={{ width: `${pct(used, max)}%`, background: pct(used, max) > 90 ? "#EF4444" : "#EF9F27" }} />
+      <div className="flex-1 h-2 rounded-full overflow-hidden bg-warm-bg dark:bg-admin-surface-alt shadow-inner">
+        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct(used, max)}%`, background: pct(used, max) > 90 ? "#C0635C" : "#A9B57E" }} />
       </div>
-      <span className="text-xs text-[#888] whitespace-nowrap">{used}/{max}</span>
+      <span className="text-xs text-neutral-muted dark:text-admin-muted whitespace-nowrap">{used}/{max}</span>
     </div>
   );
 
@@ -167,8 +167,8 @@ export default function LicencesPage() {
       <div className="col-span-2">
         <div className="text-[#888] text-xs mb-1">Clé d'activation</div>
         <div className="flex items-center gap-2">
-          <code className="font-mono text-[#EF9F27] text-sm bg-[#2A2A3A] px-2 py-1 rounded">{l.activation_key}</code>
-          <button onClick={() => copyKey(l.activation_key)} className="p-1 rounded hover:bg-[#2A2A3A]"><Copy size={14} className="text-[#888]" /></button>
+          <code className="font-mono text-[#A9B57E] text-sm bg-[#2a2a30] px-2 py-1 rounded">{l.activation_key}</code>
+          <button onClick={() => copyKey(l.activation_key)} className="p-1 rounded hover:bg-[#2a2a30]"><Copy size={14} className="text-[#888]" /></button>
         </div>
       </div>
     </div>
@@ -177,14 +177,14 @@ export default function LicencesPage() {
   const renderSeats = () => (
     <div className="space-y-2">
       {seats.length === 0 ? <p className="text-[#888] text-sm">Aucun siège attribué.</p> : (
-        <table className="w-full text-sm"><thead><tr className="text-left text-[#888] text-xs border-b border-[#2A2A3A]">
+        <table className="w-full text-sm"><thead><tr className="text-left text-[#888] text-xs border-b border-[#2a2a30]">
           <th className="pb-2">Email</th><th className="pb-2">Nom</th><th className="pb-2">Rôle</th><th className="pb-2">Statut</th><th className="pb-2">Dernier login</th>
         </tr></thead><tbody>
           {seats.map(s => (
-            <tr key={s.id} className="border-b border-[#2A2A3A]/50 hover:bg-[#2A2A3A]/30">
+            <tr key={s.id} className="border-b border-[#2a2a30]/50 hover:bg-[#2a2a30]/30">
               <td className="py-2 text-[#F5F5F5]">{s.email}</td>
               <td className="py-2 text-[#F5F5F5]">{s.full_name || "—"}</td>
-              <td className="py-2"><span className="text-xs px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#EF9F27]">{ROLE_LABELS[s.role] || s.role}</span></td>
+              <td className="py-2"><span className="text-xs px-1.5 py-0.5 rounded bg-[#2a2a30] text-[#A9B57E]">{ROLE_LABELS[s.role] || s.role}</span></td>
               <td className="py-2"><Badge status={s.status} /></td>
               <td className="py-2 text-[#888]">{fmtDate(s.last_login)}</td>
             </tr>
@@ -197,11 +197,11 @@ export default function LicencesPage() {
   const renderActivations = () => (
     <div className="space-y-2">
       {activations.length === 0 ? <p className="text-[#888] text-sm">Aucune tentative d'activation.</p> : (
-        <table className="w-full text-sm"><thead><tr className="text-left text-[#888] text-xs border-b border-[#2A2A3A]">
+        <table className="w-full text-sm"><thead><tr className="text-left text-[#888] text-xs border-b border-[#2a2a30]">
           <th className="pb-2">Date</th><th className="pb-2">IP</th><th className="pb-2">Succès</th><th className="pb-2">Raison</th>
         </tr></thead><tbody>
           {activations.map(a => (
-            <tr key={a.id} className="border-b border-[#2A2A3A]/50">
+            <tr key={a.id} className="border-b border-[#2a2a30]/50">
               <td className="py-2 text-[#F5F5F5]">{fmtDate(a.created_at)}</td>
               <td className="py-2 font-mono text-xs text-[#888]">{a.ip_address || "—"}</td>
               <td className="py-2">{a.success ? <span className="text-green-400 text-xs">Oui</span> : <span className="text-red-400 text-xs">Non</span>}</td>
@@ -216,20 +216,20 @@ export default function LicencesPage() {
   const renderAdminLinks = () => (
     <div className="space-y-2">
       {adminLinks.length === 0 ? <p className="text-[#888] text-sm">Aucun lien admin délégué.</p> : adminLinks.map(link => (
-        <div key={link.id} className="p-3 rounded-lg border border-[#2A2A3A] bg-[#2A2A3A]/30 space-y-2">
+        <div key={link.id} className="p-3 rounded-lg border border-[#2a2a30] bg-[#2a2a30]/30 space-y-2">
           <div className="flex items-center justify-between">
             <Badge status={link.status} />
             <span className="text-xs text-[#888]">Expire : {fmtDate(link.expires_at)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="font-mono text-xs text-[#EF9F27] bg-[#1E1E2E] px-2 py-1 rounded flex-1 truncate">{link.token}</code>
-            <button onClick={() => { navigator.clipboard.writeText(link.token); success("Token copié"); }} className="p-1 rounded hover:bg-[#2A2A3A]"><Copy size={14} className="text-[#888]" /></button>
+            <code className="font-mono text-xs text-[#A9B57E] bg-[#1c1c20] px-2 py-1 rounded flex-1 truncate">{link.token}</code>
+            <button onClick={() => { navigator.clipboard.writeText(link.token); success("Token copié"); }} className="p-1 rounded hover:bg-[#2a2a30]"><Copy size={14} className="text-[#888]" /></button>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
-            {link.can_invite_users && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Inviter</span>}
-            {link.can_manage_roles && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Rôles</span>}
-            {link.can_view_billing && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Facturation</span>}
-            {link.can_revoke_users && <span className="px-1.5 py-0.5 rounded bg-[#2A2A3A] text-[#F5F5F5]">Révoquer</span>}
+            {link.can_invite_users && <span className="px-1.5 py-0.5 rounded bg-[#2a2a30] text-[#F5F5F5]">Inviter</span>}
+            {link.can_manage_roles && <span className="px-1.5 py-0.5 rounded bg-[#2a2a30] text-[#F5F5F5]">Rôles</span>}
+            {link.can_view_billing && <span className="px-1.5 py-0.5 rounded bg-[#2a2a30] text-[#F5F5F5]">Facturation</span>}
+            {link.can_revoke_users && <span className="px-1.5 py-0.5 rounded bg-[#2a2a30] text-[#F5F5F5]">Révoquer</span>}
           </div>
         </div>
       ))}
@@ -239,8 +239,8 @@ export default function LicencesPage() {
   const renderAudit = () => (
     <div className="space-y-1 max-h-[360px] overflow-y-auto">
       {auditLog.length === 0 ? <p className="text-[#888] text-sm">Aucune entrée.</p> : auditLog.map(e => (
-        <div key={e.id} className="flex items-start gap-3 py-2 border-b border-[#2A2A3A]/50 text-sm">
-          <Activity size={14} className="text-[#EF9F27] mt-0.5 shrink-0" />
+        <div key={e.id} className="flex items-start gap-3 py-2 border-b border-[#2a2a30]/50 text-sm">
+          <Activity size={14} className="text-[#A9B57E] mt-0.5 shrink-0" />
           <div className="flex-1 min-w-0">
             <span className="text-[#F5F5F5]">{e.action}</span>
             <span className="text-[#888] text-xs ml-2">{e.actor_type}</span>
@@ -265,7 +265,7 @@ export default function LicencesPage() {
     <div>
       <label className="block text-xs text-[#888] mb-1">{label}</label>
       <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg bg-[#2A2A3A] border border-[#2A2A3A] text-[#F5F5F5] text-sm focus:border-[#EF9F27] focus:outline-none" />
+        className="w-full px-3 py-2 rounded-lg bg-[#2a2a30] border border-[#2a2a30] text-[#F5F5F5] text-sm focus:border-[#A9B57E] focus:outline-none" />
     </div>
   );
 
@@ -279,8 +279,8 @@ export default function LicencesPage() {
           <p className="text-sm text-[#888]">Gestion des licences, sièges et activations</p>
         </div>
         <button onClick={() => setShowGenerate(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#0A0A0A] transition-colors"
-          style={{ background: "#EF9F27" }}>
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#131316] transition-colors"
+          style={{ background: "#A9B57E" }}>
           <Plus size={16} /> Générer manuellement
         </button>
       </div>
@@ -299,11 +299,11 @@ export default function LicencesPage() {
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#888]" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par clé, client, produit..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#1E1E2E] border border-[#2A2A3A] text-[#F5F5F5] text-sm placeholder-[#888] focus:border-[#EF9F27] focus:outline-none" />
+            className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#1c1c20] border border-[#2a2a30] text-[#F5F5F5] text-sm placeholder-[#888] focus:border-[#A9B57E] focus:outline-none" />
         </div>
         <div className="relative">
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as any)}
-            className="appearance-none pl-3 pr-8 py-2 rounded-lg bg-[#1E1E2E] border border-[#2A2A3A] text-[#F5F5F5] text-sm focus:border-[#EF9F27] focus:outline-none cursor-pointer">
+            className="appearance-none pl-3 pr-8 py-2 rounded-lg bg-[#1c1c20] border border-[#2a2a30] text-[#F5F5F5] text-sm focus:border-[#A9B57E] focus:outline-none cursor-pointer">
             <option value="all">Tous les statuts</option>
             <option value="active">Active</option>
             <option value="pending">En attente</option>
@@ -316,11 +316,11 @@ export default function LicencesPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-[#2A2A3A] overflow-hidden" style={{ background: "#1E1E2E" }}>
+      <div className="rounded-xl border border-[#2a2a30] overflow-hidden" style={{ background: "#1c1c20" }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs text-[#888] border-b border-[#2A2A3A]">
+              <tr className="text-left text-xs text-[#888] border-b border-[#2a2a30]">
                 <th className="px-4 py-3">Clé</th>
                 <th className="px-4 py-3">Client</th>
                 <th className="px-4 py-3">Produit / Plan</th>
@@ -334,18 +334,18 @@ export default function LicencesPage() {
             <tbody>
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b border-[#2A2A3A]/50">
+                  <tr key={i} className="border-b border-[#2a2a30]/50">
                     {Array.from({ length: 8 }).map((_, j) => (
-                      <td key={j} className="px-4 py-3"><div className="h-4 w-20 bg-[#2A2A3A] rounded animate-pulse" /></td>
+                      <td key={j} className="px-4 py-3"><div className="h-4 w-20 bg-[#2a2a30] rounded animate-pulse" /></td>
                     ))}
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="px-4 py-12 text-center text-[#888]">Aucune licence trouvée.</td></tr>
               ) : filtered.map(l => (
-                <tr key={l.id} className="border-b border-[#2A2A3A]/50 hover:bg-[#2A2A3A]/20 transition-colors">
+                <tr key={l.id} className="border-b border-[#2a2a30]/50 hover:bg-[#2a2a30]/20 transition-colors">
                   <td className="px-4 py-3">
-                    <code className="font-mono text-xs text-[#EF9F27]">{maskKey(l.activation_key)}</code>
+                    <code className="font-mono text-xs text-[#A9B57E]">{maskKey(l.activation_key)}</code>
                   </td>
                   <td className="px-4 py-3 text-[#F5F5F5]">{l.tenants?.name || "—"}</td>
                   <td className="px-4 py-3">
@@ -358,7 +358,7 @@ export default function LicencesPage() {
                   <td className="px-4 py-3 text-[#888] text-xs">{fmtDate(l.expires_at)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => openDetail(l)} title="Détails" className="p-1.5 rounded-lg hover:bg-[#2A2A3A] text-[#888] hover:text-[#F5F5F5] transition-colors"><Eye size={15} /></button>
+                      <button onClick={() => openDetail(l)} title="Détails" className="p-1.5 rounded-lg hover:bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5] transition-colors"><Eye size={15} /></button>
                       {l.status === "active" && (
                         <button onClick={() => handleSuspend(l)} title="Suspendre" className="p-1.5 rounded-lg hover:bg-orange-500/10 text-[#888] hover:text-orange-400 transition-colors"><ShieldOff size={15} /></button>
                       )}
@@ -372,7 +372,7 @@ export default function LicencesPage() {
             </tbody>
           </table>
         </div>
-        {!loading && <div className="px-4 py-2 border-t border-[#2A2A3A] text-xs text-[#888]">{filtered.length} licence{filtered.length > 1 ? "s" : ""}</div>}
+        {!loading && <div className="px-4 py-2 border-t border-[#2a2a30] text-xs text-[#888]">{filtered.length} licence{filtered.length > 1 ? "s" : ""}</div>}
       </div>
 
       {/* ── Detail Modal ── */}
@@ -380,10 +380,10 @@ export default function LicencesPage() {
         {selected && (
           <div className="space-y-4">
             {/* Tabs */}
-            <div className="flex gap-1 border-b border-[#2A2A3A] pb-px overflow-x-auto">
+            <div className="flex gap-1 border-b border-[#2a2a30] pb-px overflow-x-auto">
               {TABS.map(t => (
                 <button key={t.key} onClick={() => setDetailTab(t.key)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-lg transition-colors whitespace-nowrap ${detailTab === t.key ? "text-[#EF9F27] border-b-2 border-[#EF9F27] -mb-px" : "text-[#888] hover:text-[#F5F5F5]"}`}>
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-t-lg transition-colors whitespace-nowrap ${detailTab === t.key ? "text-[#A9B57E] border-b-2 border-[#A9B57E] -mb-px" : "text-[#888] hover:text-[#F5F5F5]"}`}>
                   <t.icon size={14} />{t.label}
                 </button>
               ))}
@@ -404,9 +404,9 @@ export default function LicencesPage() {
       <AdminModal open={showGenerate} onClose={() => setShowGenerate(false)} title="Générer une licence"
         footer={
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowGenerate(false)} className="px-4 py-2 rounded-lg text-sm text-[#888] hover:text-[#F5F5F5] border border-[#2A2A3A] hover:bg-[#2A2A3A] transition-colors">Annuler</button>
+            <button onClick={() => setShowGenerate(false)} className="px-4 py-2 rounded-lg text-sm text-[#888] hover:text-[#F5F5F5] border border-[#2a2a30] hover:bg-[#2a2a30] transition-colors">Annuler</button>
             <button onClick={handleGenerate} disabled={genLoading}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-[#0A0A0A] disabled:opacity-50 transition-colors" style={{ background: "#EF9F27" }}>
+              className="px-4 py-2 rounded-lg text-sm font-medium text-[#131316] disabled:opacity-50 transition-colors" style={{ background: "#A9B57E" }}>
               {genLoading ? "Génération..." : "Générer"}
             </button>
           </div>

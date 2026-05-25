@@ -121,7 +121,7 @@ export default function InvoicesPage() {
         body: {
           appId: "core", to: inv.profiles.email,
           subject: `Facture ${inv.invoice_number} — Atlas Studio`,
-          html: `<h2>Bonjour ${inv.profiles.full_name || ""},</h2><p>Votre facture <strong>${inv.invoice_number}</strong> d'un montant de <strong>${Number(inv.amount).toLocaleString("fr-FR")} ${inv.currency || "FCFA"}</strong> est disponible.</p><p>Consultez votre espace client.</p><p style="margin-top:20px;"><a href="https://atlas-studio.org/portal" style="display:inline-block;background:#C8A960;color:#0A0A0A;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;">Mon espace</a></p>`,
+          html: `<h2>Bonjour ${inv.profiles.full_name || ""},</h2><p>Votre facture <strong>${inv.invoice_number}</strong> d'un montant de <strong>${Number(inv.amount).toLocaleString("fr-FR")} ${inv.currency || "FCFA"}</strong> est disponible.</p><p>Consultez votre espace client.</p><p style="margin-top:20px;"><a href="https://atlas-studio.org/portal" style="display:inline-block;background:#8E9A63;color:#131316;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;">Mon espace</a></p>`,
         },
       });
       success(`Facture envoyée à ${inv.profiles.email}`);

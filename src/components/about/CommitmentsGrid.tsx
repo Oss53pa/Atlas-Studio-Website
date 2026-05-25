@@ -54,9 +54,9 @@ export function CommitmentsGrid() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {COMMITMENTS.map((c, i) => (
             <ScrollReveal key={c.title} delay={i * 60}>
-              <div className="relative h-full bg-ink-200 border border-white/[0.06] rounded-2xl p-7 card-hover overflow-hidden">
+              <div className="relative h-full bg-ink-200 border border-white/[0.05] rounded-2xl p-7 card-hover shadow-premium overflow-hidden">
                 <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 <h3 className="text-neutral-light text-base md:text-lg font-semibold mb-3 leading-snug tracking-tight">
                   <StyledText>{c.title}</StyledText>

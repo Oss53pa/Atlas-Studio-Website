@@ -107,7 +107,7 @@ export function AdminDelegateLink({ licenceId }: Props) {
                     color: "#1A1A1A",
                   }}
                 >
-                  <Shield size={12} style={{ color: "#EF9F27" }} />
+                  <Shield size={12} style={{ color: "#A9B57E" }} />
                   {label}
                 </span>
               ))}

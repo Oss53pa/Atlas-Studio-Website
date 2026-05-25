@@ -7,9 +7,9 @@ interface ErrorStatsCardsProps {
 }
 
 const SEVERITY_COLORS: Record<ErrorSeverity, string> = {
-  critical: 'bg-[#E24B4A]',
-  error:    'bg-[#EF9F27]',
-  warning:  'bg-[#FAC775]',
+  critical: 'bg-[#C0635C]',
+  error:    'bg-[#A9B57E]',
+  warning:  'bg-[#C2CC92]',
   info:     'bg-[#378ADD]',
 };
 
@@ -31,7 +31,7 @@ function Stat({ label, value, icon, accent = 'neutral' }: StatProps) {
     accent === 'success'  ? 'text-green-500' :
                             'text-gold dark:text-admin-accent';
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl">
+    <div className="flex items-center gap-3 px-4 py-3.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl shadow-sm dark:shadow-premium">
       <div className={`${accentClass} flex-shrink-0`}>{icon}</div>
       <div className="min-w-0">
         <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-muted dark:text-admin-muted leading-none mb-1">
@@ -86,7 +86,7 @@ export function ErrorStatsCards({ appId }: ErrorStatsCardsProps) {
         />
 
         {/* Distribution par sévérité — barres horizontales fines */}
-        <div className="col-span-2 md:col-span-2 xl:col-span-1 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl px-4 py-3">
+        <div className="col-span-2 md:col-span-2 xl:col-span-1 bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl px-4 py-3.5 shadow-sm dark:shadow-premium">
           <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-muted dark:text-admin-muted mb-2 leading-none">
             Sévérité
           </div>
@@ -115,7 +115,7 @@ export function ErrorStatsCards({ appId }: ErrorStatsCardsProps) {
         </div>
 
         {/* Sparkline 7 derniers jours */}
-        <div className="col-span-2 md:col-span-2 xl:col-span-1 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl px-4 py-3">
+        <div className="col-span-2 md:col-span-2 xl:col-span-1 bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl px-4 py-3.5 shadow-sm dark:shadow-premium">
           <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-muted dark:text-admin-muted mb-2 leading-none">
             7 derniers jours
           </div>

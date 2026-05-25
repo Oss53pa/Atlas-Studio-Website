@@ -15,7 +15,7 @@ function BlogCard({ post, featured = false }: { post: BlogPost; featured?: boole
     >
       {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-px z-10"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
       />
       <div className={`relative overflow-hidden ${featured ? "md:h-full h-52" : "h-52"}`}>
         <img

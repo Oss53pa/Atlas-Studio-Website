@@ -32,7 +32,7 @@ export function BillingCycleSwitcher({
           fontWeight: 600,
           fontSize: 14,
           cursor: "pointer",
-          background: !isAnnual ? "#EF9F27" : "transparent",
+          background: !isAnnual ? "#A9B57E" : "transparent",
           color: !isAnnual ? "#FFFFFF" : "#888",
           transition: "all 0.2s",
         }}
@@ -48,7 +48,7 @@ export function BillingCycleSwitcher({
           fontWeight: 600,
           fontSize: 14,
           cursor: "pointer",
-          background: isAnnual ? "#EF9F27" : "transparent",
+          background: isAnnual ? "#A9B57E" : "transparent",
           color: isAnnual ? "#FFFFFF" : "#888",
           transition: "all 0.2s",
           display: "flex",
@@ -61,7 +61,7 @@ export function BillingCycleSwitcher({
           <span
             style={{
               background: "#FFF8EB",
-              color: "#EF9F27",
+              color: "#A9B57E",
               fontSize: 11,
               fontWeight: 700,
               padding: "2px 8px",

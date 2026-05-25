@@ -159,9 +159,9 @@ export default function ContentManagementPage() {
         contact: map.contact || DEFAULT_CONTENT.contact,
         social: map.social || { facebook: "", instagram: "", linkedin: "", twitter: "", youtube: "", tiktok: "" },
         appearance: map.appearance || {
-          primaryColor: "#C8A960",
-          accentColor: "#D4BC7C",
-          heroBackground: "#0A0A0A",
+          primaryColor: "#8E9A63",
+          accentColor: "#C2CC92",
+          heroBackground: "#131316",
           clientLogos: [] as string[],
         },
       });
@@ -201,7 +201,7 @@ export default function ContentManagementPage() {
       faqs: DEFAULT_CONTENT.faqs,
       contact: DEFAULT_CONTENT.contact,
       social: { facebook: "", instagram: "", linkedin: "", twitter: "", youtube: "", tiktok: "" },
-      appearance: { primaryColor: "#C8A960", accentColor: "#D4BC7C", heroBackground: "#0A0A0A", clientLogos: [] },
+      appearance: { primaryColor: "#8E9A63", accentColor: "#C2CC92", heroBackground: "#131316", clientLogos: [] },
     };
     update(key, defaults[key]);
   };
@@ -500,10 +500,10 @@ export default function ContentManagementPage() {
           <>
             <h3 className="text-neutral-text dark:text-admin-text text-sm font-bold mb-3">Couleurs</h3>
             <div className="grid grid-cols-2 gap-4">
-              <ColorField label="Couleur principale (gold)" value={content.appearance?.primaryColor || "#C8A960"} onChange={v => update("appearance", { ...content.appearance, primaryColor: v })} />
-              <ColorField label="Couleur accent" value={content.appearance?.accentColor || "#D4BC7C"} onChange={v => update("appearance", { ...content.appearance, accentColor: v })} />
+              <ColorField label="Couleur principale (gold)" value={content.appearance?.primaryColor || "#8E9A63"} onChange={v => update("appearance", { ...content.appearance, primaryColor: v })} />
+              <ColorField label="Couleur accent" value={content.appearance?.accentColor || "#C2CC92"} onChange={v => update("appearance", { ...content.appearance, accentColor: v })} />
             </div>
-            <ColorField label="Fond du hero" value={content.appearance?.heroBackground || "#0A0A0A"} onChange={v => update("appearance", { ...content.appearance, heroBackground: v })} />
+            <ColorField label="Fond du hero" value={content.appearance?.heroBackground || "#131316"} onChange={v => update("appearance", { ...content.appearance, heroBackground: v })} />
 
             <h3 className="text-neutral-text dark:text-admin-text text-sm font-bold mb-3 mt-6">Logos des entreprises clientes</h3>
             <p className="text-neutral-muted dark:text-admin-muted text-[13px] mb-4">Logos affichés comme preuve sociale sur la landing page.</p>
