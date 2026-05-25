@@ -5,7 +5,7 @@ import { PaymentMethodSelector } from "../../components/ui/PaymentMethodSelector
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
 import { createCheckoutSession } from "../../lib/payments";
-import { planEntries } from "../../lib/utils";
+import { planEntries, seatBounds, computeSeatPrice, type SeatPlanConfig } from "../../lib/utils";
 import type { AppRow } from "../../lib/database.types";
 
 interface CatalogPageProps {
@@ -21,20 +21,29 @@ export function CatalogPage({ userId }: CatalogPageProps) {
   const [subscribing, setSubscribing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState("");
+  const [seats, setSeats] = useState(1);
+
+  const seatConfigFor = (app: AppRow | null, plan: string | null): SeatPlanConfig | undefined => {
+    if (!app || !plan) return undefined;
+    return ((app as any).seat_pricing as Record<string, SeatPlanConfig> | undefined)?.[plan];
+  };
+  const selectPlan = (app: AppRow, plan: string) => {
+    setSelectedPlan(plan);
+    const b = seatBounds(seatConfigFor(app, plan));
+    setSeats(b ? b.def : 1);
+  };
 
   const loading = subsLoading || appsLoading;
   const subscribedIds = subscriptions.map(s => s.app_id);
   const availableApps = appList.filter(
-    a => !subscribedIds.includes(a.id) && a.status === "available"
+    a => !subscribedIds.includes(a.id) && a.status === "available" && (a as any).visible !== false
   );
 
   const handleSubscribe = async () => {
     if (!selectedApp || !selectedPlan) return;
     setSubscribing(true);
     try {
-      const pricing = selectedApp.pricing as Record<string, number>;
-      const price = pricing[selectedPlan] || 0;
-      await createCheckoutSession(selectedApp.id, selectedPlan, price, paymentMethod, promoCode || undefined);
+      await createCheckoutSession(selectedApp.id, selectedPlan, seats, paymentMethod, promoCode || undefined);
     } catch (err: any) {
       setToast(`Erreur: ${err.message}`);
       setSubscribing(false);
@@ -67,7 +76,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
       {selectedApp && (
         <div
           className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5"
-          onClick={() => { setSelectedApp(null); setSelectedPlan(null); }}
+          onClick={() => { setSelectedApp(null); setSelectedPlan(null); setSeats(1); }}
         >
           <div
             onClick={e => e.stopPropagation()}
@@ -93,7 +102,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
               {planEntries(selectedApp.pricing as Record<string, number>).map(([planName, price]) => (
                 <div
                   key={planName}
-                  onClick={() => setSelectedPlan(planName)}
+                  onClick={() => selectPlan(selectedApp, planName)}
                   className={`flex-1 p-4 rounded-xl cursor-pointer text-center border transition-all duration-200 ${
                     selectedPlan === planName
                       ? "border-gold bg-gold/5"
@@ -110,8 +119,46 @@ export function CatalogPage({ userId }: CatalogPageProps) {
               ))}
             </div>
 
-            {selectedPlan && (
+            {selectedPlan && (() => {
+              const cfg = seatConfigFor(selectedApp, selectedPlan);
+              const bounds = seatBounds(cfg);
+              const base = (selectedApp.pricing as Record<string, number>)[selectedPlan] || 0;
+              const total = computeSeatPrice(base, cfg, seats);
+              return (
               <>
+                {bounds && (
+                  <div className="mb-4">
+                    <label className="block text-[11px] font-semibold text-neutral-muted uppercase tracking-wider mb-1.5">
+                      {cfg?.mode === "per_person" ? "Nombre d'utilisateurs" : "Nombre de sièges"}
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setSeats(s => Math.max(bounds.min, s - 1))}
+                        className="w-9 h-9 rounded-lg border border-warm-border text-lg font-bold text-neutral-body hover:border-gold/40 disabled:opacity-40"
+                        disabled={seats <= bounds.min}
+                      >−</button>
+                      <span className="w-12 text-center text-lg font-bold text-neutral-text">{seats}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSeats(s => Math.min(bounds.max, s + 1))}
+                        className="w-9 h-9 rounded-lg border border-warm-border text-lg font-bold text-neutral-body hover:border-gold/40 disabled:opacity-40"
+                        disabled={seats >= bounds.max}
+                      >+</button>
+                      {cfg?.mode === "forfait_seats" && (cfg.included ?? 0) > 0 && (
+                        <span className="text-neutral-placeholder text-[11px]">
+                          {cfg.included} inclus · +{formatPrice(cfg.extra ?? 0)} {getCurrency(selectedApp)}/siège
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div className="mb-4 flex items-baseline justify-between px-1">
+                  <span className="text-neutral-muted text-xs font-semibold uppercase tracking-wider">Total</span>
+                  <span className="text-gold text-xl font-extrabold">
+                    {formatPrice(total)} {getCurrency(selectedApp)}<span className="text-neutral-placeholder text-[11px] font-medium">/{selectedApp.pricing_period || "mois"}</span>
+                  </span>
+                </div>
                 <div className="mb-4">
                   <label className="block text-[11px] font-semibold text-neutral-muted uppercase tracking-wider mb-1.5">Code promo (optionnel)</label>
                   <input
@@ -126,7 +173,8 @@ export function CatalogPage({ userId }: CatalogPageProps) {
                   <PaymentMethodSelector selected={paymentMethod} onChange={setPaymentMethod} />
                 </div>
               </>
-            )}
+              );
+            })()}
 
             <button
               disabled={!selectedPlan || subscribing}

@@ -23,7 +23,8 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        const { userId, appId, plan, subscriptionId, type } = session.metadata || {};
+        const { userId, appId, plan, subscriptionId, type, seats } = session.metadata || {};
+        const seatsLimit = seats ? parseInt(seats, 10) : null;
 
         // Idempotence: skip if we already recorded an invoice for this checkout
         if (session.payment_intent) {
@@ -65,6 +66,7 @@ Deno.serve(async (req) => {
             status: "active",
             stripe_subscription_id: session.subscription as string,
             price_at_subscription: (session.amount_total || 0) / 100,
+            seats_limit: seatsLimit,
             current_period_start: new Date().toISOString(),
             current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
           }).select("id").single();
@@ -78,6 +80,7 @@ Deno.serve(async (req) => {
             app_id: appId,
             plan: plan || "unknown",
             amount: (session.amount_total || 0) / 100,
+            seats: seatsLimit,
             currency: "XOF",
             status: "paid",
             paid_at: new Date().toISOString(),

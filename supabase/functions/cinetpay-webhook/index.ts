@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
         plan: invoice.plan,
         status: "active",
         price_at_subscription: invoice.amount,
+        seats_limit: invoice.seats ?? null,
         current_period_start: new Date().toISOString(),
         current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
       }).select("id").single();

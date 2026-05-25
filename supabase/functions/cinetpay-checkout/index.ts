@@ -2,6 +2,7 @@ import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { requireUser } from "../_shared/auth.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { initPayment } from "../_shared/cinetpay.ts";
+import { computePlanAmount } from "../_shared/pricing.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -10,7 +11,7 @@ Deno.serve(async (req) => {
 
   try {
     const user = await requireUser(req);
-    const { appId, plan, priceAmount } = await req.json();
+    const { appId, plan, seats } = await req.json();
     const frontendUrl = Deno.env.get("FRONTEND_URL")!;
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
@@ -19,7 +20,7 @@ Deno.serve(async (req) => {
     // appeler directement avec un appId arbitraire.
     const { data: appRow, error: appErr } = await supabaseAdmin
       .from("apps")
-      .select("status, visible, name")
+      .select("status, visible, name, pricing, seat_pricing")
       .eq("id", appId)
       .single();
     if (appErr || !appRow) return errorResponse("Application introuvable", 404);
@@ -29,6 +30,11 @@ Deno.serve(async (req) => {
     if ((appRow as { visible?: boolean }).visible === false) {
       return errorResponse(`L'application "${appRow.name}" n'est plus accessible.`, 410);
     }
+
+    // Prix autoritaire calculé côté serveur (jamais le montant client).
+    const { pricing, seat_pricing } = appRow as { pricing: Record<string, number>; seat_pricing: Record<string, any> };
+    if (pricing?.[plan] == null) return errorResponse("Plan introuvable", 400);
+    const { amount: priceAmount, seats: billedSeats } = computePlanAmount(pricing, seat_pricing, plan, seats);
 
     const transactionId = `cp_${crypto.randomUUID().replace(/-/g, "").slice(0, 20)}`;
 
@@ -60,6 +66,7 @@ Deno.serve(async (req) => {
       app_id: appId,
       plan,
       amount: priceAmount,
+      seats: billedSeats,
       currency: "XOF",
       status: "pending",
       cinetpay_transaction_id: transactionId,
