@@ -30,7 +30,7 @@ export default function AboutPage() {
         <div className="relative max-w-2xl mx-auto">
           <ScrollReveal>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-gradient-light leading-[1.12] tracking-tight mb-5">
-              Prêt à voir la différence ?
+              Vos outils peuvent enfin travailler pour vous
             </h2>
             <p className="text-neutral-muted text-[15px] md:text-base font-light leading-relaxed mb-10">
               14 jours d'essai gratuit. Aucune carte requise. Accès immédiat.
