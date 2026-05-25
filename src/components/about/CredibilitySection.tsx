@@ -3,7 +3,7 @@ import { ScrollReveal } from "../ui/ScrollReveal";
 const FOUNDER = {
   name: "Pamela Atokouna",
   title: "Fondatrice & CEO, Atlas Studio",
-  bio: "Plus de vingt ans dans le pétrole, la mine et le retail, à travers dix pays africains. Ce parcours n'est pas une ligne de CV : c'est la source de chaque fonctionnalité d'Atlas Studio. Chaque problème que vous rencontrez a d'abord été vécu, documenté, puis transformé en produit. Venue du métier plus que de la tech, Pamela conçoit les outils pour ceux qui s'en servent, pas pour ceux qui les codent.",
+  bio: "Plus de vingt ans dans les secteurs pétroliers, miniers et retail, à travers dix pays africains. Ce parcours n'est pas une ligne de CV : c'est la source de chaque fonctionnalité d'Atlas Studio. Chaque problème que vous rencontrez a d'abord été vécu, documenté, puis transformé en produit. Venue du métier plus que de la tech, Pamela conçoit les outils pour ceux qui s'en servent, pas pour ceux qui les codent.",
   badges: [
     "Executive MBA INSEEC Paris",
     "MBA Sorbonne",

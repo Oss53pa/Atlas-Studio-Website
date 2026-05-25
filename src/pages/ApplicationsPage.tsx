@@ -39,8 +39,8 @@ export default function ApplicationsPage() {
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Applications</div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gradient-light mb-5 tracking-tight leading-[1.12]">Nos Solutions</h1>
             <p className="text-neutral-muted text-base md:text-lg font-light max-w-2xl mx-auto leading-relaxed mb-10">
-              Des outils professionnels conçus pour les réalités africaines.
-              Comptabilité SYSCOHADA, liasse fiscale, signature électronique — tout ce qu'il faut pour digitaliser votre gestion.
+              Des outils professionnels pensés pour les réalités africaines.
+              Comptabilité SYSCOHADA, liasse fiscale, signature électronique : tout ce qu'il faut pour digitaliser votre gestion, sans détour.
             </p>
             {activeFilters.length > 2 && (
               <div className="flex gap-2 justify-center flex-wrap">
