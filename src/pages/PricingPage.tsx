@@ -5,6 +5,7 @@ import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { SEOHead } from "../components/ui/SEOHead";
 import type { AppItem } from "../config/content";
+import { planEntries } from "../lib/utils";
 
 function formatPrice(price: number): string {
   return price.toLocaleString("fr-FR");
@@ -19,7 +20,7 @@ const cleanFeatureName = (f: string) => {
 };
 
 function AppPricingSection({ app }: { app: AppItem }) {
-  const plans = Object.entries(app.pricing);
+  const plans = planEntries(app.pricing);
   const period = app.pricingPeriod || "mois";
   const appColor = app.color || "#A9B57E";
 
