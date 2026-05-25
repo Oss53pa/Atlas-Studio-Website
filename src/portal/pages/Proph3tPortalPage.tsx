@@ -21,6 +21,8 @@ const QUICK_PROMPTS = [
   { label: "IRPP cote d'Ivoire", icon: Receipt, prompt: "Calcule mon IRPP en CI sur un revenu imposable de 8 000 000 FCFA, avec 2 parts fiscales." },
   { label: "Rapprochement", icon: FileText, prompt: "Comment faire un rapprochement bancaire ? Explique-moi la methode et les pieges a eviter." },
   { label: "Documentation OHADA", icon: BookOpen, prompt: "Quel est le plan comptable SYSCOHADA et comment classer un investissement immobilier ?" },
+  { label: "Note de frais & per diem", icon: FileText, prompt: "Quelles sont les regles de deductibilite d'une note de frais (per diem, transport, mission) en zone UEMOA ?" },
+  { label: "Stocks & marge resto", icon: BarChart3, prompt: "Comment suivre mes stocks et calculer ma marge pour un restaurant (CUMP, taux de rotation, food cost) ?" },
 ];
 
 export function Proph3tPortalPage({ userId }: { userId?: string }) {
@@ -37,7 +39,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
       setMessages([{
         id: "welcome",
         role: "assistant",
-        content: "Bonjour. Je suis **Proph3t**, votre assistant IA souverain dedie a la finance, comptabilite, fiscalite et droit OHADA.\n\nJe peux :\n- Calculer des ratios SYSCOHADA (BFR, FR, Z-Score Altman)\n- Calculer TVA, IRPP, IS, cotisations CNSS\n- Analyser bilans et comptes de resultat\n- Detecter anomalies et fraudes (loi de Benford)\n- Repondre sur OHADA, AUDCIF, SYSCOHADA\n\nPosez-moi votre question ou choisissez un sujet ci-dessous.",
+        content: "Bonjour. Je suis **Proph3t**, l'assistant IA souverain de toute la suite Atlas Studio.\n\nJe couvre bien plus que la finance :\n- Finance & comptabilite SYSCOHADA (ratios BFR, FR, Z-Score, bilans, etats)\n- Fiscalite OHADA (TVA, IRPP, IS, CNSS, liasse fiscale)\n- RH, paie, notes de frais et missions\n- Tresorerie et previsions de flux\n- Audit bancaire et detection d'anomalies (loi de Benford)\n- Gestion documentaire, signature et workflows\n- Restauration (menus, stocks, encaissement)\n\nPosez-moi votre question ou choisissez un sujet ci-dessous.",
         created_at: new Date().toISOString(),
       }]);
     }
@@ -118,10 +120,10 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
               <Sparkles size={18} className="text-onyx" />
             </span>
             <span className="font-logo text-gold text-3xl">Proph3t</span>
-            <span className="text-neutral-400 text-sm font-normal">— votre conseiller financier IA</span>
+            <span className="text-neutral-400 text-sm font-normal">— l'IA souveraine de toute la suite Atlas Studio</span>
           </h1>
           <p className="text-neutral-500 text-[13px] mt-1">
-            Questions OHADA · Calculs SYSCOHADA · Analyse de documents · Fiscalite UEMOA/CEMAC
+            Finance & SYSCOHADA · Fiscalite OHADA · RH & paie · Tresorerie · Audit bancaire · Documents · Restauration
           </p>
         </div>
       </div>

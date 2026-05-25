@@ -5,6 +5,7 @@ import { PaymentMethodSelector } from "../../components/ui/PaymentMethodSelector
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
 import { createCheckoutSession } from "../../lib/payments";
+import { planEntries } from "../../lib/utils";
 import type { AppRow } from "../../lib/database.types";
 
 interface CatalogPageProps {
@@ -89,7 +90,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
 
             <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-3">Choisir un plan</div>
             <div className="flex gap-3 mb-6">
-              {Object.entries(selectedApp.pricing as Record<string, number>).map(([planName, price]) => (
+              {planEntries(selectedApp.pricing as Record<string, number>).map(([planName, price]) => (
                 <div
                   key={planName}
                   onClick={() => setSelectedPlan(planName)}
@@ -137,7 +138,7 @@ export function CatalogPage({ userId }: CatalogPageProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {availableApps.map(app => {
-          const prices = Object.values(app.pricing as Record<string, number>);
+          const prices = planEntries(app.pricing as Record<string, number>).map(([, v]) => v);
           const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
           return (
             <div
