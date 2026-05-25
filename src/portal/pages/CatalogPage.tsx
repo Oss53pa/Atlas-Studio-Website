@@ -103,6 +103,9 @@ export function CatalogPage({ userId }: CatalogPageProps) {
                   <div className="text-neutral-muted text-xs font-medium">{planName}</div>
                   <div className="text-gold text-2xl font-extrabold my-1">{formatPrice(price)}</div>
                   <div className="text-neutral-placeholder text-[11px]">{getCurrency(selectedApp)}/{selectedApp.pricing_period || "mois"}</div>
+                  {(selectedApp as any).pricing_notes?.[planName] && (
+                    <div className="text-neutral-placeholder text-[10px] mt-1 leading-tight">{(selectedApp as any).pricing_notes[planName]}</div>
+                  )}
                 </div>
               ))}
             </div>

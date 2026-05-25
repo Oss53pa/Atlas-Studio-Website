@@ -85,6 +85,9 @@ function AppPricingSection({ app }: { app: AppItem }) {
                     </>
                   )}
                 </div>
+                {app.pricingNotes?.[plan] && (
+                  <p className="text-neutral-muted text-xs font-light mt-2">{app.pricingNotes[plan]}</p>
+                )}
               </div>
               <div className="flex-1 mb-7 space-y-3">
                 {app.features.map((feature, fi) => {
