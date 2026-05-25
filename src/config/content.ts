@@ -56,7 +56,7 @@ export interface SiteContent {
 export const DEFAULT_CONTENT: SiteContent = {
   hero: {
     title: "Vos outils de gestion vous ralentissent. On change ça.",
-    subtitle: "Comptabilité SYSCOHADA, liasse fiscale, signature électronique — des apps SaaS prêtes à emploi, pensées pour les entreprises africaines. Déjà adoptées par 500+ entreprises dans 10 pays.",
+    subtitle: "Comptabilité SYSCOHADA, liasse fiscale, signature électronique : des apps SaaS prêtes à l'emploi, pensées pour les entreprises africaines. Déjà adoptées par 500+ entreprises dans 10 pays.",
     cta1: "Créer un compte",
     cta2: "Découvrir les apps",
   },
@@ -75,10 +75,10 @@ export const DEFAULT_CONTENT: SiteContent = {
     "17 pays OHADA",
   ],
   steps: [
-    { num: "01 — Compte", title: "Créez votre workspace", desc: "Inscription en 2 minutes. Votre espace entreprise est créé automatiquement avec vos informations." },
-    { num: "02 — Activation", title: "Activez vos applications", desc: "Choisissez les apps dont vous avez besoin. Commencez gratuitement, upgradez à tout moment." },
-    { num: "03 — Équipe", title: "Invitez vos collaborateurs", desc: "Ajoutez votre équipe avec des rôles précis. Chacun accède à ses modules depuis le même workspace." },
-    { num: "04 — Intelligence", title: "Proph3t prend le relai", desc: "Le moteur IA analyse vos données, détecte les anomalies et génère des prévisions en continu." },
+    { num: "01 · Compte", title: "Créez votre workspace", desc: "Inscription en 2 minutes. Votre espace entreprise est créé automatiquement avec vos informations." },
+    { num: "02 · Activation", title: "Activez vos applications", desc: "Choisissez les apps dont vous avez besoin. Commencez gratuitement, montez en gamme quand vous voulez." },
+    { num: "03 · Équipe", title: "Invitez vos collaborateurs", desc: "Ajoutez votre équipe avec des rôles précis. Chacun accède à ses modules depuis le même workspace." },
+    { num: "04 · Intelligence", title: "Proph3t prend le relais", desc: "Le moteur IA analyse vos données, repère les anomalies et génère des prévisions en continu." },
   ],
   apps: [
     // ── MODULE ERP ───────────────────────────────────────────
@@ -92,14 +92,14 @@ export const DEFAULT_CONTENT: SiteContent = {
     { id: "atlasbanx", name: "AtlasBanx", type: "App", tagline: "Audit bancaire intelligent CEMAC / UEMOA", desc: "AtlasBanx détecte automatiquement les anomalies dans vos relevés bancaires : frais dupliqués, ghost fees, surfacturations, erreurs d'intérêts, agios abusifs. 18 algorithmes statistiques (Z-Score, Benford, Isolation Forest, Frequency Patterns) couplés à un moteur IA (Claude / Ollama local) classifient et expliquent chaque anomalie avec un score de confiance. Génération de rapports SYSCOHADA prêts à signer, branding cabinet complet, module facturation OHADA. Sécurité banking-grade : MFA TOTP, allowlist IP, audit trail SHA-256 chaîné. Conçu pour les experts-comptables et directions financières en zone CEMAC / UEMOA.", features: ["18 détecteurs d'anomalies (statistiques + IA)", "Z-Score, Benford Law, Isolation Forest, Frequency Patterns", "IA Claude + Ollama local (zéro fuite de données)", "Score de risque global 0-100 par client", "Score de confiance par anomalie", "Multi-banques CEMAC / UEMOA (47 banques pré-paramétrées)", "Import CSV, Excel, PDF, OFX", "Mapping intelligent des colonnes", "Conditions tarifaires versionnées par banque", "Rapports SYSCOHADA prêts à signer", "Branding cabinet (logo, couleurs, footer, page de garde) (Cabinet)", "Export PDF, Excel, Word avec watermark", "Certificat d'intégrité SHA-256", "Audit trail immuable (hash chaîné)", "MFA TOTP (Google Authenticator, 1Password, Authy)", "Allowlist d'adresses IP", "Throttling de connexion", "Suppression de données RGPD-compliant", "Multi-utilisateurs avec rôles RBAC (5 sièges Entreprise / illimité Cabinet)", "Module facturation OHADA intégré (Cabinet)", "IA Claude Sonnet avancée (Cabinet)", "Account Manager dédié (Cabinet)", "Support email 24h (Entreprise)", "Support prioritaire 4h (Cabinet)", "Formation et onboarding cabinet (Cabinet)", "14 jours d'essai gratuit"], categories: ["Finance", "Audit", "Banque", "Compliance"], pricing: { "Entreprise": 89000, "Cabinet": 249000 }, color: "#C9954A", icon: "landmark", highlights: ["18 détecteurs ML+IA", "47 banques CEMAC/UEMOA", "Audit trail SHA-256"], external_url: "https://atlasbanx.atlas-studio.org" },
   ],
   about: {
-    p1: "Atlas Studio développe des applications SaaS qui simplifient le quotidien des professionnels. Notre conviction : les entreprises africaines méritent des outils digitaux aussi performants que ceux disponibles partout dans le monde — mais adaptés à leurs réalités.",
-    p2: "Née de plus de 20 ans d'expérience opérationnelle à travers 10 pays africains, notre suite répond aux vrais problèmes du terrain : suivi de projets approximatif, documents qui se perdent, décisions sans données.",
-    p3: "Nos apps sont simples, rapides et fonctionnent partout — même avec une connexion limitée.",
+    p1: "Atlas Studio développe des applications SaaS qui simplifient le quotidien des professionnels. Notre conviction : les entreprises africaines méritent des outils aussi performants que partout ailleurs dans le monde, mais pensés pour leurs réalités.",
+    p2: "Née de plus de 20 ans d'expérience opérationnelle à travers 10 pays africains, notre suite répond aux vrais problèmes du terrain : suivi de projets approximatif, documents qui se perdent, décisions prises sans données.",
+    p3: "Nos apps sont simples, rapides, et tiennent la route partout, même quand la connexion faiblit.",
     values: [
       { title: "Pas besoin de DSI", desc: "Prêt à l'emploi. Créez un compte, choisissez une app, c'est parti." },
       { title: "Normes locales", desc: "Conformité OHADA, SYSCOHADA, formats et usages africains." },
-      { title: "Évolutif", desc: "Du freelance à la multinationale — nos plans s'adaptent." },
-      { title: "Support réactif", desc: "Équipe basée en Afrique, qui comprend vos défis." },
+      { title: "Évolutif", desc: "Du freelance à la multinationale, nos plans grandissent avec vous." },
+      { title: "Support réactif", desc: "Une équipe basée en Afrique, qui comprend vos défis." },
     ],
   },
   sectors: [

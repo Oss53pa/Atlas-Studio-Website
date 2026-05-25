@@ -31,10 +31,10 @@ export function AboutHero() {
               mais d'outils qui n'ont jamais été pensés pour vous.
             </p>
             <p className="text-[15px] md:text-base text-neutral-muted font-light leading-relaxed">
-              Atlas Studio est née sur le terrain, après plus de vingt ans dans le pétrole,
-              la mine et le retail, à travers dix pays africains. Les logiciels du marché ne
-              sont pas mauvais. Ils ignorent simplement vos réalités : SYSCOHADA, Mobile
-              Money, réseau capricieux, fiscalité qui change à chaque frontière.
+              Atlas Studio est née sur le terrain, après plus de vingt ans dans les secteurs
+              pétroliers, miniers et retail, à travers dix pays africains. Les logiciels du
+              marché ne sont pas mauvais. Ils ignorent simplement vos réalités : SYSCOHADA,
+              Mobile Money, réseau capricieux, fiscalité qui change à chaque frontière.
             </p>
             <p className="text-[15px] md:text-base text-neutral-light font-medium leading-relaxed">
               Alors nous avons bâti la suite que nous cherchions sans jamais la trouver.
