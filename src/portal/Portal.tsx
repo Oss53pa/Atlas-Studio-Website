@@ -22,7 +22,10 @@ const LaunchPage = lazy(() => import("./pages/LaunchPage"));
 
 function PortalDashboard() {
   const { user, profile, signOut, loading } = useAuth();
-  const [page, setPage] = useState("apps");
+  const location = useLocation();
+  const [page, setPage] = useState(
+    new URLSearchParams(location.search).get("bundle") ? "catalog" : "apps",
+  );
 
   // Double guard — never render dashboard without user AND profile
   if (!user || !profile || loading) return null;

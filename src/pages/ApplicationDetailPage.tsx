@@ -340,6 +340,9 @@ export default function ApplicationDetailPage() {
                           </>
                         )}
                       </div>
+                      {(app as any).pricingNotes?.[plan] && (
+                        <p className="text-neutral-muted text-xs font-light mt-2">{(app as any).pricingNotes[plan]}</p>
+                      )}
                     </div>
 
                     <div className="flex-1 mb-7">

@@ -107,6 +107,9 @@ export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
                     </>
                   )}
                 </div>
+                {app.pricingNotes?.[planName] && (
+                  <div className="text-neutral-muted/80 text-[11px] font-light mt-0.5">{app.pricingNotes[planName]}</div>
+                )}
               </div>
             ))}
           </div>
