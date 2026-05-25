@@ -6,7 +6,7 @@ import {
   CreditCard, Megaphone, Layers, Search, Brain, Activity, Sun, Moon, Menu, Flag, Bell, Tag, Rocket, BookOpen, KeyRound, Settings, ShieldCheck, Send, ListChecks, Database, AlertTriangle,
   Crown, Home, Package, Wrench, PanelLeftClose, PanelLeftOpen,
   Bot, Inbox, ScrollText, Power, SlidersHorizontal, LifeBuoy, UserCheck, Calendar, Target, Wallet,
-  Workflow, Shield, Plug, History, CheckSquare, Files,
+  Workflow, Shield, Plug, History, CheckSquare, Files, Globe2,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -46,6 +46,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/plans", icon: Layers, label: "Plans & Tarifs" },
       { to: "/admin/promo-codes", icon: Tag, label: "Codes Promo" },
       { to: "/admin/landing-pages", icon: FileText, label: "Landing Pages" },
+      { to: "/admin/ohada", icon: Globe2, label: "Référentiel OHADA" },
     ],
   },
   {
