@@ -127,7 +127,7 @@ export const blogPosts: BlogPost[] = [
     title: "L'IA au service de la comptabilité africaine",
     excerpt:
       "Comment l'intelligence artificielle Proph3t transforme la saisie comptable, la détection d'anomalies et la prévision financière.",
-    cover: "https://images.unsplash.com/photo-1528901166007-3784c7dd3653?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    cover: "https://plus.unsplash.com/premium_photo-1683121710572-7723bd2e235d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Digital",
     date: "4 mars 2026",
     readTime: "7 min",
