@@ -72,14 +72,19 @@ export default function HomePage() {
             <div className="absolute top-0 left-0 right-0 h-px"
               style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.3) 50%, transparent 100%)" }}
             />
-            {(content.stats || []).map((s, i) => (
-              <div
-                key={i}
-                className={`flex-1 px-6 ${i < (content.stats || []).length - 1 ? "border-r border-white/[0.06]" : ""}`}
-              >
-                <StatCounter value={s.value} label={s.label} />
-              </div>
-            ))}
+            {(content.stats || []).map((s, i) => {
+              // Le nombre de produits suit le catalogue réel (évite toute valeur figée obsolète).
+              const productCount = content.apps?.length ?? 0;
+              const value = /produit/i.test(s.label) && productCount > 0 ? String(productCount) : s.value;
+              return (
+                <div
+                  key={i}
+                  className={`flex-1 px-6 ${i < (content.stats || []).length - 1 ? "border-r border-white/[0.06]" : ""}`}
+                >
+                  <StatCounter value={value} label={s.label} />
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

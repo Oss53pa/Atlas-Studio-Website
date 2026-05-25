@@ -63,7 +63,7 @@ export const DEFAULT_CONTENT: SiteContent = {
   stats: [
     { value: "500+", label: "entreprises clientes" },
     { value: "10+", label: "pays couverts" },
-    { value: "5", label: "produits" },
+    { value: "7", label: "produits" },
     { value: "99.9%", label: "disponibilité" },
   ],
   trustBar: [
