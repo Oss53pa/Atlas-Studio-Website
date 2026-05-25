@@ -1,5 +1,4 @@
 import { ScrollReveal } from "../ui/ScrollReveal";
-import { SectionLabel } from "../shared/SectionLabel";
 import { StyledText } from "../ui/StyledText";
 
 interface Differentiator {
@@ -11,35 +10,33 @@ interface Differentiator {
 const ITEMS: Differentiator[] = [
   {
     num: "01",
-    title: "Votre rapport de direction est prêt en 20 minutes — sans ouvrir Excel",
+    title: "Votre rapport de direction prêt en 20 minutes, sans ouvrir Excel",
     desc:
-      "Atlas Finance intègre un éditeur de rapports complet. Tableaux de bord, graphiques, KPIs, commentaires éditoriaux — tout est connecté en temps réel aux données. Vous composez votre rapport directement dans le logiciel, vous l'envoyez pour validation, vous l'archivez. Aucun outil externe.",
+      "Atlas Finance embarque un véritable éditeur de rapports. Tableaux de bord, graphiques, KPIs, commentaires : tout reste relié à vos données en temps réel. Vous composez, vous envoyez en validation, vous archivez. Sans jamais quitter le logiciel.",
   },
   {
     num: "02",
-    title: "La balance de votre comptabilité alimente la liasse fiscale automatiquement",
+    title: "Votre balance comptable remplit la liasse fiscale toute seule",
     desc:
-      "Atlas Finance génère vos états financiers SYSCOHADA (Bilan, Compte de Résultat, TFT, TAFIRE). Cette balance est déversée automatiquement dans LiassPilot — qui produit la liasse fiscale complète (84 onglets, 129 contrôles de cohérence) sans aucune manipulation intermédiaire. Ce pont n'existe nulle part ailleurs en zone OHADA.",
+      "Atlas Finance produit vos états SYSCOHADA (Bilan, Compte de Résultat, TFT, TAFIRE). La balance file directement dans LiassPilot, qui génère la liasse complète (84 onglets, 129 contrôles de cohérence) sans la moindre manipulation. Ce pont n'existe nulle part ailleurs en zone OHADA.",
   },
   {
     num: "03",
-    title:
-      "Un contrat part en validation et revient signé sans que personne n'installe quoi que ce soit",
+    title: "Un contrat part en validation et revient signé, sans rien installer",
     desc:
-      "ADVIST — Approbation Documentaire, Validation, Intégrité, Sécurité, Traçabilité — envoie votre document à chaque intervenant via un lien sécurisé. Chacun annote, approuve, signe depuis son navigateur. Le Document Owner suit l'avancement en temps réel. Un compte rendu de validation est généré automatiquement à la clôture du circuit.",
+      "ADVIST envoie votre document à chaque intervenant via un lien sécurisé. Chacun annote, approuve et signe depuis son navigateur. Vous suivez l'avancement en direct, et le compte rendu de validation se génère tout seul à la clôture du circuit.",
   },
   {
     num: "04",
-    title: "Votre IA connaît votre entreprise — et ne partage rien avec personne",
+    title: "Une IA qui connaît votre entreprise et ne parle à personne",
     desc:
-      "Proph3t, notre moteur IA, tourne en local sur votre infrastructure via Ollama. Il connaît vos données en temps réel, connaît SYSCOHADA et la fiscalité de votre pays. Vos données financières ne transitent pas par des serveurs tiers. Le cloud reste une option — jamais une obligation.",
+      "Proph3t, notre moteur d'IA, tourne en local sur votre infrastructure via Ollama. Il connaît vos données en temps réel, maîtrise SYSCOHADA et la fiscalité de votre pays. Vos chiffres ne quittent jamais vos murs. Le cloud reste possible, jamais imposé.",
   },
   {
     num: "05",
-    title:
-      "Vous gérez des entités dans plusieurs pays sans jongler entre plusieurs logiciels",
+    title: "Toutes vos entités, plusieurs pays, un seul compte",
     desc:
-      "Un seul compte Atlas Studio pour toutes vos entités — Côte d'Ivoire, Sénégal, Cameroun — avec les paramètres fiscaux et comptables de chaque pays configurés nativement. 17 pays OHADA couverts.",
+      "Un seul Atlas Studio pour la Côte d'Ivoire, le Sénégal, le Cameroun et le reste. Chaque pays arrive avec ses paramètres fiscaux et comptables déjà configurés. 17 pays OHADA couverts.",
   },
 ];
 
@@ -49,14 +46,13 @@ export function DifferentiatorsList() {
       <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
-          <SectionLabel>Nos produits en pratique</SectionLabel>
           <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-4 max-w-3xl">
             Ce que vous pouvez faire avec{" "}
             <span className="font-logo text-gradient-champagne">Atlas Studio</span>
           </h2>
           <p className="text-neutral-muted text-[15px] md:text-base font-light max-w-2xl leading-relaxed mb-14">
-            Cinq choses concrètes que vos outils actuels ne permettent pas — et que nous
-            rendons évidentes.
+            Cinq choses que vos outils actuels rendent impossibles. Chez nous, elles vont
+            de soi.
           </p>
         </ScrollReveal>
 
