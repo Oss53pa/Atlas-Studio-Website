@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useContentContext } from "../components/layout/Layout";
 import { useApps } from "../hooks/useApps";
+import { planEntries } from "../lib/utils";
 import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { AppMockup } from "../components/ui/AppMockup";
@@ -74,7 +75,7 @@ export default function ApplicationDetailPage() {
     );
   }
 
-  const pricingEntries = Object.entries(app.pricing);
+  const pricingEntries = planEntries(app.pricing);
   const status = appWithStatus?.status || "available";
   const isAvailable = status === "available";
   const appColor = app.color || "#A9B57E";
