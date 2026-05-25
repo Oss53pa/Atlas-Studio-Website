@@ -158,7 +158,7 @@ export const blogPosts: BlogPost[] = [
     title: "5 erreurs de gestion de trésorerie qui coûtent cher aux PME",
     excerpt:
       "Découvrez les erreurs les plus courantes en gestion de trésorerie et comment les éviter grâce à des outils adaptés.",
-    cover: "https://plus.unsplash.com/premium_photo-1707155465391-5cfc46746a34?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    cover: "https://images.unsplash.com/photo-1681826292838-c37fbd22263a?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Gestion",
     date: "24 février 2026",
     readTime: "4 min",
