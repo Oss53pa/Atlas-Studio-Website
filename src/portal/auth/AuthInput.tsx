@@ -51,10 +51,10 @@ export function AuthInput({
           placeholder={placeholder}
           autoComplete={autoComplete}
           inputMode={inputMode}
-          className={`w-full px-4 py-3 bg-ink-200 border rounded-lg text-neutral-light text-sm outline-none transition-all duration-200 placeholder:text-neutral-muted/50 ${
+          className={`w-full px-4 py-3.5 bg-[#141417] border rounded-xl text-neutral-light text-sm outline-none transition-all duration-200 placeholder:text-neutral-muted/50 shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] ${
             error
-              ? "border-rose-500/60 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/15"
-              : "border-white/[0.08] focus:border-gold/55 focus:ring-2 focus:ring-gold/12"
+              ? "border-rose-500/60 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+              : "border-white/[0.07] focus:border-gold/55 focus:ring-2 focus:ring-gold/30"
           } ${isPassword ? "pr-11" : ""}`}
         />
         {isPassword && (

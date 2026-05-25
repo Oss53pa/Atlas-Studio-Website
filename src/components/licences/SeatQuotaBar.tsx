@@ -10,11 +10,11 @@ export function SeatQuotaBar({ used, max }: Props) {
     <div className="flex items-center gap-3">
       <div
         className="flex-1 h-2 rounded-full overflow-hidden"
-        style={{ background: "#2A2A3A" }}
+        style={{ background: "#2a2a30" }}
       >
         <div
           className="h-full rounded-full transition-all duration-300"
-          style={{ width: `${pct}%`, background: "#EF9F27" }}
+          style={{ width: `${pct}%`, background: "#A9B57E" }}
         />
       </div>
       <span

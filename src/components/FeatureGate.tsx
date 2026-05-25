@@ -73,7 +73,7 @@ export function FeatureGate({
     <div
       style={{
         background: "#FFF8EB",
-        border: "1px solid #EF9F27",
+        border: "1px solid #A9B57E",
         borderRadius: 8,
         padding: "14px 20px",
         display: "flex",
@@ -99,7 +99,7 @@ export function FeatureGate({
       </div>
       <button
         style={{
-          background: "#EF9F27",
+          background: "#A9B57E",
           color: "#FFFFFF",
           border: "none",
           borderRadius: 6,

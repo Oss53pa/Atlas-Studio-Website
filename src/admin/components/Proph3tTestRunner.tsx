@@ -45,10 +45,10 @@ export function Proph3tTestRunner({ open, onClose }: { open: boolean; onClose: (
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white dark:bg-admin-surface rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col"
+      <div className="bg-white dark:bg-admin-surface rounded-3xl shadow-2xl dark:shadow-elev-5 border border-warm-border dark:border-white/5 max-w-3xl w-full max-h-[85vh] flex flex-col"
         onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border dark:border-admin-surface-alt">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border dark:border-white/5">
           <div>
             <h2 className="text-neutral-text dark:text-admin-text text-lg font-bold">
               Suite de tests <span className="font-logo text-gold dark:text-admin-accent">Proph3t</span>
@@ -72,7 +72,7 @@ export function Proph3tTestRunner({ open, onClose }: { open: boolean; onClose: (
                 Cela va appeler <code className="bg-warm-bg dark:bg-admin-surface-alt px-1.5 py-0.5 rounded">proph3t-test</code> en mode admin.
               </p>
               <button onClick={runTests}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold dark:bg-admin-accent text-black font-semibold rounded-lg hover:bg-gold-dark transition-colors">
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gold dark:bg-admin-accent text-black font-semibold rounded-full shadow-sm dark:shadow-gold hover:bg-gold-dark dark:hover:shadow-gold-glow transition-all duration-300">
                 <Play size={14} /> Lancer les tests
               </button>
             </div>
@@ -87,10 +87,10 @@ export function Proph3tTestRunner({ open, onClose }: { open: boolean; onClose: (
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-5">
-              <div className="text-red-700 text-sm font-semibold mb-1">Echec du test runner</div>
-              <p className="text-red-600 text-[12px]">{error}</p>
-              <button onClick={runTests} className="mt-3 text-red-700 text-[12px] underline">Reessayer</button>
+            <div className="bg-red-50 dark:bg-admin-error/10 border border-red-200 dark:border-admin-error/25 rounded-2xl p-5">
+              <div className="text-red-700 dark:text-red-300 text-sm font-semibold mb-1">Echec du test runner</div>
+              <p className="text-red-600 dark:text-red-400/80 text-[12px]">{error}</p>
+              <button onClick={runTests} className="mt-3 text-red-700 dark:text-red-300 text-[12px] underline">Reessayer</button>
             </div>
           )}
 
@@ -98,24 +98,24 @@ export function Proph3tTestRunner({ open, onClose }: { open: boolean; onClose: (
             <div className="space-y-4">
               {/* Summary */}
               <div className="grid grid-cols-4 gap-3">
-                <div className="bg-warm-bg dark:bg-admin-surface-alt rounded-xl p-4 text-center">
+                <div className="bg-warm-bg dark:bg-admin-surface-alt/60 border border-warm-border/60 dark:border-white/5 rounded-2xl p-4 text-center shadow-sm dark:shadow-premium">
                   <div className="text-3xl font-bold text-neutral-text dark:text-admin-text">{report.summary.total}</div>
                   <div className="text-[11px] text-neutral-muted dark:text-admin-muted uppercase tracking-wider">Tests</div>
                 </div>
-                <div className="bg-emerald-50 rounded-xl p-4 text-center">
-                  <div className="text-3xl font-bold text-emerald-600">{report.summary.passed}</div>
-                  <div className="text-[11px] text-emerald-700 uppercase tracking-wider">Reussis</div>
+                <div className="bg-emerald-50 dark:bg-admin-success/15 border border-emerald-100 dark:border-admin-success/25 rounded-2xl p-4 text-center shadow-sm dark:shadow-premium">
+                  <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-300">{report.summary.passed}</div>
+                  <div className="text-[11px] text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Reussis</div>
                 </div>
-                <div className={`${report.summary.failed > 0 ? "bg-red-50" : "bg-warm-bg dark:bg-admin-surface-alt"} rounded-xl p-4 text-center`}>
-                  <div className={`text-3xl font-bold ${report.summary.failed > 0 ? "text-red-600" : "text-neutral-muted dark:text-admin-muted"}`}>
+                <div className={`${report.summary.failed > 0 ? "bg-red-50 dark:bg-admin-error/15 border-red-100 dark:border-admin-error/25" : "bg-warm-bg dark:bg-admin-surface-alt/60 border-warm-border/60 dark:border-white/5"} border rounded-2xl p-4 text-center shadow-sm dark:shadow-premium`}>
+                  <div className={`text-3xl font-bold ${report.summary.failed > 0 ? "text-red-600 dark:text-red-300" : "text-neutral-muted dark:text-admin-muted"}`}>
                     {report.summary.failed}
                   </div>
-                  <div className={`text-[11px] uppercase tracking-wider ${report.summary.failed > 0 ? "text-red-700" : "text-neutral-muted dark:text-admin-muted"}`}>
+                  <div className={`text-[11px] uppercase tracking-wider ${report.summary.failed > 0 ? "text-red-700 dark:text-red-400" : "text-neutral-muted dark:text-admin-muted"}`}>
                     Echoues
                   </div>
                 </div>
-                <div className={`${report.summary.success_rate >= 90 ? "bg-emerald-50" : report.summary.success_rate >= 70 ? "bg-amber-50" : "bg-red-50"} rounded-xl p-4 text-center`}>
-                  <div className={`text-3xl font-bold ${report.summary.success_rate >= 90 ? "text-emerald-600" : report.summary.success_rate >= 70 ? "text-amber-600" : "text-red-600"}`}>
+                <div className={`${report.summary.success_rate >= 90 ? "bg-emerald-50 dark:bg-admin-success/15 border-emerald-100 dark:border-admin-success/25" : report.summary.success_rate >= 70 ? "bg-amber-50 dark:bg-admin-warning/15 border-amber-100 dark:border-admin-warning/25" : "bg-red-50 dark:bg-admin-error/15 border-red-100 dark:border-admin-error/25"} border rounded-2xl p-4 text-center shadow-sm dark:shadow-premium`}>
+                  <div className={`text-3xl font-bold ${report.summary.success_rate >= 90 ? "text-emerald-600 dark:text-emerald-300" : report.summary.success_rate >= 70 ? "text-amber-600 dark:text-amber-300" : "text-red-600 dark:text-red-300"}`}>
                     {report.summary.success_rate}%
                   </div>
                   <div className="text-[11px] uppercase tracking-wider text-neutral-muted dark:text-admin-muted">Taux</div>
@@ -135,7 +135,7 @@ export function Proph3tTestRunner({ open, onClose }: { open: boolean; onClose: (
                   const catResults = report.results.filter(r => r.category === cat);
                   const allOk = stats.failed === 0;
                   return (
-                    <div key={cat} className="border border-warm-border dark:border-admin-surface-alt rounded-xl overflow-hidden">
+                    <div key={cat} className="border border-warm-border dark:border-white/5 rounded-2xl overflow-hidden shadow-sm dark:shadow-premium">
                       <button onClick={() => setExpandedCat(expanded ? null : cat)}
                         className="w-full px-4 py-3 flex items-center gap-3 hover:bg-warm-bg dark:hover:bg-admin-surface-alt transition-colors">
                         {expanded ? <ChevronDown size={14} className="text-neutral-muted dark:text-admin-muted" /> : <ChevronRight size={14} className="text-neutral-muted dark:text-admin-muted" />}

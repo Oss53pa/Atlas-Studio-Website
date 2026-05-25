@@ -54,10 +54,10 @@ export function PlanComparison({ productId, currentPlanId, onSelectPlan, billing
           const catMap = featuresByCategory(plan);
           return (
             <div key={plan.id} style={{
-              background: "#FFFFFF", border: isCurrent ? "2px solid #EF9F27" : "1px solid #E8E8E0",
+              background: "#FFFFFF", border: isCurrent ? "2px solid #A9B57E" : "1px solid #E8E8E0",
               borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", position: "relative",
             }}>
-              {isCurrent && <span style={badge("#EF9F27")}>Plan actuel</span>}
+              {isCurrent && <span style={badge("#A9B57E")}>Plan actuel</span>}
               {plan.is_popular && !isCurrent && <span style={badge("#1A1A1A")}>Populaire</span>}
 
               <h3 style={{ margin: "8px 0 4px", color: "#1A1A1A", fontSize: 18 }}>
@@ -93,7 +93,7 @@ export function PlanComparison({ productId, currentPlanId, onSelectPlan, billing
               <div style={{ marginTop: "auto", paddingTop: 16 }}>
                 <button onClick={() => onSelectPlan(plan.id)} disabled={isCurrent} style={{
                   width: "100%", padding: "10px 0", borderRadius: 8, border: "none", fontWeight: 600, fontSize: 14,
-                  cursor: isCurrent ? "default" : "pointer", background: isCurrent ? "#E8E8E0" : "#EF9F27",
+                  cursor: isCurrent ? "default" : "pointer", background: isCurrent ? "#E8E8E0" : "#A9B57E",
                   color: isCurrent ? "#888" : "#FFFFFF", transition: "opacity 0.2s",
                 }}>
                   {isCurrent ? "Plan actuel" : "Choisir"}

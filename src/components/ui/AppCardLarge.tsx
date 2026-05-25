@@ -25,7 +25,7 @@ export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
   const prices = Object.entries(app.pricing);
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === "coming_soon";
-  const appColor = app.color || "#10B981";
+  const appColor = app.color || "#A9B57E";
   const highlights = app.highlights || [];
 
   const previewFeatures = app.features.slice(0, 6);

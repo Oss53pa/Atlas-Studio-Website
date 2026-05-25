@@ -105,7 +105,7 @@ function SectionRenderer({ section }: { section: TermsSection }) {
   return (
     <section id={section.id} className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-6 md:p-8 mb-4 scroll-mt-28 overflow-hidden">
       <div className="absolute -top-px left-[8%] right-[8%] h-px"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
       />
       <div className="flex items-baseline gap-3 mb-5 pb-4 border-b border-white/[0.06]">
         <span className="text-gradient-gold text-2xl font-bold font-mono tracking-tight">{section.number}</span>
@@ -183,7 +183,7 @@ export default function TermsPage() {
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto overflow-hidden">
               <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
               />
               <h3 className="text-gold text-[11px] font-semibold uppercase tracking-[0.16em] mb-4 px-2">
                 Sommaire
@@ -224,7 +224,7 @@ export default function TermsPage() {
             {/* Footer */}
             <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-7 mt-4 text-center overflow-hidden">
               <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%)" }}
+                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
               />
               <p className="text-neutral-muted text-[12px] leading-relaxed font-light">
                 Pour toute question relative aux presentes CGU, contactez-nous a{" "}

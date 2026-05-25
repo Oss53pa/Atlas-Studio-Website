@@ -28,7 +28,7 @@ export function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
             Accès restreint
           </h2>
           <p className="text-white/50 dark:text-admin-muted text-sm leading-relaxed">
-            Cette section est réservée au <strong className="text-[#EF9F27]">Super Admin</strong>.
+            Cette section est réservée au <strong className="text-[#A9B57E]">Super Admin</strong>.
             Seule Pamela peut gérer les administrateurs et leurs accès.
           </p>
           <p className="text-white/30 dark:text-admin-muted/60 text-[11px] mt-4">

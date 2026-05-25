@@ -38,11 +38,11 @@ export function CredibilitySection() {
         <ScrollReveal delay={100}>
           <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 md:p-14 overflow-hidden shadow-premium-lg">
             <div className="absolute -top-px left-[8%] right-[8%] h-px"
-              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.6) 50%, transparent 100%)" }}
+              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.6) 50%, transparent 100%)" }}
             />
             <div className="absolute -top-1/2 left-1/2 -translate-x-1/2 w-[100%] h-[80%] pointer-events-none opacity-50"
               style={{
-                background: "radial-gradient(ellipse 30% 50% at 50% 50%, rgba(16,185,129,0.08) 0%, transparent 70%)",
+                background: "radial-gradient(ellipse 30% 50% at 50% 50%, rgba(169,181,126,0.08) 0%, transparent 70%)",
                 filter: "blur(40px)",
               }}
             />

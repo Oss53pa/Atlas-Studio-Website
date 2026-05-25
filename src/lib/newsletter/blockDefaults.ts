@@ -1,16 +1,16 @@
 import { nanoid } from 'nanoid'
 import type { BlockType, EmailBlock } from '../../types/newsletter'
 
-export function createDefaultBlock(type: BlockType, accentColor = '#EF9F27'): EmailBlock {
+export function createDefaultBlock(type: BlockType, accentColor = '#A9B57E'): EmailBlock {
   const id = nanoid(8)
   const defaults: Record<BlockType, EmailBlock> = {
-    header: { type: 'header', id, props: { title: 'Titre de votre email', subtitle: 'Sous-titre', bg: '#0A0A0A', titleColor: accentColor, subtitleColor: '#888888' } },
+    header: { type: 'header', id, props: { title: 'Titre de votre email', subtitle: 'Sous-titre', bg: '#131316', titleColor: accentColor, subtitleColor: '#888888' } },
     text: { type: 'text', id, props: { content: 'Bonjour {{prénom}},\n\nVotre texte ici.', fontSize: 14, color: '#333333', align: 'left', padding: '20px 32px' } },
     image: { type: 'image', id, props: { src: '', alt: '', width: '100%', align: 'center', borderRadius: 8 } },
     button: { type: 'button', id, props: { text: 'Accéder à mon espace →', url: 'https://app.atlasstudio.africa', color: accentColor, textColor: '#000000', align: 'center', borderRadius: 8, padding: '12px 32px', fullWidth: false } },
     divider: { type: 'divider', id, props: { color: '#EEEEEE', thickness: 1, style: 'solid', margin: '10px 32px' } },
     cols2: { type: 'cols2', id, props: { left: { title: 'Fonctionnalité A', text: 'Description de la nouveauté.', iconEmoji: '✨' }, right: { title: 'Fonctionnalité B', text: 'Description de la nouveauté.', iconEmoji: '🚀' }, bg: '#F9F9F9', gap: 16 } },
-    featured: { type: 'featured', id, props: { badge: 'NOUVEAU', title: 'Nom du produit', subtitle: 'Description courte', ctaText: 'Découvrir →', ctaUrl: '', bg: '#0A0A0A', accentColor } },
+    featured: { type: 'featured', id, props: { badge: 'NOUVEAU', title: 'Nom du produit', subtitle: 'Description courte', ctaText: 'Découvrir →', ctaUrl: '', bg: '#131316', accentColor } },
     footer: { type: 'footer', id, props: { companyName: 'Atlas Studio', address: 'Abidjan, Côte d\'Ivoire', unsubscribeText: 'Se désabonner', color: '#999999', showSocial: false, socialLinks: [] } },
   }
   return defaults[type]

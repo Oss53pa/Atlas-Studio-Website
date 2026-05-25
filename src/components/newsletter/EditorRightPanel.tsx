@@ -8,14 +8,14 @@ interface Props {
 
 export function EditorRightPanel({ block, onUpdate }: Props) {
   if (!block) return (
-    <div className="w-72 bg-[#1E1E2E] border-l border-[#2A2A3A] flex items-center justify-center">
+    <div className="w-72 bg-[#1c1c20] border-l border-[#2a2a30] flex items-center justify-center">
       <p className="text-[#888] text-xs text-center px-6">Sélectionnez un bloc pour modifier ses propriétés</p>
     </div>
   )
 
   return (
-    <div className="w-72 bg-[#1E1E2E] border-l border-[#2A2A3A] overflow-y-auto">
-      <div className="p-4 border-b border-[#2A2A3A]">
+    <div className="w-72 bg-[#1c1c20] border-l border-[#2a2a30] overflow-y-auto">
+      <div className="p-4 border-b border-[#2a2a30]">
         <h3 className="text-xs font-medium text-[#F5F5F5] uppercase tracking-wider">Propriétés</h3>
       </div>
       <div className="p-4 space-y-4">
@@ -48,7 +48,7 @@ export function EditorRightPanel({ block, onUpdate }: Props) {
           <PropNumber label="Arrondi" value={block.props.borderRadius} onChange={v => onUpdate({ borderRadius: v })} min={0} max={50} />
           <AlignField value={block.props.align} onChange={v => onUpdate({ align: v })} />
           <div className="flex items-center gap-2">
-            <input type="checkbox" checked={block.props.fullWidth} onChange={e => onUpdate({ fullWidth: e.target.checked })} className="accent-[#EF9F27]" />
+            <input type="checkbox" checked={block.props.fullWidth} onChange={e => onUpdate({ fullWidth: e.target.checked })} className="accent-[#A9B57E]" />
             <span className="text-xs text-[#F5F5F5]">Pleine largeur</span>
           </div>
         </>)}
@@ -58,11 +58,11 @@ export function EditorRightPanel({ block, onUpdate }: Props) {
           <SelectField label="Style" value={block.props.style} options={['solid','dashed','dotted']} onChange={v => onUpdate({ style: v })} />
         </>)}
         {block.type === 'cols2' && (<>
-          <div className="text-[11px] text-[#EF9F27] font-medium mb-1">Colonne gauche</div>
+          <div className="text-[11px] text-[#A9B57E] font-medium mb-1">Colonne gauche</div>
           <PropField label="Titre" value={block.props.left.title} onChange={v => onUpdate({ left: { ...block.props.left, title: v } })} />
           <PropField label="Texte" value={block.props.left.text} onChange={v => onUpdate({ left: { ...block.props.left, text: v } })} />
           <PropField label="Emoji" value={block.props.left.iconEmoji || ''} onChange={v => onUpdate({ left: { ...block.props.left, iconEmoji: v } })} />
-          <div className="text-[11px] text-[#EF9F27] font-medium mb-1 mt-3">Colonne droite</div>
+          <div className="text-[11px] text-[#A9B57E] font-medium mb-1 mt-3">Colonne droite</div>
           <PropField label="Titre" value={block.props.right.title} onChange={v => onUpdate({ right: { ...block.props.right, title: v } })} />
           <PropField label="Texte" value={block.props.right.text} onChange={v => onUpdate({ right: { ...block.props.right, text: v } })} />
           <PropField label="Emoji" value={block.props.right.iconEmoji || ''} onChange={v => onUpdate({ right: { ...block.props.right, iconEmoji: v } })} />
@@ -92,7 +92,7 @@ function PropField({ label, value, onChange }: { label: string; value: string; o
   return (
     <div>
       <label className="text-[11px] text-[#888] mb-1 block">{label}</label>
-      <input value={value} onChange={e => onChange(e.target.value)} className="w-full px-2.5 py-1.5 bg-[#2A2A3A] border border-[#2A2A3A] rounded text-xs text-[#F5F5F5] focus:border-[#EF9F27] outline-none" />
+      <input value={value} onChange={e => onChange(e.target.value)} className="w-full px-2.5 py-1.5 bg-[#2a2a30] border border-[#2a2a30] rounded text-xs text-[#F5F5F5] focus:border-[#A9B57E] outline-none" />
     </div>
   )
 }
@@ -101,7 +101,7 @@ function PropTextarea({ label, value, onChange }: { label: string; value: string
   return (
     <div>
       <label className="text-[11px] text-[#888] mb-1 block">{label}</label>
-      <textarea value={value} onChange={e => onChange(e.target.value)} rows={5} className="w-full px-2.5 py-1.5 bg-[#2A2A3A] border border-[#2A2A3A] rounded text-xs text-[#F5F5F5] focus:border-[#EF9F27] outline-none resize-none" />
+      <textarea value={value} onChange={e => onChange(e.target.value)} rows={5} className="w-full px-2.5 py-1.5 bg-[#2a2a30] border border-[#2a2a30] rounded text-xs text-[#F5F5F5] focus:border-[#A9B57E] outline-none resize-none" />
     </div>
   )
 }
@@ -110,7 +110,7 @@ function PropNumber({ label, value, onChange, min, max }: { label: string; value
   return (
     <div>
       <label className="text-[11px] text-[#888] mb-1 block">{label}</label>
-      <input type="number" value={value} onChange={e => onChange(parseInt(e.target.value) || 0)} min={min} max={max} className="w-full px-2.5 py-1.5 bg-[#2A2A3A] border border-[#2A2A3A] rounded text-xs text-[#F5F5F5] focus:border-[#EF9F27] outline-none" />
+      <input type="number" value={value} onChange={e => onChange(parseInt(e.target.value) || 0)} min={min} max={max} className="w-full px-2.5 py-1.5 bg-[#2a2a30] border border-[#2a2a30] rounded text-xs text-[#F5F5F5] focus:border-[#A9B57E] outline-none" />
     </div>
   )
 }
@@ -121,7 +121,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
       <input type="color" value={value} onChange={e => onChange(e.target.value)} className="w-7 h-7 rounded cursor-pointer bg-transparent border-0" />
       <div className="flex-1">
         <label className="text-[11px] text-[#888] block">{label}</label>
-        <input value={value} onChange={e => onChange(e.target.value)} className="w-full px-1.5 py-0.5 bg-[#2A2A3A] rounded text-[10px] text-[#F5F5F5] font-mono outline-none" />
+        <input value={value} onChange={e => onChange(e.target.value)} className="w-full px-1.5 py-0.5 bg-[#2a2a30] rounded text-[10px] text-[#F5F5F5] font-mono outline-none" />
       </div>
     </div>
   )
@@ -134,7 +134,7 @@ function AlignField({ value, onChange }: { value: string; onChange: (v: string) 
       <div className="flex gap-1">
         {(['left', 'center', 'right'] as const).map(a => (
           <button key={a} onClick={() => onChange(a)}
-            className={`flex-1 py-1 text-xs rounded ${value === a ? 'bg-[#EF9F27] text-black' : 'bg-[#2A2A3A] text-[#888] hover:text-[#F5F5F5]'}`}
+            className={`flex-1 py-1 text-xs rounded ${value === a ? 'bg-[#A9B57E] text-black' : 'bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5]'}`}
           >
             {a === 'left' ? 'Gauche' : a === 'center' ? 'Centre' : 'Droite'}
           </button>
@@ -148,7 +148,7 @@ function SelectField({ label, value, options, onChange }: { label: string; value
   return (
     <div>
       <label className="text-[11px] text-[#888] mb-1 block">{label}</label>
-      <select value={value} onChange={e => onChange(e.target.value)} className="w-full px-2.5 py-1.5 bg-[#2A2A3A] border border-[#2A2A3A] rounded text-xs text-[#F5F5F5] outline-none">
+      <select value={value} onChange={e => onChange(e.target.value)} className="w-full px-2.5 py-1.5 bg-[#2a2a30] border border-[#2a2a30] rounded text-xs text-[#F5F5F5] outline-none">
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
     </div>

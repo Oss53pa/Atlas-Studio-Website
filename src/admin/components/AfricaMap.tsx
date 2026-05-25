@@ -22,7 +22,7 @@ const OHADA_COUNTRIES = new Set([
   "GAB", "GNB", "GNQ", "MLI", "NER", "SEN", "TGO", "COD", "GIN"
 ]);
 
-export function AfricaMap({ data, title = "Clients par pays", valueLabel = "clients", colorScale = ["#2A2A3A", "#EF9F27"] }: AfricaMapProps) {
+export function AfricaMap({ data, title = "Clients par pays", valueLabel = "clients", colorScale = ["#33333a", "#A9B57E"] }: AfricaMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
   const [geoData, setGeoData] = useState<any>(null);
@@ -80,11 +80,11 @@ export function AfricaMap({ data, title = "Clients par pays", valueLabel = "clie
         if (entry) return color(entry.value);
         return colorScale[0];
       })
-      .attr("stroke", "#0A0A0A")
+      .attr("stroke", "#131316")
       .attr("stroke-width", 0.5)
       .attr("cursor", "pointer")
       .on("mouseover", function (event: any, d: any) {
-        d3.select(this).attr("stroke", "#EF9F27").attr("stroke-width", 1.5);
+        d3.select(this).attr("stroke", "#A9B57E").attr("stroke-width", 1.5);
         const entry = data.find(e => e.country === d.properties?.name);
         const name = d.properties?.name || "?";
         const val = entry ? `${entry.value} ${valueLabel}` : "0 " + valueLabel;
@@ -96,14 +96,14 @@ export function AfricaMap({ data, title = "Clients par pays", valueLabel = "clie
         });
       })
       .on("mouseout", function () {
-        d3.select(this).attr("stroke", "#0A0A0A").attr("stroke-width", 0.5);
+        d3.select(this).attr("stroke", "#131316").attr("stroke-width", 0.5);
         setTooltip(null);
       });
 
   }, [geoData, data, colorScale, valueLabel]);
 
   return (
-    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 relative">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 relative shadow-sm dark:shadow-premium">
       <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">{title}</h2>
 
       <div className="relative w-full" style={{ aspectRatio: "4 / 3", maxHeight: 520 }}>

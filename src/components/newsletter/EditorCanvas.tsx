@@ -28,12 +28,12 @@ function SortableBlock({ block, isSelected, onSelect, onRemove }: {
 
   return (
     <div ref={setNodeRef} style={style} onClick={(e) => { e.stopPropagation(); onSelect() }}
-      className={`relative group cursor-pointer transition-all ${isSelected ? 'ring-2 ring-[#EF9F27] ring-offset-1' : 'hover:ring-1 hover:ring-[#EF9F27]/30'}`}
+      className={`relative group cursor-pointer transition-all ${isSelected ? 'ring-2 ring-[#A9B57E] ring-offset-1' : 'hover:ring-1 hover:ring-[#A9B57E]/30'}`}
     >
       {/* Controls overlay */}
       <div className="absolute -left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
-        <button {...attributes} {...listeners} className="p-1 rounded bg-[#2A2A3A] text-[#888] hover:text-[#F5F5F5] cursor-grab"><GripVertical size={14} /></button>
-        <button onClick={(e) => { e.stopPropagation(); onRemove() }} className="p-1 rounded bg-[#2A2A3A] text-[#888] hover:text-red-400"><Trash2 size={14} /></button>
+        <button {...attributes} {...listeners} className="p-1 rounded bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5] cursor-grab"><GripVertical size={14} /></button>
+        <button onClick={(e) => { e.stopPropagation(); onRemove() }} className="p-1 rounded bg-[#2a2a30] text-[#888] hover:text-red-400"><Trash2 size={14} /></button>
       </div>
       {/* Block render */}
       <div className="bg-white rounded overflow-hidden">

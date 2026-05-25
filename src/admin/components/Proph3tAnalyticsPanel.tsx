@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BarChart3, Loader2, Activity, Cpu, Database, RefreshCw } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { PremiumBarChart } from "../../components/ui/charts/PremiumCharts";
 
 interface AnalyticsReport {
   ok: boolean;
@@ -43,14 +44,13 @@ export function Proph3tAnalyticsPanel({ open, onClose }: { open: boolean; onClos
 
   if (!open) return null;
 
-  const maxDailyCount = report ? Math.max(...report.daily_volume.map(d => d.count), 1) : 1;
   const maxToolCount = report ? Math.max(...report.top_tools.map(t => t.count), 1) : 1;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white dark:bg-admin-surface rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-white dark:bg-admin-surface rounded-3xl shadow-2xl dark:shadow-elev-5 border border-warm-border dark:border-white/5 max-w-5xl w-full max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border dark:border-admin-surface-alt">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border dark:border-white/5">
           <div>
             <h2 className="text-neutral-text dark:text-admin-text text-lg font-bold flex items-center gap-2">
               <BarChart3 size={18} className="text-gold dark:text-admin-accent" />
@@ -60,13 +60,13 @@ export function Proph3tAnalyticsPanel({ open, onClose }: { open: boolean; onClos
           </div>
           <div className="flex items-center gap-2">
             <select value={period} onChange={e => setPeriod(Number(e.target.value) as 7 | 30 | 90)}
-              className="text-[12px] border border-warm-border dark:border-admin-surface-alt rounded-lg px-3 py-1.5 bg-white dark:bg-admin-surface-alt text-neutral-text dark:text-admin-text">
+              className="text-[12px] border border-warm-border dark:border-white/10 rounded-full px-3.5 py-1.5 bg-white dark:bg-admin-surface-alt/60 text-neutral-text dark:text-admin-text shadow-sm dark:shadow-inner outline-none focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all cursor-pointer">
               <option value={7}>7 jours</option>
               <option value={30}>30 jours</option>
               <option value={90}>90 jours</option>
             </select>
             <button onClick={load} disabled={loading}
-              className="p-2 rounded-lg hover:bg-warm-bg dark:hover:bg-admin-surface-alt text-neutral-text dark:text-admin-text">
+              className="p-2 rounded-full hover:bg-warm-bg dark:hover:bg-admin-surface-alt text-neutral-text dark:text-admin-text transition-colors">
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             </button>
             <button onClick={onClose} className="text-neutral-500 hover:text-neutral-text dark:text-admin-text text-2xl leading-none">×</button>
@@ -82,7 +82,7 @@ export function Proph3tAnalyticsPanel({ open, onClose }: { open: boolean; onClos
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-red-700 text-[13px]">
+            <div className="bg-red-50 dark:bg-admin-error/10 border border-red-200 dark:border-admin-error/25 rounded-2xl p-5 text-red-700 dark:text-red-300 text-[13px]">
               <strong>Erreur :</strong> {error}
             </div>
           )}
@@ -102,19 +102,7 @@ export function Proph3tAnalyticsPanel({ open, onClose }: { open: boolean; onClos
                 {report.daily_volume.length === 0 ? (
                   <div className="text-neutral-muted dark:text-admin-muted text-[12px]">Aucune donnee sur la periode</div>
                 ) : (
-                  <div className="flex items-end gap-1 h-40">
-                    {report.daily_volume.map(d => (
-                      <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
-                        <div className="w-full bg-gold dark:bg-admin-accent rounded-t opacity-70 hover:opacity-100 transition-opacity"
-                          style={{ height: `${(d.count / maxDailyCount) * 100}%` }}
-                          title={`${d.date} : ${d.count}`}
-                        />
-                        <span className="text-[9px] text-neutral-muted dark:text-admin-muted truncate w-full text-center">
-                          {d.date.slice(5)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  <PremiumBarChart data={report.daily_volume.map(d => ({ label: d.date.slice(5), value: d.count }))} height={170} />
                 )}
               </Section>
 
@@ -148,8 +136,8 @@ export function Proph3tAnalyticsPanel({ open, onClose }: { open: boolean; onClos
                       {report.top_tools.map(t => (
                         <div key={t.tool} className="flex items-center gap-2 text-[12px]">
                           <code className="text-neutral-text dark:text-admin-text font-mono w-48 truncate">{t.tool}</code>
-                          <div className="flex-1 h-3 bg-warm-bg dark:bg-admin-surface-alt rounded">
-                            <div className="h-full bg-gold dark:bg-admin-accent rounded"
+                          <div className="flex-1 h-2.5 bg-warm-bg dark:bg-admin-surface-alt rounded-full overflow-hidden shadow-inner">
+                            <div className="h-full bg-gold dark:bg-admin-accent rounded-full transition-all duration-500"
                               style={{ width: `${(t.count / maxToolCount) * 100}%` }}
                             />
                           </div>
@@ -165,7 +153,7 @@ export function Proph3tAnalyticsPanel({ open, onClose }: { open: boolean; onClos
               <Section title="Tools par domaine">
                 <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                   {Object.entries(report.registry.by_domain).sort((a, b) => b[1] - a[1]).map(([domain, count]) => (
-                    <div key={domain} className="flex items-center justify-between px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt rounded-lg text-[12px]">
+                    <div key={domain} className="flex items-center justify-between px-3 py-2 bg-warm-bg dark:bg-admin-surface-alt/60 rounded-xl text-[12px]">
                       <span className="text-neutral-text dark:text-admin-text">{domain}</span>
                       <span className="text-gold dark:text-admin-accent font-semibold">{count}</span>
                     </div>
@@ -194,12 +182,12 @@ export function Proph3tAnalyticsPanel({ open, onClose }: { open: boolean; onClos
 
 function KpiCard({ icon, label, value, sublabel }: { icon: React.ReactNode; label: string; value: string; sublabel?: string }) {
   return (
-    <div className="bg-warm-bg dark:bg-admin-surface-alt rounded-xl p-4">
+    <div className="bg-warm-bg dark:bg-admin-surface-alt/50 border border-warm-border/60 dark:border-white/5 rounded-2xl p-5 shadow-sm dark:shadow-premium">
       <div className="flex items-center gap-2 text-neutral-muted dark:text-admin-muted mb-1">
         {icon}
-        <span className="text-[11px] uppercase tracking-wider">{label}</span>
+        <span className="text-[11px] uppercase tracking-wider font-semibold">{label}</span>
       </div>
-      <div className="text-2xl font-bold text-neutral-text dark:text-admin-text">{value}</div>
+      <div className="text-2xl font-bold text-gold dark:text-admin-accent">{value}</div>
       {sublabel && <div className="text-[10px] text-neutral-muted dark:text-admin-muted mt-0.5">{sublabel}</div>}
     </div>
   );
@@ -209,7 +197,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <div>
       <h3 className="text-[11px] uppercase tracking-wider text-neutral-muted dark:text-admin-muted font-semibold mb-2">{title}</h3>
-      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-4">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-5 shadow-sm dark:shadow-premium">
         {children}
       </div>
     </div>

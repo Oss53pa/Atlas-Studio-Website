@@ -5,6 +5,7 @@ import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
 import { exportToCSV } from "../../lib/csvExport";
 import { AfricaMap } from "../components/AfricaMap";
+import { PremiumBarChart } from "../../components/ui/charts/PremiumCharts";
 
 /* ─── Types ─── */
 interface MonthData {
@@ -53,39 +54,24 @@ function KpiCard({ label, value, sub, icon: Icon }: {
   label: string; value: string | number; sub?: string; icon: React.ComponentType<any>;
 }) {
   return (
-    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-elev-3">
       <div className="flex items-center justify-between mb-1">
         <div className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</div>
-        <Icon size={18} className="text-neutral-muted dark:text-admin-muted/60" strokeWidth={1.5} />
+        <Icon size={18} className="text-neutral-placeholder dark:text-admin-muted/50" strokeWidth={1.5} />
       </div>
-      <div className="text-gold dark:text-admin-accent text-2xl font-semibold">{value}</div>
+      <div className="text-gold dark:text-admin-accent text-2xl font-mono font-semibold">{value}</div>
       {sub && <div className="text-neutral-muted dark:text-admin-muted text-[11px] mt-0.5">{sub}</div>}
     </div>
   );
 }
 
-/* ─── Bar Chart ─── */
-function BarChart({ data, color = "bg-gold dark:bg-admin-accent/80", height = 140 }: {
+/* ─── Bar Chart ─── (delegates to the premium chart toolkit) */
+function BarChart({ data, color = "", height = 140 }: {
   data: { label: string; value: number }[]; color?: string; height?: number;
 }) {
-  const max = Math.max(...data.map(d => d.value), 1);
-  const fmt = (n: number) => n.toLocaleString("fr-FR");
-  return (
-    <div className="flex items-end gap-2" style={{ height }}>
-      {data.map(d => {
-        const pct = Math.max((d.value / max) * 100, 2);
-        return (
-          <div key={d.label} className="flex-1 flex flex-col items-center gap-1">
-            <span className="text-[9px] text-neutral-muted dark:text-admin-muted">{d.value > 0 ? fmt(d.value) : ""}</span>
-            <div className="w-full bg-white dark:bg-admin-surface-alt rounded-t-md overflow-hidden" style={{ height: height - 30 }}>
-              <div className={`w-full ${color} rounded-t-md transition-all`} style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }} />
-            </div>
-            <span className="text-[10px] text-neutral-muted dark:text-admin-muted capitalize">{d.label}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
+  // Map legacy colour hints to the premium accent (semantic red kept distinct).
+  const accent = /red/.test(color) ? "#C0635C" : "#A9B57E";
+  return <PremiumBarChart data={data} height={height} accent={accent} />;
 }
 
 /* ═══════════════════════════════════════════════════════════ */
@@ -187,7 +173,7 @@ export default function AnalyticsPage() {
       byApp[id].total += Number(inv.amount) || 0;
       byApp[id].count++;
     });
-    const colors = ["#EF4444", "#0891B2", "#059669", "#8B5CF6", "#F59E0B", "#EC4899"];
+    const colors = ["#EF4444", "#0891B2", "#8E9A63", "#8B5CF6", "#F59E0B", "#EC4899"];
     return Object.entries(byApp)
       .map(([app_id, d], i) => ({
         app_id,
@@ -275,7 +261,7 @@ export default function AnalyticsPage() {
             <select
               value={selectedApp}
               onChange={e => setSelectedApp(e.target.value)}
-              className="pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors appearance-none cursor-pointer min-w-[220px]"
+              className="pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-sm text-neutral-text dark:text-admin-text outline-none shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all appearance-none cursor-pointer min-w-[220px]"
             >
               <option value="all">Consolidé — Toutes les apps</option>
               {appList.map(app => (
@@ -283,7 +269,7 @@ export default function AnalyticsPage() {
               ))}
             </select>
           </div>
-          <button onClick={handleExport} className="px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg text-[13px] font-semibold text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors flex items-center gap-2">
+          <button onClick={handleExport} className="px-5 py-2.5 bg-white dark:bg-admin-surface-alt/40 border border-warm-border dark:border-white/10 rounded-full text-[13px] font-semibold text-neutral-text dark:text-admin-text/80 shadow-sm dark:shadow-none hover:border-gold/40 dark:hover:border-admin-accent/40 hover:shadow-md transition-all duration-300 flex items-center gap-2">
             <Download size={14} /> Export CSV
           </button>
         </div>
@@ -293,8 +279,8 @@ export default function AnalyticsPage() {
       <div className="flex gap-2 flex-wrap mb-6">
         <button
           onClick={() => setSelectedApp("all")}
-          className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all ${
-            selectedApp === "all" ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+          className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-200 ${
+            selectedApp === "all" ? "bg-gold dark:bg-admin-accent text-onyx shadow-sm dark:shadow-gold" : "bg-white dark:bg-admin-surface-alt/40 border border-warm-border dark:border-white/10 text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 hover:shadow-sm"
           }`}
         >
           Consolidé
@@ -303,11 +289,11 @@ export default function AnalyticsPage() {
           <button
             key={app.id}
             onClick={() => setSelectedApp(app.id)}
-            className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all flex items-center gap-1.5 ${
-              selectedApp === app.id ? "bg-gold dark:bg-admin-accent text-onyx" : "bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40"
+            className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+              selectedApp === app.id ? "bg-gold dark:bg-admin-accent text-onyx shadow-sm dark:shadow-gold" : "bg-white dark:bg-admin-surface-alt/40 border border-warm-border dark:border-white/10 text-neutral-text dark:text-admin-text/80 hover:border-gold/40 dark:hover:border-admin-accent/40 hover:shadow-sm"
             }`}
           >
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: (app as any).color || "#C8A960" }} />
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: (app as any).color || "#8E9A63" }} />
             {app.name}
           </button>
         ))}
@@ -322,8 +308,8 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Revenue chart */}
-      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mb-6">
-        <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 mb-6 shadow-sm dark:shadow-premium">
+        <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-5">
           Revenus mensuels — {selectedAppName}
         </h2>
         <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.revenue }))} color="bg-gold dark:bg-admin-accent/80" height={160} />
@@ -331,12 +317,12 @@ export default function AnalyticsPage() {
 
       {/* Abonnements chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
-          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Nouveaux abonnements par mois</h2>
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-5">Nouveaux abonnements par mois</h2>
           <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.newClients }))} color="bg-emerald-400/70" height={130} />
         </div>
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
-          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Annulations par mois</h2>
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-5">Annulations par mois</h2>
           <BarChart data={monthlyData.map(m => ({ label: m.label, value: m.cancelled }))} color="bg-red-400/70" height={130} />
         </div>
       </div>
@@ -344,23 +330,23 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue by app (only in consolidated view) */}
         {selectedApp === "all" && (
-          <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+          <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
             <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Répartition par application</h2>
             {appRevenues.length > 0 ? (
               <div className="space-y-3">
                 {appRevenues.map(app => {
                   const pct = Math.round((app.total / totalAppRevenue) * 100);
                   return (
-                    <button key={app.app_id} onClick={() => setSelectedApp(app.app_id)} className="w-full text-left hover:bg-white dark:bg-admin-surface-alt rounded-lg p-1 -m-1 transition-colors">
-                      <div className="flex items-center justify-between mb-1">
+                    <button key={app.app_id} onClick={() => setSelectedApp(app.app_id)} className="w-full text-left hover:bg-warm-bg dark:hover:bg-admin-surface-alt/50 rounded-xl p-2 -m-2 transition-colors">
+                      <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center gap-2">
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: app.color }} />
                           <span className="text-neutral-text dark:text-admin-text text-sm font-medium">{app.name}</span>
                         </div>
                         <span className="text-gold dark:text-admin-accent text-sm font-mono font-semibold">{fmt(app.total)} FCFA ({pct}%)</span>
                       </div>
-                      <div className="w-full h-2 bg-white dark:bg-admin-surface-alt rounded-full overflow-hidden">
-                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: app.color }} />
+                      <div className="w-full h-2 bg-warm-bg dark:bg-admin-surface-alt rounded-full overflow-hidden shadow-inner">
+                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: app.color }} />
                       </div>
                     </button>
                   );
@@ -387,7 +373,7 @@ export default function AnalyticsPage() {
         )}
 
         {/* Top clients */}
-        <div className={`bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 ${selectedApp === "all" ? "" : "lg:col-span-2"}`}>
+        <div className={`bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium ${selectedApp === "all" ? "" : "lg:col-span-2"}`}>
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">
             Top 10 clients {selectedApp !== "all" ? `— ${selectedAppName}` : ""}
           </h2>
@@ -396,7 +382,7 @@ export default function AnalyticsPage() {
               {topClients.map((c, i) => (
                 <div key={c.email} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
+                    <div className="w-7 h-7 rounded-lg bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
                     <div>
                       <span className="text-neutral-text dark:text-admin-text text-sm font-medium">{c.full_name}</span>
                       <div className="text-neutral-muted dark:text-admin-muted text-[11px]">{c.email}</div>
@@ -413,7 +399,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Trials qui expirent — actionnable pour la relance */}
-      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 mt-6">
+      <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 mt-6 shadow-sm dark:shadow-premium">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold flex items-center gap-2">
             <AlarmClock size={16} className="text-admin-accent" strokeWidth={1.5} />
@@ -438,12 +424,12 @@ export default function AnalyticsPage() {
                 {trialsExpiring.map((t, i) => {
                   const tone =
                     t.days_left <= 0
-                      ? "bg-admin-error/20 text-red-400 border-admin-error/30"
+                      ? "bg-red-50 text-red-700 border-red-200 dark:bg-admin-error/20 dark:text-red-400 dark:border-admin-error/30"
                       : t.days_left <= 3
-                        ? "bg-admin-error/15 text-red-400 border-admin-error/30"
+                        ? "bg-red-50 text-red-700 border-red-200 dark:bg-admin-error/15 dark:text-red-400 dark:border-admin-error/30"
                         : t.days_left <= 7
-                          ? "bg-admin-warning/20 text-orange-400 border-admin-warning/30"
-                          : "bg-admin-success/20 text-green-400 border-admin-success/30";
+                          ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-admin-warning/20 dark:text-orange-400 dark:border-admin-warning/30"
+                          : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-admin-success/20 dark:text-green-400 dark:border-admin-success/30";
                   return (
                     <tr key={`${t.email}-${t.app_id}-${i}`} className="border-b border-warm-bg dark:border-admin-surface-alt/50 last:border-b-0">
                       <td className="py-3 pr-4">

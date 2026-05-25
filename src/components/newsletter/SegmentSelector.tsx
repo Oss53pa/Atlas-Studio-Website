@@ -13,17 +13,17 @@ export function SegmentSelector({ selectedIds, onChange }: Props) {
     onChange(selectedIds.includes(id) ? selectedIds.filter(i => i !== id) : [...selectedIds, id])
   }
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 size={18} className="animate-spin text-[#EF9F27]" /></div>
+  if (loading) return <div className="flex justify-center py-8"><Loader2 size={18} className="animate-spin text-[#A9B57E]" /></div>
 
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-[#888]">Sélectionnez les segments cibles</p>
       {segments.map(seg => (
         <button key={seg.id} onClick={() => toggle(seg.id)}
-          className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedIds.includes(seg.id) ? 'border-[#EF9F27] bg-[#EF9F27]/10' : 'border-[#2A2A3A] bg-[#2A2A3A]/30 hover:bg-[#2A2A3A]'}`}
+          className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedIds.includes(seg.id) ? 'border-[#A9B57E] bg-[#A9B57E]/10' : 'border-[#2a2a30] bg-[#2a2a30]/30 hover:bg-[#2a2a30]'}`}
         >
           <div className="flex items-center gap-2">
-            <Users size={13} className={selectedIds.includes(seg.id) ? 'text-[#EF9F27]' : 'text-[#888]'} />
+            <Users size={13} className={selectedIds.includes(seg.id) ? 'text-[#A9B57E]' : 'text-[#888]'} />
             <span className="text-xs text-[#F5F5F5] font-medium">{seg.name}</span>
           </div>
           {seg.description && <p className="text-[10px] text-[#888] mt-1 ml-5">{seg.description}</p>}

@@ -57,10 +57,10 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
           <div
             key={n.id}
             onClick={() => handleNavClick(n.id)}
-            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg cursor-pointer mb-1 transition-all duration-200 ${
+            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer mb-1 transition-all duration-200 ${
               page === n.id
-                ? "bg-white/10 text-gold"
-                : "text-neutral-400 hover:bg-white/5 hover:text-neutral-light"
+                ? "bg-gold/[0.12] text-gold border border-gold/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                : "text-neutral-400 border border-transparent hover:bg-white/5 hover:text-neutral-light"
             }`}
           >
             <n.icon size={16} strokeWidth={1.5} />
@@ -74,13 +74,13 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
       <div className="border-t border-white/10 pt-4">
         <Link
           to="/"
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-neutral-500 text-[13px] hover:text-neutral-light hover:bg-white/5 transition-all duration-200 mb-2"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-neutral-500 text-[13px] hover:text-neutral-light hover:bg-white/5 transition-all duration-200 mb-3"
         >
           <ArrowLeft size={14} strokeWidth={1.5} />
           Retour au site
         </Link>
-        <div className="flex items-center gap-2.5 px-2">
-          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-onyx text-[12px] font-bold shrink-0">
+        <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl surface-raised">
+          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-onyx text-[12px] font-bold shrink-0 shadow-gold-sm">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
@@ -91,7 +91,7 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onLogout(); }}
-          className="mt-3 w-full px-3 py-2 rounded-lg cursor-pointer text-neutral-500 text-[13px] text-center hover:text-red-400 hover:bg-white/5 transition-all duration-200"
+          className="mt-3 w-full px-3 py-2 rounded-xl cursor-pointer text-neutral-500 text-[13px] text-center hover:text-red-400 hover:bg-white/5 transition-all duration-200"
         >
           Déconnexion
         </button>
@@ -110,7 +110,7 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
           <NotificationBell userId={profile?.id} />
           <button
             onClick={() => setMobileOpen(true)}
-            className="text-neutral-light p-1.5 rounded-lg hover:bg-white/5"
+            className="text-neutral-light p-1.5 rounded-xl hover:bg-white/5"
             aria-label="Ouvrir le menu"
           >
             <Menu size={22} />

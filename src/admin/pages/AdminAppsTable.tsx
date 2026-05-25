@@ -18,7 +18,7 @@ const STATUS_LABELS: Record<string, string> = { available: "Disponible", coming_
 const emptyApp: Partial<AppRow> = {
   id: "", name: "", type: "App", tagline: "", description: "",
   features: [], categories: [], pricing: {}, pricing_period: "mois",
-  color: "#C8A960", icon: "receipt", highlights: [],
+  color: "#8E9A63", icon: "receipt", highlights: [],
   status: "available", visible: true, sort_order: 0, external_url: null,
 };
 
@@ -105,7 +105,7 @@ export default function AdminAppsTable() {
       features: featuresStr.split("\n").map(s => s.trim()).filter(Boolean),
       categories: categoriesStr.split(",").map(s => s.trim()).filter(Boolean),
       pricing, pricing_period: editApp.pricing_period || "mois",
-      color: editApp.color || "#C8A960", icon: editApp.icon || "receipt",
+      color: editApp.color || "#8E9A63", icon: editApp.icon || "receipt",
       highlights: highlightsStr.split(",").map(s => s.trim()).filter(Boolean),
       external_url: editApp.external_url || null,
       status: editApp.status as AppStatus || "available",
@@ -155,7 +155,7 @@ export default function AdminAppsTable() {
     const rows = DEFAULT_CONTENT.apps.map((a, i) => ({
       id: a.id, name: a.name, type: a.type as AppType, tagline: a.tagline, description: a.desc,
       features: a.features, categories: a.categories, pricing: a.pricing,
-      pricing_period: a.pricingPeriod || "mois", color: a.color || "#C8A960",
+      pricing_period: a.pricingPeriod || "mois", color: a.color || "#8E9A63",
       icon: a.icon || "receipt", highlights: a.highlights || [],
       status: "available" as AppStatus, visible: true, sort_order: i,
     }));
@@ -202,7 +202,7 @@ export default function AdminAppsTable() {
         columns={[
           { key: "name", label: "Application", sortable: true, render: (r: AppRow) => (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[11px] font-bold" style={{ backgroundColor: r.color || "#C8A960" }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[11px] font-bold" style={{ backgroundColor: r.color || "#8E9A63" }}>
                 {r.name.slice(0, 2).toUpperCase()}
               </div>
               <div>
@@ -375,9 +375,9 @@ export default function AdminAppsTable() {
                 <div>
                   <label className="block text-neutral-text dark:text-admin-text/80 text-[13px] font-semibold mb-1.5">Couleur</label>
                   <div className="flex items-center gap-2">
-                    <input type="color" value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
+                    <input type="color" value={editApp.color || "#8E9A63"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
                       className="w-10 h-10 rounded border border-warm-border dark:border-admin-surface-alt cursor-pointer bg-transparent" />
-                    <input value={editApp.color || "#C8A960"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
+                    <input value={editApp.color || "#8E9A63"} onChange={e => setEditApp({ ...editApp, color: e.target.value })}
                       className={`flex-1 ${ADMIN_INPUT_CLASS} font-mono`} />
                   </div>
                 </div>

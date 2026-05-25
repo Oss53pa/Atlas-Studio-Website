@@ -27,7 +27,7 @@ export default function HomePage() {
         <div className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(8,8,11,1) 60%, transparent 100%)",
+              "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(169,181,126,0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(8,8,11,1) 60%, transparent 100%)",
           }}
         />
         <div className="aurora-blob-gold" style={{ top: "10%", left: "50%", transform: "translateX(-50%)" }} />
@@ -45,7 +45,7 @@ export default function HomePage() {
           <div className="mb-8">
             <span
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-medium tracking-[0.16em] uppercase mb-6 glass"
-              style={{ color: "#34D399" }}
+              style={{ color: "#C2CC92" }}
             >
               <Sparkles size={12} className="text-gold" />
               Suite logicielle premium · OHADA
@@ -70,7 +70,7 @@ export default function HomePage() {
           <div className="relative flex justify-center pt-12 max-w-[760px] mx-auto">
             {/* Refined gradient divider */}
             <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.3) 50%, transparent 100%)" }}
+              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.3) 50%, transparent 100%)" }}
             />
             {(content.stats || []).map((s, i) => (
               <div
@@ -166,7 +166,7 @@ export default function HomePage() {
           <ScrollReveal className="flex-1 min-w-[280px] reveal-right" delay={200}>
             <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 shadow-premium">
               <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.55) 50%, transparent 100%)" }}
+                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.55) 50%, transparent 100%)" }}
               />
               <h3 className="text-neutral-light text-lg font-semibold mb-6 tracking-tight">{t("home.whyChooseUs")}</h3>
               {(content.about?.values || []).map((v, i) => (
@@ -239,9 +239,9 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {(content.testimonials || []).map((tm, i) => (
               <ScrollReveal key={i} delay={i * 110}>
-                <div className="relative bg-ink-200 border border-white/[0.06] rounded-2xl p-6 card-hover overflow-hidden">
+                <div className="relative bg-ink-200 border border-white/[0.05] rounded-2xl p-6 card-hover shadow-premium overflow-hidden">
                   <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                    style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.45) 50%, transparent 100%)" }}
+                    style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.45) 50%, transparent 100%)" }}
                   />
                   <div className="text-gold text-[14px] mb-3 tracking-[0.2em]">★★★★★</div>
                   <p className="text-[13px] text-neutral-muted font-light leading-relaxed italic mb-5">"{tm.text}"</p>
@@ -270,18 +270,18 @@ export default function HomePage() {
           </ScrollReveal>
           <ScrollReveal>
             <div className="flex gap-5 justify-center flex-wrap mb-12">
-              <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover overflow-hidden">
+              <div className="relative bg-ink-100 border border-white/[0.05] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover shadow-premium overflow-hidden">
                 <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-[0.16em] mb-3">{t("home.atlasFNA")}</div>
                 <div className="text-gradient-gold font-mono text-4xl font-semibold tracking-tight">99 000</div>
                 <div className="text-neutral-muted text-sm font-light mt-1">FCFA/mois</div>
                 <p className="text-neutral-muted text-xs mt-4 font-light leading-relaxed">{t("home.accountingSyscohada")}</p>
               </div>
-              <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover overflow-hidden">
+              <div className="relative bg-ink-100 border border-white/[0.05] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover shadow-premium overflow-hidden">
                 <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-[0.16em] mb-3">{t("home.standaloneAppsLabel")}</div>
                 <div className="text-gradient-gold font-mono text-4xl font-semibold tracking-tight">dès 25 000</div>

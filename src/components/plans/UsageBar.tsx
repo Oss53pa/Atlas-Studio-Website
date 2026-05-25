@@ -7,7 +7,7 @@ interface UsageBarProps {
 
 export function UsageBar({ used, limit, unit, label }: UsageBarProps) {
   const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-  const barColor = pct >= 100 ? "#EF4444" : pct >= 80 ? "#EF9F27" : "#22C55E";
+  const barColor = pct >= 100 ? "#EF4444" : pct >= 80 ? "#A9B57E" : "#22C55E";
 
   return (
     <div style={{ marginBottom: 16 }}>
