@@ -3,6 +3,7 @@ import { supabaseAdmin } from "../_shared/supabase.ts";
 import { stripe } from "../_shared/stripe.ts";
 import { sendMail } from "../_shared/mailer.ts";
 import { createLicenceAfterPayment } from "../_shared/licence-helpers.ts";
+import { provisionBundle } from "../_shared/bundle-provision.ts";
 
 Deno.serve(async (req) => {
   const sig = req.headers.get("stripe-signature");
@@ -23,8 +24,39 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        const { userId, appId, plan, subscriptionId, type, seats } = session.metadata || {};
+        const { userId, appId, plan, subscriptionId, type, seats, bundleSlug } = session.metadata || {};
         const seatsLimit = seats ? parseInt(seats, 10) : null;
+
+        // ── Suite (bundle) : provisionne tous les abonnements inclus ──
+        if (type === "bundle" && bundleSlug && userId) {
+          if (session.payment_intent) {
+            const { data: existing } = await supabaseAdmin
+              .from("invoices").select("id")
+              .eq("stripe_payment_intent_id", session.payment_intent as string)
+              .maybeSingle();
+            if (existing?.id) return jsonResponse({ received: true, deduped: true });
+          }
+          await supabaseAdmin.from("invoices").insert({
+            invoice_number: `INV-${Date.now()}`,
+            user_id: userId,
+            app_id: bundleSlug,
+            plan: "Suite",
+            amount: (session.amount_total || 0) / 100,
+            bundle_slug: bundleSlug,
+            currency: "XOF",
+            status: "paid",
+            paid_at: new Date().toISOString(),
+            stripe_payment_intent_id: session.payment_intent as string,
+            payment_method: "stripe",
+          });
+          const res = await provisionBundle({ userId, bundleSlug, paymentMethod: "stripe" });
+          await supabaseAdmin.from("activity_log").insert({
+            user_id: userId,
+            action: "payment_completed",
+            metadata: { bundle: bundleSlug, amount: (session.amount_total || 0) / 100, provider: "stripe", ...res },
+          });
+          break;
+        }
 
         // Idempotence: skip if we already recorded an invoice for this checkout
         if (session.payment_intent) {

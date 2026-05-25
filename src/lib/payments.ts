@@ -27,6 +27,16 @@ export async function createCheckoutSession(
   window.location.href = url;
 }
 
+export async function createBundleCheckoutSession(bundleSlug: string, paymentMethod: string = "stripe") {
+  // Le prix de la suite est lu en base côté serveur ; on ne transmet que le slug.
+  const { url } = await apiCall<{ url: string }>("bundle-checkout", {
+    method: "POST",
+    body: { bundleSlug, paymentMethod },
+  });
+  if (!url) throw new Error("Aucune URL de paiement retournée");
+  window.location.href = url;
+}
+
 export async function createRegularizationSession(subscriptionId: string, paymentMethod: string = "stripe") {
   const { url } = await apiCall<{ url: string }>("regularization-checkout", {
     method: "POST",

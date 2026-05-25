@@ -2,6 +2,7 @@ import { jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { verifyPayment } from "../_shared/cinetpay.ts";
 import { createLicenceAfterPayment } from "../_shared/licence-helpers.ts";
+import { provisionBundle } from "../_shared/bundle-provision.ts";
 
 // CinetPay IPN signature (x-token header) = HMAC SHA256 of a specific field
 // concatenation with the merchant secret. See CinetPay V2 IPN docs.
@@ -75,6 +76,21 @@ Deno.serve(async (req) => {
       status: "paid",
       paid_at: new Date().toISOString(),
     }).eq("id", invoice.id);
+
+    // ── Suite (bundle) : provisionne tous les abonnements inclus ──
+    if (invoice.bundle_slug) {
+      const res = await provisionBundle({
+        userId: invoice.user_id,
+        bundleSlug: invoice.bundle_slug,
+        paymentMethod: "cinetpay",
+      });
+      await supabaseAdmin.from("activity_log").insert({
+        user_id: invoice.user_id,
+        action: "payment_completed",
+        metadata: { bundle: invoice.bundle_slug, amount: invoice.amount, provider: "cinetpay", ...res },
+      });
+      return jsonResponse({ received: true, bundle: invoice.bundle_slug, ...res });
+    }
 
     let subscriptionIdForLicence: string | null = invoice.subscription_id || null;
     if (invoice.subscription_id) {

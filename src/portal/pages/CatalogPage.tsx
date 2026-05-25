@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { PartyPopper, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { PartyPopper, Loader2, Package, CheckCircle2 } from "lucide-react";
 import { AppLogo } from "../../components/ui/Logo";
 import { PaymentMethodSelector } from "../../components/ui/PaymentMethodSelector";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useSubscriptions } from "../../hooks/useSubscriptions";
-import { createCheckoutSession } from "../../lib/payments";
+import { useBundles, type Bundle } from "../../hooks/useBundles";
+import { createCheckoutSession, createBundleCheckoutSession } from "../../lib/payments";
 import { planEntries, seatBounds, computeSeatPrice, type SeatPlanConfig } from "../../lib/utils";
 import type { AppRow } from "../../lib/database.types";
 
@@ -15,6 +17,8 @@ interface CatalogPageProps {
 export function CatalogPage({ userId }: CatalogPageProps) {
   const { subscriptions, loading: subsLoading } = useSubscriptions(userId);
   const { appList, loading: appsLoading } = useAppCatalog();
+  const { bundles } = useBundles();
+  const [searchParams] = useSearchParams();
   const [selectedApp, setSelectedApp] = useState<AppRow | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("stripe");
@@ -22,6 +26,30 @@ export function CatalogPage({ userId }: CatalogPageProps) {
   const [toast, setToast] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState("");
   const [seats, setSeats] = useState(1);
+  const [selectedBundle, setSelectedBundle] = useState<Bundle | null>(null);
+  const [bundlePayment, setBundlePayment] = useState("stripe");
+  const [bundleSubscribing, setBundleSubscribing] = useState(false);
+
+  // Ouvre automatiquement la suite passée en lien profond (?bundle=slug).
+  useEffect(() => {
+    const slug = searchParams.get("bundle");
+    if (slug && bundles.length > 0 && !selectedBundle) {
+      const b = bundles.find(x => x.slug === slug);
+      if (b) setSelectedBundle(b);
+    }
+  }, [searchParams, bundles, selectedBundle]);
+
+  const handleBundleSubscribe = async () => {
+    if (!selectedBundle) return;
+    setBundleSubscribing(true);
+    try {
+      await createBundleCheckoutSession(selectedBundle.slug, bundlePayment);
+    } catch (err: any) {
+      setToast(`Erreur: ${err.message}`);
+      setBundleSubscribing(false);
+      setTimeout(() => setToast(null), 4000);
+    }
+  };
 
   const seatConfigFor = (app: AppRow | null, plan: string | null): SeatPlanConfig | undefined => {
     if (!app || !plan) return undefined;
@@ -183,6 +211,88 @@ export function CatalogPage({ userId }: CatalogPageProps) {
             >
               {subscribing ? "Redirection..." : selectedPlan ? "Procéder au paiement" : "Sélectionnez un plan"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {selectedBundle && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5"
+          onClick={() => setSelectedBundle(null)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-white rounded-2xl p-8 max-w-lg w-full border border-warm-border max-h-[90vh] overflow-y-auto shadow-2xl"
+          >
+            <div className="flex items-center gap-2.5 mb-1">
+              <Package size={22} className="text-gold" strokeWidth={2} />
+              <h2 className="text-neutral-text text-xl font-bold">{selectedBundle.name}</h2>
+            </div>
+            {selectedBundle.tagline && <p className="text-neutral-muted text-[13px] mb-5">{selectedBundle.tagline}</p>}
+
+            <div className="text-neutral-muted text-xs font-bold uppercase tracking-wider mb-3">Applications incluses</div>
+            <div className="mb-5 space-y-2">
+              {selectedBundle.included.map((inc, i) => (
+                <div key={i} className="flex items-center gap-2 text-neutral-body text-[13px]">
+                  <CheckCircle2 size={15} className="text-gold flex-shrink-0" strokeWidth={2} />
+                  <span className="font-medium">{inc.app}</span>
+                  <span className="text-neutral-muted text-[12px]">· {inc.plan}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mb-5 flex items-baseline justify-between px-1">
+              <span className="text-neutral-muted text-xs font-semibold uppercase tracking-wider">Total suite</span>
+              <span className="text-right">
+                <span className="text-gold text-xl font-extrabold">{formatPrice(selectedBundle.price_monthly_fcfa)} FCFA<span className="text-neutral-placeholder text-[11px] font-medium">/mois</span></span>
+                <span className="block text-neutral-placeholder text-[11px]">
+                  <span className="line-through">{formatPrice(selectedBundle.sum_monthly_fcfa)}</span>
+                  <span className="text-gold ml-1.5">−{formatPrice(selectedBundle.savings_monthly_fcfa)}/mois</span>
+                </span>
+              </span>
+            </div>
+
+            <div className="mb-6">
+              <PaymentMethodSelector selected={bundlePayment} onChange={setBundlePayment} />
+            </div>
+
+            <button
+              disabled={bundleSubscribing}
+              onClick={handleBundleSubscribe}
+              className={`btn-gold w-full ${bundleSubscribing ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {bundleSubscribing ? "Redirection..." : "Procéder au paiement"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {bundles.length > 0 && (
+        <div className="mb-10">
+          <h2 className="text-neutral-text text-lg font-bold mb-1 flex items-center gap-2"><Package size={18} className="text-gold" /> Suites — économisez −20 %</h2>
+          <p className="text-neutral-muted text-[13px] mb-4">Regroupez plusieurs applications en un seul abonnement.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {bundles.map(b => (
+              <div
+                key={b.id}
+                onClick={() => setSelectedBundle(b)}
+                className={`bg-white border rounded-2xl p-6 cursor-pointer card-hover ${b.is_popular ? "border-gold/40" : "border-warm-border"}`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Package size={16} className="text-gold" />
+                  <span className="text-neutral-text font-bold text-sm">{b.name}</span>
+                </div>
+                <p className="text-neutral-muted text-[12px] mb-3 leading-snug">{b.tagline}</p>
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {b.included.map((inc, i) => (
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/20">{inc.app}</span>
+                  ))}
+                </div>
+                <div className="text-gold text-sm font-semibold">
+                  {formatPrice(b.price_monthly_fcfa)} FCFA/mois <span className="text-neutral-placeholder text-[11px] line-through ml-1">{formatPrice(b.sum_monthly_fcfa)}</span> &rarr;
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

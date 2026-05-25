@@ -72,10 +72,10 @@ function BundlesSection() {
                     <span className="text-gold ml-2 font-medium">−{formatPrice(b.savings_monthly_fcfa)} FCFA/mois</span>
                   </div>
                   <Link
-                    to={`/contact?suite=${b.slug}`}
+                    to={`/portal?bundle=${b.slug}`}
                     className={b.is_popular ? "btn-gold w-full !rounded-xl" : "btn-outline-light w-full !rounded-xl !text-[13px]"}
                   >
-                    Demander cette suite
+                    Souscrire cette suite
                     {b.is_popular && <ArrowRight size={15} strokeWidth={2.2} />}
                   </Link>
                 </div>
