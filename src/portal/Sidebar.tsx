@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, Users, KeyRound, Menu, X, Sparkles, ArrowLeft, type LucideIcon } from "lucide-react";
+import { Zap, ShoppingCart, CreditCard, Settings, LifeBuoy, Users, KeyRound, Menu, X, Sparkles, ArrowLeft, Wallet, type LucideIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { NotificationBell } from "../components/ui/NotificationBell";
 import type { Profile } from "../lib/database.types";
@@ -17,6 +17,7 @@ const nav: { id: string; icon: LucideIcon; label: string }[] = [
   { id: "proph3t", icon: Sparkles, label: "Proph3t IA" },
   { id: "catalog", icon: ShoppingCart, label: "Catalogue" },
   { id: "team", icon: Users, label: "Licences & Équipe" },
+  { id: "seats-costs", icon: Wallet, label: "Sièges & coûts" },
   { id: "billing", icon: CreditCard, label: "Facturation" },
   { id: "support", icon: LifeBuoy, label: "Support" },
   { id: "activate", icon: KeyRound, label: "Activer une licence" },
