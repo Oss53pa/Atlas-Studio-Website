@@ -12,7 +12,7 @@
 //   4. Insère action_proposed (action_type='create_github_issue')
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 
 interface Ticket {
@@ -186,7 +186,7 @@ async function fetchRelatedErrors(appId: string | null, since: string): Promise<
 }
 
 export async function triageBug(ticketId: string): Promise<BugTriageResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) {
     throw new Error("ANTHROPIC_API_KEY manquante");
   }
@@ -255,7 +255,7 @@ ${errFmt}
 
 Qualifie ce bug et produis le JSON de triage.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

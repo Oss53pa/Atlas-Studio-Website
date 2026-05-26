@@ -10,7 +10,7 @@
 // La CEO valide → un humain (ou un connecteur GitHub futur) ouvre la PR.
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
@@ -87,7 +87,7 @@ export interface DraftPrPlanResult {
 }
 
 export async function draftPullRequestPlan(specId: string, repo: string): Promise<DraftPrPlanResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_DEV_MODEL") ?? "claude-sonnet-4-6";
 
@@ -138,7 +138,7 @@ ${spec.database_schema ?? "(non renseigné)"}
 Produis le plan d'implémentation JSON (file_plan, commits, tests, rollback).
 RAPPEL: pas de commit direct main, branche asvc/feature-* obligatoire.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

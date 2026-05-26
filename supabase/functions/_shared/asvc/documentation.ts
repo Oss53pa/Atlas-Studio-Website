@@ -1,7 +1,7 @@
 // ASVC v2.0 — Documentation Agent: produit la doc d'une feature.
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
@@ -71,7 +71,7 @@ export interface DraftDocResult {
 }
 
 export async function draftDocumentation(params: DraftDocParams): Promise<DraftDocResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_DOC_MODEL") ?? "claude-sonnet-4-6";
 
@@ -113,7 +113,7 @@ ${params.customBrief ? `BRIEF COMPLÉMENTAIRE\n${params.customBrief}\n` : ""}
 
 Produis le JSON du document.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

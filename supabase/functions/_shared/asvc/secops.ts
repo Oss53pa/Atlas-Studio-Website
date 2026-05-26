@@ -11,7 +11,7 @@
 //   5. Journalise dans l'audit log.
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 
 type Severity = "critical" | "high" | "normal" | "low";
 type CtemPhase = "scoping" | "discovery" | "prioritization" | "validation" | "mobilization";
@@ -152,7 +152,7 @@ export interface SecOpsScanResult {
 }
 
 export async function runCtemScan(input: CtemScanInput = {}): Promise<SecOpsScanResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_SECOPS_MODEL") ?? "claude-sonnet-4-6";
 
@@ -195,7 +195,7 @@ NOTES: ${input.notes ?? "(aucune)"}
 
 Effectue la passe CTEM et produis le JSON.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

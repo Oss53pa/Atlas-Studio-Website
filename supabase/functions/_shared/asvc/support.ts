@@ -10,7 +10,7 @@
 //   7. Retourne l'action pour affichage immédiat
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 
 interface Ticket {
@@ -154,7 +154,7 @@ export interface DraftTicketResponseResult {
 
 /** Génère un draft de réponse pour un ticket donné. */
 export async function draftTicketResponse(ticketId: string): Promise<DraftTicketResponseResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) {
     throw new Error(
       "ANTHROPIC_API_KEY manquante — configurer la variable d'env de l'edge function",
@@ -216,7 +216,7 @@ ${filFormatted}
 Rédige le draft de réponse maintenant, puis la ligne META.`;
 
   // 5. Appel Claude
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [
