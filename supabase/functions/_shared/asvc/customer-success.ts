@@ -9,7 +9,7 @@
 //   5. Criticality dérivée du goal (churn → high, upsell → normal, etc.)
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 
 export type OutreachGoal =
@@ -147,7 +147,7 @@ export async function draftCustomerOutreach(
   clientId: string,
   goal: OutreachGoal,
 ): Promise<CustomerOutreachResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_CS_MODEL") ?? "claude-sonnet-4-6";
 
@@ -224,7 +224,7 @@ ${tixFmt}
 Produis le JSON maintenant.`;
 
   // 6. Appel Claude
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

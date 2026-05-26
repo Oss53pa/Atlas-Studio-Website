@@ -11,7 +11,7 @@
 //   4. Audit log
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 
 export type SocialChannel = "linkedin" | "x" | "instagram" | "facebook";
@@ -110,7 +110,7 @@ export interface CommunityResult {
 }
 
 export async function handleCommunityMessage(inbound: CommunityInbound): Promise<CommunityResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_COMMUNITY_MODEL") ?? "claude-sonnet-4-6";
 
@@ -134,7 +134,7 @@ ${inbound.message}
 
 Classifie et draft la réponse.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

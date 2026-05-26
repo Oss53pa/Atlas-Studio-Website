@@ -9,7 +9,7 @@
 // La sortie alimente asvc_test_runs (status='running' au moment où le CI lance).
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
@@ -84,7 +84,7 @@ export interface QaPlanResult {
 }
 
 export async function generateQaPlan(prId: string): Promise<QaPlanResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_QA_MODEL") ?? "claude-sonnet-4-6";
 
@@ -140,7 +140,7 @@ ${filePlan.map((f) => `- ${f.path}`).join("\n") || "(non fourni)"}
 
 Génère le plan de tests JSON complet. Si module finance et SYSCOHADA non couvert, recommend_run=false.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [
