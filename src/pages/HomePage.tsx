@@ -513,37 +513,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ════════════════════════════════════════════════════════════════
-           § FIN — closing manifesto
-         ════════════════════════════════════════════════════════════════ */}
-      <section className="relative bg-ink-100 border-t border-white/[0.06] py-28 md:py-40 px-5 md:px-10 lg:px-16 overflow-hidden">
-        <div className="absolute inset-0 hero-techgrid pointer-events-none" />
-        <div className="relative max-w-[1280px] mx-auto">
-          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-8 flex items-center gap-3">
-            <span className="meta-led" />
-            <span>§ FIN — Atlas Studio · MMXXVI</span>
-          </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[1.04] text-[20px] sm:text-[16px] md:text-[18px] lg:text-[30px] text-neutral-light max-w-3xl mb-4">
-            {t("home.readyTitle")}
-          </h2>
-          <p className="font-display italic font-light text-[14px] md:text-[16px] text-neutral-light/65 leading-snug max-w-2xl mb-10">
-            {t("home.readySubtitle")}
-          </p>
-          <div className="flex items-baseline gap-8 flex-wrap">
-            <Link to="/portal" className="cta-arrow cta-arrow--primary">
-              {t("home.startFree")}
-            </Link>
-            <Link to="/contact" className="cta-arrow">
-              {t("home.contactUs")}
-            </Link>
-          </div>
-          <div className="mt-20 flex items-baseline justify-between flex-wrap gap-4 meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/35">
-            <span>09 / 09 · fin du document</span>
-            <span>Atlas Studio · OHADA · {new Date().getFullYear()}</span>
-          </div>
-        </div>
-      </section>
     </>
   );
 }
