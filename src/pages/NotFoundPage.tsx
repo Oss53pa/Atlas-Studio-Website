@@ -17,11 +17,11 @@ export default function NotFoundPage() {
         </div>
 
         {/* 404 monumental */}
-        <div className="font-display font-medium tracking-[-0.04em] leading-[0.85] text-[120px] sm:text-[180px] md:text-[240px] lg:text-[320px] text-[#A9B57E]/85 mb-10 tabular-nums">
+        <div className="font-display font-medium tracking-[-0.04em] leading-[0.85] text-[80px] sm:text-[120px] md:text-[160px] lg:text-[200px] text-[#A9B57E]/85 mb-10 tabular-nums">
           404
         </div>
 
-        <h1 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light max-w-3xl mb-6">
+        <h1 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light max-w-3xl mb-6">
           Cette page n'existe <span className="italic font-light text-neutral-light/70">plus ou pas encore</span>.
         </h1>
         <p className="text-[15px] md:text-[17px] text-neutral-muted font-light leading-relaxed max-w-[540px] mb-12">

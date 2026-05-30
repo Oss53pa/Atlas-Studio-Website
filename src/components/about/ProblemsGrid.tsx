@@ -34,7 +34,7 @@ export function ProblemsGrid() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § Constat
             </div>
-            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[56px] text-neutral-light max-w-3xl">
+            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[38px] text-neutral-light max-w-3xl">
               Ce qui vous freine aujourd'hui, <span className="italic font-light text-neutral-light/75">nous l'avons réglé.</span>
             </h2>
           </div>

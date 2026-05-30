@@ -29,7 +29,7 @@ export default function AboutPage() {
             <span className="meta-led" />
             <span>§ FIN — Manifeste</span>
           </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[40px] sm:text-[56px] md:text-[80px] lg:text-[96px] text-neutral-light max-w-5xl mb-12">
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[28px] sm:text-[36px] md:text-[48px] lg:text-[56px] text-neutral-light max-w-5xl mb-12">
             Vos outils peuvent enfin <span className="italic font-light text-neutral-light/70">travailler pour vous</span>.
           </h2>
           <p className="text-[15px] md:text-[17px] text-neutral-muted font-light leading-relaxed max-w-[540px] mb-10">

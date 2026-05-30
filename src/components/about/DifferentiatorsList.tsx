@@ -40,7 +40,7 @@ export function DifferentiatorsList() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § Différenciateurs
             </div>
-            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[56px] text-neutral-light max-w-3xl">
+            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[38px] text-neutral-light max-w-3xl">
               Ce que vous pouvez faire avec{" "}
               <span className="font-logo text-gradient-champagne text-[80%]">Atlas Studio</span>
             </h2>
@@ -55,7 +55,7 @@ export function DifferentiatorsList() {
             <ScrollReveal key={item.num} delay={i * 60}>
               <article className={`group grid grid-cols-12 gap-4 md:gap-8 py-10 border-t border-white/[0.06] ${i === ITEMS.length - 1 ? "border-b" : ""}`}>
                 <div className="col-span-12 md:col-span-2 flex items-baseline">
-                  <span className="font-display font-light text-[56px] md:text-[80px] leading-none text-[#A9B57E]/85 tracking-tighter tabular-nums group-hover:text-[#D6DDB3] transition-colors">
+                  <span className="font-display font-light text-[42px] md:text-[60px] leading-none text-[#A9B57E]/85 tracking-tighter tabular-nums group-hover:text-[#D6DDB3] transition-colors">
                     {item.num}
                   </span>
                 </div>

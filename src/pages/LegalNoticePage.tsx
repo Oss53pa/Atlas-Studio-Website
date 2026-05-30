@@ -21,7 +21,7 @@ export default function LegalNoticePage() {
             <span className="text-neutral-light/25 hidden sm:inline">/</span>
             <span className="hidden sm:inline text-neutral-light/45">Atlas Studio</span>
           </div>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[44px] sm:text-[60px] md:text-[72px] lg:text-[80px] text-neutral-light max-w-4xl">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[30px] sm:text-[38px] md:text-[46px] lg:text-[52px] text-neutral-light max-w-4xl">
             {title}
           </h1>
         </div>
