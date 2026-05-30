@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Send, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useContentContext } from "./Layout";
 
@@ -25,12 +25,16 @@ const SOCIAL_ICONS: Record<string, (props: { size?: number }) => JSX.Element> = 
   ),
 };
 
+interface FooterColumn {
+  label: string;
+  links: { to: string; label: string }[];
+}
+
 export function Footer() {
   const [email, setEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const { content } = useContentContext();
   const social = content.social;
-
   const socialLinks = social ? Object.entries(social).filter(([, url]) => url) : [];
 
   const handleNewsletter = async () => {
@@ -46,130 +50,139 @@ export function Footer() {
     setTimeout(() => setNewsletterStatus("idle"), 4000);
   };
 
+  const cols: FooterColumn[] = [
+    {
+      label: "Applications",
+      links: (content.apps || []).map((app) => ({ to: `/applications/${app.id}`, label: app.name })),
+    },
+    {
+      label: "Ressources",
+      links: [
+        { to: "/applications", label: "Tous les produits" },
+        { to: "/tarifs",       label: "Tarifs" },
+        { to: "/blog",         label: "Blog" },
+        { to: "/faq",          label: "FAQ" },
+        { to: "/portal",       label: "Souscrire" },
+      ],
+    },
+    {
+      label: "Entreprise",
+      links: [
+        { to: "/a-propos",         label: "À propos" },
+        { to: "/contact",          label: "Contact" },
+        { to: "/mentions-legales", label: "Mentions légales" },
+        { to: "/cgu",              label: "CGU" },
+        { to: "/confidentialite",  label: "Confidentialité" },
+      ],
+    },
+  ];
+
   return (
     <footer className="relative bg-onyx text-neutral-light border-t border-white/[0.06] overflow-hidden">
-      {/* Top gradient line */}
       <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.3) 50%, transparent 100%)" }}
-      />
-      <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[300px] glow-gold opacity-30 pointer-events-none" />
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.35) 50%, transparent 100%)" }} />
+      <div className="absolute inset-0 hero-techgrid opacity-40 pointer-events-none" />
 
-      <div className="relative max-w-site mx-auto px-5 md:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
-          {/* Brand */}
+      <div className="relative max-w-[1280px] mx-auto px-5 md:px-10 lg:px-16 py-20 md:py-24">
+        {/* Méta-strip d'ouverture */}
+        <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/45 flex items-baseline gap-3 md:gap-4 mb-14">
+          <span className="meta-led" />
+          <span>§ Pied — Atlas Studio · MMXXVI</span>
+          <span className="text-neutral-light/25 hidden sm:inline">/</span>
+          <span className="hidden sm:inline text-neutral-light/35">Abidjan · Côte d'Ivoire</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1.6fr_1fr_1fr_1fr] gap-x-10 gap-y-12">
+          {/* Bloc marque + newsletter */}
           <div>
-            <div className="font-logo text-3xl text-gradient-champagne mb-4">Atlas Studio</div>
-            <p className="text-xs text-neutral-muted font-light leading-relaxed max-w-[240px] mb-6">
-              La suite de gestion conçue pour les entreprises d'Afrique francophone. SYSCOHADA natif, Mobile Money, IA <span className="font-logo">Proph3t</span>.
+            <div className="font-logo text-gradient-champagne text-[44px] leading-none mb-5">Atlas Studio</div>
+            <p className="text-[14px] text-neutral-muted font-light leading-relaxed max-w-[320px] mb-8">
+              La suite de gestion conçue pour les entreprises d'Afrique francophone. SYSCOHADA natif, Mobile Money, IA <span className="font-logo text-[16px]">Proph3t</span>.
             </p>
 
-            {/* Social links */}
             {socialLinks.length > 0 && (
-              <div className="flex gap-2 mb-6">
+              <div className="flex gap-2 mb-10">
                 {socialLinks.map(([key, url]) => {
                   const Icon = SOCIAL_ICONS[key];
                   if (!Icon) return null;
                   return (
-                    <a
-                      key={key}
-                      href={url as string}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-neutral-muted hover:text-gold hover:border-gold/40 hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-300"
-                    >
-                      <Icon size={14} />
+                    <a key={key} href={url as string} target="_blank" rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full border border-white/[0.10] flex items-center justify-center text-neutral-muted hover:text-[#A9B57E] hover:border-[#A9B57E]/40 transition-all">
+                      <Icon size={13} />
                     </a>
                   );
                 })}
               </div>
             )}
 
-            {/* Newsletter */}
-            <div className="text-neutral-muted/60 text-[10px] font-semibold uppercase tracking-[0.16em] mb-2.5">Newsletter</div>
-            <div className="flex gap-2">
-              <input
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="votre@email.com"
-                onKeyDown={e => e.key === "Enter" && handleNewsletter()}
-                className="flex-1 px-3.5 py-2.5 bg-ink-200 border border-white/[0.08] rounded-lg text-neutral-light text-[13px] outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted/50"
-              />
-              <button
-                onClick={handleNewsletter}
-                disabled={newsletterStatus === "loading"}
-                className="px-3.5 py-2.5 bg-gradient-to-br from-gold-light via-gold to-gold-dark rounded-lg text-onyx hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
-                aria-label="S'inscrire"
-              >
-                <Send size={14} strokeWidth={2} />
-              </button>
+            {/* Newsletter — bloc éditorial */}
+            <div className="border-t border-white/[0.06] pt-6">
+              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-3">
+                § Newsletter
+              </div>
+              <p className="text-[13px] text-neutral-muted/85 font-light leading-relaxed mb-4 max-w-[320px]">
+                Une note tous les deux mois sur l'OHADA digital. Pas de spam.
+              </p>
+              <div className="flex items-baseline gap-3 border-b border-white/[0.15] pb-3">
+                <input
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  onKeyDown={e => e.key === "Enter" && handleNewsletter()}
+                  className="flex-1 bg-transparent text-neutral-light text-[14px] outline-none placeholder:text-neutral-muted/50 meta-mono"
+                />
+                <button
+                  onClick={handleNewsletter}
+                  disabled={newsletterStatus === "loading"}
+                  className="meta-mono text-[11px] tracking-[0.18em] uppercase text-[#A9B57E] hover:text-[#D6DDB3] transition-colors disabled:opacity-60"
+                  aria-label="S'inscrire"
+                >
+                  S'inscrire →
+                </button>
+              </div>
+              {newsletterStatus === "success" && (
+                <p className="meta-mono text-[10px] tracking-[0.18em] uppercase text-[#A9B57E] mt-3 flex items-center gap-2">
+                  <CheckCircle2 size={11} /> Inscription confirmée
+                </p>
+              )}
+              {newsletterStatus === "error" && (
+                <p className="meta-mono text-[10px] tracking-[0.18em] uppercase text-red-400 mt-3">
+                  Erreur · réessayez
+                </p>
+              )}
             </div>
-            {newsletterStatus === "success" && (
-              <p className="text-emerald-400 text-[11px] mt-2 flex items-center gap-1"><CheckCircle2 size={11} /> Inscription confirmée !</p>
-            )}
-            {newsletterStatus === "error" && (
-              <p className="text-red-400 text-[11px] mt-2">Erreur, réessayez.</p>
-            )}
           </div>
 
-          {/* Applications */}
-          <div>
-            <h4 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold mb-5">Applications</h4>
-            <ul className="text-[13px] text-neutral-muted font-light leading-[2.4]">
-              {(content.apps || []).map((app) => (
-                <li key={app.id}>
-                  <Link to={`/applications/${app.id}`} className="hover:text-gold transition-colors duration-200">
-                    {app.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Ressources */}
-          <div>
-            <h4 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold mb-5">Ressources</h4>
-            <ul className="text-[13px] text-neutral-muted font-light leading-[2.4]">
-              {[
-                { to: "/applications", label: "Tous les produits" },
-                { to: "/tarifs", label: "Tarifs" },
-                { to: "/blog", label: "Blog" },
-                { to: "/faq", label: "FAQ" },
-                { to: "/portal", label: "Souscrire" },
-              ].map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="hover:text-gold transition-colors duration-200">{l.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Entreprise */}
-          <div>
-            <h4 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold mb-5">Entreprise</h4>
-            <ul className="text-[13px] text-neutral-muted font-light leading-[2.4]">
-              {[
-                { to: "/a-propos", label: "À propos" },
-                { to: "/contact", label: "Contact" },
-                { to: "/mentions-legales", label: "Mentions légales" },
-                { to: "/cgu", label: "CGU" },
-                { to: "/confidentialite", label: "Confidentialité" },
-              ].map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="hover:text-gold transition-colors duration-200">{l.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Colonnes éditoriales */}
+          {cols.map((col, ci) => (
+            <div key={col.label}>
+              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6 flex items-baseline gap-2">
+                <span className="tabular-nums text-neutral-light/45">{String(ci + 1).padStart(2, "0")}</span>
+                <span>{col.label}</span>
+              </div>
+              <ul className="space-y-3">
+                {col.links.map((l) => (
+                  <li key={l.to}>
+                    <Link to={l.to} className="text-[14px] text-neutral-light/75 hover:text-[#A9B57E] transition-colors font-light leading-snug">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="relative border-t border-white/[0.05] px-5 md:px-8 py-5 flex justify-between flex-wrap gap-4 max-w-site mx-auto">
-        <p className="text-neutral-muted/60 text-[11px] font-light">
-          &copy; 2026 Atlas Studio<Link to="/admin/login" className="text-neutral-muted/60 hover:text-neutral-muted/60 cursor-default">.</Link> Abidjan, Côte d'Ivoire
+      {/* Bottom bar */}
+      <div className="relative border-t border-white/[0.06] px-5 md:px-10 lg:px-16 py-6 max-w-[1280px] mx-auto flex justify-between flex-wrap gap-4 items-baseline">
+        <p className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/35">
+          © {new Date().getFullYear()} Atlas Studio
+          <Link to="/admin/login" className="text-neutral-light/35 hover:text-neutral-light/35 cursor-default mx-0.5">.</Link>
+          · Abidjan, Côte d'Ivoire
         </p>
-        <p className="text-neutral-muted/60 text-[11px] font-light">
-          Données chiffrées AES-256 — traitement IA 100% local sur nos serveurs dédiés
+        <p className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/35">
+          Données chiffrées AES-256 · IA souveraine
         </p>
       </div>
     </footer>
