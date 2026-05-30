@@ -56,8 +56,8 @@ function AppPricingSection({ app }: { app: AppItem }) {
               }`}
               style={{
                 background: isPopular
-                  ? "linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.01) 100%), #0E1525"
-                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #0E1525",
+                  ? "linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.01) 100%), #232629"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #232629",
               }}
             >
               {isPopular && (

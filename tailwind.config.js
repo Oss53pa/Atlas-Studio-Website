@@ -5,16 +5,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Midnight Emerald — deep midnight navy with warm undertone
-        onyx: '#070B12',
+        // Anthracite — neutral dark grey scale (replaces former midnight navy).
+        onyx: '#15171C',
         ink: {
-          DEFAULT: '#0A0F1A',
-          50: '#0A0F1A',
-          100: '#0E1525',
-          200: '#131B2D',
-          300: '#1A2438',
-          400: '#212E45',
-          500: '#2A3858',
+          DEFAULT: '#1F2128',
+          50: '#1F2128',
+          100: '#232629',
+          200: '#2A2D34',
+          300: '#353940',
+          400: '#3D414A',
+          500: '#474C56',
         },
         // PRIMARY ACCENT — Emerald (replaces former gold visually).
         // Class names kept as `gold-*` so existing components continue to work,
@@ -57,13 +57,13 @@ export default {
           border: '#E8E6E1',
         },
         dark: {
-          bg: '#0A0F1A',
-          bg2: '#0E1525',
-          bg3: '#131B2D',
-          bg4: '#1A2438',
-          border: '#212E45',
-          border2: '#2A3858',
-          border3: '#384668',
+          bg: '#1F2128',
+          bg2: '#232629',
+          bg3: '#2A2D34',
+          bg4: '#353940',
+          border: '#3D414A',
+          border2: '#474C56',
+          border3: '#5A606C',
         },
         admin: {
           bg: '#1F2128',
@@ -111,8 +111,8 @@ export default {
         'gradient-gold-soft': 'linear-gradient(135deg, rgba(16,185,129,0.14) 0%, rgba(52,211,153,0.06) 100%)',
         // Champagne for brand wordmark
         'gradient-champagne': 'linear-gradient(135deg, #C8A672 0%, #E8D4B8 35%, #FAF0E0 50%, #E8D4B8 65%, #C8A672 100%)',
-        'gradient-ink': 'linear-gradient(180deg, #0A0F1A 0%, #0E1525 100%)',
-        'gradient-ink-radial': 'radial-gradient(ellipse at top, #131B2D 0%, #0A0F1A 60%)',
+        'gradient-ink': 'linear-gradient(180deg, #1F2128 0%, #232629 100%)',
+        'gradient-ink-radial': 'radial-gradient(ellipse at top, #2A2D34 0%, #1F2128 60%)',
         'gradient-card': 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
         'gradient-card-hover': 'linear-gradient(180deg, rgba(16,185,129,0.06) 0%, rgba(255,255,255,0.02) 100%)',
         'gradient-border': 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 100%)',

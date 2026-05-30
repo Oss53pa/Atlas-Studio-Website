@@ -175,7 +175,7 @@ export default function ApplicationDetailPage() {
       {/* ===== MOCKUPS ===== */}
       <section className="relative py-20 md:py-28 px-5 md:px-8 overflow-hidden border-y border-white/[0.04]"
         style={{
-          background: "linear-gradient(180deg, #0E1525 0%, #131B2D 50%, #0E1525 100%)",
+          background: "linear-gradient(180deg, #232629 0%, #2A2D34 50%, #232629 100%)",
         }}
       >
         <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
@@ -306,8 +306,8 @@ export default function ApplicationDetailPage() {
                     }`}
                     style={{
                       background: isPopular
-                        ? "linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.01) 100%), #0E1525"
-                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #0E1525",
+                        ? "linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.01) 100%), #232629"
+                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #232629",
                     }}
                   >
                     {isPopular && (
