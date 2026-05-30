@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useContentContext } from "../components/layout/Layout";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
-import { StatCounter } from "../components/ui/StatCounter";
 import { AppCard } from "../components/ui/AppCard";
 import { SectorBadge } from "../components/ui/SectorBadge";
 import { SEOHead } from "../components/ui/SEOHead";
 import { FAQItem } from "../components/ui/FAQItem";
 import { StyledText } from "../components/ui/StyledText";
+import { AtlasConstellation } from "../components/sections/AtlasConstellation";
 import { useState } from "react";
 
 export default function HomePage() {
@@ -20,86 +20,135 @@ export default function HomePage() {
     <>
       <SEOHead title="Accueil" description="Atlas Studio - Solutions digitales professionnelles pour les entreprises africaines." canonical="/" />
 
-      {/* ===== HERO — cinematic ===== */}
-      <section className="relative bg-onyx text-neutral-light min-h-screen flex items-center justify-center text-center px-5 md:px-8 pt-24 pb-14 md:pt-28 md:pb-20 overflow-hidden">
-        {/* Layered backgrounds */}
-        <div className="absolute inset-0 bg-dotgrid opacity-40 pointer-events-none" />
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(169,181,126,0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(8,8,11,1) 60%, transparent 100%)",
-          }}
-        />
-        <div className="aurora-blob-gold" style={{ top: "10%", left: "50%", transform: "translateX(-50%)" }} />
-        <div className="aurora-blob-teal" style={{ bottom: "5%", right: "5%" }} />
+      {/* ════════════════════════════════════════════════════════════════
+           HERO — éditorial asymétrique, signature OHADA, data-tape
+           Refonte volontairement non-générique : grille technique de fond,
+           kinetic typography, constellation des 17 États OHADA à droite.
+         ════════════════════════════════════════════════════════════════ */}
+      {(() => {
+        const rawTitle = content.hero?.title || "";
+        const parts = rawTitle.split(/\.\s+/);
+        const line1 = (parts[0] || "").trim();
+        const line1Words = line1.split(" ");
+        const line1Last = line1Words.pop() || "";
+        const line1Rest = line1Words.join(" ");
+        const line2 = parts.slice(1).join(". ").replace(/\.+$/, "");
 
-        {/* Vignette */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse 70% 70% at 50% 50%, transparent 0%, rgba(8,8,11,0.6) 100%)",
-          }}
-        />
+        // Nombre de produits actifs — suit le catalogue réel (logique reprise de main).
+        const productCount = content.apps?.length ?? 0;
 
-        <div className="relative max-w-5xl mx-auto hero-anim">
-          <div className="mb-8">
-            <span
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-medium tracking-[0.16em] uppercase mb-6 glass"
-              style={{ color: "#C2CC92" }}
-            >
-              <Sparkles size={12} className="text-gold" />
-              Suite logicielle premium · OHADA
-            </span>
-            <div>
-              <span className="font-logo text-gradient-champagne text-5xl md:text-6xl">Atlas Studio</span>
+        const tapeItems = [
+          ...(content.stats || []).map(s => ({
+            glyph: "▎",
+            value: /produit/i.test(s.label) && productCount > 0 ? String(productCount) : s.value,
+            label: s.label,
+          })),
+          ...(Array.isArray(content.trustBar) ? content.trustBar : []).map(it => ({ glyph: "◇", value: it, label: "" })),
+        ];
+
+        return (
+          <section className="relative bg-onyx text-neutral-light min-h-screen flex flex-col px-5 md:px-10 lg:px-16 pt-28 md:pt-32 pb-0 overflow-hidden">
+            {/* fond : grille technique + halo kaki latéral */}
+            <div className="absolute inset-0 hero-techgrid pointer-events-none" />
+            <div className="absolute inset-0 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse 60% 50% at 18% 35%, rgba(169,181,126,0.13) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 85% 80%, rgba(200,166,114,0.06) 0%, transparent 60%)" }} />
+
+            {/* META STRIP — bandeau éditorial supérieur */}
+            <div className="relative max-w-[1280px] mx-auto w-full flex items-baseline justify-between gap-4 flex-wrap mb-12 md:mb-16">
+              <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/55 flex items-baseline gap-3 md:gap-4">
+                <span className="meta-led" />
+                <span>Édition MMXXVI</span>
+                <span className="text-neutral-light/25">/</span>
+                <span>OHADA · 17 États</span>
+                {productCount > 0 && (
+                  <>
+                    <span className="text-neutral-light/25 hidden sm:inline">/</span>
+                    <span className="hidden sm:inline">{productCount} produits actifs</span>
+                  </>
+                )}
+              </div>
+              <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/45 hidden md:block">
+                Suite logicielle — Afrique francophone
+              </div>
             </div>
-          </div>
-          <h1 className="text-[44px] md:text-[68px] font-medium leading-[1.12] mb-7 tracking-[-0.02em] text-gradient-light pb-1">
-            {content.hero.title}
-          </h1>
-          <p className="text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto text-neutral-muted font-light">
-            {content.hero.subtitle}
-          </p>
-          <div className="flex items-center justify-center gap-4 flex-wrap mb-14">
-            <Link to="/portal" className="btn-gold">
-              {t("home.startFree")}
-              <ArrowRight size={16} strokeWidth={2.2} />
-            </Link>
-            <Link to="/applications" className="btn-outline-light">{t("home.seeApps")}</Link>
-          </div>
-          <div className="relative flex justify-center pt-12 max-w-[760px] mx-auto">
-            {/* Refined gradient divider */}
-            <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.3) 50%, transparent 100%)" }}
-            />
-            {(content.stats || []).map((s, i) => {
-              // Le nombre de produits suit le catalogue réel (évite toute valeur figée obsolète).
-              const productCount = content.apps?.length ?? 0;
-              const value = /produit/i.test(s.label) && productCount > 0 ? String(productCount) : s.value;
-              return (
-                <div
-                  key={i}
-                  className={`flex-1 px-6 ${i < (content.stats || []).length - 1 ? "border-r border-white/[0.06]" : ""}`}
-                >
-                  <StatCounter value={value} label={s.label} />
+
+            {/* CONTENU PRINCIPAL — grille 12 colonnes asymétrique */}
+            <div className="relative max-w-[1280px] mx-auto w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pb-16 lg:pb-24">
+
+              {/* COL GAUCHE — édito */}
+              <div className="lg:col-span-7 hero-anim">
+                <div className="font-logo text-gradient-champagne text-[28px] md:text-[34px] leading-none mb-6 md:mb-8">
+                  Atlas Studio
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* ===== TRUST BAR ===== */}
-      <div className="relative bg-ink-100 border-y border-white/[0.05] py-4 px-5 md:px-8">
-        <div className="absolute inset-0 bg-dotgrid opacity-30 pointer-events-none" />
-        <div className="relative flex items-center justify-center gap-0 flex-wrap trust-anim">
-          {(Array.isArray(content.trustBar) ? content.trustBar : []).map((item, i) => (
-            <div key={i} className={`text-[12px] text-neutral-muted px-5 py-1.5 ${i < (content.trustBar || []).length - 1 ? "border-r border-white/[0.06]" : ""}`}>
-              <span className="trust-dot" /><StyledText>{item}</StyledText>
+                <h1 className="font-display font-medium tracking-[-0.035em]
+                               text-[44px] sm:text-[56px] md:text-[76px] lg:text-[88px]
+                               leading-[0.96] mb-8 md:mb-10">
+                  <span>
+                    {line1Rest}{line1Rest ? " " : ""}
+                    <span className="kinetic-word">{line1Last}</span>
+                    {line1 ? "." : ""}
+                  </span>
+                  {line2 && (
+                    <>
+                      <br />
+                      <span className="italic font-light text-neutral-light/75 text-[78%]">
+                        {line2}.
+                      </span>
+                    </>
+                  )}
+                </h1>
+
+                <p className="text-[16px] md:text-[18px] leading-relaxed text-neutral-muted font-light max-w-[540px] mb-10 md:mb-14">
+                  {content.hero?.subtitle}
+                </p>
+
+                <div className="flex items-baseline gap-6 md:gap-8 flex-wrap">
+                  <Link to="/portal" className="cta-arrow cta-arrow--primary">
+                    {t("home.startFree")}
+                  </Link>
+                  <Link to="/applications" className="cta-arrow">
+                    {t("home.seeApps")}
+                  </Link>
+                </div>
+              </div>
+
+              {/* COL DROITE — constellation OHADA, signature visuelle */}
+              <div className="lg:col-span-5">
+                <div className="relative aspect-square w-full max-w-[460px] lg:max-w-[520px] mx-auto lg:ml-auto lg:mr-0">
+                  {/* repères mathématiques aux quatre coins */}
+                  <div className="absolute -top-3 -left-3 w-6 h-6 border-t border-l border-[#A9B57E]/40" />
+                  <div className="absolute -top-3 -right-3 w-6 h-6 border-t border-r border-[#A9B57E]/40" />
+                  <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b border-l border-[#A9B57E]/40" />
+                  <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b border-r border-[#A9B57E]/40" />
+                  <AtlasConstellation className="w-full h-full" />
+                </div>
+                {/* Légende discrète sous la constellation, en mono */}
+                <div className="hidden lg:flex justify-between items-baseline mt-4 max-w-[520px] ml-auto meta-mono text-[10px] tracking-[0.2em] uppercase text-neutral-light/40">
+                  <span>UEMOA · 8</span>
+                  <span>CEMAC · 6</span>
+                  <span>Hors zone · 3</span>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+
+            {/* DATA TAPE — bande défilante de données ; remplace la trust-bar */}
+            <div className="relative -mx-5 md:-mx-10 lg:-mx-16 border-t border-white/[0.08] bg-black/20 backdrop-blur-[2px]">
+              <div className="overflow-hidden">
+                <div className="data-tape py-4">
+                  {tapeItems.concat(tapeItems).map((it, i) => (
+                    <span key={i} className="flex items-baseline gap-3 px-8 meta-mono text-[11px] tracking-[0.18em] uppercase whitespace-nowrap">
+                      <span className="text-[#A9B57E]">{it.glyph}</span>
+                      <span className="text-neutral-light/85"><StyledText>{it.value}</StyledText></span>
+                      {it.label && <span className="text-neutral-light/45"><StyledText>{it.label}</StyledText></span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* ===== PRODUITS ===== */}
       <section className="relative bg-onyx border-t border-white/[0.04] py-24 px-5 md:px-8 overflow-hidden">
