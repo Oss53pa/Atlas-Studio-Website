@@ -66,9 +66,9 @@ export default {
           border3: '#384668',
         },
         admin: {
-          bg: '#0A0F1A',
-          surface: '#1E2438',
-          'surface-alt': '#2A3247',
+          bg: '#1F2128',
+          surface: '#2A2D34',
+          'surface-alt': '#353940',
           accent: '#10B981',
           'accent-dark': '#047857',
           text: '#F5F5F5',
