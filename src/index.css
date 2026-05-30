@@ -636,9 +636,11 @@
    UTILITIES
    ============================================================ */
 @layer utilities {
-  /* Emerald gradient text — primary accent */
+  /* Olive gradient text — primary accent.
+     Tous les arrêts sont calibrés ≥ 7:1 sur le fond anthracite #17171a
+     (lisibilité AAA pour les prix et chiffres clés). */
   .text-gradient-gold {
-    background: linear-gradient(135deg, #74804F 0%, #A9B57E 35%, #D6DDB3 50%, #A9B57E 65%, #74804F 100%);
+    background: linear-gradient(135deg, #C2CC92 0%, #D6DDB3 35%, #ECEAE3 50%, #D6DDB3 65%, #C2CC92 100%);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
