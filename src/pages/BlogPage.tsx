@@ -84,7 +84,7 @@ export default function BlogPage() {
             <span className="text-neutral-light/25 hidden sm:inline">/</span>
             <span className="hidden sm:inline text-neutral-light/45">OHADA · Afrique francophone</span>
           </div>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[32px] sm:text-[40px] md:text-[52px] lg:text-[60px] text-neutral-light max-w-4xl mb-8">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[22px] sm:text-[15px] md:text-[17px] lg:text-[38px] text-neutral-light max-w-4xl mb-8">
             Le journal{" "}
             <span className="font-logo text-gradient-champagne text-[80%]">Atlas</span>.
           </h1>
@@ -165,7 +165,7 @@ export default function BlogPage() {
             <span className="meta-led" />
             <span>§ FIN — Journal</span>
           </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[26px] sm:text-[36px] md:text-[44px] text-neutral-light max-w-3xl mb-10">
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[18px] sm:text-[16px] md:text-[18px] text-neutral-light max-w-3xl mb-10">
             <span className="italic font-light text-neutral-light/70">Recevez le suivant</span> dans votre boîte.
           </h2>
           <Link to="/contact" className="cta-arrow cta-arrow--primary">

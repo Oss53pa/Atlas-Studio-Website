@@ -28,7 +28,7 @@ export function AboutHero() {
         </div>
 
         <ScrollReveal>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[30px] sm:text-[38px] md:text-[48px] lg:text-[56px] text-neutral-light max-w-5xl mb-12">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[20px] sm:text-[24px] md:text-[28px] lg:text-[34px] text-neutral-light max-w-5xl mb-12">
             Vous passez des heures à refaire ce que votre logiciel aurait dû livrer <span className="kinetic-word">directement</span>.
           </h1>
         </ScrollReveal>
@@ -47,7 +47,7 @@ export function AboutHero() {
                 marché ne sont pas mauvais. Ils ignorent simplement vos réalités : SYSCOHADA,
                 Mobile Money, réseau capricieux, fiscalité qui change à chaque frontière.
               </p>
-              <p className="text-neutral-light font-display italic text-[20px] md:text-[24px] leading-snug">
+              <p className="text-neutral-light font-display italic text-[15px] md:text-[17px] leading-snug">
                 Alors nous avons bâti la suite que nous cherchions sans jamais la trouver.
               </p>
             </div>
@@ -64,7 +64,7 @@ export function AboutHero() {
                       <span className="text-[#A9B57E] mr-2">{String(i + 1).padStart(2, "0")}</span>
                       {s.label}
                     </dt>
-                    <dd className="font-display font-medium text-[26px] md:text-[32px] leading-none text-[#D6DDB3] tracking-tight tabular-nums">
+                    <dd className="font-display font-medium text-[15px] md:text-[17px] leading-none text-[#D6DDB3] tracking-tight tabular-nums">
                       {s.value}
                     </dd>
                   </div>

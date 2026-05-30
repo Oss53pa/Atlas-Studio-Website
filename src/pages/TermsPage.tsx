@@ -111,7 +111,7 @@ function SectionRenderer({ section }: { section: TermsSection }) {
       <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-4 tabular-nums">
         Article {section.number}
       </div>
-      <h2 className="font-display font-medium text-[24px] md:text-[32px] text-neutral-light tracking-tight leading-tight mb-7">
+      <h2 className="font-display font-medium text-[14px] md:text-[16px] text-neutral-light tracking-tight leading-tight mb-7">
         {section.title}
       </h2>
       <div>

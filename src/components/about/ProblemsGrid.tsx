@@ -34,7 +34,7 @@ export function ProblemsGrid() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § Constat
             </div>
-            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[38px] text-neutral-light max-w-3xl">
+            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light max-w-3xl">
               Ce qui vous freine aujourd'hui, <span className="italic font-light text-neutral-light/75">nous l'avons réglé.</span>
             </h2>
           </div>
@@ -50,7 +50,7 @@ export function ProblemsGrid() {
                 <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-4">
                   {String(i + 1).padStart(2, "0")} · Frein
                 </div>
-                <h3 className="font-display font-medium text-[22px] md:text-[26px] text-neutral-light tracking-tight leading-snug mb-4">
+                <h3 className="font-display font-medium text-[16px] md:text-[18px] text-neutral-light tracking-tight leading-snug mb-4">
                   {p.title}
                 </h3>
                 <p className="text-[14px] text-neutral-muted font-light leading-relaxed mb-4">

@@ -52,7 +52,7 @@ export default function ContactPage() {
             <span className="text-neutral-light/25">/</span>
             <span>Réponse sous 24h</span>
           </div>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[32px] sm:text-[40px] md:text-[52px] lg:text-[60px] text-neutral-light max-w-4xl">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[22px] sm:text-[15px] md:text-[17px] lg:text-[38px] text-neutral-light max-w-4xl">
             Parlons-en. <span className="italic font-light text-neutral-light/70">Concrètement.</span>
           </h1>
           <p className="text-[16px] md:text-[18px] text-neutral-muted font-light max-w-[560px] leading-relaxed mt-8">

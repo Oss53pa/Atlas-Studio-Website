@@ -40,7 +40,7 @@ export function DifferentiatorsList() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § Différenciateurs
             </div>
-            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[38px] text-neutral-light max-w-3xl">
+            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light max-w-3xl">
               Ce que vous pouvez faire avec{" "}
               <span className="font-logo text-gradient-champagne text-[80%]">Atlas Studio</span>
             </h2>
@@ -55,12 +55,12 @@ export function DifferentiatorsList() {
             <ScrollReveal key={item.num} delay={i * 60}>
               <article className={`group grid grid-cols-12 gap-4 md:gap-8 py-10 border-t border-white/[0.06] ${i === ITEMS.length - 1 ? "border-b" : ""}`}>
                 <div className="col-span-12 md:col-span-2 flex items-baseline">
-                  <span className="font-display font-light text-[42px] md:text-[60px] leading-none text-[#A9B57E]/85 tracking-tighter tabular-nums group-hover:text-[#D6DDB3] transition-colors">
+                  <span className="font-display font-light text-[28px] md:text-[36px] leading-none text-[#A9B57E]/85 tracking-tighter tabular-nums group-hover:text-[#D6DDB3] transition-colors">
                     {item.num}
                   </span>
                 </div>
                 <div className="col-span-12 md:col-span-10">
-                  <h3 className="font-display font-medium text-[22px] md:text-[28px] leading-tight text-neutral-light mb-4 tracking-[-0.02em] group-hover:text-[#D6DDB3] transition-colors">
+                  <h3 className="font-display font-medium text-[16px] md:text-[20px] leading-tight text-neutral-light mb-4 tracking-[-0.02em] group-hover:text-[#D6DDB3] transition-colors">
                     <StyledText>{item.title}</StyledText>
                   </h3>
                   <p className="text-[14px] md:text-[15px] text-neutral-muted font-light leading-relaxed max-w-[720px]">

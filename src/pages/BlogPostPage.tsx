@@ -34,7 +34,7 @@ export default function BlogPostPage() {
             <span className="text-neutral-light/55">{post.readTime}</span>
           </div>
 
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[26px] sm:text-[36px] md:text-[44px] lg:text-[88px] text-neutral-light max-w-5xl mb-10">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[18px] sm:text-[16px] md:text-[18px] lg:text-[88px] text-neutral-light max-w-5xl mb-10">
             {post.title}
           </h1>
 
@@ -88,7 +88,7 @@ export default function BlogPostPage() {
                 <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
                   § Suite
                 </div>
-                <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light">
+                <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light">
                   Continuer la lecture
                 </h2>
               </div>

@@ -23,7 +23,7 @@ export default function FAQPage() {
             <span className="text-neutral-light/25">/</span>
             <span>{content.faqs?.length ?? 0} entrées</span>
           </div>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[32px] sm:text-[40px] md:text-[52px] lg:text-[60px] text-neutral-light max-w-4xl">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[22px] sm:text-[15px] md:text-[17px] lg:text-[38px] text-neutral-light max-w-4xl">
             Questions <span className="kinetic-word">fréquentes</span>.
           </h1>
           <p className="text-[16px] md:text-[18px] text-neutral-muted font-light max-w-[540px] leading-relaxed mt-8">
@@ -63,7 +63,7 @@ export default function FAQPage() {
               <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-4">
                 § Pas trouvé ?
               </div>
-              <h3 className="font-display font-medium text-[24px] md:text-[32px] text-neutral-light leading-tight tracking-tight mb-6">
+              <h3 className="font-display font-medium text-[14px] md:text-[16px] text-neutral-light leading-tight tracking-tight mb-6">
                 L'équipe vous répond en moins de 24h.
               </h3>
               <Link to="/contact" className="cta-arrow cta-arrow--primary">

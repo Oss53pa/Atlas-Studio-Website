@@ -24,7 +24,7 @@ export function CredibilitySection() {
         <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
           § Origine — Sur le terrain
         </div>
-        <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[38px] text-neutral-light max-w-4xl mb-7">
+        <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light max-w-4xl mb-7">
           Atlas Studio est née <span className="kinetic-word">sur le terrain</span>,<br className="hidden md:block" />
           <span className="italic font-light text-neutral-light/75">pas dans une salle de réunion.</span>
         </h2>
@@ -51,7 +51,7 @@ export function CredibilitySection() {
 
             {/* Bio + parcours */}
             <div className="lg:col-span-8">
-              <blockquote className="font-display font-light italic text-[18px] md:text-[22px] text-neutral-light/85 leading-snug mb-10">
+              <blockquote className="font-display font-light italic text-[14px] md:text-[16px] text-neutral-light/85 leading-snug mb-10">
                 <span className="text-[#A9B57E] mr-1">«</span>
                 {FOUNDER.bio}
                 <span className="text-[#A9B57E] ml-1">»</span>
