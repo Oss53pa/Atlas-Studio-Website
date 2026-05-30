@@ -7,21 +7,23 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
   switch (block.type) {
     case "paragraph":
       return (
-        <p className="text-neutral-muted text-[13px] leading-relaxed mb-3">
+        <p className="text-neutral-muted/95 text-[14px] leading-relaxed mb-4 font-light">
           {block.text}
         </p>
       );
 
     case "list":
       return (
-        <div className="mb-3">
+        <div className="mb-4">
           {block.title && (
-            <p className="text-[#F5F5F5] text-[13px] font-semibold mb-2">{block.title}</p>
+            <p className="text-neutral-light text-[13px] font-medium mb-3">{block.title}</p>
           )}
-          <ul className="space-y-1.5">
+          <ul className="space-y-2">
             {block.items.map((item, i) => (
-              <li key={i} className="text-neutral-muted text-[13px] leading-relaxed flex gap-2">
-                <span className="text-gold mt-1.5 shrink-0">•</span>
+              <li key={i} className="text-neutral-muted/95 text-[14px] leading-relaxed font-light flex items-baseline gap-3">
+                <span className="meta-mono text-[10px] tabular-nums text-[#A9B57E]/80 mt-0.5">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
                 <span>{item}</span>
               </li>
             ))}
@@ -31,11 +33,11 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
 
     case "definitions":
       return (
-        <dl className="space-y-2.5 mb-3">
+        <dl className="space-y-4 mb-4 border-t border-white/[0.06] pt-4">
           {block.items.map((d, i) => (
-            <div key={i} className="border-l-2 border-gold/30 pl-3">
-              <dt className="text-gold text-[13px] font-semibold">{d.term}</dt>
-              <dd className="text-neutral-muted text-[13px] leading-relaxed mt-0.5">{d.definition}</dd>
+            <div key={i}>
+              <dt className="meta-mono text-[11px] tracking-[0.16em] uppercase text-[#A9B57E] mb-1">{d.term}</dt>
+              <dd className="text-neutral-muted/95 text-[14px] leading-relaxed font-light">{d.definition}</dd>
             </div>
           ))}
         </dl>
@@ -43,12 +45,12 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
 
     case "table":
       return (
-        <div className="mb-3 overflow-x-auto">
-          <table className="w-full text-[12px] border border-dark-border rounded-lg overflow-hidden">
+        <div className="mb-4 overflow-x-auto">
+          <table className="w-full text-[13px] border-collapse">
             <thead>
-              <tr className="bg-white/[0.03]">
+              <tr className="border-b border-white/[0.12]">
                 {block.headers.map((h, i) => (
-                  <th key={i} className="text-left px-3 py-2 text-[#F5F5F5] font-semibold border-b border-dark-border">
+                  <th key={i} className="text-left p-3 meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/55">
                     {h}
                   </th>
                 ))}
@@ -56,9 +58,9 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
             </thead>
             <tbody>
               {block.rows.map((row, i) => (
-                <tr key={i} className="border-b border-dark-border/50 last:border-0">
+                <tr key={i} className="border-b border-white/[0.04]">
                   {row.map((cell, j) => (
-                    <td key={j} className="px-3 py-2 text-neutral-muted leading-relaxed">
+                    <td key={j} className="p-3 text-neutral-muted/95 leading-relaxed font-light">
                       {cell}
                     </td>
                   ))}
@@ -71,24 +73,26 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
 
     case "callout": {
       const variantStyles = {
-        warning: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-300", Icon: AlertTriangle },
-        info: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-300", Icon: Info },
-        important: { bg: "bg-red-500/10", border: "border-red-500/30", text: "text-red-300", Icon: AlertCircle },
+        warning:   { border: "border-amber-400/60",  text: "text-amber-200", Icon: AlertTriangle },
+        info:      { border: "border-[#A9B57E]/60", text: "text-[#D6DDB3]",  Icon: Info },
+        important: { border: "border-red-400/60",    text: "text-red-200",   Icon: AlertCircle },
       }[block.variant];
       const { Icon } = variantStyles;
       return (
-        <div className={`flex gap-2.5 p-3 rounded-lg border ${variantStyles.bg} ${variantStyles.border} mb-3`}>
-          <Icon size={16} className={`${variantStyles.text} shrink-0 mt-0.5`} />
-          <p className={`text-[13px] leading-relaxed ${variantStyles.text}`}>{block.text}</p>
+        <div className={`flex gap-3 border-l-2 ${variantStyles.border} pl-4 py-2 mb-4`}>
+          <Icon size={15} className={`${variantStyles.text} shrink-0 mt-1`} strokeWidth={1.8} />
+          <p className={`text-[13px] leading-relaxed font-light ${variantStyles.text}`}>{block.text}</p>
         </div>
       );
     }
 
     case "subsection":
       return (
-        <div className="mb-4">
-          <h4 className="text-[#F5F5F5] text-[14px] font-semibold mb-2">{block.heading}</h4>
-          <div className="pl-3 border-l border-dark-border">
+        <div className="mb-5">
+          <h4 className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-3">
+            {block.heading}
+          </h4>
+          <div>
             {block.blocks.map((b, i) => (
               <BlockRenderer key={i} block={b} />
             ))}
@@ -103,27 +107,25 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
 
 function SectionRenderer({ section }: { section: TermsSection }) {
   return (
-    <section id={section.id} className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-6 md:p-8 mb-4 scroll-mt-28 overflow-hidden">
-      <div className="absolute -top-px left-[8%] right-[8%] h-px"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
-      />
-      <div className="flex items-baseline gap-3 mb-5 pb-4 border-b border-white/[0.06]">
-        <span className="text-gradient-gold text-2xl font-bold font-mono tracking-tight">{section.number}</span>
-        <h2 className="text-neutral-light text-lg md:text-xl font-semibold tracking-tight">{section.title}</h2>
+    <article id={section.id} className="scroll-mt-28 border-t border-white/[0.06] pt-10 pb-12 first:border-t-0 first:pt-0">
+      <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-4 tabular-nums">
+        Article {section.number}
       </div>
+      <h2 className="font-display font-medium text-[24px] md:text-[32px] text-neutral-light tracking-tight leading-tight mb-7">
+        {section.title}
+      </h2>
       <div>
         {section.blocks.map((block, i) => (
           <BlockRenderer key={i} block={block} />
         ))}
       </div>
-    </section>
+    </article>
   );
 }
 
 export default function TermsPage() {
   const [activeId, setActiveId] = useState<string>(TERMS_V2.sections[0].id);
 
-  // Track the section currently visible in the viewport
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -143,103 +145,93 @@ export default function TermsPage() {
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div className="bg-onyx text-[#F5F5F5] pt-28 pb-20 md:pt-32 md:pb-28 px-5 md:px-8 min-h-screen relative overflow-hidden">
+    <div className="min-h-screen bg-onyx text-[#F5F5F5]">
       <SEOHead
         title="Conditions Generales d'Utilisation"
         description="Conditions generales d'utilisation Atlas Studio v2.0 - applicable au 11 avril 2026."
         canonical="/cgu"
       />
 
-      <div className="absolute inset-0 bg-dotgrid opacity-25 pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] glow-gold pointer-events-none" />
-
-      <div className="relative max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-10 md:mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/10 border border-gold/25 mb-5 backdrop-blur-sm">
-            <span className="text-gold text-[11px] font-semibold uppercase tracking-[0.16em]">
-              Version {TERMS_V2.version}
-            </span>
-            <span className="text-neutral-muted/50 text-[11px]">·</span>
-            <span className="text-neutral-muted text-[11px]">En vigueur le {TERMS_V2.effectiveDate}</span>
+      {/* HERO ÉDITORIAL */}
+      <section className="relative pt-28 pb-12 md:pt-36 md:pb-16 px-5 md:px-10 lg:px-16 border-b border-white/[0.06] overflow-hidden">
+        <div className="absolute inset-0 hero-techgrid pointer-events-none" />
+        <div className="relative max-w-[1280px] mx-auto">
+          <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/55 flex items-baseline gap-3 md:gap-4 mb-10 flex-wrap">
+            <span className="meta-led" />
+            <span>§ Document légal</span>
+            <span className="text-neutral-light/25">/</span>
+            <span className="text-[#A9B57E]">CGU · Version {TERMS_V2.version}</span>
+            <span className="text-neutral-light/25 hidden sm:inline">/</span>
+            <span className="hidden sm:inline text-neutral-light/45">En vigueur le {TERMS_V2.effectiveDate}</span>
           </div>
-          <h1 className="text-gradient-light text-3xl md:text-5xl font-medium mb-4 tracking-tight leading-[1.12]">
-            Conditions Generales d'Utilisation
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[40px] sm:text-[56px] md:text-[72px] lg:text-[80px] text-neutral-light max-w-5xl mb-8">
+            Conditions Générales d'<span className="italic font-light text-neutral-light/70">Utilisation</span>.
           </h1>
-          <p className="text-neutral-muted text-sm max-w-2xl mx-auto leading-relaxed font-light">
-            Les presentes conditions regissent l'utilisation de l'ensemble des Applications editees
-            par Atlas Studio. Elles remplacent la version {TERMS_V2.previousVersion}.
+          <p className="text-[15px] md:text-[16px] text-neutral-muted font-light max-w-2xl leading-relaxed">
+            Régit l'usage de l'ensemble des applications éditées par Atlas Studio.
+            Remplace la version {TERMS_V2.previousVersion}.
           </p>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
-          {/* Sommaire (Table of Contents) */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto overflow-hidden">
-              <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
-              />
-              <h3 className="text-gold text-[11px] font-semibold uppercase tracking-[0.16em] mb-4 px-2">
-                Sommaire
-              </h3>
-              <nav>
-                <ul className="space-y-0.5">
-                  {TERMS_V2.sections.map((s) => {
-                    const isActive = activeId === s.id;
-                    return (
-                      <li key={s.id}>
-                        <button
-                          onClick={() => scrollToSection(s.id)}
-                          className={`w-full text-left px-2 py-1.5 rounded-md text-[12px] transition-colors flex items-start gap-2 ${
-                            isActive
-                              ? "bg-gold/10 text-gold"
-                              : "text-neutral-muted hover:text-[#F5F5F5] hover:bg-white/[0.03]"
-                          }`}
-                        >
-                          <span className={`font-mono text-[11px] shrink-0 ${isActive ? "text-gold" : "text-neutral-500"}`}>
-                            {s.number}
-                          </span>
-                          <span className="leading-snug">{s.title}</span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </nav>
+      {/* CORPS — Sommaire sticky + sections */}
+      <section className="relative py-20 md:py-28 px-5 md:px-10 lg:px-16">
+        <div className="relative max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+          {/* Sommaire */}
+          <aside className="lg:col-span-4 lg:sticky lg:top-28 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+            <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+              § Sommaire
             </div>
+            <ol className="space-y-1">
+              {TERMS_V2.sections.map((s) => {
+                const isActive = activeId === s.id;
+                return (
+                  <li key={s.id}>
+                    <button
+                      onClick={() => scrollToSection(s.id)}
+                      className={`w-full text-left py-2 meta-mono text-[11px] tracking-[0.14em] transition-colors flex items-baseline gap-3 ${
+                        isActive ? "text-[#A9B57E]" : "text-neutral-light/55 hover:text-neutral-light"
+                      }`}
+                    >
+                      <span className={`tabular-nums shrink-0 ${isActive ? "text-[#A9B57E]" : "text-[#A9B57E]/60"}`}>
+                        {s.number}
+                      </span>
+                      <span className="leading-snug flex-1">{s.title}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
           </aside>
 
-          {/* Content */}
-          <div>
+          {/* Sections */}
+          <div className="lg:col-span-8">
             {TERMS_V2.sections.map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
 
-            {/* Footer */}
-            <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-7 mt-4 text-center overflow-hidden">
-              <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.4) 50%, transparent 100%)" }}
-              />
-              <p className="text-neutral-muted text-[12px] leading-relaxed font-light">
-                Pour toute question relative aux presentes CGU, contactez-nous a{" "}
-                <a href={`mailto:${TERMS_V2.contactEmail}`} className="text-gold hover:text-gold-light transition-colors">
+            {/* Footer éditorial */}
+            <div className="mt-12 pt-10 border-t border-white/[0.10]">
+              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-4">
+                § Contact
+              </div>
+              <p className="text-[14px] text-neutral-muted font-light leading-relaxed mb-3">
+                Pour toute question relative aux présentes CGU :{" "}
+                <a href={`mailto:${TERMS_V2.contactEmail}`} className="text-[#A9B57E] hover:text-[#D6DDB3] transition-colors underline-offset-4 hover:underline">
                   {TERMS_V2.contactEmail}
                 </a>
-                .
               </p>
-              <p className="text-neutral-muted/60 text-[11px] mt-2 font-light">
+              <p className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/40">
                 {TERMS_V2.editor} · {TERMS_V2.location} · {TERMS_V2.website}
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

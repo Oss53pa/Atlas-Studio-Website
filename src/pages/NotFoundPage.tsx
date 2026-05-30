@@ -1,25 +1,42 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { Logo } from "../components/ui/Logo";
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen bg-onyx flex items-center justify-center px-5 md:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 bg-dotgrid opacity-30 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] glow-gold pointer-events-none" />
-      <div className="relative text-center">
-        <div className="mb-10">
-          <Logo size={36} color="text-neutral-light" />
+    <div className="min-h-screen bg-onyx flex flex-col px-5 md:px-10 lg:px-16 pt-28 md:pt-36 pb-16 relative overflow-hidden">
+      <div className="absolute inset-0 hero-techgrid pointer-events-none" />
+
+      <div className="relative max-w-[1280px] mx-auto w-full flex-1 flex flex-col justify-center">
+        {/* méta-strip */}
+        <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/55 flex items-baseline gap-3 md:gap-4 mb-12">
+          <span className="meta-led" />
+          <span>§ Erreur 404</span>
+          <span className="text-neutral-light/25">/</span>
+          <span>Page introuvable</span>
+          <span className="text-neutral-light/25 hidden sm:inline">/</span>
+          <span className="hidden sm:inline text-neutral-light/45">Atlas Studio</span>
         </div>
-        <div className="text-gradient-gold text-[120px] md:text-[160px] font-mono font-bold mb-4 leading-none tracking-tight">404</div>
-        <h1 className="text-neutral-light text-3xl md:text-4xl font-semibold mb-4 tracking-tight">Page introuvable</h1>
-        <p className="text-neutral-muted text-sm mb-10 max-w-sm mx-auto font-light leading-relaxed">
-          La page que vous recherchez n'existe pas ou a été déplacée.
+
+        {/* 404 monumental */}
+        <div className="font-display font-medium tracking-[-0.04em] leading-[0.85] text-[120px] sm:text-[180px] md:text-[240px] lg:text-[320px] text-[#A9B57E]/85 mb-10 tabular-nums">
+          404
+        </div>
+
+        <h1 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light max-w-3xl mb-6">
+          Cette page n'existe <span className="italic font-light text-neutral-light/70">plus ou pas encore</span>.
+        </h1>
+        <p className="text-[15px] md:text-[17px] text-neutral-muted font-light leading-relaxed max-w-[540px] mb-12">
+          L'URL a peut-être changé, ou la page n'a jamais existé. Reprenez le fil au début ou explorez le catalogue.
         </p>
-        <Link to="/" className="btn-gold">
-          <ArrowLeft size={16} strokeWidth={2.2} />
-          Retour à l'accueil
-        </Link>
+
+        <div className="flex items-baseline gap-8 flex-wrap">
+          <Link to="/" className="cta-arrow cta-arrow--primary">Retour à l'accueil</Link>
+          <Link to="/applications" className="cta-arrow">Voir le catalogue</Link>
+        </div>
+      </div>
+
+      <div className="relative max-w-[1280px] mx-auto w-full meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/35 flex justify-between flex-wrap gap-4 mt-16">
+        <span>Statut HTTP · 404 Not Found</span>
+        <span>Atlas Studio · OHADA · {new Date().getFullYear()}</span>
       </div>
     </div>
   );
