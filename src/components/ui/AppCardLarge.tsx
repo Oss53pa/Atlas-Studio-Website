@@ -56,10 +56,10 @@ export function AppCardLarge({ app, index, reverse = false }: AppCardLargeProps)
           </div>
 
           {/* Wordmark + tagline */}
-          <h3 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] sm:text-[40px] md:text-[48px] text-neutral-light mb-3">
+          <h3 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[22px] sm:text-[26px] md:text-[30px] text-neutral-light mb-3">
             {app.name}
           </h3>
-          <p className="font-display font-light italic text-[18px] md:text-[22px] text-neutral-light/70 mb-6 leading-snug">
+          <p className="font-display font-light italic text-[14px] md:text-[16px] text-neutral-light/70 mb-6 leading-snug">
             {app.tagline}
           </p>
 

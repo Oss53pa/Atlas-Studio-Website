@@ -81,7 +81,7 @@ export default function HomePage() {
                 </div>
 
                 <h1 className="font-display font-medium tracking-[-0.035em]
-                               text-[32px] sm:text-[40px] md:text-[52px] lg:text-[60px]
+                               text-[22px] sm:text-[15px] md:text-[17px] lg:text-[38px]
                                leading-[0.96] mb-8 md:mb-10">
                   <span>
                     {line1Rest}{line1Rest ? " " : ""}
@@ -159,7 +159,7 @@ export default function HomePage() {
               <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
                 § 02 — {t("home.platform")}
               </div>
-              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[26px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-neutral-light">
+              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[26px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-neutral-light">
                 Une suite.{" "}
                 <span className="kinetic-word">
                   {content.apps?.length ?? 0} apps
@@ -211,7 +211,7 @@ export default function HomePage() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § 03 — {t("home.howItWorks")}
             </div>
-            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[26px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-neutral-light max-w-3xl">
+            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[26px] sm:text-[18px] md:text-[20px] lg:text-[24px] text-neutral-light max-w-3xl">
               {t("home.operationalIn")}
             </h2>
             <p className="text-[15px] text-neutral-muted font-light max-w-[520px] leading-relaxed mt-6">
@@ -226,7 +226,7 @@ export default function HomePage() {
                 <ScrollReveal key={i} delay={i * 80}>
                   <div className={`grid grid-cols-12 gap-4 md:gap-8 py-8 md:py-10 border-t border-white/[0.06] ${i === (content.steps || []).length - 1 ? "border-b" : ""}`}>
                     <div className={`col-span-12 ${right ? "md:col-start-2 md:col-span-2" : "md:col-span-2"} flex items-baseline`}>
-                      <span className="font-display font-light text-[36px] md:text-[52px] leading-none text-[#A9B57E]/80 tracking-tighter">
+                      <span className="font-display font-light text-[26px] md:text-[36px] leading-none text-[#A9B57E]/80 tracking-tighter">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                     </div>
@@ -234,7 +234,7 @@ export default function HomePage() {
                       <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/40 mb-3">
                         <StyledText>{step.num}</StyledText>
                       </div>
-                      <h3 className="font-display font-medium text-[22px] md:text-[28px] leading-tight text-neutral-light mb-3 tracking-[-0.02em]">
+                      <h3 className="font-display font-medium text-[16px] md:text-[20px] leading-tight text-neutral-light mb-3 tracking-[-0.02em]">
                         <StyledText>{step.title}</StyledText>
                       </h3>
                       <p className={`text-[14px] md:text-[15px] text-neutral-muted font-light leading-relaxed max-w-[520px] ${right ? "md:ml-auto" : ""}`}>
@@ -259,7 +259,7 @@ export default function HomePage() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § 04 — {t("home.aboutLabel")}
             </div>
-            <blockquote className="font-display font-medium tracking-[-0.025em] leading-[1.06] text-[28px] sm:text-[36px] md:text-[44px] lg:text-[52px] text-neutral-light mb-8">
+            <blockquote className="font-display font-medium tracking-[-0.025em] leading-[1.06] text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-neutral-light mb-8">
               <span className="text-[#A9B57E] font-light italic mr-2">«</span>
               <span className="italic font-light">{content.about?.p1}</span>
               <span className="text-[#A9B57E] font-light italic ml-1">»</span>
@@ -303,7 +303,7 @@ export default function HomePage() {
               <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
                 § 05 — {t("home.sectors")}
               </div>
-              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light">
+              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light">
                 {t("home.allSectors")}
               </h2>
             </div>
@@ -333,7 +333,7 @@ export default function HomePage() {
               <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
                 § 06 — {t("home.comparison")}
               </div>
-              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light">
+              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light">
                 {t("home.vsAlternatives")}
               </h2>
             </div>
@@ -371,7 +371,7 @@ export default function HomePage() {
           <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
             § 07 — {t("home.testimonials")}
           </div>
-          <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light mb-14 md:mb-20 max-w-3xl">
+          <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light mb-14 md:mb-20 max-w-3xl">
             {t("home.trustedBy")}
           </h2>
 
@@ -386,7 +386,7 @@ export default function HomePage() {
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 mb-14 md:mb-20">
                     <div className="lg:col-span-8">
                       <div className="text-[#A9B57E] text-[15px] mb-6 tracking-[0.3em]">★ ★ ★ ★ ★</div>
-                      <blockquote className="font-display font-light italic tracking-[-0.02em] leading-[1.12] text-[24px] md:text-[34px] lg:text-[40px] text-neutral-light">
+                      <blockquote className="font-display font-light italic tracking-[-0.02em] leading-[1.12] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light">
                         <span className="text-[#A9B57E] font-normal mr-2">«</span>
                         {lead.text}
                         <span className="text-[#A9B57E] font-normal ml-1">»</span>
@@ -439,7 +439,7 @@ export default function HomePage() {
           <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
             § 08 — {t("home.pricingLabel")}
           </div>
-          <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.02] text-[28px] sm:text-[36px] md:text-[44px] lg:text-[52px] text-neutral-light mb-4">
+          <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.02] text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-neutral-light mb-4">
             {t("home.simplePricing")}
           </h2>
           <p className="text-[16px] md:text-[18px] text-neutral-muted font-light max-w-[640px] leading-relaxed mb-14">
@@ -452,7 +452,7 @@ export default function HomePage() {
                 {t("home.atlasFNA")}
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="font-display font-medium text-[32px] md:text-[40px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">99 000</span>
+                <span className="font-display font-medium text-[24px] md:text-[28px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">99 000</span>
                 <span className="text-neutral-muted text-[12px] md:text-[13px] font-light whitespace-nowrap">FCFA/mois</span>
               </div>
               <p className="text-[13px] text-neutral-muted font-light mt-3 max-w-[300px]">{t("home.accountingSyscohada")}</p>
@@ -462,8 +462,8 @@ export default function HomePage() {
                 {t("home.standaloneAppsLabel")}
               </div>
               <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="font-display font-light italic text-[18px] md:text-[22px] leading-none text-neutral-light/70 mr-0.5">dès</span>
-                <span className="font-display font-medium text-[32px] md:text-[40px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">25 000</span>
+                <span className="font-display font-light italic text-[14px] md:text-[16px] leading-none text-neutral-light/70 mr-0.5">dès</span>
+                <span className="font-display font-medium text-[24px] md:text-[28px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">25 000</span>
                 <span className="text-neutral-muted text-[12px] md:text-[13px] font-light whitespace-nowrap">{t("home.perMonthOrYear")}</span>
               </div>
               <p className="text-[13px] text-neutral-muted font-light mt-3 max-w-[300px]">{t("home.liasspilotAdvist")}</p>
@@ -490,7 +490,7 @@ export default function HomePage() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § 09 — {t("home.faqLabel")}
             </div>
-            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[28px] lg:text-[32px] text-neutral-light">
+            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[18px] md:text-[20px] lg:text-[24px] text-neutral-light">
               {t("home.faqTitle")}
             </h2>
             <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/40 mt-8">
@@ -524,10 +524,10 @@ export default function HomePage() {
             <span className="meta-led" />
             <span>§ FIN — Atlas Studio · MMXXVI</span>
           </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[1.04] text-[28px] sm:text-[34px] md:text-[42px] lg:text-[48px] text-neutral-light max-w-3xl mb-4">
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[1.04] text-[20px] sm:text-[16px] md:text-[18px] lg:text-[30px] text-neutral-light max-w-3xl mb-4">
             {t("home.readyTitle")}
           </h2>
-          <p className="font-display italic font-light text-[18px] md:text-[22px] text-neutral-light/65 leading-snug max-w-2xl mb-10">
+          <p className="font-display italic font-light text-[14px] md:text-[16px] text-neutral-light/65 leading-snug max-w-2xl mb-10">
             {t("home.readySubtitle")}
           </p>
           <div className="flex items-baseline gap-8 flex-wrap">

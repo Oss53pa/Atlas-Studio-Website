@@ -47,7 +47,7 @@ export default function ApplicationsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-8">
-              <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[32px] sm:text-[40px] md:text-[52px] lg:text-[60px] text-neutral-light mb-8">
+              <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[22px] sm:text-[15px] md:text-[17px] lg:text-[38px] text-neutral-light mb-8">
                 Nos <span className="kinetic-word">solutions</span>.
               </h1>
               <p className="text-[16px] md:text-[18px] text-neutral-muted font-light max-w-[540px] leading-relaxed">
@@ -111,7 +111,7 @@ export default function ApplicationsPage() {
             <span className="meta-led" />
             <span>§ FIN — Catalogue</span>
           </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[28px] sm:text-[36px] md:text-[44px] text-neutral-light max-w-4xl mb-12">
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[20px] sm:text-[24px] md:text-[28px] text-neutral-light max-w-4xl mb-12">
             Prêt à digitaliser ? <span className="italic font-light text-neutral-light/70">Sans engagement.</span>
           </h2>
           <div className="flex items-baseline gap-8 flex-wrap">
