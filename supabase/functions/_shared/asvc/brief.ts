@@ -4,7 +4,7 @@
 // Architecture: stateless. L'edge function asvc-coo-brief importe ces helpers.
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 
 export type BriefType = "morning" | "evening" | "weekly";
 
@@ -156,7 +156,7 @@ export interface GenerateBriefResult {
  * 5. Log audit
  */
 export async function generateBrief(type: BriefType): Promise<GenerateBriefResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) {
     throw new Error(
       "ANTHROPIC_API_KEY manquante — configurer la variable d'env de l'edge function",
@@ -169,7 +169,7 @@ export async function generateBrief(type: BriefType): Promise<GenerateBriefResul
 
   const model = Deno.env.get("ASVC_COO_MODEL") ?? "claude-sonnet-4-6";
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

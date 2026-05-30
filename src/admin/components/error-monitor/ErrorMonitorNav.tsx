@@ -14,13 +14,13 @@ export function ErrorMonitorNav({ apps, loading, currentAppSlug }: ErrorMonitorN
   const isGlobal = !currentAppSlug && location.pathname === '/admin/error-monitor';
 
   return (
-    <nav className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-1.5 mb-4 overflow-x-auto">
+    <nav className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-1.5 mb-4 overflow-x-auto shadow-sm dark:shadow-premium">
       <div className="flex items-center gap-1 min-w-max">
         <Link
           to="/admin/error-monitor"
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-colors ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-200 ${
             isGlobal
-              ? 'bg-gold dark:bg-admin-accent text-black'
+              ? 'bg-gold dark:bg-admin-accent text-black shadow-sm dark:shadow-gold'
               : 'text-neutral-body dark:text-admin-text hover:bg-warm-bg dark:hover:bg-admin-surface-alt'
           }`}
         >
@@ -41,9 +41,9 @@ export function ErrorMonitorNav({ apps, loading, currentAppSlug }: ErrorMonitorN
               <Link
                 key={app.id}
                 to={`/admin/error-monitor/${app.id}`}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-200 ${
                   active
-                    ? 'bg-gold dark:bg-admin-accent text-black'
+                    ? 'bg-gold dark:bg-admin-accent text-black shadow-sm dark:shadow-gold'
                     : 'text-neutral-body dark:text-admin-text hover:bg-warm-bg dark:hover:bg-admin-surface-alt'
                 }`}
                 title={app.name}

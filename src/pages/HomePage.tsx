@@ -34,17 +34,24 @@ export default function HomePage() {
         const line1Rest = line1Words.join(" ");
         const line2 = parts.slice(1).join(". ").replace(/\.+$/, "");
 
+        // Nombre de produits actifs — suit le catalogue réel (logique reprise de main).
+        const productCount = content.apps?.length ?? 0;
+
         const tapeItems = [
-          ...(content.stats || []).map(s => ({ glyph: "▎", value: s.value, label: s.label })),
+          ...(content.stats || []).map(s => ({
+            glyph: "▎",
+            value: /produit/i.test(s.label) && productCount > 0 ? String(productCount) : s.value,
+            label: s.label,
+          })),
           ...(Array.isArray(content.trustBar) ? content.trustBar : []).map(it => ({ glyph: "◇", value: it, label: "" })),
         ];
 
         return (
           <section className="relative bg-onyx text-neutral-light min-h-screen flex flex-col px-5 md:px-10 lg:px-16 pt-28 md:pt-32 pb-0 overflow-hidden">
-            {/* fond : grille technique + halo émeraude latéral */}
+            {/* fond : grille technique + halo kaki latéral */}
             <div className="absolute inset-0 hero-techgrid pointer-events-none" />
             <div className="absolute inset-0 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse 60% 50% at 18% 35%, rgba(16,185,129,0.13) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 85% 80%, rgba(200,166,114,0.06) 0%, transparent 60%)" }} />
+              style={{ background: "radial-gradient(ellipse 60% 50% at 18% 35%, rgba(169,181,126,0.13) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 85% 80%, rgba(200,166,114,0.06) 0%, transparent 60%)" }} />
 
             {/* META STRIP — bandeau éditorial supérieur */}
             <div className="relative max-w-[1280px] mx-auto w-full flex items-baseline justify-between gap-4 flex-wrap mb-12 md:mb-16">
@@ -53,8 +60,12 @@ export default function HomePage() {
                 <span>Édition MMXXVI</span>
                 <span className="text-neutral-light/25">/</span>
                 <span>OHADA · 17 États</span>
-                <span className="text-neutral-light/25 hidden sm:inline">/</span>
-                <span className="hidden sm:inline">5 produits actifs</span>
+                {productCount > 0 && (
+                  <>
+                    <span className="text-neutral-light/25 hidden sm:inline">/</span>
+                    <span className="hidden sm:inline">{productCount} produits actifs</span>
+                  </>
+                )}
               </div>
               <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/45 hidden md:block">
                 Suite logicielle — Afrique francophone
@@ -105,11 +116,11 @@ export default function HomePage() {
               {/* COL DROITE — constellation OHADA, signature visuelle */}
               <div className="lg:col-span-5">
                 <div className="relative aspect-square w-full max-w-[460px] lg:max-w-[520px] mx-auto lg:ml-auto lg:mr-0">
-                  {/* repère mathématique : coin haut-gauche */}
-                  <div className="absolute -top-3 -left-3 w-6 h-6 border-t border-l border-emerald-400/40" />
-                  <div className="absolute -top-3 -right-3 w-6 h-6 border-t border-r border-emerald-400/40" />
-                  <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b border-l border-emerald-400/40" />
-                  <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b border-r border-emerald-400/40" />
+                  {/* repères mathématiques aux quatre coins */}
+                  <div className="absolute -top-3 -left-3 w-6 h-6 border-t border-l border-[#A9B57E]/40" />
+                  <div className="absolute -top-3 -right-3 w-6 h-6 border-t border-r border-[#A9B57E]/40" />
+                  <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b border-l border-[#A9B57E]/40" />
+                  <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b border-r border-[#A9B57E]/40" />
                   <AtlasConstellation className="w-full h-full" />
                 </div>
                 {/* Légende discrète sous la constellation, en mono */}
@@ -127,7 +138,7 @@ export default function HomePage() {
                 <div className="data-tape py-4">
                   {tapeItems.concat(tapeItems).map((it, i) => (
                     <span key={i} className="flex items-baseline gap-3 px-8 meta-mono text-[11px] tracking-[0.18em] uppercase whitespace-nowrap">
-                      <span className="text-[#10B981]">{it.glyph}</span>
+                      <span className="text-[#A9B57E]">{it.glyph}</span>
                       <span className="text-neutral-light/85"><StyledText>{it.value}</StyledText></span>
                       {it.label && <span className="text-neutral-light/45"><StyledText>{it.label}</StyledText></span>}
                     </span>
@@ -209,7 +220,7 @@ export default function HomePage() {
           <ScrollReveal className="flex-1 min-w-[280px] reveal-right" delay={200}>
             <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 shadow-premium">
               <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.55) 50%, transparent 100%)" }}
+                style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.55) 50%, transparent 100%)" }}
               />
               <h3 className="text-neutral-light text-lg font-semibold mb-6 tracking-tight">{t("home.whyChooseUs")}</h3>
               {(content.about?.values || []).map((v, i) => (
@@ -282,9 +293,9 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {(content.testimonials || []).map((tm, i) => (
               <ScrollReveal key={i} delay={i * 110}>
-                <div className="relative bg-ink-200 border border-white/[0.06] rounded-2xl p-6 card-hover overflow-hidden">
+                <div className="relative bg-ink-200 border border-white/[0.05] rounded-2xl p-6 card-hover shadow-premium overflow-hidden">
                   <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                    style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.45) 50%, transparent 100%)" }}
+                    style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.45) 50%, transparent 100%)" }}
                   />
                   <div className="text-gold text-[14px] mb-3 tracking-[0.2em]">★★★★★</div>
                   <p className="text-[13px] text-neutral-muted font-light leading-relaxed italic mb-5">"{tm.text}"</p>
@@ -313,18 +324,18 @@ export default function HomePage() {
           </ScrollReveal>
           <ScrollReveal>
             <div className="flex gap-5 justify-center flex-wrap mb-12">
-              <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover overflow-hidden">
+              <div className="relative bg-ink-100 border border-white/[0.05] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover shadow-premium overflow-hidden">
                 <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-[0.16em] mb-3">{t("home.atlasFNA")}</div>
                 <div className="text-gradient-gold font-mono text-4xl font-semibold tracking-tight">99 000</div>
                 <div className="text-neutral-muted text-sm font-light mt-1">FCFA/mois</div>
                 <p className="text-neutral-muted text-xs mt-4 font-light leading-relaxed">{t("home.accountingSyscohada")}</p>
               </div>
-              <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover overflow-hidden">
+              <div className="relative bg-ink-100 border border-white/[0.05] rounded-2xl p-9 flex-1 min-w-[220px] max-w-[300px] card-hover shadow-premium overflow-hidden">
                 <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-[0.16em] mb-3">{t("home.standaloneAppsLabel")}</div>
                 <div className="text-gradient-gold font-mono text-4xl font-semibold tracking-tight">dès 25 000</div>

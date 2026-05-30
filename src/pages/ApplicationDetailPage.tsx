@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useContentContext } from "../components/layout/Layout";
 import { useApps } from "../hooks/useApps";
+import { planEntries } from "../lib/utils";
 import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { AppMockup } from "../components/ui/AppMockup";
@@ -74,10 +75,10 @@ export default function ApplicationDetailPage() {
     );
   }
 
-  const pricingEntries = Object.entries(app.pricing);
+  const pricingEntries = planEntries(app.pricing);
   const status = appWithStatus?.status || "available";
   const isAvailable = status === "available";
-  const appColor = app.color || "#10B981";
+  const appColor = app.color || "#A9B57E";
   const iconName = app.icon || "receipt";
   const highlights = app.highlights || [];
   const IconComponent = ICON_MAP[iconName] || CheckCircle2;
@@ -175,7 +176,7 @@ export default function ApplicationDetailPage() {
       {/* ===== MOCKUPS ===== */}
       <section className="relative py-20 md:py-28 px-5 md:px-8 overflow-hidden border-y border-white/[0.04]"
         style={{
-          background: "linear-gradient(180deg, #232629 0%, #2A2D34 50%, #232629 100%)",
+          background: "linear-gradient(180deg, #1c1c20 0%, #212126 50%, #1c1c20 100%)",
         }}
       >
         <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
@@ -301,19 +302,19 @@ export default function ApplicationDetailPage() {
                   <div
                     className={`relative rounded-2xl p-8 flex flex-col h-full overflow-hidden card-hover ${
                       isPopular
-                        ? "border border-gold/35 shadow-[0_0_0_1px_rgba(16,185,129,0.15),0_24px_56px_-12px_rgba(16,185,129,0.18)]"
+                        ? "border border-gold/35 shadow-[0_0_0_1px_rgba(169,181,126,0.15),0_24px_56px_-12px_rgba(169,181,126,0.18)]"
                         : "border border-white/[0.06] shadow-premium"
                     }`}
                     style={{
                       background: isPopular
-                        ? "linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.01) 100%), #232629"
-                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #232629",
+                        ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), #1c1c20"
+                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20",
                     }}
                   >
                     {isPopular && (
                       <>
                         <div className="absolute top-0 left-0 right-0 h-px"
-                          style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.7) 50%, transparent 100%)" }}
+                          style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.7) 50%, transparent 100%)" }}
                         />
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                           <span className="shimmer btn-gold !py-1 !px-4 !text-[10px] !font-bold tracking-[0.18em] !rounded-full">
@@ -339,6 +340,9 @@ export default function ApplicationDetailPage() {
                           </>
                         )}
                       </div>
+                      {(app as any).pricingNotes?.[plan] && (
+                        <p className="text-neutral-muted text-xs font-light mt-2">{(app as any).pricingNotes[plan]}</p>
+                      )}
                     </div>
 
                     <div className="flex-1 mb-7">

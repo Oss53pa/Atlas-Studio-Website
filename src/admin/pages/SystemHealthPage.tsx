@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, Download, Database, Shield, HardDrive, Zap, Loader2, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { PremiumBarChart, RadialGauge } from "../../components/ui/charts/PremiumCharts";
 import { supabase } from "../../lib/supabase";
 import { AdminCard } from "../components/AdminCard";
 import { useToast } from "../contexts/ToastContext";
@@ -20,7 +20,7 @@ interface UptimeDay {
 }
 
 const STATUS_COLORS = { ok: "text-emerald-500", degraded: "text-amber-500", down: "text-red-500" };
-const STATUS_BG = { ok: "bg-emerald-50", degraded: "bg-amber-50", down: "bg-red-50" };
+const STATUS_BG = { ok: "bg-emerald-50 dark:bg-admin-success/15", degraded: "bg-amber-50 dark:bg-admin-warning/15", down: "bg-red-50 dark:bg-admin-error/15" };
 const STATUS_LABELS = { ok: "Opérationnel", degraded: "Dégradé", down: "Indisponible" };
 const STATUS_ICONS = { ok: <CheckCircle2 size={16} />, degraded: <AlertTriangle size={16} />, down: <XCircle size={16} /> };
 
@@ -145,10 +145,10 @@ export default function SystemHealthPage() {
           <p className="text-neutral-muted dark:text-admin-muted text-sm">Monitoring et état des services</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={checkServices} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          <button onClick={checkServices} className="flex items-center gap-2 px-5 py-2.5 border border-warm-border dark:border-white/10 rounded-full bg-white dark:bg-admin-surface-alt/40 text-neutral-text dark:text-admin-text/80 text-[13px] font-medium shadow-sm dark:shadow-none hover:border-gold/40 dark:hover:border-admin-accent/40 hover:shadow-md transition-all duration-300">
             <RefreshCw size={14} /> Vérifier
           </button>
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-warm-border dark:border-admin-surface-alt rounded-lg bg-white dark:bg-admin-surface text-neutral-text dark:text-admin-text/80 text-[13px] font-medium hover:border-gold/40 dark:hover:border-admin-accent/40 transition-colors">
+          <button onClick={handleExport} className="flex items-center gap-2 px-5 py-2.5 border border-warm-border dark:border-white/10 rounded-full bg-white dark:bg-admin-surface-alt/40 text-neutral-text dark:text-admin-text/80 text-[13px] font-medium shadow-sm dark:shadow-none hover:border-gold/40 dark:hover:border-admin-accent/40 hover:shadow-md transition-all duration-300">
             <Download size={14} /> Exporter
           </button>
         </div>
@@ -156,16 +156,16 @@ export default function SystemHealthPage() {
 
       {/* Health score + Services */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8">
-        <div className="lg:col-span-1 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6 flex flex-col items-center justify-center">
-          <div className="relative w-20 h-20 mb-3">
-            <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-              <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" strokeWidth="8" />
-              <circle cx="50" cy="50" r="42" fill="none" className={healthColor} stroke="currentColor" strokeWidth="8"
-                strokeDasharray={`${healthScore * 2.64} 264`} strokeLinecap="round" />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className={`text-xl font-bold ${healthColor}`}>{healthScore}</span>
-            </div>
+        <div className="lg:col-span-1 bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center shadow-sm dark:shadow-premium">
+          <div className="mb-3">
+            <RadialGauge
+              value={healthScore}
+              max={100}
+              size={96}
+              thickness={9}
+              accent={healthScore >= 90 ? "#A9B57E" : healthScore >= 70 ? "#8E9A63" : "#C0635C"}
+              display={String(healthScore)}
+            />
           </div>
           <div className="text-neutral-text dark:text-admin-text text-sm font-semibold">Score global</div>
           <div className={`text-[12px] font-medium ${healthColor}`}>
@@ -174,7 +174,7 @@ export default function SystemHealthPage() {
         </div>
 
         {services.map(s => (
-          <div key={s.name} className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-5">
+          <div key={s.name} className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-5 shadow-sm dark:shadow-premium">
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${STATUS_BG[s.status]} ${STATUS_COLORS[s.status]}`}>
                 {s.icon}
@@ -206,23 +206,12 @@ export default function SystemHealthPage() {
 
       {/* Uptime chart + Incidents */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
-          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Uptime (7 derniers jours)</h2>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={uptimeData}>
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#a3a3a3" }} axisLine={false} tickLine={false} />
-              <YAxis domain={[80, 100]} tick={{ fontSize: 11, fill: "#a3a3a3" }} axisLine={false} tickLine={false} width={35} />
-              <Tooltip contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid #e5e5e5" }} formatter={((v: number) => [`${v}%`, "Uptime"]) as any} />
-              <Bar dataKey="rate" radius={[4, 4, 0, 0]}>
-                {uptimeData.map((d, i) => (
-                  <Cell key={i} fill={d.rate >= 95 ? "#2E7D32" : d.rate >= 80 ? "#E65100" : "#C62828"} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+          <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-5">Uptime (7 derniers jours)</h2>
+          <PremiumBarChart data={uptimeData.map(d => ({ label: d.label, value: d.rate }))} height={180} unit="%" valueFormatter={(n) => String(n)} />
         </div>
 
-        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-xl p-6">
+        <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
           <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Incidents récents</h2>
           {incidents.length === 0 ? (
             <div className="flex items-center gap-3 py-6 justify-center">
@@ -232,11 +221,11 @@ export default function SystemHealthPage() {
           ) : (
             <div className="space-y-3">
               {incidents.map(inc => (
-                <div key={inc.id} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
-                  <XCircle size={14} className="text-red-500 mt-0.5 flex-shrink-0" />
+                <div key={inc.id} className="flex items-start gap-3 p-3.5 bg-red-50 dark:bg-admin-error/10 border border-red-100 dark:border-admin-error/20 rounded-xl">
+                  <XCircle size={14} className="text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
                   <div>
-                    <div className="text-red-700 text-[13px] font-medium">{inc.action.replace(/_/g, " ")}</div>
-                    <div className="text-red-600 text-[11px]">{new Date(inc.created_at).toLocaleString("fr-FR")}</div>
+                    <div className="text-red-700 dark:text-red-300 text-[13px] font-medium">{inc.action.replace(/_/g, " ")}</div>
+                    <div className="text-red-600 dark:text-red-400/80 text-[11px]">{new Date(inc.created_at).toLocaleString("fr-FR")}</div>
                   </div>
                 </div>
               ))}

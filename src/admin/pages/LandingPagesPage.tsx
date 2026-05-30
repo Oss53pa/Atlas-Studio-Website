@@ -33,15 +33,15 @@ type ContentMap = Partial<Record<SectionKey, { data: SectionData; updated_at: st
 
 /* ── style tokens ── */
 const cx = {
-  bg: "bg-[#0A0A0A]",
-  surface: "bg-[#1E1E2E]",
-  alt: "bg-[#2A2A3A]",
-  border: "border-[#2A2A3A]",
-  accent: "text-[#EF9F27]",
-  accentBg: "bg-[#EF9F27]",
+  bg: "bg-[#131316]",
+  surface: "bg-[#1c1c20]",
+  alt: "bg-[#2a2a30]",
+  border: "border-[#2a2a30]",
+  accent: "text-[#A9B57E]",
+  accentBg: "bg-[#A9B57E]",
   text: "text-[#F5F5F5]",
   muted: "text-[#888]",
-  input: "w-full px-3 py-2 bg-[#2A2A3A] border border-[#2A2A3A] rounded-lg text-[#F5F5F5] text-sm outline-none focus:border-[#EF9F27] transition-colors placeholder-[#666]",
+  input: "w-full px-3 py-2 bg-[#2a2a30] border border-[#2a2a30] rounded-lg text-[#F5F5F5] text-sm outline-none focus:border-[#A9B57E] transition-colors placeholder-[#666]",
   btn: "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
 };
 
@@ -68,7 +68,7 @@ function TagInput({ label, tags, onChange }: { label: string; tags: string[]; on
       <label className="block text-[#888] text-xs font-semibold mb-1">{label}</label>
       <div className="flex flex-wrap gap-1.5 mb-1.5">
         {tags.map((t, i) => (
-          <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-[#EF9F27]/15 text-[#EF9F27] rounded text-xs">
+          <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-[#A9B57E]/15 text-[#A9B57E] rounded text-xs">
             {t}<X className="w-3 h-3 cursor-pointer" onClick={() => onChange(tags.filter((_, j) => j !== i))} />
           </span>
         ))}
@@ -76,7 +76,7 @@ function TagInput({ label, tags, onChange }: { label: string; tags: string[]; on
       <div className="flex gap-2">
         <input value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), add())}
           className={cx.input} placeholder="Type and press Enter" />
-        <button onClick={add} className={`${cx.btn} ${cx.accentBg} text-[#0A0A0A]`}><Plus className="w-4 h-4" /></button>
+        <button onClick={add} className={`${cx.btn} ${cx.accentBg} text-[#131316]`}><Plus className="w-4 h-4" /></button>
       </div>
     </div>
   );
@@ -144,12 +144,12 @@ function PricingEditor({ data, set }: { data: SectionData; set: (d: SectionData)
   const patch = (i: number, k: string, v: any) => upd(plans.map((p, j) => j === i ? { ...p, [k]: v } : p));
   return (<>
     {plans.map((p, i) => (
-      <div key={i} className={`p-4 ${cx.alt} rounded-lg mb-3 ${p.is_popular ? "ring-1 ring-[#EF9F27]" : ""}`}>
+      <div key={i} className={`p-4 ${cx.alt} rounded-lg mb-3 ${p.is_popular ? "ring-1 ring-[#A9B57E]" : ""}`}>
         <div className="flex justify-between items-center mb-3">
           <span className="text-sm font-semibold text-[#F5F5F5]">{p.name || `Plan ${i + 1}`}</span>
           <div className="flex items-center gap-3">
             <label className="flex items-center gap-1.5 text-xs text-[#888] cursor-pointer">
-              <input type="checkbox" checked={!!p.is_popular} onChange={e => patch(i, "is_popular", e.target.checked)} className="accent-[#EF9F27]" />
+              <input type="checkbox" checked={!!p.is_popular} onChange={e => patch(i, "is_popular", e.target.checked)} className="accent-[#A9B57E]" />
               <Star className="w-3.5 h-3.5" />Popular
             </label>
             <button onClick={() => upd(plans.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-300"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -198,7 +198,7 @@ function TestimonialsEditor({ data, set }: { data: SectionData; set: (d: Section
             <label className="block text-[#888] text-xs font-semibold mb-1">Rating</label>
             <div className="flex gap-1 mt-1">
               {[1, 2, 3, 4, 5].map(n => (
-                <Star key={n} className={`w-5 h-5 cursor-pointer ${n <= (t.rating || 0) ? "text-[#EF9F27] fill-[#EF9F27]" : "text-[#2A2A3A]"}`}
+                <Star key={n} className={`w-5 h-5 cursor-pointer ${n <= (t.rating || 0) ? "text-[#A9B57E] fill-[#A9B57E]" : "text-[#2a2a30]"}`}
                   onClick={() => patch(i, "rating", n)} />
               ))}
             </div>
@@ -310,7 +310,7 @@ export default function LandingPagesPage() {
           <p className={`text-sm ${cx.muted}`}>Manage landing page content for all apps</p>
         </div>
         <button onClick={() => window.open(appMeta.url, "_blank")}
-          className={`${cx.btn} ${cx.accentBg} text-[#0A0A0A] font-semibold flex items-center gap-2`}>
+          className={`${cx.btn} ${cx.accentBg} text-[#131316] font-semibold flex items-center gap-2`}>
           <ExternalLink className="w-4 h-4" />Preview {appMeta.label}
         </button>
       </div>
@@ -319,14 +319,14 @@ export default function LandingPagesPage() {
       <div className={`flex gap-1 p-1 ${cx.surface} rounded-xl mb-6 w-fit`}>
         {APPS.map(a => (
           <button key={a.id} onClick={() => { setApp(a.id); setOpen("hero"); }}
-            className={`${cx.btn} ${app === a.id ? `${cx.accentBg} text-[#0A0A0A] font-semibold` : `${cx.muted} hover:text-[#F5F5F5]`}`}>
+            className={`${cx.btn} ${app === a.id ? `${cx.accentBg} text-[#131316] font-semibold` : `${cx.muted} hover:text-[#F5F5F5]`}`}>
             {a.label}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-[#EF9F27]" /></div>
+        <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-[#A9B57E]" /></div>
       ) : (
         <div className="space-y-2 max-w-4xl">
           {SECTIONS.map(sec => {
@@ -338,10 +338,10 @@ export default function LandingPagesPage() {
               <div key={sec.key} className={`${cx.surface} rounded-xl overflow-hidden`}>
                 {/* Accordion header */}
                 <button onClick={() => setOpen(isOpen ? null : sec.key)}
-                  className="w-full flex items-center justify-between px-5 py-4 hover:bg-[#2A2A3A]/40 transition-colors">
+                  className="w-full flex items-center justify-between px-5 py-4 hover:bg-[#2a2a30]/40 transition-colors">
                   <div className="flex items-center gap-3">
-                    {isOpen ? <ChevronDown className="w-4 h-4 text-[#EF9F27]" /> : <ChevronRight className="w-4 h-4 text-[#888]" />}
-                    <Icon className={`w-4 h-4 ${isOpen ? "text-[#EF9F27]" : "text-[#888]"}`} />
+                    {isOpen ? <ChevronDown className="w-4 h-4 text-[#A9B57E]" /> : <ChevronRight className="w-4 h-4 text-[#888]" />}
+                    <Icon className={`w-4 h-4 ${isOpen ? "text-[#A9B57E]" : "text-[#888]"}`} />
                     <span className={`text-sm font-semibold ${isOpen ? "text-[#F5F5F5]" : "text-[#888]"}`}>{sec.label}</span>
                   </div>
                   {ts && (
@@ -352,13 +352,13 @@ export default function LandingPagesPage() {
                 </button>
                 {/* Accordion body */}
                 {isOpen && (
-                  <div className="px-5 pb-5 border-t border-[#2A2A3A]">
+                  <div className="px-5 pb-5 border-t border-[#2a2a30]">
                     <div className="pt-4">
                       <Editor data={getData(sec.key)} set={d => setData(sec.key, d)} />
                     </div>
                     <div className="flex justify-end mt-4">
                       <button onClick={() => save(sec.key)} disabled={saving === sec.key}
-                        className={`${cx.btn} ${cx.accentBg} text-[#0A0A0A] font-semibold flex items-center gap-2 disabled:opacity-50`}>
+                        className={`${cx.btn} ${cx.accentBg} text-[#131316] font-semibold flex items-center gap-2 disabled:opacity-50`}>
                         {saving === sec.key ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                         Save {sec.label}
                       </button>

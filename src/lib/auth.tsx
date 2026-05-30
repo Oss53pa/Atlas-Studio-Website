@@ -107,18 +107,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (e) {
-      // Silent fail Supabase signOut (network down, token deja expire) ne doit
-      // PAS bloquer la deconnexion cote client. On clear le state local de
-      // toute facon pour eviter que l'utilisateur reste pris sur le portal.
-      console.warn("[auth] signOut error (cleared local state anyway)", e);
+    // 1. Tenter un signOut global (revoque le refresh token cote serveur)
+    const { error } = await supabase.auth.signOut({ scope: 'global' });
+    if (error) {
+      // Si le serveur est injoignable ou le token deja expire,
+      // on force au moins le nettoyage local (supprime la session du localStorage).
+      console.warn("[auth] global signOut failed, forcing local cleanup", error.message);
+      await supabase.auth.signOut({ scope: 'local' });
     }
+    // 2. Clear le state React
     setUser(null);
     setSession(null);
     setProfile(null);
-    // Hard redirect pour eviter qu'un autre tab/composant mette en cache
+    // 3. Hard redirect pour eviter qu'un autre tab/composant mette en cache
     // l'ancien etat auth (cookie partage *.atlas-studio.org).
     if (typeof window !== "undefined") {
       window.location.assign("/portal/login");

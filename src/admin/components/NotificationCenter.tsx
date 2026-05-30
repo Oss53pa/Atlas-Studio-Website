@@ -241,7 +241,7 @@ export function NotificationCenter() {
           {/* Backdrop to close on click outside */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
-            className="fixed bg-[#0F0F15] border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed bg-[#131316] border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col"
             style={{
               top: dropdownPos.top,
               left: dropdownPos.left,
@@ -250,7 +250,7 @@ export function NotificationCenter() {
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#1A1A22]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#1c1c20]">
               <div className="flex items-center gap-2">
                 <span className="text-white text-sm font-semibold">Notifications</span>
                 {unreadCount > 0 && (
@@ -262,7 +262,7 @@ export function NotificationCenter() {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllRead}
-                  className="flex items-center gap-1 text-[11px] text-[#EF9F27] hover:text-[#D4B872] transition-colors font-medium"
+                  className="flex items-center gap-1 text-[11px] text-[#A9B57E] hover:text-[#C2CC92] transition-colors font-medium"
                 >
                   <CheckCheck size={12} /> Tout lu
                 </button>
@@ -308,7 +308,7 @@ export function NotificationCenter() {
                             {item.title}
                           </div>
                           {!isRead && (
-                            <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-[#EF9F27]" />
+                            <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-[#A9B57E]" />
                           )}
                         </div>
                         {item.subtitle && (
@@ -332,7 +332,7 @@ export function NotificationCenter() {
             <Link
               to="/admin/activity"
               onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-white/10 bg-[#1A1A22] text-[#EF9F27] text-[12px] font-medium hover:bg-[#1E1E2A] transition-colors"
+              className="flex items-center justify-center gap-1.5 px-4 py-2.5 border-t border-white/10 bg-[#1c1c20] text-[#A9B57E] text-[12px] font-medium hover:bg-[#1c1c20] transition-colors"
             >
               Voir tous les logs <ExternalLink size={12} />
             </Link>

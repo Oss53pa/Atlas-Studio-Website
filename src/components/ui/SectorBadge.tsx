@@ -7,12 +7,12 @@ interface SectorBadgeProps {
 
 export function SectorBadge({ icon: Icon, name }: SectorBadgeProps) {
   return (
-    <div className="group relative bg-ink-200 border border-white/[0.06] rounded-xl p-5 text-center card-hover overflow-hidden">
+    <div className="group relative bg-ink-200 border border-white/[0.05] rounded-2xl p-5 text-center card-hover shadow-elev-1 overflow-hidden">
       {/* Subtle hover glow */}
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
         style={{
-          background: "radial-gradient(circle at 50% 0%, rgba(16,185,129,0.10) 0%, transparent 70%)",
+          background: "radial-gradient(circle at 50% 0%, rgba(169,181,126,0.10) 0%, transparent 70%)",
         }}
       />
       <div className="relative">

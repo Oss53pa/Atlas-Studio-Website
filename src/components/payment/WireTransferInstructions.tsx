@@ -39,7 +39,7 @@ export default function WireTransferInstructions({ reference, amount }: Props) {
     >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Landmark size={18} color="#EF9F27" />
+        <Landmark size={18} color="#A9B57E" />
         <span style={{ fontSize: 15, fontWeight: 600, color: '#1A1A1A' }}>
           Instructions de virement
         </span>
@@ -69,7 +69,7 @@ export default function WireTransferInstructions({ reference, amount }: Props) {
             width: '100%',
             padding: '10px 14px',
             background: '#FAFAF7',
-            border: '1px dashed #EF9F27',
+            border: '1px dashed #A9B57E',
             borderRadius: 8,
             cursor: 'pointer',
             fontFamily: 'monospace',

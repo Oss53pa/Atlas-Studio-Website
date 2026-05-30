@@ -155,6 +155,7 @@ export function detectDomains(args: {
   conversation_history?: string[];
   max_domains?: number;
 }): { domains: Domain[]; scores: Record<string, number>; reason: string } {
+  const product = normalizeAppId(args.product);  // catalogue → convention core
   const fullText = [
     args.message,
     ...(args.conversation_history ?? []).slice(-3),  // 3 derniers messages
@@ -167,7 +168,7 @@ export function detectDomains(args: {
       const matches = fullText.match(k);
       if (matches) score += matches.length;
     }
-    if (args.product && dp.product_match?.includes(args.product)) {
+    if (product && dp.product_match?.includes(product)) {
       score += 100;  // boost massif si product matche
     }
     if (score > 0) scores[dp.domain] = score;
@@ -183,8 +184,8 @@ export function detectDomains(args: {
   let reason: string;
   if (domains.length === 0) {
     reason = "Aucun domaine specifique detecte — chargement Core L1 uniquement";
-  } else if (args.product && DOMAIN_PATTERNS.find(d => d.product_match?.includes(args.product!))) {
-    reason = `Product '${args.product}' -> domaine principal forcer`;
+  } else if (product && DOMAIN_PATTERNS.find(d => d.product_match?.includes(product))) {
+    reason = `Product '${product}' -> domaine principal forcer`;
   } else {
     reason = `Mots-cles detectes : ${domains.join(", ")}`;
   }
@@ -350,6 +351,22 @@ export const L3_TOOLS_BY_APP: Record<string, string[]> = {
   "atlas-mall-suite": ["compute_loyer_variable_retail", "analyze_footfall_mall", "compute_tenant_mix_optimal", "detect_charges_communes_repartition", "forecast_revenu_mall_annuel"],
   "wisefm": ["compute_maintenance_budget", "plan_contrats_maintenance", "analyze_consommation_energie", "track_tickets_fm", "compute_contrats_renewal_forecast"],
 };
+
+/**
+ * Aliases d'app_id : le catalogue/facturation utilise `atlas-compta` et
+ * `taxpilot`, tandis que le routage core/outils utilise `atlas-fa` et
+ * `liasspilot`. On normalise vers la convention core pour qu'une app puisse
+ * s'annoncer avec son id de facturation sans casser le routage de domaines.
+ */
+export const APP_ID_ALIASES: Record<string, string> = {
+  "atlas-compta": "atlas-fa",
+  "taxpilot": "liasspilot",
+};
+
+export function normalizeAppId(id?: string): string | undefined {
+  if (!id) return id;
+  return APP_ID_ALIASES[id] ?? id;
+}
 
 /**
  * Liste des Core L1 tools (toujours charges).

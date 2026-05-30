@@ -1,13 +1,91 @@
 import { Link } from "react-router-dom";
-import { CheckCircle2, X, ArrowRight } from "lucide-react";
+import { CheckCircle2, X, ArrowRight, Package } from "lucide-react";
 import { useContentContext } from "../components/layout/Layout";
 import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { SEOHead } from "../components/ui/SEOHead";
 import type { AppItem } from "../config/content";
+import { planEntries } from "../lib/utils";
+import { useBundles } from "../hooks/useBundles";
 
 function formatPrice(price: number): string {
   return price.toLocaleString("fr-FR");
+}
+
+function BundlesSection() {
+  const { bundles, loading } = useBundles();
+  if (loading || bundles.length === 0) return null;
+
+  return (
+    <section className="relative py-20 md:py-28 px-5 md:px-8 border-b border-white/[0.04] overflow-hidden bg-ink-100">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] glow-gold opacity-40 pointer-events-none" />
+      <div className="relative max-w-5xl mx-auto">
+        <ScrollReveal>
+          <div className="text-center mb-12">
+            <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Suites</div>
+            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-3 tracking-tight">Économisez avec les suites</h2>
+            <p className="text-neutral-muted text-[15px] font-light max-w-xl mx-auto">
+              Regroupez plusieurs applications et profitez de −20 % sur le total. Engagement annuel cumulable.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {bundles.map((b) => (
+            <ScrollReveal key={b.id}>
+              <div
+                className={`relative rounded-2xl p-7 h-full flex flex-col overflow-hidden card-hover ${
+                  b.is_popular
+                    ? "border border-gold/35 shadow-[0_0_0_1px_rgba(169,181,126,0.15),0_24px_56px_-12px_rgba(169,181,126,0.18)]"
+                    : "border border-white/[0.06] shadow-premium"
+                }`}
+                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20" }}
+              >
+                {b.is_popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="shimmer btn-gold !py-1 !px-4 !text-[10px] !font-bold tracking-[0.18em] !rounded-full">POPULAIRE</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2.5 mb-3">
+                  <Package size={18} className="text-gold" strokeWidth={2} />
+                  <h3 className="text-neutral-light text-lg font-semibold tracking-tight">{b.name}</h3>
+                </div>
+                {b.tagline && <p className="text-neutral-muted text-[13px] font-light mb-5 leading-relaxed">{b.tagline}</p>}
+
+                <div className="space-y-2 mb-6">
+                  {b.included.map((inc, i) => (
+                    <div key={i} className="flex items-center gap-2 text-[13px] font-light text-neutral-light">
+                      <CheckCircle2 size={15} className="text-gold flex-shrink-0" strokeWidth={2} />
+                      <span>{inc.app}</span>
+                      <span className="text-neutral-muted text-[11px]">· {inc.plan}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-auto">
+                  <div className="flex items-baseline gap-2 mb-0.5">
+                    <span className="text-gradient-gold font-mono text-3xl font-semibold tracking-tight">{formatPrice(b.price_monthly_fcfa)}</span>
+                    <span className="text-neutral-muted text-sm font-light">FCFA/mois</span>
+                  </div>
+                  <div className="text-[12px] text-neutral-muted font-light mb-5">
+                    <span className="line-through">{formatPrice(b.sum_monthly_fcfa)}</span>
+                    <span className="text-gold ml-2 font-medium">−{formatPrice(b.savings_monthly_fcfa)} FCFA/mois</span>
+                  </div>
+                  <Link
+                    to={`/portal?bundle=${b.slug}`}
+                    className={b.is_popular ? "btn-gold w-full !rounded-xl" : "btn-outline-light w-full !rounded-xl !text-[13px]"}
+                  >
+                    Souscrire cette suite
+                    {b.is_popular && <ArrowRight size={15} strokeWidth={2.2} />}
+                  </Link>
+                </div>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 const PREMIUM_TAGS = ["(Premium)", "(Cabinet)", "(Entreprise)"];
@@ -19,9 +97,9 @@ const cleanFeatureName = (f: string) => {
 };
 
 function AppPricingSection({ app }: { app: AppItem }) {
-  const plans = Object.entries(app.pricing);
+  const plans = planEntries(app.pricing);
   const period = app.pricingPeriod || "mois";
-  const appColor = app.color || "#10B981";
+  const appColor = app.color || "#A9B57E";
 
   return (
     <div className="mb-24 last:mb-0">
@@ -51,19 +129,19 @@ function AppPricingSection({ app }: { app: AppItem }) {
               key={plan}
               className={`relative rounded-2xl p-8 flex flex-col overflow-hidden card-hover ${
                 isPopular
-                  ? "border border-gold/35 shadow-[0_0_0_1px_rgba(16,185,129,0.15),0_24px_56px_-12px_rgba(16,185,129,0.18)]"
+                  ? "border border-gold/35 shadow-[0_0_0_1px_rgba(169,181,126,0.15),0_24px_56px_-12px_rgba(169,181,126,0.18)]"
                   : "border border-white/[0.06] shadow-premium"
               }`}
               style={{
                 background: isPopular
-                  ? "linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.01) 100%), #232629"
-                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #232629",
+                  ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), #1c1c20"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20",
               }}
             >
               {isPopular && (
                 <>
                   <div className="absolute top-0 left-0 right-0 h-px"
-                    style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.7) 50%, transparent 100%)" }}
+                    style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.7) 50%, transparent 100%)" }}
                   />
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="shimmer btn-gold !py-1 !px-4 !text-[10px] !font-bold tracking-[0.18em] !rounded-full">
@@ -84,6 +162,9 @@ function AppPricingSection({ app }: { app: AppItem }) {
                     </>
                   )}
                 </div>
+                {app.pricingNotes?.[plan] && (
+                  <p className="text-neutral-muted text-xs font-light mt-2">{app.pricingNotes[plan]}</p>
+                )}
               </div>
               <div className="flex-1 mb-7 space-y-3">
                 {app.features.map((feature, fi) => {
@@ -147,6 +228,9 @@ export default function PricingPage() {
           ))}
         </div>
       </section>
+
+      {/* Suites / bundles */}
+      <BundlesSection />
 
       {/* CTA */}
       <section className="relative bg-ink-100 py-20 md:py-24 px-5 md:px-8 text-center overflow-hidden">

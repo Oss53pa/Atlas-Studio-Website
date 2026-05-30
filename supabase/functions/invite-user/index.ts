@@ -31,17 +31,25 @@ Deno.serve(async (req) => {
     if (send_email !== false) {
       const resendKey = Deno.env.get("RESEND_API_KEY");
       if (resendKey) {
-        const { data: inviterProfile } = await supabaseAdmin.from("profiles").select("full_name").eq("id", user.id).single();
+        const [{ data: inviterProfile }, { data: lic }] = await Promise.all([
+          supabaseAdmin.from("profiles").select("full_name").eq("id", user.id).single(),
+          supabaseAdmin.from("licences").select("products(name)").eq("id", licence_id).maybeSingle(),
+        ]);
+        const appName = (lic as { products?: { name?: string } } | null)?.products?.name;
+        const inviterName = inviterProfile?.full_name || "Votre administrateur";
+        const appLabel = appName || "Atlas Studio";
+        const titleSuffix = appName ? ` à rejoindre ${appName}` : "";
+        const appPhrase = appName ? ` sur <strong>${appName}</strong>` : "";
         await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             from: "Pamela — Atlas Studio <notifications@atlasstudio.org>",
             to: [email],
-            subject: `${inviterProfile?.full_name || "Votre administrateur"} vous invite à rejoindre Atlas Studio`,
+            subject: `${inviterName} vous invite à rejoindre ${appLabel}`,
             html: `<div style="font-family:sans-serif;max-width:580px;margin:0 auto;padding:32px;">
-              <h2 style="color:#EF9F27;">Vous êtes invité(e)</h2>
-              <p>${inviterProfile?.full_name || "Un administrateur"} vous a invité(e) en tant que <strong>${role || "éditeur"}</strong>.</p>
+              <h2 style="color:#EF9F27;">Vous êtes invité(e)${titleSuffix}</h2>
+              <p>${inviterName} vous a invité(e)${appPhrase} en tant que <strong>${role || "éditeur"}</strong>.</p>
               <p><a href="${inviteUrl}" style="display:inline-block;padding:12px 32px;background:#EF9F27;color:#000;border-radius:8px;font-weight:500;text-decoration:none;">Accepter l'invitation →</a></p>
               <p style="font-size:12px;color:#888;">Ce lien expire dans 72h.</p>
             </div>`,

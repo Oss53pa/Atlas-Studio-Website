@@ -97,7 +97,7 @@ function renderCols2(block: Cols2Block): string {
     <td class="col-half" style="width:50%;vertical-align:top;padding:0 8px;">
       <div style="background:${block.props.bg};border-radius:8px;padding:16px;">
         ${col.iconEmoji ? `<div style="font-size:20px;margin-bottom:8px;">${col.iconEmoji}</div>` : ''}
-        <div style="font-size:13px;font-weight:500;color:#0A0A0A;margin-bottom:6px;">${col.title}</div>
+        <div style="font-size:13px;font-weight:500;color:#131316;margin-bottom:6px;">${col.title}</div>
         <div style="font-size:12px;color:#666666;line-height:1.6;">${col.text}</div>
       </div>
     </td>`
@@ -124,9 +124,9 @@ function renderFooter(block: FooterBlock): string {
   return `<div style="padding:24px 32px;text-align:center;border-top:0.5px solid #EEEEEE;">
   <div style="font-size:11px;color:${block.props.color};">${block.props.companyName} · ${block.props.address}</div>
   <div style="margin-top:8px;">
-    <a href="{{unsubscribe_url}}" style="font-size:11px;color:#EF9F27;">${block.props.unsubscribeText}</a>
+    <a href="{{unsubscribe_url}}" style="font-size:11px;color:#A9B57E;">${block.props.unsubscribeText}</a>
     &nbsp;·&nbsp;
-    <a href="{{view_online_url}}" style="font-size:11px;color:#EF9F27;">Voir en ligne</a>
+    <a href="{{view_online_url}}" style="font-size:11px;color:#A9B57E;">Voir en ligne</a>
   </div>
 </div>`
 }

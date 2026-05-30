@@ -35,11 +35,11 @@ Pour éviter d'avoir à gérer 7 systèmes d'auth en parallèle, **toutes les ap
 4. Génère un JWT signé avec ATLAS_SSO_SECRET
    payload = { sub, email, app_id, exp: now+5min }
    ↓
-5. Retour : { redirectUrl: "https://cockpit-fna.atlas-studio.org/?atlas_token=<JWT>" }
+5. Retour : { redirectUrl: "https://cockpit-fna.atlas-studio.org/auth?token=<JWT>" }
    ↓
 6. Front ouvre redirectUrl dans un nouvel onglet
    ↓
-7. App cible (cockpit-fna) lit ?atlas_token=, vérifie la signature,
+7. App cible (cockpit-fna) expose `/auth` qui lit `?token=<JWT>`, vérifie la signature,
    établit sa propre session Supabase (signInWithPassword via service role
    ou exchange JWT avec une edge function dédiée)
 ```
@@ -48,7 +48,8 @@ Pour éviter d'avoir à gérer 7 systèmes d'auth en parallèle, **toutes les ap
 
 Chaque app (cockpit-fna, atlas-finance, liasspilot, etc.) doit :
 
-1. **Au boot** : si `?atlas_token=<JWT>` dans l'URL, faire l'échange auth
+1. **Route `/auth`** : si `?token=<JWT>` dans l'URL, faire l'échange auth (contrat
+   réel émis par l'edge function `app-token` — c'est `/auth?token=`, pas `?atlas_token=`)
 2. **Si pas de session** : afficher `/login` avec un bouton **"Se connecter avec Atlas Studio"** qui redirige vers `https://atlas-studio.org/portal/login?next=https://<app>.atlas-studio.org/`
 3. **Optionnel** : autoriser aussi `/signup` local pour les utilisateurs qui découvrent l'app sans passer par atlas-studio.org
 

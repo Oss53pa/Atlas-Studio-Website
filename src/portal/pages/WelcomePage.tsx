@@ -49,7 +49,7 @@ export default function WelcomePage() {
       setAccessibleApps(subs.map(s => ({
         app_id: s.app_id,
         app_name: appMap[s.app_id]?.name || s.app_id,
-        app_color: (appMap[s.app_id] as any)?.color || "#10B981",
+        app_color: (appMap[s.app_id] as any)?.color || "#A9B57E",
         status: s.status,
         trial_ends_at: s.trial_ends_at,
       })));
@@ -78,7 +78,7 @@ export default function WelcomePage() {
         </div>
 
         {/* Apps */}
-        <div className="bg-ink-100 border border-white/[0.06] rounded-2xl p-6 md:p-8 mb-6">
+        <div className="bg-ink-100 border border-white/[0.06] rounded-3xl p-6 md:p-8 mb-6 shadow-elev-3">
           <div className="text-neutral-muted text-[11px] font-semibold uppercase tracking-[0.14em] mb-4">
             Vos applications
           </div>
@@ -107,23 +107,23 @@ export default function WelcomePage() {
                   <Link
                     key={app.app_id}
                     to={`/portal/launch?appId=${encodeURIComponent(app.app_id)}`}
-                    className="flex items-center gap-4 p-4 rounded-xl border border-white/[0.06] hover:border-gold/30 hover:bg-white/[0.02] transition-colors group"
+                    className="flex items-center gap-4 p-4 rounded-2xl surface-raised hover:border-gold/30 hover:-translate-y-0.5 dark:hover:shadow-elev-3 transition-all duration-300 group"
                   >
                     <div
-                      className="w-11 h-11 rounded-lg flex items-center justify-center text-[#0A0A0A] text-sm font-bold flex-shrink-0"
+                      className="w-11 h-11 rounded-xl flex items-center justify-center text-[#131316] text-sm font-bold flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
                       style={{ backgroundColor: app.app_color }}
                     >
                       {app.app_name.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-neutral-light font-medium truncate">{app.app_name}</div>
-                      <div className="text-neutral-muted text-[12px] mt-0.5">
+                      <div className="mt-1.5">
                         {isTrial ? (
-                          <span className="text-amber-300">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-[0.02em] bg-amber-500/[0.12] text-amber-300 border border-amber-500/25">
                             Trial — {daysLeft !== null ? `${daysLeft}j restants` : "actif"}
                           </span>
                         ) : (
-                          <span className="text-emerald-300">Acces actif</span>
+                          <span className="pill">Acces actif</span>
                         )}
                       </div>
                     </div>

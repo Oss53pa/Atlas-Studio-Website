@@ -14,6 +14,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { TeamPage } from "./pages/TeamPage";
 import { ActivatePage } from "./pages/ActivatePage";
 import { SubscriptionPage } from "./pages/SubscriptionPage";
+import { SeatsCostsPage } from "./pages/SeatsCostsPage";
 import { UpgradePage } from "./pages/UpgradePage";
 import { Proph3tPortalPage } from "./pages/Proph3tPortalPage";
 
@@ -22,7 +23,10 @@ const LaunchPage = lazy(() => import("./pages/LaunchPage"));
 
 function PortalDashboard() {
   const { user, profile, signOut, loading } = useAuth();
-  const [page, setPage] = useState("apps");
+  const location = useLocation();
+  const [page, setPage] = useState(
+    new URLSearchParams(location.search).get("bundle") ? "catalog" : "apps",
+  );
 
   // Double guard — never render dashboard without user AND profile
   if (!user || !profile || loading) return null;
@@ -43,6 +47,7 @@ function PortalDashboard() {
         {page === "billing" && <BillingPage userId={user?.id} />}
         {page === "support" && <SupportPage userId={user?.id} />}
         {page === "team" && <TeamPage userId={user?.id} />}
+        {page === "seats-costs" && <SeatsCostsPage userId={user?.id} />}
         {page === "activate" && <ActivatePage userId={user?.id} />}
         {page === "subscription" && <SubscriptionPage userId={user?.id} />}
         {page === "upgrade" && <UpgradePage userId={user?.id} />}

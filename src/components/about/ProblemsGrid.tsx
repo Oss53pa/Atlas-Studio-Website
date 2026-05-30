@@ -1,5 +1,4 @@
 import { ScrollReveal } from "../ui/ScrollReveal";
-import { SectionLabel } from "../shared/SectionLabel";
 
 interface Problem {
   title: string;
@@ -9,32 +8,32 @@ interface Problem {
 
 const PROBLEMS: Problem[] = [
   {
-    title: "L'information existe mais elle est inaccessible",
+    title: "Vos données sont là. Mais hors de portée.",
     body:
-      "Votre logiciel contient toutes les données — mais pour obtenir un tableau de bord utile, vous exportez, retraitez, reformatez.",
+      "Votre logiciel contient tout. Pourtant, pour un simple tableau de bord, vous exportez, retraitez, reformatez.",
     emphasis:
-      "Chez nous, l'information est disponible en temps réel, dans le format décisionnel, sans manipulation intermédiaire.",
+      "Chez nous, la donnée arrive prête à décider, en temps réel, sans aucune manipulation.",
   },
   {
-    title: "Les ERP existants ne parlent pas SYSCOHADA",
+    title: "Les ERP du marché ne parlent pas SYSCOHADA",
     body:
-      "Sage, Odoo, Zoho sont construits sur des normes comptables occidentales et « adaptés » pour l'OHADA.",
+      "Sage, Odoo, Zoho reposent sur des normes occidentales, « adaptées » tant bien que mal à l'OHADA.",
     emphasis:
-      "Atlas Finance et LiassPilot sont nés SYSCOHADA — la balance se déverse automatiquement dans la liasse fiscale, sans export.",
+      "Atlas Finance et LiassPilot sont nés SYSCOHADA. La balance alimente la liasse fiscale toute seule, sans un seul export.",
   },
   {
-    title: "Le Mobile Money n'est pas une méthode secondaire",
+    title: "Le Mobile Money n'a rien d'accessoire",
     body:
-      "Pour la majorité des entreprises africaines, Orange Money, MTN MoMo et Wave sont la norme — pas l'exception.",
+      "Pour la plupart des entreprises africaines, Orange Money, MTN MoMo et Wave, c'est le quotidien.",
     emphasis:
-      "Ils sont intégrés nativement dans nos outils, pas ajoutés comme plugin.",
+      "Nous les avons placés au cœur de nos outils, jamais en simple plugin.",
   },
   {
-    title: "La connectivité n'est pas garantie",
+    title: "Le réseau lâche. Pas votre outil.",
     body:
-      "Sur un site minier, dans une zone périurbaine, lors d'une coupure réseau — votre outil doit continuer à fonctionner.",
+      "Sur un site minier, en zone périurbaine ou pendant une coupure, votre logiciel doit tenir.",
     emphasis:
-      "Toutes nos apps sont offline-first et se synchronisent dès que le réseau revient.",
+      "Toutes nos apps fonctionnent hors ligne et se synchronisent dès que le réseau revient.",
   },
 ];
 
@@ -44,19 +43,18 @@ export function ProblemsGrid() {
       <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
-          <SectionLabel>Ce que nous résolvons</SectionLabel>
           <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-14 max-w-2xl">
-            Des problèmes que vous connaissez probablement
+            Ce qui vous freine aujourd'hui, nous l'avons réglé
           </h2>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {PROBLEMS.map((p, i) => (
             <ScrollReveal key={p.title} delay={i * 80}>
-              <div className="relative h-full bg-ink-100 border border-white/[0.06] rounded-2xl p-8 card-hover overflow-hidden">
+              <div className="relative h-full bg-ink-100 border border-white/[0.05] rounded-2xl p-8 card-hover shadow-premium overflow-hidden">
                 <div
                   className="absolute top-0 left-0 bottom-0 w-[3px]"
-                  style={{ background: "linear-gradient(180deg, #10B981 0%, rgba(16,185,129,0.2) 100%)" }}
+                  style={{ background: "linear-gradient(180deg, #A9B57E 0%, rgba(169,181,126,0.2) 100%)" }}
                 />
                 <h3 className="text-neutral-light text-base md:text-lg font-semibold mb-3 leading-snug tracking-tight">
                   {p.title}

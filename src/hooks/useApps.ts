@@ -44,7 +44,7 @@ export function useApps() {
           categories: row.categories || [],
           pricing: row.pricing as Record<string, number>,
           pricingPeriod: (row as any).pricing_period || 'mois',
-          color: (row as any).color || '#C8A960',
+          color: (row as any).color || '#8E9A63',
           icon: (row as any).icon || 'receipt',
           highlights: (row as any).highlights || [],
           external_url: row.external_url || undefined,

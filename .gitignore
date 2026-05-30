@@ -31,3 +31,5 @@ supabase/.temp/
 .claude/settings.local.json
 .claude/.test-creds
 .claude/.test-creds.*
+.claude/launch.json
+.claude/worktrees/

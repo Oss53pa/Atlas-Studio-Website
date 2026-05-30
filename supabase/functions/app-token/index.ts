@@ -12,17 +12,49 @@ Deno.serve(async (req) => {
     const user = await requireUser(req);
     const { appId } = await req.json();
 
-    // Verify active subscription
+    // Accès autorisé si : (1) abonnement actif (propriétaire/acheteur) OU
+    // (2) siège actif sur une licence active de cette app (collaborateur invité).
     const { data: sub } = await supabaseAdmin
       .from("subscriptions")
-      .select("*")
+      .select("plan")
       .eq("user_id", user.id)
       .eq("app_id", appId)
       .in("status", ["active", "trial"])
-      .single();
+      .maybeSingle();
 
-    if (!sub) {
-      return errorResponse("Aucun abonnement actif pour cette application", 403);
+    let plan: string = sub?.plan ?? "";
+    let hasAccess = !!sub;
+
+    if (!hasAccess) {
+      // Résoudre le produit visé (slug = appId), puis chercher un siège actif.
+      const { data: product } = await supabaseAdmin
+        .from("products")
+        .select("id")
+        .eq("slug", appId)
+        .limit(1)
+        .maybeSingle();
+
+      if (product) {
+        const { data: seat } = await supabaseAdmin
+          .from("licence_seats")
+          .select("id, licences!inner(status, product_id, plans(name))")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .eq("licences.product_id", product.id)
+          .eq("licences.status", "active")
+          .limit(1)
+          .maybeSingle();
+
+        if (seat) {
+          hasAccess = true;
+          // deno-lint-ignore no-explicit-any
+          plan = (seat as any).licences?.plans?.name ?? "Collaborateur";
+        }
+      }
+    }
+
+    if (!hasAccess) {
+      return errorResponse("Aucun accès actif pour cette application", 403);
     }
 
     // Get user profile
@@ -52,7 +84,7 @@ Deno.serve(async (req) => {
         email: profile?.email,
         fullName: profile?.full_name,
         appId,
-        plan: sub.plan,
+        plan,
         iat: now,
         exp: now + 8 * 3600, // 8 hours
       },

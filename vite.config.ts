@@ -16,8 +16,8 @@ export default defineConfig({
         name: 'Atlas Studio',
         short_name: 'Atlas Studio',
         description: 'Solutions digitales professionnelles pour les entreprises africaines',
-        theme_color: '#0A0F1A',
-        background_color: '#0A0F1A',
+        theme_color: '#17171a',
+        background_color: '#17171a',
         display: 'standalone',
         start_url: '/',
         icons: [

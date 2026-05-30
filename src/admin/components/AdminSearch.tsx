@@ -15,7 +15,7 @@ export function AdminSearch({ value, onChange, placeholder = "Rechercher...", cl
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface border border-warm-border dark:border-admin-surface-alt rounded-lg text-sm text-neutral-text dark:text-admin-text outline-none focus:border-gold dark:focus:border-admin-accent transition-colors"
+        className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-admin-surface-alt/50 border border-warm-border dark:border-white/10 rounded-full text-sm text-neutral-text dark:text-admin-text outline-none shadow-sm dark:shadow-inner focus:border-gold/50 dark:focus:border-admin-accent/50 focus:ring-2 focus:ring-gold/20 dark:focus:ring-admin-accent/25 transition-all duration-200"
       />
     </div>
   );

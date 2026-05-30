@@ -24,8 +24,8 @@ const COORDS: Record<string, [number, number]> = {
 };
 
 const ZONE_COLOR: Record<string, string> = {
-  UEMOA: "#10B981", // émeraude
-  CEMAC: "#34D399", // émeraude clair
+  UEMOA: "#A9B57E", // kaki (couleur de marque Atlas Studio)
+  CEMAC: "#C2CC92", // kaki clair
   other: "#C8A672", // champagne
 };
 
@@ -79,8 +79,8 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
       <svg viewBox="0 0 100 100" className="w-full h-full" role="img" aria-label="Constellation OHADA — 17 États membres">
         <defs>
           <radialGradient id="ohada-glow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%"  stopColor="rgba(16,185,129,0.18)" />
-            <stop offset="60%" stopColor="rgba(16,185,129,0.03)" />
+            <stop offset="0%"  stopColor="rgba(169,181,126,0.18)" />
+            <stop offset="60%" stopColor="rgba(169,181,126,0.03)" />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
           <filter id="ohada-soft" x="-50%" y="-50%" width="200%" height="200%">
@@ -149,7 +149,7 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
                       bg-gradient-to-t from-black/40 via-black/10 to-transparent">
         {hovered ? (
           <div className="font-mono text-[11px] tracking-wide text-neutral-light flex items-baseline gap-2 flex-wrap">
-            <span className="text-[#10B981]">{hovered.country_code}</span>
+            <span className="text-[#A9B57E]">{hovered.country_code}</span>
             <span className="text-neutral-light/90">{hovered.country_name}</span>
             <span className="text-neutral-light/40">·</span>
             <span className="text-neutral-light/60">{hovered.zone}</span>

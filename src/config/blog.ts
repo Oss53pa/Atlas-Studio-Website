@@ -25,7 +25,7 @@ export const blogPosts: BlogPost[] = [
     title: "Digitalisation des PME en Afrique : où en est-on en 2026 ?",
     excerpt:
       "Le continent africain connaît une accélération sans précédent de sa transformation digitale. Tour d'horizon des tendances, des défis et des opportunités pour les PME.",
-    cover: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=450&fit=crop",
+    cover: "https://images.unsplash.com/photo-1528901166007-3784c7dd3653?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Digital",
     date: "25 mars 2026",
     readTime: "6 min",
@@ -59,7 +59,7 @@ export const blogPosts: BlogPost[] = [
     title: "SYSCOHADA révisé : guide pratique pour les entreprises",
     excerpt:
       "Comprendre les exigences du plan comptable SYSCOHADA révisé et comment s'y conformer simplement avec les bons outils de gestion.",
-    cover: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6e?w=800&h=450&fit=crop",
+    cover: "https://plus.unsplash.com/premium_photo-1707155465391-5cfc46746a34?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Fiscalité",
     date: "18 mars 2026",
     readTime: "8 min",
@@ -96,7 +96,7 @@ export const blogPosts: BlogPost[] = [
     title: "Intégrer le Mobile Money dans la gestion de votre entreprise",
     excerpt:
       "Orange Money, Wave, MTN MoMo... Comment automatiser la collecte et le suivi des paiements Mobile Money dans votre comptabilité.",
-    cover: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop",
+    cover: "https://plus.unsplash.com/premium_photo-1733342539844-ab13588d3ab9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Gestion",
     date: "10 mars 2026",
     readTime: "5 min",
@@ -127,7 +127,7 @@ export const blogPosts: BlogPost[] = [
     title: "L'IA au service de la comptabilité africaine",
     excerpt:
       "Comment l'intelligence artificielle Proph3t transforme la saisie comptable, la détection d'anomalies et la prévision financière.",
-    cover: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=450&fit=crop",
+    cover: "https://plus.unsplash.com/premium_photo-1683121710572-7723bd2e235d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Digital",
     date: "4 mars 2026",
     readTime: "7 min",
@@ -158,7 +158,7 @@ export const blogPosts: BlogPost[] = [
     title: "5 erreurs de gestion de trésorerie qui coûtent cher aux PME",
     excerpt:
       "Découvrez les erreurs les plus courantes en gestion de trésorerie et comment les éviter grâce à des outils adaptés.",
-    cover: "https://images.unsplash.com/photo-1553729459-uj8hne0ce17f?w=800&h=450&fit=crop",
+    cover: "https://images.unsplash.com/photo-1681826292838-c37fbd22263a?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Gestion",
     date: "24 février 2026",
     readTime: "4 min",
@@ -192,7 +192,7 @@ export const blogPosts: BlogPost[] = [
     title: "Atlas Studio lance COCKPIT : le tableau de bord des dirigeants",
     excerpt:
       "Notre nouvelle application COCKPIT offre une vue consolidée et en temps réel de tous les indicateurs clés de votre entreprise.",
-    cover: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop",
+    cover: "https://plus.unsplash.com/premium_photo-1769868194564-34abd3706d23?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: "Actualités",
     date: "15 février 2026",
     readTime: "3 min",

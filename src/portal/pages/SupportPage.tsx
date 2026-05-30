@@ -111,7 +111,7 @@ export function SupportPage({ userId }: SupportPageProps) {
           <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${status.color}`}>{status.label}</span>
         </div>
 
-        <div className="bg-white border border-warm-border rounded-2xl p-6 mb-4 space-y-4 max-h-[500px] overflow-y-auto">
+        <div className="bg-white border border-warm-border rounded-3xl p-6 mb-4 space-y-4 max-h-[500px] overflow-y-auto shadow-[0_4px_20px_-6px_rgba(0,0,0,0.10)]">
           {messages.map(m => (
             <div key={m.id} className={`flex ${m.is_admin ? "justify-start" : "justify-end"}`}>
               <div className={`max-w-[80%] p-4 rounded-2xl ${m.is_admin ? "bg-warm-bg border border-warm-border" : "bg-gold/10 border border-gold/20"}`}>
@@ -131,7 +131,7 @@ export function SupportPage({ userId }: SupportPageProps) {
               onChange={e => setReply(e.target.value)}
               onKeyDown={e => e.key === "Enter" && !e.shiftKey && handleReply()}
               placeholder="Écrire une réponse..."
-              className="flex-1 px-4 py-3 bg-white border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors"
+              className="flex-1 px-4 py-3 bg-white border border-warm-border rounded-xl text-neutral-text text-sm outline-none focus:border-gold/55 focus:ring-2 focus:ring-gold/20 transition-all duration-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.04)]"
             />
             <button onClick={handleReply} disabled={sending || !reply.trim()} className={`btn-gold !py-3 !px-5 ${sending || !reply.trim() ? "opacity-50" : ""}`}>
               <Send size={16} strokeWidth={1.5} />
@@ -156,22 +156,22 @@ export function SupportPage({ userId }: SupportPageProps) {
 
       {/* New ticket form */}
       {showNew && (
-        <div className="bg-white border border-warm-border rounded-2xl p-6 mb-6">
+        <div className="bg-white border border-warm-border rounded-3xl p-6 md:p-7 mb-6 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.10)]">
           <h3 className="text-neutral-text text-base font-bold mb-4">Nouveau ticket</h3>
           <div className="space-y-3">
             <input
               value={subject}
               onChange={e => setSubject(e.target.value)}
               placeholder="Sujet du ticket"
-              className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors"
+              className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-xl text-neutral-text text-sm outline-none focus:border-gold/55 focus:ring-2 focus:ring-gold/20 transition-all duration-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.04)]"
             />
             <div className="flex gap-2">
               {["low", "medium", "high"].map(p => (
                 <button
                   key={p}
                   onClick={() => setPriority(p)}
-                  className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all ${
-                    priority === p ? "border-gold bg-gold/10 text-gold" : "border-warm-border text-neutral-muted"
+                  className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition-all duration-200 ${
+                    priority === p ? "border-gold/40 bg-gold/10 text-gold shadow-[0_2px_8px_-3px_rgba(169,181,126,0.5)]" : "border-warm-border text-neutral-muted hover:border-gold/30"
                   }`}
                 >
                   {p === "low" ? "Basse" : p === "medium" ? "Moyenne" : "Haute"}
@@ -183,13 +183,13 @@ export function SupportPage({ userId }: SupportPageProps) {
               onChange={e => setMessage(e.target.value)}
               placeholder="Décrivez votre problème en détail..."
               rows={4}
-              className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-lg text-neutral-text text-sm outline-none focus:border-gold transition-colors resize-y"
+              className="w-full px-4 py-3 bg-warm-bg border border-warm-border rounded-xl text-neutral-text text-sm outline-none focus:border-gold/55 focus:ring-2 focus:ring-gold/20 transition-all duration-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.04)] resize-y"
             />
             <div className="flex gap-3">
               <button onClick={handleCreate} disabled={creating || !subject || !message} className={`btn-gold !py-2.5 !text-[13px] ${creating || !subject || !message ? "opacity-50" : ""}`}>
                 {creating ? "Envoi..." : "Créer le ticket"}
               </button>
-              <button onClick={() => setShowNew(false)} className="px-5 py-2.5 border border-warm-border rounded-lg text-neutral-body text-[13px] hover:bg-warm-bg transition-colors">
+              <button onClick={() => setShowNew(false)} className="px-5 py-2.5 border border-warm-border rounded-xl text-neutral-body text-[13px] hover:bg-warm-bg transition-colors">
                 Annuler
               </button>
             </div>
@@ -199,7 +199,7 @@ export function SupportPage({ userId }: SupportPageProps) {
 
       {/* Tickets list */}
       {tickets.length === 0 ? (
-        <div className="bg-white border border-warm-border rounded-2xl p-12 text-center">
+        <div className="bg-white border border-warm-border rounded-3xl p-12 text-center shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)]">
           <p className="text-neutral-muted text-sm">Aucun ticket. Tout va bien !</p>
         </div>
       ) : (
@@ -210,7 +210,7 @@ export function SupportPage({ userId }: SupportPageProps) {
               <div
                 key={t.id}
                 onClick={() => openTicket(t)}
-                className="bg-white border border-warm-border rounded-2xl p-5 cursor-pointer card-hover flex items-center justify-between"
+                className="bg-white border border-warm-border rounded-3xl p-5 cursor-pointer shadow-[0_3px_16px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-12px_rgba(0,0,0,0.16)] hover:border-gold/30 transition-all duration-300 flex items-center justify-between"
               >
                 <div>
                   <div className="text-neutral-text text-sm font-semibold">{t.subject}</div>

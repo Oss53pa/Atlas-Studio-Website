@@ -1,7 +1,7 @@
 // ASVC — SDR Agent: draft d'email/DM outreach pour un lead qualifié.
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 import {
   fetchLead,
@@ -82,7 +82,7 @@ export interface SdrDraftResult {
 }
 
 export async function draftSdrOutreach(params: SdrDraftParams): Promise<SdrDraftResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_SDR_MODEL") ?? "claude-sonnet-4-6";
 
@@ -121,7 +121,7 @@ ${params.customAngle ? `ANGLE DEMANDÉ: ${params.customAngle}` : ""}
 
 Produis le JSON de l'outreach maintenant.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

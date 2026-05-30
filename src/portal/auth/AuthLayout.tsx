@@ -40,13 +40,13 @@ export function AuthLayout({
         </div>
 
         {/* Card */}
-        <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-8 shadow-premium overflow-hidden">
+        <div className="relative bg-ink-100 border border-white/[0.06] rounded-3xl p-8 md:p-9 shadow-elev-4 overflow-hidden">
           {/* Top gradient accent line */}
           <div
             className="absolute -top-px left-[10%] right-[10%] h-px"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.55) 50%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.55) 50%, transparent 100%)",
             }}
           />
 

@@ -5,6 +5,7 @@ import { StyledText } from "./StyledText";
 import { StartTrialButton } from "../marketplace/StartTrialButton";
 import type { AppItem } from "../../config/content";
 import type { AppStatus } from "../../lib/database.types";
+import { planEntries } from "../../lib/utils";
 
 interface AppCardLargeProps {
   app: AppItem & { status?: AppStatus };
@@ -22,10 +23,10 @@ function formatPrice(price: number): string {
 }
 
 export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
-  const prices = Object.entries(app.pricing);
+  const prices = planEntries(app.pricing);
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === "coming_soon";
-  const appColor = app.color || "#10B981";
+  const appColor = app.color || "#A9B57E";
   const highlights = app.highlights || [];
 
   const previewFeatures = app.features.slice(0, 6);
@@ -106,6 +107,9 @@ export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
                     </>
                   )}
                 </div>
+                {app.pricingNotes?.[planName] && (
+                  <div className="text-neutral-muted/80 text-[11px] font-light mt-0.5">{app.pricingNotes[planName]}</div>
+                )}
               </div>
             ))}
           </div>

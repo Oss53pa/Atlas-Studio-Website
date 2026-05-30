@@ -56,7 +56,7 @@ export default function ContactPage() {
             <ScrollReveal>
               <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-14 text-center overflow-hidden shadow-premium">
                 <div className="absolute -top-px left-[10%] right-[10%] h-px"
-                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.55) 50%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.55) 50%, transparent 100%)" }}
                 />
                 <div className="mb-5 flex justify-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/30 flex items-center justify-center">
@@ -71,7 +71,7 @@ export default function ContactPage() {
             <ScrollReveal>
               <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 overflow-hidden shadow-premium">
                 <div className="absolute -top-px left-[8%] right-[8%] h-px"
-                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.5) 50%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 {error && (
                   <div className="mb-5 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-sm">

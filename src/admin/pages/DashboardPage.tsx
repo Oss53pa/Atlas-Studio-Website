@@ -9,7 +9,7 @@ import {
   TrendingUp, TrendingDown, Eye,
   type LucideIcon,
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { PremiumBarChart } from "../../components/ui/charts/PremiumCharts";
 import { supabase } from "../../lib/supabase";
 import { useAppCatalog } from "../../hooks/useAppCatalog";
 import { useAppFilter } from "../contexts/AppFilterContext";
@@ -40,14 +40,14 @@ function KpiCard({ label, value, icon: Icon, trend, trendDown }: {
   label: string; value: string | number; icon: LucideIcon; trend?: string; trendDown?: boolean;
 }) {
   return (
-    <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-5">
+    <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-elev-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[#888] text-[11px] font-semibold uppercase tracking-wider">{label}</span>
-        <Icon size={16} className="text-[#888]/60" strokeWidth={1.5} />
+        <span className="text-neutral-muted dark:text-admin-muted text-[11px] font-semibold uppercase tracking-wider">{label}</span>
+        <Icon size={18} className="text-neutral-placeholder dark:text-admin-muted/50" strokeWidth={1.5} />
       </div>
-      <div className="text-[#EF9F27] text-2xl font-semibold">{value}</div>
+      <div className="text-gold dark:text-admin-accent text-2xl font-mono font-semibold">{value}</div>
       {trend && (
-        <div className={`flex items-center gap-1 mt-1 text-[11px] ${trendDown ? "text-red-400" : "text-emerald-400"}`}>
+        <div className={`flex items-center gap-1 mt-1 text-[11px] font-semibold ${trendDown ? "text-red-500 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}`}>
           {trendDown ? <TrendingDown size={11} /> : <TrendingUp size={11} />}
           {trend}
         </div>
@@ -60,14 +60,14 @@ function QuickLink({ to, icon: Icon, label, desc, stat, color }: {
   to: string; icon: LucideIcon; label: string; desc: string; stat?: string | number; color: string;
 }) {
   return (
-    <Link to={to} className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-4 hover:border-[#EF9F27]/30 transition-all group">
+    <Link to={to} className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-5 shadow-sm dark:shadow-premium hover:-translate-y-0.5 hover:border-gold/30 dark:hover:border-admin-accent/30 hover:shadow-md dark:hover:shadow-elev-3 transition-all duration-300 group">
       <div className="flex items-start justify-between mb-2">
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${color}`}><Icon size={17} strokeWidth={1.5} /></div>
-        <ArrowRight size={12} className="text-[#888]/40 group-hover:text-[#EF9F27] transition-all mt-1" />
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}><Icon size={18} strokeWidth={1.5} /></div>
+        <ArrowRight size={13} className="text-neutral-placeholder dark:text-admin-muted/40 group-hover:text-gold dark:group-hover:text-admin-accent group-hover:translate-x-0.5 transition-all mt-1" />
       </div>
-      <div className="text-[#F5F5F5] text-[13px] font-semibold">{label}</div>
-      <div className="text-[#888] text-[11px] mt-0.5">{desc}</div>
-      {stat !== undefined && <div className="text-[#EF9F27] text-lg font-semibold font-mono mt-1.5">{stat}</div>}
+      <div className="text-neutral-text dark:text-admin-text text-[13px] font-semibold">{label}</div>
+      <div className="text-neutral-muted dark:text-admin-muted text-[11px] mt-0.5">{desc}</div>
+      {stat !== undefined && <div className="text-gold dark:text-admin-accent text-lg font-semibold font-mono mt-1.5">{stat}</div>}
     </Link>
   );
 }
@@ -155,32 +155,32 @@ export default function DashboardPage() {
 
   const fmt = (n: number) => n.toLocaleString("fr-FR");
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-[#EF9F27]" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-gold dark:text-admin-accent" /></div>;
 
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-[#F5F5F5] text-2xl font-bold mb-1">Console Atlas Studio</h1>
-        <p className="text-[#888] text-sm">{selectedApp === "all" ? "Centre de commande unifié" : `Filtré par : ${appMap[selectedApp]?.name || selectedApp}`}</p>
+      <div className="mb-7">
+        <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">Console Atlas Studio</h1>
+        <p className="text-neutral-muted dark:text-admin-muted text-sm">{selectedApp === "all" ? "Centre de commande unifié" : `Filtré par : ${appMap[selectedApp]?.name || selectedApp}`}</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-[#2A2A3A] overflow-x-auto">
+      <div className="flex items-center gap-1 mb-6 border-b border-warm-border dark:border-white/5 overflow-x-auto">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${tab === key ? "text-[#EF9F27] border-[#EF9F27]" : "text-[#888] border-transparent hover:text-[#F5F5F5]"}`}>
-            <Icon size={15} />{label}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${tab === key ? "text-gold dark:text-admin-accent border-gold dark:border-admin-accent" : "text-neutral-muted dark:text-admin-muted border-transparent hover:text-neutral-text dark:hover:text-admin-text"}`}>
+            <Icon size={15} strokeWidth={1.8} />{label}
           </button>
         ))}
       </div>
 
       {/* Alert */}
       {revenue && revenue.pending_payments > 0 && tab === "overview" && (
-        <div className="mb-6 px-5 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
-          <AlertTriangle size={16} className="text-amber-400" />
-          <span className="text-amber-300 text-sm font-medium">{fmt(revenue.pending_payments)} FCFA en attente</span>
-          <Link to="/admin/invoices" className="ml-auto text-amber-400 text-xs hover:underline">Voir →</Link>
+        <div className="mb-6 px-5 py-3.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center gap-3 shadow-sm dark:shadow-none">
+          <AlertTriangle size={16} className="text-amber-500 dark:text-amber-400" strokeWidth={1.8} />
+          <span className="text-amber-700 dark:text-amber-300 text-sm font-medium">{fmt(revenue.pending_payments)} FCFA en attente</span>
+          <Link to="/admin/invoices" className="ml-auto text-amber-600 dark:text-amber-400 text-xs hover:underline">Voir →</Link>
         </div>
       )}
 
@@ -202,16 +202,9 @@ export default function DashboardPage() {
             <QuickLink to="/admin/plans" icon={Layers} label="Plans & Tarifs" desc="Starter / Pro / Enterprise" color="bg-cyan-500/10 text-cyan-400" />
           </div>
           {/* Revenue chart */}
-          <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-6">
-            <h2 className="text-[#F5F5F5] text-sm font-semibold mb-4">Revenus (6 derniers mois)</h2>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={monthlyRevenues}>
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} width={50} tickFormatter={v => v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)} />
-                <Tooltip contentStyle={{ background: "#1E1E2E", border: "1px solid #2A2A3A", borderRadius: 8, fontSize: 12 }} formatter={((v: number) => [`${fmt(v)} FCFA`, "Revenus"]) as any} />
-                <Bar dataKey="amount" fill="#EF9F27" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+            <h2 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-5">Revenus (6 derniers mois)</h2>
+            <PremiumBarChart data={monthlyRevenues.map(m => ({ label: m.label, value: m.amount }))} height={190} unit="FCFA" />
           </div>
         </>
       )}
@@ -226,28 +219,21 @@ export default function DashboardPage() {
             <KpiCard label="Total encaissé" value={`${fmt(revenue?.total_revenue || 0)} FCFA`} icon={Wallet} />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-6">
-              <h3 className="text-[#F5F5F5] text-sm font-semibold mb-4">Évolution des revenus</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={monthlyRevenues}>
-                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "#888" }} axisLine={false} tickLine={false} width={50} tickFormatter={v => v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)} />
-                  <Tooltip contentStyle={{ background: "#1E1E2E", border: "1px solid #2A2A3A", borderRadius: 8, fontSize: 12 }} />
-                  <Bar dataKey="amount" fill="#EF9F27" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+              <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-5">Évolution des revenus</h3>
+              <PremiumBarChart data={monthlyRevenues.map(m => ({ label: m.label, value: m.amount }))} height={200} unit="FCFA" />
             </div>
-            <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-6">
+            <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[#F5F5F5] text-sm font-semibold">Factures en attente</h3>
-                <Link to="/admin/invoices" className="text-[#EF9F27] text-xs hover:underline">Tout voir →</Link>
+                <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold">Factures en attente</h3>
+                <Link to="/admin/invoices" className="text-gold dark:text-admin-accent text-xs hover:underline">Tout voir →</Link>
               </div>
               {pendingInvoices.length > 0 ? pendingInvoices.map(inv => (
-                <div key={inv.id} className="flex items-center justify-between py-2 border-b border-[#2A2A3A]/50 last:border-0">
-                  <div><div className="text-[#F5F5F5] text-sm">{inv.invoice_number}</div><div className="text-[#888] text-[11px]">{(inv.profiles as any)?.full_name || "—"}</div></div>
-                  <span className="text-amber-400 text-sm font-mono font-semibold">{fmt(Number(inv.amount))} FCFA</span>
+                <div key={inv.id} className="flex items-center justify-between py-2.5 border-b border-warm-border/50 dark:border-white/5 last:border-0">
+                  <div><div className="text-neutral-text dark:text-admin-text text-sm">{inv.invoice_number}</div><div className="text-neutral-muted dark:text-admin-muted text-[11px]">{(inv.profiles as any)?.full_name || "—"}</div></div>
+                  <span className="text-amber-600 dark:text-amber-400 text-sm font-mono font-semibold">{fmt(Number(inv.amount))} FCFA</span>
                 </div>
-              )) : <p className="text-[#888] text-sm">Aucune facture en attente</p>}
+              )) : <p className="text-neutral-muted dark:text-admin-muted text-sm">Aucune facture en attente</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -268,29 +254,29 @@ export default function DashboardPage() {
             <KpiCard label="Tickets ouverts" value={openTickets} icon={MessageSquare} />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-6">
-              <h3 className="text-[#F5F5F5] text-sm font-semibold mb-4">Top clients par revenu</h3>
+            <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+              <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Top clients par revenu</h3>
               {topClients.length > 0 ? topClients.map((c, i) => (
-                <div key={c.email} className="flex items-center justify-between py-2">
+                <div key={c.email} className="flex items-center justify-between py-2.5">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-[#EF9F27]/10 flex items-center justify-center text-[#EF9F27] text-[11px] font-bold">{i + 1}</div>
-                    <div><div className="text-[#F5F5F5] text-sm">{c.full_name}</div><div className="text-[#888] text-[11px]">{c.email}</div></div>
+                    <div className="w-7 h-7 rounded-lg bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
+                    <div><div className="text-neutral-text dark:text-admin-text text-sm">{c.full_name}</div><div className="text-neutral-muted dark:text-admin-muted text-[11px]">{c.email}</div></div>
                   </div>
-                  <span className="text-[#EF9F27] text-sm font-mono font-semibold">{fmt(c.total)} FCFA</span>
+                  <span className="text-gold dark:text-admin-accent text-sm font-mono font-semibold">{fmt(c.total)} FCFA</span>
                 </div>
-              )) : <p className="text-[#888] text-sm">Aucune donnée</p>}
+              )) : <p className="text-neutral-muted dark:text-admin-muted text-sm">Aucune donnée</p>}
             </div>
-            <div className="bg-[#1E1E2E] border border-[#2A2A3A] rounded-xl p-6">
-              <h3 className="text-[#F5F5F5] text-sm font-semibold mb-4">Apps populaires</h3>
+            <div className="bg-white dark:bg-admin-surface border border-warm-border dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-premium">
+              <h3 className="text-neutral-text dark:text-admin-text text-sm font-semibold mb-4">Apps populaires</h3>
               {stats?.popular_apps && stats.popular_apps.length > 0 ? stats.popular_apps.map((app, i) => (
-                <div key={app.app_id} className="flex items-center justify-between py-2">
+                <div key={app.app_id} className="flex items-center justify-between py-2.5">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-[#EF9F27]/10 flex items-center justify-center text-[#EF9F27] text-[11px] font-bold">{i + 1}</div>
-                    <span className="text-[#F5F5F5] text-sm">{appMap[app.app_id]?.name || app.app_id}</span>
+                    <div className="w-7 h-7 rounded-lg bg-gold/10 dark:bg-admin-accent/10 flex items-center justify-center text-gold dark:text-admin-accent text-[11px] font-bold">{i + 1}</div>
+                    <span className="text-neutral-text dark:text-admin-text text-sm">{appMap[app.app_id]?.name || app.app_id}</span>
                   </div>
-                  <span className="text-[#888] text-sm">{app.sub_count} abonnés</span>
+                  <span className="text-neutral-muted dark:text-admin-muted text-sm">{app.sub_count} abonnés</span>
                 </div>
-              )) : <p className="text-[#888] text-sm">Aucune donnée</p>}
+              )) : <p className="text-neutral-muted dark:text-admin-muted text-sm">Aucune donnée</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

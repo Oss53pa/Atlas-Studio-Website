@@ -8,7 +8,7 @@
 //   5. Action_proposed pour validation finale CEO avant développement
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
@@ -86,7 +86,7 @@ export interface DraftSpecResult {
 }
 
 export async function draftProductSpec(opportunityId: string): Promise<DraftSpecResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_PRODUCT_DESIGNER_MODEL") ?? "claude-sonnet-4-6";
 
@@ -127,7 +127,7 @@ ${briefSection}
 
 Produis la product spec JSON complète maintenant.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

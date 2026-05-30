@@ -11,7 +11,7 @@
 // description inclut le plan de rollback complet pour visibilité Pame.
 
 import { supabaseAdmin } from "../supabase.ts";
-import { anthropicChat } from "../proph3t/anthropic.ts";
+import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
 import { fetchAgentIdByCode, parseJsonOutput } from "./sales-common.ts";
 
@@ -97,7 +97,7 @@ export async function prepareDeployment(
   environment: DeployEnvironment,
   appName: string,
 ): Promise<PrepareDeploymentResult> {
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
+  const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? Deno.env.get("ASVC_ANTHROPIC_API_KEY");
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY manquante");
   const model = Deno.env.get("ASVC_DEVOPS_MODEL") ?? "claude-sonnet-4-6";
 
@@ -146,7 +146,7 @@ CONTEXTE
 
 Produis le plan de déploiement JSON.`;
 
-  const chat = await anthropicChat({
+  const chat = await asvcChat({
     apiKey,
     model,
     messages: [

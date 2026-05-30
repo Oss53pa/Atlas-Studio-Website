@@ -10,6 +10,7 @@ interface InviteInfo {
   needs_signup?: boolean;
   token_hash?: string;
   email?: string;
+  app_id?: string;
   message?: string;
 }
 
@@ -62,7 +63,7 @@ export default function InvitePage() {
           setShowSignup(true);
         } else if (data.token_hash) {
           // Step 3: user already exists -- auto-login via magic link
-          await loginWithOtp(data.token_hash, data.email);
+          await loginWithOtp(data.token_hash, data.email, false, data.app_id);
         } else {
           throw new Error("Reponse inattendue du serveur.");
         }
@@ -77,7 +78,7 @@ export default function InvitePage() {
   }, [token]);
 
   // Login helper using verifyOtp
-  const loginWithOtp = async (tokenHash: string, _email?: string, isNewSignup = false) => {
+  const loginWithOtp = async (tokenHash: string, _email?: string, isNewSignup = false, appId?: string) => {
     const { error: otpError } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: "magiclink",
@@ -87,9 +88,14 @@ export default function InvitePage() {
       throw new Error(otpError.message || "Erreur lors de la connexion.");
     }
 
-    // Brief 2026-05-07 : nouveaux comptes -> /portal/welcome (landing post-signup).
-    // Comptes existants -> /portal direct (workflow inchange).
-    navigate(isNewSignup ? "/portal/welcome" : "/portal");
+    // Invité sur une app précise -> on le lance directement dans l'app (SSO via
+    // /portal/launch, qui gère app-token et l'erreur si l'accès manque).
+    // Sinon : nouveaux comptes -> /portal/welcome ; comptes existants -> /portal.
+    if (appId) {
+      navigate(`/portal/launch?appId=${encodeURIComponent(appId)}`);
+    } else {
+      navigate(isNewSignup ? "/portal/welcome" : "/portal");
+    }
   };
 
   // Step 4: After signup, call accept-invitation again with password + names
@@ -134,9 +140,9 @@ export default function InvitePage() {
       // Step 5: On success, establish session and redirect to /portal/welcome
       // (nouveau compte = premiere connexion, on affiche la landing dediee).
       if (data.token_hash) {
-        await loginWithOtp(data.token_hash, data.email, true);
+        await loginWithOtp(data.token_hash, data.email, true, data.app_id);
       } else {
-        navigate("/portal/welcome");
+        navigate(data.app_id ? `/portal/launch?appId=${encodeURIComponent(data.app_id)}` : "/portal/welcome");
       }
     } catch (err: any) {
       setError(err.message || "Erreur lors de l'inscription.");
@@ -146,15 +152,15 @@ export default function InvitePage() {
   };
 
   const inputClass =
-    "w-full px-4 py-3 bg-[#141414] border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-[#EF9F27] transition-colors placeholder:text-[#666]";
+    "w-full px-4 py-3 bg-[#141414] border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-[#A9B57E] transition-colors placeholder:text-[#666]";
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#131316] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-[#EF9F27] flex items-center justify-center">
-            <span className="text-[#0A0A0A] text-xl font-bold">A</span>
+          <div className="w-12 h-12 rounded-full bg-[#A9B57E] flex items-center justify-center">
+            <span className="text-[#131316] text-xl font-bold">A</span>
           </div>
         </div>
 
@@ -162,7 +168,7 @@ export default function InvitePage() {
           {/* Loading state */}
           {loading && (
             <div className="text-center py-8">
-              <Loader2 size={32} className="animate-spin text-[#EF9F27] mx-auto mb-4" />
+              <Loader2 size={32} className="animate-spin text-[#A9B57E] mx-auto mb-4" />
               <p className="text-[#999] text-sm">Verification de l'invitation...</p>
             </div>
           )}
@@ -185,12 +191,12 @@ export default function InvitePage() {
                 </h2>
                 {inviteInfo.product_name && (
                   <p className="text-[#999] text-sm mb-1">
-                    Produit : <span className="text-[#EF9F27]">{inviteInfo.product_name}</span>
+                    Produit : <span className="text-[#A9B57E]">{inviteInfo.product_name}</span>
                   </p>
                 )}
                 {inviteInfo.role && (
                   <p className="text-[#999] text-sm">
-                    Role : <span className="text-[#EF9F27]">{inviteInfo.role}</span>
+                    Role : <span className="text-[#A9B57E]">{inviteInfo.role}</span>
                   </p>
                 )}
               </div>
@@ -250,7 +256,7 @@ export default function InvitePage() {
                 <button
                   onClick={handleSignup}
                   disabled={submitting}
-                  className="w-full py-3 bg-[#EF9F27] hover:bg-[#d88f22] text-[#0A0A0A] font-medium text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#A9B57E] hover:bg-[#d88f22] text-[#131316] font-medium text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
@@ -268,7 +274,7 @@ export default function InvitePage() {
           {/* Auto-login in progress (user exists) */}
           {!loading && !error && !showSignup && (
             <div className="text-center py-8">
-              <CheckCircle size={40} className="text-[#EF9F27] mx-auto mb-4" strokeWidth={1.5} />
+              <CheckCircle size={40} className="text-[#A9B57E] mx-auto mb-4" strokeWidth={1.5} />
               <p className="text-[#e5e5e5] text-sm">Connexion en cours...</p>
             </div>
           )}

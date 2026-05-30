@@ -21,6 +21,8 @@ const QUICK_PROMPTS = [
   { label: "IRPP cote d'Ivoire", icon: Receipt, prompt: "Calcule mon IRPP en CI sur un revenu imposable de 8 000 000 FCFA, avec 2 parts fiscales." },
   { label: "Rapprochement", icon: FileText, prompt: "Comment faire un rapprochement bancaire ? Explique-moi la methode et les pieges a eviter." },
   { label: "Documentation OHADA", icon: BookOpen, prompt: "Quel est le plan comptable SYSCOHADA et comment classer un investissement immobilier ?" },
+  { label: "Note de frais & per diem", icon: FileText, prompt: "Quelles sont les regles de deductibilite d'une note de frais (per diem, transport, mission) en zone UEMOA ?" },
+  { label: "Stocks & marge resto", icon: BarChart3, prompt: "Comment suivre mes stocks et calculer ma marge pour un restaurant (CUMP, taux de rotation, food cost) ?" },
 ];
 
 export function Proph3tPortalPage({ userId }: { userId?: string }) {
@@ -37,7 +39,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
       setMessages([{
         id: "welcome",
         role: "assistant",
-        content: "Bonjour. Je suis **Proph3t**, votre assistant IA souverain dedie a la finance, comptabilite, fiscalite et droit OHADA.\n\nJe peux :\n- Calculer des ratios SYSCOHADA (BFR, FR, Z-Score Altman)\n- Calculer TVA, IRPP, IS, cotisations CNSS\n- Analyser bilans et comptes de resultat\n- Detecter anomalies et fraudes (loi de Benford)\n- Repondre sur OHADA, AUDCIF, SYSCOHADA\n\nPosez-moi votre question ou choisissez un sujet ci-dessous.",
+        content: "Bonjour. Je suis **Proph3t**, l'assistant IA souverain de toute la suite Atlas Studio.\n\nJe couvre bien plus que la finance :\n- Finance & comptabilite SYSCOHADA (ratios BFR, FR, Z-Score, bilans, etats)\n- Fiscalite OHADA (TVA, IRPP, IS, CNSS, liasse fiscale)\n- RH, paie, notes de frais et missions\n- Tresorerie et previsions de flux\n- Audit bancaire et detection d'anomalies (loi de Benford)\n- Gestion documentaire, signature et workflows\n- Restauration (menus, stocks, encaissement)\n\nPosez-moi votre question ou choisissez un sujet ci-dessous.",
         created_at: new Date().toISOString(),
       }]);
     }
@@ -114,20 +116,20 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-neutral-light text-2xl font-bold flex items-center gap-3">
-            <span className="w-9 h-9 rounded-xl bg-gold flex items-center justify-center">
+            <span className="w-9 h-9 rounded-xl bg-gold flex items-center justify-center shadow-gold-sm">
               <Sparkles size={18} className="text-onyx" />
             </span>
             <span className="font-logo text-gold text-3xl">Proph3t</span>
-            <span className="text-neutral-400 text-sm font-normal">— votre conseiller financier IA</span>
+            <span className="text-neutral-400 text-sm font-normal">— l'IA souveraine de toute la suite Atlas Studio</span>
           </h1>
           <p className="text-neutral-500 text-[13px] mt-1">
-            Questions OHADA · Calculs SYSCOHADA · Analyse de documents · Fiscalite UEMOA/CEMAC
+            Finance & SYSCOHADA · Fiscalite OHADA · RH & paie · Tresorerie · Audit bancaire · Documents · Restauration
           </p>
         </div>
       </div>
 
       {/* Chat container */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
+      <div className="surface-raised rounded-3xl shadow-elev-3 flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {messages.map(msg => (
@@ -214,7 +216,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
               {QUICK_PROMPTS.map(qp => (
                 <button key={qp.label} onClick={() => sendMessage(qp.prompt)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-gold text-[12px] text-left transition-colors border border-white/5 hover:border-gold/30">
+                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/[0.08] text-neutral-300 hover:text-gold text-[12px] text-left transition-all duration-200 border border-white/[0.06] hover:border-gold/30 hover:-translate-y-0.5">
                   <qp.icon size={14} className="flex-shrink-0" />
                   <span className="truncate">{qp.label}</span>
                 </button>
@@ -231,12 +233,12 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               <button onClick={() => setActiveWorkflow({ name: "workflow_audit_complet_societe", args: { raison_sociale: "Demo SA", exercice: "2025", entries: [{ compte: "411000", debit_centimes: "1000000", credit_centimes: "0", date: "2025-01-15", numero_piece: "P001" }, { compte: "701000", debit_centimes: "0", credit_centimes: "1000000", date: "2025-01-15", numero_piece: "P001" }] } })}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 hover:bg-gold/20 text-gold text-[12px] text-left transition-colors border border-gold/30">
+                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gold/10 hover:bg-gold/[0.18] text-gold text-[12px] text-left transition-all duration-200 border border-gold/30 hover:-translate-y-0.5 hover:shadow-gold-sm">
                 <Sparkles size={14} className="flex-shrink-0" />
                 <span className="truncate">Audit complet societe (demo)</span>
               </button>
               <button onClick={() => setActiveWorkflow({ name: "workflow_simulation_recrutement", args: { poste: "Comptable", salaire_brut_mensuel_centimes: "60000000", pays: "CI", duree_mois: 12 } })}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 hover:bg-gold/20 text-gold text-[12px] text-left transition-colors border border-gold/30">
+                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gold/10 hover:bg-gold/[0.18] text-gold text-[12px] text-left transition-all duration-200 border border-gold/30 hover:-translate-y-0.5 hover:shadow-gold-sm">
                 <Sparkles size={14} className="flex-shrink-0" />
                 <span className="truncate">Simulation recrutement comptable (CI)</span>
               </button>
@@ -259,10 +261,10 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
               }}
               placeholder="Posez votre question (Enter pour envoyer, Shift+Enter pour saut de ligne)"
               rows={1}
-              className="flex-1 bg-white/5 text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none focus:ring-1 focus:ring-gold/50 border border-white/10 transition-colors"
+              className="flex-1 bg-[#141417] text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none border border-white/[0.07] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200"
             />
             <button onClick={() => sendMessage(input)} disabled={isLoading || !input.trim()}
-              className="p-3 bg-gold text-onyx rounded-xl hover:bg-gold/80 disabled:opacity-40 transition-colors flex-shrink-0">
+              className="p-3 bg-gold text-onyx rounded-xl hover:bg-gold/80 hover:shadow-gold-sm disabled:opacity-40 transition-all duration-200 flex-shrink-0">
               <Send size={16} />
             </button>
           </div>
