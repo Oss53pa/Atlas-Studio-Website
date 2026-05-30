@@ -771,6 +771,121 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════════
+   ATLAS SIGNATURE — Curseur custom (viseur olive) + ornements africains
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Cache le curseur système quand notre viseur est actif (pointer fine).
+   On garde le curseur natif sur tactile via le repli du composant React. */
+html.atlas-cursor-active,
+html.atlas-cursor-active *,
+html.atlas-cursor-active *::before,
+html.atlas-cursor-active *::after {
+  cursor: none !important;
+}
+
+/* Point dur — suit la souris instantanément */
+.atlas-cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 5px; height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  background: #D6DDB3;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 1;
+  transition: opacity .2s;
+  will-change: transform;
+}
+
+/* Anneau viseur — suit en eased follow */
+.atlas-cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 36px; height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 1px solid rgba(169,181,126,0.55);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  opacity: 1;
+  transition: width .28s cubic-bezier(.2,.7,.2,1),
+              height .28s cubic-bezier(.2,.7,.2,1),
+              margin .28s cubic-bezier(.2,.7,.2,1),
+              border-color .22s, background-color .22s,
+              opacity .2s;
+  will-change: transform;
+}
+
+/* Repères à 12/3/6/9 h pour le look viseur */
+.atlas-cursor-tick {
+  position: absolute;
+  background: rgba(169,181,126,0.7);
+  width: 1px; height: 4px;
+  transition: background .22s, height .22s, width .22s;
+}
+.atlas-cursor-tick-n { top: -5px; left: 50%; margin-left: -0.5px; }
+.atlas-cursor-tick-s { bottom: -5px; left: 50%; margin-left: -0.5px; }
+.atlas-cursor-tick-e { right: -5px; top: 50%; margin-top: -0.5px; width: 4px; height: 1px; }
+.atlas-cursor-tick-w { left: -5px; top: 50%; margin-top: -0.5px; width: 4px; height: 1px; }
+
+/* Survol d'un élément interactif : l'anneau s'élargit */
+.atlas-cursor-ring.atlas-cursor-hover {
+  width: 60px; height: 60px;
+  margin: -30px 0 0 -30px;
+  border-color: rgba(169,181,126,0.95);
+  background: rgba(169,181,126,0.06);
+}
+.atlas-cursor-ring.atlas-cursor-hover .atlas-cursor-tick {
+  background: rgba(214,221,179,0.9);
+}
+.atlas-cursor-ring.atlas-cursor-hover .atlas-cursor-tick-n,
+.atlas-cursor-ring.atlas-cursor-hover .atlas-cursor-tick-s { height: 6px; }
+.atlas-cursor-ring.atlas-cursor-hover .atlas-cursor-tick-e,
+.atlas-cursor-ring.atlas-cursor-hover .atlas-cursor-tick-w { width: 6px; }
+
+/* Pression : contraction brève */
+.atlas-cursor-ring.atlas-cursor-press {
+  width: 24px; height: 24px;
+  margin: -12px 0 0 -12px;
+  background: rgba(169,181,126,0.18);
+}
+
+/* Label révélé à droite — typo mono uppercase */
+.atlas-cursor-label {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 14px);
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #D6DDB3;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .25s ease, transform .25s cubic-bezier(.2,.7,.2,1);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+}
+.atlas-cursor-ring.atlas-cursor-labeled .atlas-cursor-label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-cursor-ring { transition: none; }
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   ORNEMENTS — utilitaires d'intégration des motifs SVG
+   ──────────────────────────────────────────────────────────────────────── */
+.atlas-ornament {
+  pointer-events: none;
+  user-select: none;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
    SIGNATURE Atlas Studio — kinetic hero, constellation OHADA, data tape
    (palette de marque : kaki #A9B57E / clair #C2CC92)
    ──────────────────────────────────────────────────────────────────────── */
