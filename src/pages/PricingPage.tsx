@@ -23,7 +23,7 @@ function BundlesSection() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § Suites
             </div>
-            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[56px] text-neutral-light">
+            <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[38px] text-neutral-light">
               Économisez avec les <span className="kinetic-word">suites</span>.
             </h2>
           </div>
@@ -108,7 +108,7 @@ function AppPricingSection({ app, index }: { app: AppItem; index: number }) {
             § {numStr} — {app.type}
           </div>
           <Link to={`/applications/${app.id}`} className="block group">
-            <h3 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light group-hover:opacity-80 transition-opacity">
+            <h3 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light group-hover:opacity-80 transition-opacity">
               {app.name}
             </h3>
           </Link>
@@ -200,7 +200,7 @@ export default function PricingPage() {
             <span className="text-neutral-light/25 hidden sm:inline">/</span>
             <span className="hidden sm:inline text-neutral-light/45">Sans engagement</span>
           </div>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[44px] sm:text-[60px] md:text-[80px] lg:text-[96px] text-neutral-light mb-8 max-w-5xl">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[32px] sm:text-[40px] md:text-[52px] lg:text-[60px] text-neutral-light mb-8 max-w-5xl">
             Tarifs <span className="kinetic-word">transparents</span>. <br />
             <span className="italic font-light text-neutral-light/75">Pas de surprise.</span>
           </h1>
@@ -232,7 +232,7 @@ export default function PricingPage() {
             <span className="meta-led" />
             <span>§ FIN — Tarifs</span>
           </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[36px] sm:text-[52px] md:text-[72px] text-neutral-light max-w-4xl mb-12">
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[28px] sm:text-[36px] md:text-[44px] text-neutral-light max-w-4xl mb-12">
             Prêt à démarrer ? <span className="italic font-light text-neutral-light/70">Création en 2 minutes.</span>
           </h2>
           <div className="flex items-baseline gap-8 flex-wrap">

@@ -125,7 +125,7 @@ export default function ApplicationDetailPage() {
           </div>
 
           {/* titre éditorial monumental */}
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.96] text-[56px] sm:text-[80px] md:text-[112px] lg:text-[128px] text-neutral-light mb-6">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.96] text-[36px] sm:text-[44px] md:text-[60px] lg:text-[72px] text-neutral-light mb-6">
             {app.name}
           </h1>
           <p className="font-display italic font-light text-[20px] md:text-[28px] text-neutral-light/70 max-w-3xl mb-10 leading-snug">
@@ -198,7 +198,7 @@ export default function ApplicationDetailPage() {
               <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
                 § B — Fonctionnalités
               </div>
-              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light mb-6">
+              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light mb-6">
                 Tout ce dont vous avez <span className="kinetic-word">besoin</span>.
               </h2>
               <p className="text-[15px] md:text-[16px] text-neutral-muted leading-relaxed font-light max-w-[600px]">
@@ -238,7 +238,7 @@ export default function ApplicationDetailPage() {
               <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
                 § C — Tarifs
               </div>
-              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light">
+              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[24px] md:text-[30px] lg:text-[36px] text-neutral-light">
                 Choisissez votre plan
               </h2>
             </div>
@@ -398,7 +398,7 @@ export default function ApplicationDetailPage() {
             <span className="meta-led" />
             <span>§ FIN — {app.name}</span>
           </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[40px] sm:text-[56px] md:text-[80px] text-neutral-light max-w-4xl mb-12">
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[28px] sm:text-[36px] md:text-[48px] text-neutral-light max-w-4xl mb-12">
             Prêt à essayer <span className="italic font-light text-neutral-light/70">{app.name}</span> ?
           </h2>
           {isAvailable ? (
