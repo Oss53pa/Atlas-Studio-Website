@@ -34,7 +34,7 @@ export default function BlogPostPage() {
             <span className="text-neutral-light/55">{post.readTime}</span>
           </div>
 
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[18px] sm:text-[16px] md:text-[18px] lg:text-[88px] text-neutral-light max-w-5xl mb-10">
+          <h1 className="font-display font-medium tracking-[-0.025em] leading-[1.1] text-[22px] md:text-[28px] text-neutral-light max-w-5xl mb-10">
             {post.title}
           </h1>
 

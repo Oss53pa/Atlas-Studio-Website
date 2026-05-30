@@ -20,7 +20,7 @@ export default function PrivacyPage() {
             <span className="text-neutral-light/25 hidden sm:inline">/</span>
             <span className="hidden sm:inline text-neutral-light/45">Données chiffrées AES-256</span>
           </div>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[20px] sm:text-[16px] md:text-[18px] lg:text-[30px] text-neutral-light max-w-4xl">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[1.1] text-[20px] md:text-[26px] text-neutral-light max-w-4xl">
             {title}
           </h1>
         </div>

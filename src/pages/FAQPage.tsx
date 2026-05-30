@@ -23,7 +23,7 @@ export default function FAQPage() {
             <span className="text-neutral-light/25">/</span>
             <span>{content.faqs?.length ?? 0} entrées</span>
           </div>
-          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[22px] sm:text-[15px] md:text-[17px] lg:text-[38px] text-neutral-light max-w-4xl">
+          <h1 className="font-display font-medium tracking-[-0.035em] leading-[0.98] text-[22px] md:text-[28px] text-neutral-light max-w-4xl">
             Questions <span className="kinetic-word">fréquentes</span>.
           </h1>
           <p className="text-[16px] md:text-[18px] text-neutral-muted font-light max-w-[540px] leading-relaxed mt-8">
