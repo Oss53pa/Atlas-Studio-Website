@@ -1,20 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/**
- * PROPH3T Monitor — Cron job (every 15 minutes)
- * Checks for anomalies and creates alerts automatically.
- *
- * Deploy: supabase functions deploy proph3t-monitor
- * Schedule: Add to pg_cron in Supabase dashboard
- *   SELECT cron.schedule('proph3t-monitor', '*/15 * * * *',
- *     $$ SELECT net.http_post(
- *       'https://YOUR_PROJECT.supabase.co/functions/v1/proph3t-monitor',
- *       '{}', 'application/json',
- *       ARRAY[net.http_header('Authorization', 'Bearer YOUR_SERVICE_ROLE_KEY')]
- *     ) $$
- *   );
- */
+// PROPH3T Monitor — Cron job (every 15 minutes)
+// Checks for anomalies and creates alerts automatically.
+//
+// Deploy: supabase functions deploy proph3t-monitor
+// Schedule: Add to pg_cron in Supabase dashboard
+//   SELECT cron.schedule('proph3t-monitor', '*/15 * * * *',
+//     $$ SELECT net.http_post(
+//       'https://YOUR_PROJECT.supabase.co/functions/v1/proph3t-monitor',
+//       '{}', 'application/json',
+//       ARRAY[net.http_header('Authorization', 'Bearer YOUR_SERVICE_ROLE_KEY')]
+//     ) $$
+//   );
 
 const supabaseAdmin = createClient(
   Deno.env.get("SUPABASE_URL")!,
