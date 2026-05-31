@@ -21,6 +21,10 @@
 import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { authorizeRequest } from "../_shared/asvc/auth.ts";
+import { generateBrief } from "../_shared/asvc/brief.ts";
+import { generateTreasuryBrief } from "../_shared/asvc/treasury.ts";
+import { draftInvoiceReminder } from "../_shared/asvc/billing.ts";
+import { draftCustomerOutreach } from "../_shared/asvc/customer-success.ts";
 import {
   fetchSentryPat,
   getDefaultSentryOrg,
@@ -53,36 +57,48 @@ const VALID_TASKS: CronTask[] = [
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const CRON_SECRET = Deno.env.get("CRON_SHARED_SECRET") ?? "";
 
-async function callFunction(name: string, body: unknown): Promise<unknown> {
+// Appel inter-edge-function via HTTP (avec timeout). Utilisé seulement pour
+// les tâches qui ne sont pas extraites en helper partagé (asvc-execute-action).
+// Pour le reste on importe les helpers directement (cf. plus bas) — les fetch
+// inter-functions sur le même projet peuvent hanger jusqu'au timeout 150s du
+// gateway Supabase, ce qui faisait échouer les briefs en 504.
+async function callFunction(name: string, body: unknown, timeoutMs = 90000): Promise<unknown> {
   if (!CRON_SECRET) {
     throw new Error("CRON_SHARED_SECRET non configuré côté env");
   }
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${CRON_SECRET}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(`${name} failed: ${res.status} ${JSON.stringify(data)}`);
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${CRON_SECRET}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(`${name} failed: ${res.status} ${JSON.stringify(data)}`);
+    }
+    return data;
+  } finally {
+    clearTimeout(t);
   }
-  return data;
 }
 
 async function runMorningBrief() {
-  return await callFunction("asvc-coo-brief", { type: "morning" });
+  return await generateBrief("morning");
 }
 async function runEveningBrief() {
-  return await callFunction("asvc-coo-brief", { type: "evening" });
+  return await generateBrief("evening");
 }
 async function runWeeklyBrief() {
-  return await callFunction("asvc-coo-brief", { type: "weekly" });
+  return await generateBrief("weekly");
 }
 async function runTreasuryBrief() {
-  return await callFunction("asvc-treasury", {});
+  return await generateTreasuryBrief();
 }
 
 async function runOverdueInvoicesScan() {
@@ -92,10 +108,7 @@ async function runOverdueInvoicesScan() {
   const results = [];
   for (const r of rows) {
     try {
-      const out = await callFunction("asvc-billing", {
-        invoice_id: r.invoice_id,
-        level: r.suggested_level,
-      });
+      const out = await draftInvoiceReminder(r.invoice_id, r.suggested_level as Parameters<typeof draftInvoiceReminder>[1]);
       results.push({ invoice_id: r.invoice_id, ok: true, out });
     } catch (e) {
       results.push({ invoice_id: r.invoice_id, ok: false, error: (e as Error).message });
@@ -125,10 +138,7 @@ async function runLifecycleScan() {
   const results = [];
   for (const r of targets) {
     try {
-      const out = await callFunction("asvc-customer-success", {
-        client_id: r.client_id,
-        goal: stageToGoal[r.stage],
-      });
+      const out = await draftCustomerOutreach(r.client_id, stageToGoal[r.stage] as Parameters<typeof draftCustomerOutreach>[1]);
       results.push({ client_id: r.client_id, ok: true, out });
     } catch (e) {
       results.push({ client_id: r.client_id, ok: false, error: (e as Error).message });
