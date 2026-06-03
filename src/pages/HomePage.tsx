@@ -81,8 +81,8 @@ export default function HomePage() {
                 </div>
 
                 <h1 className="font-display font-medium tracking-[-0.035em]
-                               text-[44px] sm:text-[56px] md:text-[76px] lg:text-[88px]
-                               leading-[0.96] mb-8 md:mb-10">
+                               text-[36px] sm:text-[46px] md:text-[58px] lg:text-[66px]
+                               leading-[1.0] mb-8 md:mb-10">
                   <span>
                     {line1Rest}{line1Rest ? " " : ""}
                     <span className="kinetic-word">{line1Last}</span>
@@ -159,7 +159,7 @@ export default function HomePage() {
               <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
                 § 02 — {t("home.platform")}
               </div>
-              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[36px] sm:text-[44px] md:text-[56px] lg:text-[64px] text-neutral-light">
+              <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[30px] sm:text-[38px] md:text-[46px] lg:text-[52px] text-neutral-light">
                 Une suite.{" "}
                 <span className="kinetic-word">
                   {content.apps?.length ?? 0} apps
@@ -259,7 +259,7 @@ export default function HomePage() {
             <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
               § 04 — {t("home.aboutLabel")}
             </div>
-            <blockquote className="font-display font-medium tracking-[-0.025em] leading-[1.06] text-[28px] sm:text-[36px] md:text-[44px] lg:text-[52px] text-neutral-light mb-8">
+            <blockquote className="font-display font-medium tracking-[-0.025em] leading-[1.1] text-[24px] sm:text-[30px] md:text-[38px] lg:text-[44px] text-neutral-light mb-8">
               <span className="text-[#A9B57E] font-light italic mr-2">«</span>
               <span className="italic font-light">{content.about?.p1}</span>
               <span className="text-[#A9B57E] font-light italic ml-1">»</span>
@@ -439,7 +439,7 @@ export default function HomePage() {
           <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
             § 08 — {t("home.pricingLabel")}
           </div>
-          <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.02] text-[36px] sm:text-[48px] md:text-[64px] lg:text-[80px] text-neutral-light mb-4">
+          <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[30px] sm:text-[40px] md:text-[50px] lg:text-[58px] text-neutral-light mb-4">
             {t("home.simplePricing")}
           </h2>
           <p className="text-[16px] md:text-[18px] text-neutral-muted font-light max-w-[640px] leading-relaxed mb-14">
@@ -524,7 +524,7 @@ export default function HomePage() {
             <span className="meta-led" />
             <span>§ FIN — Atlas Studio · MMXXVI</span>
           </div>
-          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[44px] sm:text-[60px] md:text-[84px] lg:text-[104px] text-neutral-light max-w-5xl mb-12">
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[1.02] text-[32px] sm:text-[42px] md:text-[54px] lg:text-[64px] text-neutral-light max-w-4xl mb-12">
             {t("home.readyTitle")}{" "}
             <span className="italic font-light text-neutral-light/70">{t("home.readySubtitle")}</span>
           </h2>

@@ -134,7 +134,7 @@ INSERT INTO app_landing_content (app_id, section, sort_order, data) VALUES
 ('taxpilot', 'stats', 2, '{
   "items": [
     {"value": "1 005", "label": "COMPTES SYSCOHADA"},
-    {"value": "129", "label": "CONTRÔLES PROPH3T"},
+    {"value": "129", "label": "CONTRÔLES Proph3t"},
     {"value": "84", "label": "ONGLETS EXCEL"},
     {"value": "17", "label": "PAYS OHADA"}
   ]
