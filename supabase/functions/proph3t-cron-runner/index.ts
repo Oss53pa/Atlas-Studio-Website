@@ -22,7 +22,9 @@ Deno.serve(async (req) => {
   // Auth via shared secret (pas de JWT user)
   const auth = req.headers.get("authorization") ?? "";
   const expectedSecret = Deno.env.get("CRON_SHARED_SECRET");
-  if (!expectedSecret || !auth.includes(expectedSecret)) {
+  // Comparaison EXACTE sur `Bearer <secret>` (pas includes() : une sous-chaîne
+  // ne doit pas authentifier). Cohérent avec _shared/asvc/auth.ts. (Audit — WF-1)
+  if (!expectedSecret || auth !== `Bearer ${expectedSecret}`) {
     return errorResponse("Unauthorized — CRON_SHARED_SECRET requis", 401);
   }
 

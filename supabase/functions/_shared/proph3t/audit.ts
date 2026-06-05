@@ -26,8 +26,19 @@ export async function appendAudit(params: {
   const prev_hash = prev?.hash || "GENESIS";
 
   const timestamp = new Date().toISOString();
-  const payload = JSON.stringify(params.content);
-  const hash = await sha256Hex(`${prev_hash}|${payload}|${timestamp}`);
+  // Le hash couvre TOUS les champs significatifs (pas seulement `content`),
+  // sinon action/actor/subject pouvaient être altérés sans casser la chaîne.
+  // (Audit 360° — AUD-1). Clés ordonnées pour une canonicalisation stable.
+  const canonical = JSON.stringify({
+    prev_hash,
+    action: params.action,
+    actor_user_id: params.actor_user_id ?? null,
+    subject_type: params.subject_type ?? null,
+    subject_id: params.subject_id ?? null,
+    content: params.content,
+    timestamp,
+  });
+  const hash = await sha256Hex(canonical);
 
   const { data, error } = await supabaseAdmin.from("proph3t_audit_log").insert({
     prev_hash,

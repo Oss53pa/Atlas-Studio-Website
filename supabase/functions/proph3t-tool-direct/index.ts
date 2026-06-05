@@ -21,9 +21,9 @@ Deno.serve(async (req) => {
     // Auth flexible : Supabase JWT / SSO JWT / service_role
     const user = await getFederationUser(req);
     const auth = req.headers.get("authorization") ?? "";
-    const isServiceRole = auth.includes(
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "__never__",
-    );
+    // Comparaison EXACTE de la service_role key (pas includes()). (Audit — WF-1)
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const isServiceRole = !!serviceKey && auth === `Bearer ${serviceKey}`;
 
     if (!user && !isServiceRole) {
       return errorResponse("Unauthorized", 401);
