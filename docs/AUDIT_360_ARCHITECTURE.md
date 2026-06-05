@@ -39,7 +39,9 @@ La connexion des apps au Core **n'est pas uniforme** et plusieurs **failles de s
 ## DECIDE — registre de risques
 
 ### 🔴 CRITIQUE — CONFIRMÉ LIVE — ✅ CORRIGÉ
+- **🔥 `is_admin()` = `true` pour TOUT LE MONDE (y compris anon)** — découvert pendant la remédiation. La clause `current_user = 'postgres'` est toujours vraie en contexte `SECURITY DEFINER` → **toutes les RLS `USING(is_admin())` étaient ouvertes** (lecture de profiles, proph3t_*, error_logs… par n'importe qui). Vérifié live : anon `is_admin()` `true`→`false`. → clause supprimée (migration `fix_is_admin_critical_authz_bypass`). **C'est la faille la plus grave de l'audit.**
 - **Auto-escalade de privilèges** : RLS UPDATE de `profiles` sans `WITH CHECK` sur `role` → tout user pouvait devenir `super_admin`. → **trigger `trg_guard_profiles_privilege`** (appliqué prod).
+- **`admin_revenue_summary()` / `admin_dashboard_stats()`** : SECURITY DEFINER, PUBLIC EXECUTE, **sans contrôle** → CA/users lisibles par anon. → garde `is_admin()` interne.
 - **Audit log mutable** : `proph3t_audit_log` sans trigger d'immuabilité + hash partiel. → **trigger append-only** (prod) + **hash élargi** (action/actor/subject).
 - **`proph3t-orchestrator` sans auth** (fuite MRR/ARR + noms/emails clients). → **`requireAdmin`** ajouté.
 
@@ -64,16 +66,27 @@ La connexion des apps au Core **n'est pas uniforme** et plusieurs **failles de s
 
 | # | Action | Statut |
 |---|---|---|
+| 0 | **FIX `is_admin()` bypass total** | ✅ prod + versionné + testé |
 | 1 | Trigger anti-escalade `profiles` | ✅ prod + versionné |
 | 2 | Trigger append-only `proph3t_audit_log` | ✅ prod + versionné |
 | 3 | `requireAdmin` sur `proph3t-orchestrator` | ✅ code |
 | 4 | Secrets en comparaison exacte | ✅ code |
 | 5 | Hash audit élargi (action/actor/subject) | ✅ code |
-| 6 | Enforcement tenant via scope signé (SSO) | ⏳ design — multi-repos |
-| 7 | `allowed_roles` + quotas dans tool-direct/ask | ⏳ |
-| 8 | JWT `aud`/appId + per-app keys | ⏳ |
-| 9 | Durcir RLS `always_true` + SECURITY DEFINER | ⏳ revue par objet |
-| 10 | BYOK `cipher-algo=aes256` | ⏳ |
-| 11 | Uniformité id / L3 / ghost apps / observabilité | ⏳ décisions produit |
+| 6 | Garde `is_admin()` sur admin_revenue/dashboard | ✅ prod + versionné |
+| 7 | `notify_admins_via_email` : EXECUTE retiré à PUBLIC | ✅ prod |
+| 8 | `proph3t_audit_trail` INSERT → service_role | ✅ prod |
+| 9 | `allowed_roles` enforcé dans tool-direct (Wave B) | ✅ code |
+| 10 | BYOK `cipher-algo=aes256` (Wave D) | ✅ prod + versionné |
+| 11 | Enforcement tenant via scope signé SSO (Wave A) | ⏳ **nécessite coordination satellites** |
+| 12 | JWT `aud`/appId + per-app keys | ⏳ |
+| 13 | Réconciliation id `atlasbanx`/`scrutix` + L3 factices + ghost apps | ⏳ décisions produit |
 
-Commits : `de80e76` (Sprint 0 sécurité). Migration prod : `harden_profiles_escalation_and_audit_immutability`.
+Migrations prod appliquées : `harden_profiles_escalation_and_audit_immutability`, `harden_admin_secdef_functions_and_audit_trail`, `fix_is_admin_critical_authz_bypass`, `byok_restore_aes256_cipher`.
+Commits : `de80e76`, `ecf1e3c`, `f764b31`, `b90306f`.
+
+## Wave A (tenant isolation) — pourquoi ce n'est pas auto-corrigible
+Le Core tourne en `service_role` (RLS bypassée) et **ne possède pas** les données tenant des satellites (chaque app = son propre Supabase, cf. `federation_auth.ts`). Pour enforcer `args.society_id`, il faut **porter le scope autorisé dans le JWT SSO signé** :
+1. `app-token` (ou le satellite) ajoute un claim `allowed_societies: string[]` au JWT.
+2. `getFederationUser` expose ce scope ; `runTool`/`proph3t-ask` rejettent si `args.society_id ∉ scope`.
+3. Adoption par **chaque repo satellite** (hors de ce monorepo).
+Tant que les satellites n'émettent pas ce claim, l'enforcement Core serait soit un no-op, soit cassant. → à planifier comme un changement de contrat versionné.
