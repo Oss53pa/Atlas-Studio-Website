@@ -33,6 +33,22 @@ Deno.serve(async (req) => {
     // (source 'supabase') peut agir au nom d'une app via le body.
     const tokenApp = user.appId;
 
+    // Anti cross-app (Audit 360° — AN-1) : un appelant SSO ne peut agir QUE pour
+    // l'app de son token. On rejette (au lieu d'écraser silencieusement) si le
+    // body revendique une AUTRE app agissante → un token app A est refusé pour
+    // une action scopée app B. L'app « agissante » dépend de l'action :
+    //   - publish : c'est le PRODUCTEUR (consumer_app = simple destinataire/route)
+    //   - pull / ack : c'est le CONSOMMATEUR (on ne lit/accuse que ses objets)
+    if (user.source === "sso" && tokenApp) {
+      const actingApp = action === "publish" ? body.producer_app : body.consumer_app;
+      if (actingApp && actingApp !== tokenApp) {
+        return errorResponse(
+          `Token de l'app '${tokenApp}' refusé pour une action scopée '${actingApp}'`,
+          403,
+        );
+      }
+    }
+
     if (action === "publish") {
       const producer_app = tokenApp ?? body.producer_app;
       if (!producer_app) return errorResponse("producer_app requis", 400);

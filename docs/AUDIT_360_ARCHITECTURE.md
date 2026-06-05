@@ -31,10 +31,10 @@ La connexion des apps au Core **n'est pas uniforme** et plusieurs **failles de s
 | Cockpit F&A | ✅ | ✅ | ✅ | conforme |
 | Atlas F&A | ✅ | ✅ | ⚠️ 3 ids (alias OK) | rustines |
 | Liass'Pilot | ✅ | ⚠️ clé `liasspilot` | alias `taxpilot→liasspilot` existe | à vérifier en bout de chaîne |
-| Advist | ⚠️ 0 feature Proph3t | ❌ L3 hors-métier (conseil ≠ signature) | claim « SAML » non adossé | trompeur |
-| AtlasBanx | ⚠️ | ❌ L3 hors-métier (crédit ≠ audit anomalies) | codename `scrutix` vs `atlasbanx` | déviant |
+| Advist | ⚠️ 0 feature Proph3t | ✅ L3 métier signature (OTP/circuit/valeur probante) | claim « SAML » non adossé | aligné (L3) |
+| AtlasBanx | ⚠️ | ✅ L3 métier audit (Benford/Z-score/ghost-fees) | id canonique `atlasbanx` + alias `scrutix` | aligné |
 
-\+ **9 apps fantômes** dans `proph3t_apps` sans existence commerciale · **Advist** stocke ses tables de signature dans le Core (enfreint « 1 app = 1 Supabase ») · **observabilité** : seul `atlas-studio` émet des erreurs, pas de vue santé par-app.
+\+ ~~**9 apps fantômes**~~ → **purgées** de `proph3t_apps` (migration `20260605140000`) · **Advist** stocke ses tables de signature dans le Core (enfreint « 1 app = 1 Supabase ») · **observabilité** : seul `atlas-studio` émet des erreurs, pas de vue santé par-app.
 
 ## DECIDE — registre de risques
 
@@ -47,20 +47,20 @@ La connexion des apps au Core **n'est pas uniforme** et plusieurs **failles de s
 
 ### 🟠 ÉLEVÉ — partiellement traité / staged
 - **Secrets en `includes()`** (cron-runner, tool-direct). → ✅ **comparaison exacte**.
-- **Isolation multi-tenant** (TI-1/2/3) : `runTool` tourne en service_role (RLS bypass) et fait confiance au `society_id`/`tenant_id` fourni par l'appelant. ⏳ **Staged — changement de contrat** : le Core ne possède pas les données tenant des satellites ; l'enforcement exige de porter le scope autorisé (`allowed_societies`) **dans le JWT SSO signé** (app-token + adoption satellites), puis `args.society_id ∈ scope`.
+- **Isolation multi-tenant** (TI-1/2/3) : `runTool` tourne en service_role (RLS bypass) et faisait confiance au `society_id`/`tenant_id` fourni par l'appelant. → 🟢 **Enforcement Core livré (Wave A)** : claim signé `allowed_societies` exposé par `getFederationUser`, vérifié dans `runTool` (`enforceTenantScope` — membership + garde anti-omission sur les reads tenant), `proph3t-tool-direct` répond **403** hors périmètre. Fail-closed **uniquement si le claim est présent** (rétrocompatible). Tests : `tenant_scope.test.ts`. ⏳ Reste : **adoption satellites** (chaque repo émet le claim via token scopé serveur) + `proph3t-ask`/`-workflow-stream` (auth `requireUser`, non scopés tant que le Core n'a pas de modèle de tenance). Guide : `docs/PROPH3T_TENANT_SCOPE.md`.
 - **`proph3t-tool-direct` exécute tout tool pour tout authentifié** (AZ-1) + **`allowed_roles`/`quotas` définis mais jamais lus** (AZ-2). ⏳ Staged.
-- **`JWT_SECRET` partagé, sans claim `aud`/`appId`** (AN-1). ⏳ Staged (per-app keys).
+- **`JWT_SECRET` partagé, sans claim `aud`/`appId`** (AN-1). → ✅ **code** : claim `aud=appId` + header `kid` au mint (`app-token`), vérification d'audience + cohérence `aud===appId` dans `verifySsoToken` (`federation_auth`), refus cross-app SSO dans `databus`, résolution de clé **par app** (`federation_keys` : `JWT_SECRET_<APPID>` avec fallback partagé → rotation opt-in). Tests : `federation_auth.test.ts`. ⏳ Reste : **provisionner** les clés per-app (`JWT_SECRET_<APP>`) côté core + satellites pour activer la rotation/isolation.
 - **8 policies RLS `always_true`** + **197 fonctions SECURITY DEFINER exécutables anon/authenticated** (advisors). ⏳ Staged — revue par objet (risque de casser signup/logging).
 
 ### 🟡 MOYEN / hygiène
 `is_admin()` accepte `current_user='postgres'` (large) · RBAC `admin_roles` cosmétique · CORS `*` + token SSO en query-string · BYOK : fix a perdu `cipher-algo=aes256` (downgrade AES-128) · `vector`/`pg_net` dans `public`.
 
 ### Uniformité — DÉCISIONS PRODUIT (pas des failles)
-- **L3 factices Advist/AtlasBanx** : les vrais tools métier (signature/OTP ; Benford/Z-score) doivent être définis — *impossible à inventer sans input produit*.
-- **9 apps fantômes** : décider purge vs activation commerciale.
-- **Réconciliation des 3 référentiels d'id** : table de mapping canonique unique.
-- **Error-SDK + vue santé par satellite** : câbler `captureError(appId,…)` dans chaque satellite.
-- **Claim « SAML » Advist** : retirer ou implémenter.
+- ✅ **L3 factices Advist/AtlasBanx** : tranché → **vrais tools métier définis**. Advist = signature (`verify_signature_validity`, `generate_otp_challenge`, `define_signature_circuit`, `track_signature_status`, `compute_signature_legal_value`, domaine *documentaire*). AtlasBanx = audit (`apply_benford_analysis`, `compute_zscore_anomalies`, `detect_ghost_fees`, `score_bank_risk_global`, `generate_audit_report_anomalies`, domaine *audit*). Code : `l3_advist.ts` / `l3_atlasbanx.ts` + dispatcher + routing ; registry réaligné (migration `20260605140000`).
+- ✅ **9 apps fantômes** : tranché → **purge**. `cashpilot, duedeck, wisehr, wisefm, atlas-lease, atlas-mall-suite, atlastrade, docjourney, cockpit-journey` retirées du registry (cascade `proph3t_tools`) et débranchées du routing. Fichiers `l3_*.ts` conservés en dépôt (réactivables).
+- ✅ **Réconciliation des 3 référentiels d'id** : id canonique **`atlasbanx`** ; alias `scrutix→atlasbanx` ajouté à `APP_ID_ALIASES` (rejoint `atlas-compta→atlas-fa`, `taxpilot→liasspilot`) + sous-domaine aligné dans `app-token`. `normalizeAppId()` appliqué en amont du routing SSO→L3 (`detectDomains`), et `product_match` advist/atlasbanx force le bon domaine.
+- **Error-SDK + vue santé par satellite** : câbler `captureError(appId,…)` dans chaque satellite. ⏳
+- **Claim « SAML » Advist** : retirer ou implémenter. ⏳
 
 ## ACT — état de remédiation
 
@@ -77,16 +77,22 @@ La connexion des apps au Core **n'est pas uniforme** et plusieurs **failles de s
 | 8 | `proph3t_audit_trail` INSERT → service_role | ✅ prod |
 | 9 | `allowed_roles` enforcé dans tool-direct (Wave B) | ✅ code |
 | 10 | BYOK `cipher-algo=aes256` (Wave D) | ✅ prod + versionné |
-| 11 | Enforcement tenant via scope signé SSO (Wave A) | ⏳ **nécessite coordination satellites** |
-| 12 | JWT `aud`/appId + per-app keys | ⏳ |
-| 13 | Réconciliation id `atlasbanx`/`scrutix` + L3 factices + ghost apps | ⏳ décisions produit |
+| 11 | Enforcement tenant via scope signé SSO (Wave A) | ✅ Core (code + testé) — ⏳ **adoption satellites** (émission du claim) |
+| 12 | JWT `aud`/appId + audience check + refus cross-app + per-app keys (AN-1) | ✅ code + testé — ⏳ provisioning clés per-app |
+| 13 | Réconciliation id `atlasbanx`/`scrutix` + L3 factices + ghost apps | ✅ code + migration `20260605140000` (purge 9 ghosts, réalign L3 advist/atlasbanx, alias scrutix) |
 
 Migrations prod appliquées : `harden_profiles_escalation_and_audit_immutability`, `harden_admin_secdef_functions_and_audit_trail`, `fix_is_admin_critical_authz_bypass`, `byok_restore_aes256_cipher`.
 Commits : `de80e76`, `ecf1e3c`, `f764b31`, `b90306f`.
 
-## Wave A (tenant isolation) — pourquoi ce n'est pas auto-corrigible
-Le Core tourne en `service_role` (RLS bypassée) et **ne possède pas** les données tenant des satellites (chaque app = son propre Supabase, cf. `federation_auth.ts`). Pour enforcer `args.society_id`, il faut **porter le scope autorisé dans le JWT SSO signé** :
-1. `app-token` (ou le satellite) ajoute un claim `allowed_societies: string[]` au JWT.
-2. `getFederationUser` expose ce scope ; `runTool`/`proph3t-ask` rejettent si `args.society_id ∉ scope`.
-3. Adoption par **chaque repo satellite** (hors de ce monorepo).
-Tant que les satellites n'émettent pas ce claim, l'enforcement Core serait soit un no-op, soit cassant. → à planifier comme un changement de contrat versionné.
+## Wave A (tenant isolation) — état & ce qui reste
+Le Core tourne en `service_role` (RLS bypassée) et **ne possède pas** les données tenant des satellites (chaque app = son propre Supabase, cf. `federation_auth.ts`). L'enforcement repose donc sur un **scope porté dans le JWT SSO signé**.
+
+**Livré côté Core (ce monorepo) :**
+1. `app-token` peut inscrire `allowed_societies: string[]` au mint (`resolveAllowedSocieties` — renvoie `null` aujourd'hui car le Core n'a pas de source tenant → claim omis, rétrocompatible).
+2. `getFederationUser` expose le claim (`FederationUser.allowedSocieties`, sanitisé ; claim malformé → `[]` fail-closed).
+3. `runTool` appelle `enforceTenantScope` **avant** tout dispatch (couvre tool-direct, workflows, dispatcher L3) : refuse tout `society_id`/`tenant_id`/`scope_id(tenant)` hors périmètre **et** tout read tenant sans id in-scope (garde anti-omission). `proph3t-tool-direct` mappe → **403**. No-op si le claim est absent.
+4. Tests purs : `supabase/functions/_shared/proph3t/tenant_scope.test.ts` (dont « tenant A ne lit pas tenant B »).
+
+**Reste (hors de ce monorepo / produit) :**
+- **Adoption par chaque repo satellite** : émettre le claim via un token scopé minté **serveur** (recette + rollout dans `docs/PROPH3T_TENANT_SCOPE.md`). Tant qu'un satellite n'émet pas le claim, son comportement est inchangé.
+- `proph3t-ask` / `proph3t-workflow-stream` : auth `requireUser` (utilisateur Supabase core) → pas de claim → non scopés. Plomberie en place (`ToolContext.allowed_societies`), à activer si le Core se dote d'un modèle de tenance.
