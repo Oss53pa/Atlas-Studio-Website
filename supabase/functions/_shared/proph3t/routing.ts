@@ -68,7 +68,9 @@ const DOMAIN_PATTERNS: DomainPattern[] = [
     keywords: [
       /\b(document|archivage|ged|conservation legale|retention|doublon)\b/i,
       /\b(facture scannee|pdf|extraction|metadonnee|classification)\b/i,
+      /\b(signature|signataire|parapheur|otp|circuit de validation|valeur probante)\b/i,
     ],
+    product_match: ["advist"],
   },
   {
     domain: "audit",
@@ -76,8 +78,9 @@ const DOMAIN_PATTERNS: DomainPattern[] = [
       /\b(audit\b|cac\b|commissaire aux comptes|materialit|seuil de signification)\b/i,
       /\b(echantillon|isa\s*\d|controle interne|coso)\b/i,
       /\b(variance|inter-?periode|exercice n-1|balance generale)\b/i,
+      /\b(benford|z-?score|ghost fees|frais (dupliqu|fantome)|surfacturation|releve bancaire|anomalie bancaire)\b/i,
     ],
-    product_match: ["atlas-audit"],
+    product_match: ["atlas-audit", "atlasbanx"],
   },
   {
     domain: "tresorerie",
@@ -230,22 +233,15 @@ export function buildToolDomainMap(coreNames: string[], l2Map: Record<Domain, st
   // L3 tools : on les associe au domaine "parent" pour le routing
   // (ex: compute_kpi_dashboard est categorie 'finance' meme si app_id='cockpit-fa')
   if (l3Map) {
+    // Domaine « parent » de chaque app encore active (catalogue commercial).
+    // advist → documentaire (signature) ; atlasbanx → audit (anomalies bancaires).
     const l3ToDomain: Record<string, Domain> = {
       "cockpit-fa": "finance",
-      "wisehr": "rh",
-      "duedeck": "audit",
-      "advist": "commercial",
-      "atlasbanx": "tresorerie",
-      "atlastrade": "fiscal",
-      "cashpilot": "tresorerie",
-      "cockpit-journey": "rh",
-      "docjourney": "documentaire",
+      "advist": "documentaire",
+      "atlasbanx": "audit",
       "liasspilot": "fiscal",
       "tablesmart": "retail",
       "atlas-fa": "finance",
-      "atlas-lease": "finance",
-      "atlas-mall-suite": "immobilier",
-      "wisefm": "immobilier",
     };
     for (const [app, names] of Object.entries(l3Map)) {
       const dom = l3ToDomain[app];
@@ -322,6 +318,11 @@ export const L2_TOOLS_BY_DOMAIN: Record<Domain, string[]> = {
 /**
  * Tools L3 app-specific. Charges quand le product matche l'app_id.
  */
+// NB : seules les apps présentes au catalogue commercial sont câblées ici.
+// Les 9 apps « fantômes » (cashpilot, duedeck, wisehr, wisefm, atlas-lease,
+// atlas-mall-suite, atlastrade, docjourney, cockpit-journey) ont été purgées
+// (audit 360° §Uniformité). advist/atlasbanx exposent désormais leurs vrais
+// tools métier (signature ; audit d'anomalies) — voir l3_advist / l3_atlasbanx.
 export const L3_TOOLS_BY_APP: Record<string, string[]> = {
   "cockpit-fa": [
     "compute_kpi_dashboard", "detect_cycle_breaks", "forecast_dso_evolution",
@@ -329,38 +330,26 @@ export const L3_TOOLS_BY_APP: Record<string, string[]> = {
     "compute_immobilisations_amortissements", "detect_ecart_inventaire",
     "generate_situation_intermediaire",
   ],
-  "wisehr": [
-    "compute_paie_batch", "compute_indemnite_transport", "compute_heures_supp",
-    "validate_avenant_salaire", "compute_solde_tout_compte", "forecast_masse_salariale",
-  ],
-  "duedeck": [
-    "generate_lettre_affirmation", "compute_risk_assessment_matrix", "detect_round_tripping",
-    "compute_substantive_test", "analyze_journal_entries_anomalies", "generate_audit_report",
-  ],
-  // Phase 7 — 12 apps × 5 tools = 60 tools
-  "advist": ["compute_honoraires_conseil", "define_mission_scope", "generate_rapport_conseil", "score_mission_complexite", "optimize_mission_planning"],
-  "atlasbanx": ["compute_echeancier_credit", "score_credit_demande", "execute_batch_virements", "reconcile_interbank", "alertes_prudentielles"],
-  "atlastrade": ["compute_frais_douane", "compute_marge_import", "compute_hedging_fx", "check_trade_compliance", "score_fournisseur_international"],
-  "cashpilot": ["compute_pooling_tresorerie", "optimize_cash_allocation", "detect_flux_anormaux", "forecast_besoin_financement", "compute_net_working_capital"],
-  "cockpit-journey": ["compute_per_diem_mission", "validate_note_frais", "generate_ordre_mission", "analyze_missions_cost", "optimize_itineraire"],
-  "docjourney": ["define_document_workflow", "track_document_progress", "detect_goulots_documentaires", "search_document_semantic", "generate_document_template"],
+  "advist": ["verify_signature_validity", "generate_otp_challenge", "define_signature_circuit", "track_signature_status", "compute_signature_legal_value"],
+  "atlasbanx": ["apply_benford_analysis", "compute_zscore_anomalies", "detect_ghost_fees", "score_bank_risk_global", "generate_audit_report_anomalies"],
   "liasspilot": ["generate_liasse_fiscale", "check_conformite_fiscale", "compute_acomptes_provisionnels", "generate_declaration_tva", "detect_erreurs_liasse"],
   "tablesmart": ["compute_addition_table", "compute_taux_occupation_salle", "analyze_menu_performance", "forecast_approvisionnement", "compute_pourboire_repartition"],
   "atlas-fa": ["consolidate_group_accounts", "compute_intercompany_eliminations", "generate_reporting_pnl", "compute_free_cash_flow", "compute_wacc_company"],
-  "atlas-lease": ["compute_rent_lease", "classify_lease_type", "generate_contrat_lease", "detect_impaes_lease", "compute_taxavantages_lease"],
-  "atlas-mall-suite": ["compute_loyer_variable_retail", "analyze_footfall_mall", "compute_tenant_mix_optimal", "detect_charges_communes_repartition", "forecast_revenu_mall_annuel"],
-  "wisefm": ["compute_maintenance_budget", "plan_contrats_maintenance", "analyze_consommation_energie", "track_tickets_fm", "compute_contrats_renewal_forecast"],
 };
 
 /**
- * Aliases d'app_id : le catalogue/facturation utilise `atlas-compta` et
- * `taxpilot`, tandis que le routage core/outils utilise `atlas-fa` et
- * `liasspilot`. On normalise vers la convention core pour qu'une app puisse
- * s'annoncer avec son id de facturation sans casser le routage de domaines.
+ * Aliases d'app_id : certaines apps s'annoncent avec un id de facturation ou un
+ * ancien codename différent de l'id canonique utilisé par le routage core/outils.
+ * On normalise vers la convention canonique pour qu'une app puisse s'annoncer
+ * avec son id historique sans casser le routage SSO → L3.
+ *   - atlas-compta → atlas-fa   (id de facturation → id core)
+ *   - taxpilot     → liasspilot (id de facturation → id core)
+ *   - scrutix      → atlasbanx  (ancien codename → id canonique, cf. seed_atlasbanx)
  */
 export const APP_ID_ALIASES: Record<string, string> = {
   "atlas-compta": "atlas-fa",
   "taxpilot": "liasspilot",
+  "scrutix": "atlasbanx",
 };
 
 export function normalizeAppId(id?: string): string | undefined {

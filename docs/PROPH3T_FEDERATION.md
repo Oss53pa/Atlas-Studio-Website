@@ -185,10 +185,9 @@ Pass the right `product` in the constructor — it drives L3 tool routing:
 |---|---|---|---|
 | `atlas-fa` | Atlas F&A (Module ERP) | finance | consolidate_group_accounts, compute_intercompany_eliminations, generate_reporting_pnl, compute_free_cash_flow, compute_wacc_company |
 | `liasspilot` | Liass'Pilot | fiscal | generate_liasse_fiscale, check_conformite_fiscale, compute_acomptes_provisionnels, generate_declaration_tva, detect_erreurs_liasse |
-| `advist` | Advist | commercial | compute_honoraires_conseil, define_mission_scope, generate_rapport_conseil, score_mission_complexite, optimize_mission_planning |
+| `advist` | Advist (signature électronique) | documentaire | verify_signature_validity, generate_otp_challenge, define_signature_circuit, track_signature_status, compute_signature_legal_value |
 | `cockpit-fa` | Cockpit F&A | finance | compute_kpi_dashboard, detect_cycle_breaks, forecast_dso_evolution, compute_grand_livre_summary, validate_clos_exercice, … |
-| `atlasbanx` | AtlasBanx | tresorerie | compute_echeancier_credit, score_credit_demande, execute_batch_virements, reconcile_interbank, alertes_prudentielles |
-| `cockpit-journey` | CockpitJourney | rh | compute_per_diem_mission, validate_note_frais, generate_ordre_mission, analyze_missions_cost, optimize_itineraire |
+| `atlasbanx` | AtlasBanx (audit bancaire ; alias `scrutix`) | audit | apply_benford_analysis, compute_zscore_anomalies, detect_ghost_fees, score_bank_risk_global, generate_audit_report_anomalies |
 | `tablesmart` | TableSmart | retail | compute_addition_table, compute_taux_occupation_salle, analyze_menu_performance, forecast_approvisionnement, compute_pourboire_repartition |
 
 Toutes ces apps ont déjà leur bundle L3 défini dans
@@ -212,6 +211,18 @@ The SDK supports two modes:
 
 For server-to-server (cron, batch), use the Atlas Studio service role key as
 `apiKey` and omit `userToken`. RLS is bypassed — handle authz yourself.
+
+### Tenant isolation — the `allowed_societies` claim (Wave A · TI-1/2/3)
+
+The core runs tools in `service_role` and used to trust the `society_id` you
+pass. It can now **refuse** a tool call that touches a society outside the
+caller's signed perimeter. To enable it for your app, sign the user's authorised
+societies into the SSO token (`allowed_societies: string[]`) — minted
+**server-side**, never from a client value. Enforcement is **opt-in and
+fail-closed only when the claim is present**, so nothing breaks until you ship it.
+
+Full contract, minting recipe, rollout and test plan:
+**[PROPH3T_TENANT_SCOPE.md](./PROPH3T_TENANT_SCOPE.md)**.
 
 ---
 

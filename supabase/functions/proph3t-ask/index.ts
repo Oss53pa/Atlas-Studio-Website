@@ -234,6 +234,11 @@ Deno.serve(async (req) => {
         const toolName = tc.function.name as ToolName;
         let toolResult: unknown;
         try {
+          // Wave A (TI-1/2/3) : `proph3t-ask` authentifie via `requireUser`
+          // (utilisateur Supabase du core), qui ne porte PAS de claim
+          // `allowed_societies` → appel non scopé (rétrocompatible). Le jour où
+          // le core gère sa propre multi-tenance, résoudre ici le périmètre de
+          // `user.id` et le passer en `allowed_societies`.
           toolResult = await runTool(toolName, tc.function.arguments, { user_id: user.id });
           if (
             toolName === "search_knowledge" ||

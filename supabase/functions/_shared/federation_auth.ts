@@ -102,7 +102,10 @@ export async function verifySsoToken(
     const key = await getVerifyingKey(appHint);
     if (!key) return null; // aucun secret configuré → pas notre token
 
-    payload = (await verify(token, key)) as SsoPayload;
+    // djwt `Payload` (claims standards + index signature) ne chevauche pas
+    // structurellement `SsoPayload` → passage par `unknown` (cast assumé : la
+    // forme est garantie par le mint `app-token`, et `userId` est revérifié).
+    payload = (await verify(token, key)) as unknown as SsoPayload;
   } catch {
     return null; // décodage / signature / expiration → pas un token SSO valide
   }

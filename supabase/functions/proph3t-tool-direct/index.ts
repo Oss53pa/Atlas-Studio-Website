@@ -75,11 +75,14 @@ Deno.serve(async (req) => {
       if (denied) return errorResponse(denied, 403);
     }
 
+    // Wave A (Audit 360° — TI-1/2/3) : périmètre tenant signé. Présent
+    // uniquement pour un token SSO satellite portant `allowed_societies`. Un
+    // appel service_role (infra de confiance) ou Supabase core reste non scopé.
     const t0 = Date.now();
     const result = await runTool(
       body.tool_name as ToolName,
       body.args ?? {},
-      { user_id: user?.id },
+      { user_id: user?.id, allowed_societies: user?.allowedSocieties },
     );
 
     // Audit
@@ -92,6 +95,7 @@ Deno.serve(async (req) => {
         duration_ms: Date.now() - t0,
         auth_source: user?.source ?? (isServiceRole ? "service_role" : "unknown"),
         app_id: user?.appId ?? (body.args?.app_id as string | undefined),
+        tenant_scoped: Array.isArray(user?.allowedSocieties),
       },
     });
 
@@ -102,6 +106,9 @@ Deno.serve(async (req) => {
       result,
     });
   } catch (err) {
-    return errorResponse((err as Error).message);
+    // TenantScopeError (Wave A) et AuthError portent un `.status` (403/401) ;
+    // sinon 500 par défaut.
+    const e = err as Error & { status?: number };
+    return errorResponse(e.message, e.status ?? 500);
   }
 });
