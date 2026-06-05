@@ -451,8 +451,8 @@ export default function HomePage() {
               <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/45 mb-3">
                 {t("home.atlasFNA")}
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-display font-medium text-[44px] md:text-[56px] leading-none text-[#A9B57E] tracking-tight tabular-nums">99 000</span>
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="font-display font-medium text-[32px] md:text-[42px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">99 000</span>
                 <span className="text-neutral-muted text-[14px] font-light">FCFA/mois</span>
               </div>
               <p className="text-[13px] text-neutral-muted font-light mt-3 max-w-[300px]">{t("home.accountingSyscohada")}</p>
@@ -461,9 +461,9 @@ export default function HomePage() {
               <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/45 mb-3">
                 {t("home.standaloneAppsLabel")}
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-display font-light italic text-[28px] md:text-[36px] leading-none text-neutral-light/70 mr-1">dès</span>
-                <span className="font-display font-medium text-[44px] md:text-[56px] leading-none text-[#A9B57E] tracking-tight tabular-nums">25 000</span>
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="font-display font-light italic text-[20px] md:text-[26px] leading-none text-neutral-light/70 mr-1">dès</span>
+                <span className="font-display font-medium text-[32px] md:text-[42px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">25 000</span>
                 <span className="text-neutral-muted text-[14px] font-light">{t("home.perMonthOrYear")}</span>
               </div>
               <p className="text-[13px] text-neutral-muted font-light mt-3 max-w-[300px]">{t("home.liasspilotAdvist")}</p>
