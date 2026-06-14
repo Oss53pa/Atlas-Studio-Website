@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Clock,
   ChevronRight,
+  ChevronDown,
   FileText,
   ArrowDownToLine,
   XCircle,
@@ -33,6 +34,7 @@ import {
   type TechDebtPriorityRow,
   type TechDebtPriority,
   type TechDebtStatus,
+  type CodeHealthAudit,
 } from './types';
 
 const PRIORITY_ORDER: TechDebtPriority[] = ['P0', 'P1', 'P2', 'P3'];
@@ -100,12 +102,11 @@ export default function AsvcTechDebtPage() {
   };
 
   return (
-    <div className="max-w-6xl">
-      <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
-        <AdminPageHeader
-          title="Tech Debt"
-          subtitle="Audit code health hebdomadaire — backlog priorisé P0-P3 des 14 apps Atlas Studio"
-        />
+    <div>
+      <AdminPageHeader
+        title="Tech Debt"
+        subtitle="Audit code health hebdomadaire — backlog priorisé P0-P3 des 14 apps Atlas Studio"
+      >
         <button
           type="button"
           onClick={handleScan}
@@ -119,7 +120,7 @@ export default function AsvcTechDebtPage() {
           )}
           {scanning ? 'Scan en cours...' : 'Lancer un scan'}
         </button>
-      </div>
+      </AdminPageHeader>
 
       {scanError && (
         <div className="mb-4 px-3 py-2 rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 text-[12px]">
@@ -236,62 +237,16 @@ export default function AsvcTechDebtPage() {
       {loading ? (
         <p className="text-neutral-500 text-sm py-12 text-center">Chargement du backlog...</p>
       ) : (
-        <div className="space-y-5">
-          {grouped.map(([app, items]) => {
-            const audit = audits.find((a) => a.app_concerned === app);
-            return (
-              <section key={app} className="rounded-xl border border-white/10 bg-onyx-light/30 overflow-hidden">
-                {/* App header */}
-                <div className="px-4 py-3 flex items-center justify-between gap-3 bg-onyx-light/20 border-b border-white/5">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <h3 className="text-neutral-light text-[13px] font-semibold font-mono truncate">{app}</h3>
-                    <span className="text-[10px] text-neutral-600">·</span>
-                    <span className="text-[10.5px] text-neutral-500">
-                      {items.length} item{items.length > 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  {audit && (
-                    <div className="flex items-center gap-3 text-[11px]">
-                      <span className="text-neutral-400">
-                        Score{' '}
-                        <span
-                          className={`font-mono font-semibold ${
-                            (audit.score ?? 0) >= 75
-                              ? 'text-emerald-300'
-                              : (audit.score ?? 0) >= 50
-                                ? 'text-amber-300'
-                                : 'text-red-300'
-                          }`}
-                        >
-                          {audit.score?.toFixed(0) ?? '—'}/100
-                        </span>
-                      </span>
-                      {audit.trend && (
-                        <span className={`inline-flex items-center gap-1 ${TREND_CLASSES[audit.trend]}`}>
-                          {audit.trend === 'improving' ? (
-                            <TrendingUp size={11} />
-                          ) : audit.trend === 'degrading' ? (
-                            <TrendingDown size={11} />
-                          ) : (
-                            <Minus size={11} />
-                          )}
-                          {TREND_LABELS[audit.trend]}
-                        </span>
-                      )}
-                      <span className="text-neutral-600">{timeAgoFr(audit.created_at)}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Items list */}
-                <ul className="divide-y divide-white/5">
-                  {items.map((item) => (
-                    <TechDebtRow key={item.id} item={item} onClick={() => setSelected(item)} />
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
+        <div className="space-y-3">
+          {grouped.map(([app, items]) => (
+            <AppDebtGroup
+              key={app}
+              app={app}
+              items={items}
+              audit={audits.find((a) => a.app_concerned === app)}
+              onSelect={setSelected}
+            />
+          ))}
         </div>
       )}
 
@@ -341,6 +296,84 @@ export default function AsvcTechDebtPage() {
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────
+
+function AppDebtGroup({
+  app,
+  items,
+  audit,
+  onSelect,
+}: {
+  app: string;
+  items: TechDebtPriorityRow[];
+  audit: CodeHealthAudit | undefined;
+  onSelect: (item: TechDebtPriorityRow) => void;
+}) {
+  const [expanded, setExpanded] = useState(true);
+
+  return (
+    <section className="rounded-xl border border-white/10 bg-onyx-light/30 overflow-hidden">
+      {/* App header — cliquable pour replier/déplier */}
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full px-4 py-3 flex items-center justify-between gap-3 bg-onyx-light/20 border-b border-white/5 hover:bg-onyx-light/30 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          {expanded ? (
+            <ChevronDown size={14} className="text-neutral-500 flex-shrink-0" />
+          ) : (
+            <ChevronRight size={14} className="text-neutral-500 flex-shrink-0" />
+          )}
+          <h3 className="text-neutral-light text-[13px] font-semibold font-mono truncate">{app}</h3>
+          <span className="text-[10px] text-neutral-600">·</span>
+          <span className="text-[10.5px] text-neutral-500">
+            {items.length} item{items.length > 1 ? 's' : ''}
+          </span>
+        </div>
+        {audit && (
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="text-neutral-400">
+              Score{' '}
+              <span
+                className={`font-mono font-semibold ${
+                  (audit.score ?? 0) >= 75
+                    ? 'text-emerald-300'
+                    : (audit.score ?? 0) >= 50
+                      ? 'text-amber-300'
+                      : 'text-red-300'
+                }`}
+              >
+                {audit.score?.toFixed(0) ?? '—'}/100
+              </span>
+            </span>
+            {audit.trend && (
+              <span className={`inline-flex items-center gap-1 ${TREND_CLASSES[audit.trend]}`}>
+                {audit.trend === 'improving' ? (
+                  <TrendingUp size={11} />
+                ) : audit.trend === 'degrading' ? (
+                  <TrendingDown size={11} />
+                ) : (
+                  <Minus size={11} />
+                )}
+                {TREND_LABELS[audit.trend]}
+              </span>
+            )}
+            <span className="text-neutral-600">{timeAgoFr(audit.created_at)}</span>
+          </div>
+        )}
+      </button>
+
+      {/* Items list — scroll borné si la liste est longue */}
+      {expanded && (
+        <ul className="divide-y divide-white/5 max-h-[60vh] overflow-y-auto scrollbar-thin">
+          {items.map((item) => (
+            <TechDebtRow key={item.id} item={item} onClick={() => onSelect(item)} />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
 
 function TechDebtRow({
   item,

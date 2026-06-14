@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Plus, Loader2, Calendar, AlertCircle, Hash, X as XIcon } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { usePaged, PaginationBar } from '../../components/PaginationBar';
 import { useContentCalendar, timeAgoFr } from './hooks';
 import {
   CONTENT_CHANNEL_LABELS,
@@ -42,8 +43,10 @@ export default function AsvcContentPage() {
     return s;
   }, [entries]);
 
+  const { pageItems, page, setPage, totalPages, total, pageSize } = usePaged(filtered, 20);
+
   return (
-    <div className="max-w-6xl">
+    <div>
       <AdminPageHeader
         title="Content Calendar"
         subtitle="Posts sociaux, newsletter et articles — draftés par l'agent Content"
@@ -108,10 +111,12 @@ export default function AsvcContentPage() {
       )}
 
       <div className="space-y-3">
-        {filtered.map((entry) => (
+        {pageItems.map((entry) => (
           <ContentCard key={entry.id} entry={entry} />
         ))}
       </div>
+
+      <PaginationBar page={page} totalPages={totalPages} total={total} pageSize={pageSize} onPage={setPage} />
 
       {modalOpen && (
         <NewPostModal

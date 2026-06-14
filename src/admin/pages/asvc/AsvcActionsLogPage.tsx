@@ -1,5 +1,6 @@
-import { Plane } from 'lucide-react';
+import { Plane, ScrollText } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { AdminTable } from '../../components/AdminTable';
 import { useActionsLog, timeAgoFr } from './hooks';
 import {
   STATUS_LABELS,
@@ -7,6 +8,7 @@ import {
   CRITICALITY_LABELS,
   type ActionStatus,
 } from './types';
+import type { AgentAction } from './types';
 
 const STATUS_COLOR: Record<ActionStatus, string> = {
   proposed: 'text-neutral-400 bg-neutral-500/10',
@@ -21,79 +23,88 @@ const STATUS_COLOR: Record<ActionStatus, string> = {
 
 const VACATION_SILENCED_ERROR = 'silenced_during_vacation';
 
+const isSilenced = (a: AgentAction) =>
+  a.status === 'cancelled' && a.execution_error === VACATION_SILENCED_ERROR;
+
 export default function AsvcActionsLogPage() {
   const { actions, loading } = useActionsLog(200);
 
+  const columns = [
+    {
+      key: 'created_at',
+      label: 'Quand',
+      sortable: true,
+      className: 'whitespace-nowrap',
+      render: (a: AgentAction) => (
+        <span className="text-admin-muted text-[11px]">{timeAgoFr(a.created_at)}</span>
+      ),
+    },
+    {
+      key: 'title',
+      label: 'Action',
+      sortable: true,
+      render: (a: AgentAction) => {
+        const silenced = isSilenced(a);
+        return (
+          <div className={silenced ? 'italic opacity-70' : ''}>
+            <div className="flex items-center gap-2">
+              <div className="text-admin-text truncate max-w-md">{a.title}</div>
+              {silenced && (
+                <span
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold border border-sky-500/30 bg-sky-500/10 text-sky-300"
+                  title="Action silencée pendant le mode vacances — non notifiée au CEO"
+                >
+                  <Plane size={10} />
+                  Vacances
+                </span>
+              )}
+            </div>
+            <div className="text-admin-muted text-[10.5px] font-mono">{a.action_type}</div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'criticality',
+      label: 'Criticité',
+      sortable: true,
+      render: (a: AgentAction) => (
+        <span
+          className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded border ${CRITICALITY_BADGE_CLASSES[a.criticality]}`}
+        >
+          {CRITICALITY_LABELS[a.criticality]}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Statut',
+      sortable: true,
+      render: (a: AgentAction) => (
+        <span className={`text-[11px] px-2 py-0.5 rounded ${STATUS_COLOR[a.status]}`}>
+          {isSilenced(a) ? 'Silencée (vacances)' : STATUS_LABELS[a.status]}
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div className="max-w-6xl">
+    <div>
       <AdminPageHeader
         title="Journal des actions"
         subtitle="Toutes les actions des agents — proposées, validées, exécutées"
       />
 
-      {loading && <p className="text-neutral-500 text-sm">Chargement...</p>}
-
-      <div className="rounded-xl border border-white/10 overflow-hidden">
-        <table className="w-full text-[12.5px]">
-          <thead className="bg-onyx-light/40">
-            <tr className="text-neutral-500 text-[10.5px] uppercase tracking-wider">
-              <th className="text-left px-3 py-2 font-semibold">Quand</th>
-              <th className="text-left px-3 py-2 font-semibold">Action</th>
-              <th className="text-left px-3 py-2 font-semibold">Criticité</th>
-              <th className="text-left px-3 py-2 font-semibold">Statut</th>
-            </tr>
-          </thead>
-          <tbody>
-            {actions.map((a) => {
-              const silenced = a.status === 'cancelled' && a.execution_error === VACATION_SILENCED_ERROR;
-              return (
-                <tr
-                  key={a.id}
-                  className={`border-t border-white/5 hover:bg-white/[0.02] ${silenced ? 'italic opacity-70' : ''}`}
-                >
-                  <td className="px-3 py-2.5 text-neutral-500 text-[11px] whitespace-nowrap">
-                    {timeAgoFr(a.created_at)}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <div className="text-neutral-light truncate max-w-md">{a.title}</div>
-                      {silenced && (
-                        <span
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold border border-sky-500/30 bg-sky-500/10 text-sky-300"
-                          title="Action silencée pendant le mode vacances — non notifiée au CEO"
-                        >
-                          <Plane size={10} />
-                          Vacances
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-neutral-600 text-[10.5px] font-mono">{a.action_type}</div>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <span
-                      className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded border ${CRITICALITY_BADGE_CLASSES[a.criticality]}`}
-                    >
-                      {CRITICALITY_LABELS[a.criticality]}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <span className={`text-[11px] px-2 py-0.5 rounded ${STATUS_COLOR[a.status]}`}>
-                      {silenced ? 'Silencée (vacances)' : STATUS_LABELS[a.status]}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-            {!loading && actions.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-3 py-10 text-center text-neutral-500 text-sm">
-                  Aucune action enregistrée pour le moment.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        columns={columns}
+        data={actions}
+        keyExtractor={(a) => a.id}
+        loading={loading}
+        pageSize={25}
+        stickyHeader
+        emptyMessage="Aucune action enregistrée pour le moment."
+        emptyIcon={<ScrollText size={32} strokeWidth={1.5} />}
+      />
     </div>
   );
 }

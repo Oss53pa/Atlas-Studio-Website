@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Loader2, AlertCircle, Search, Mail, Linkedin, MessageCircle, FileText, Target, ChevronRight } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { usePaged, PaginationBar } from '../../components/PaginationBar';
 import { useLeadsPipeline, timeAgoFr } from './hooks';
 import type { SalesAgentKind } from './hooks';
 import {
@@ -56,8 +57,10 @@ export default function AsvcLeadsPage() {
     };
   }, [rows]);
 
+  const { pageItems, page, setPage, totalPages, total, pageSize } = usePaged(filtered, 20);
+
   return (
-    <div className="max-w-6xl">
+    <div>
       <AdminPageHeader
         title="Pipeline Ventes"
         subtitle="Prospection · SDR · Closer — chaque lead avec l'action suggérée par les agents"
@@ -126,7 +129,7 @@ export default function AsvcLeadsPage() {
       )}
 
       <div className="space-y-2">
-        {filtered.map((r) => (
+        {pageItems.map((r) => (
           <LeadRow
             key={r.lead_id}
             lead={r}
@@ -135,6 +138,8 @@ export default function AsvcLeadsPage() {
           />
         ))}
       </div>
+
+      <PaginationBar page={page} totalPages={totalPages} total={total} pageSize={pageSize} onPage={setPage} />
     </div>
   );
 }
