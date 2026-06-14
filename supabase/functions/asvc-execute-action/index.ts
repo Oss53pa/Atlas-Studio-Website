@@ -50,6 +50,13 @@ const VERCEL_ROUTED_TYPES = new Set([
   "deploy_to_production",
 ]);
 
+// Apps dont le déploiement passe par GitHub Actions (CI) et NON par Vercel.
+// Ex: WeDo = APK Android buildé par le workflow android.yml. Pour ces apps, les
+// deploy_to_* sont routés vers asvc-connector-github-deploy (workflow_dispatch).
+const GITHUB_DEPLOYED_APPS = new Set([
+  "wedo",
+]);
+
 // Action types "paiement" routables via CinetPay OU Stripe selon le payload.
 const PAYMENT_ROUTED_TYPES = new Set([
   "generate_invoice_payment_link",
@@ -67,6 +74,7 @@ async function callConnector(
   name:
     | "asvc-connector-gmail"
     | "asvc-connector-github"
+    | "asvc-connector-github-deploy"
     | "asvc-connector-vercel"
     | "asvc-connector-cinetpay"
     | "asvc-connector-stripe"
@@ -366,8 +374,46 @@ async function executeOne(
       }
     }
 
+    // Deploy via GitHub Actions (apps buildées par CI GitHub, ex: WeDo APK) :
+    // pour ces apps, deploy_to_* est routé vers le connecteur GitHub
+    // (workflow_dispatch) au lieu de Vercel.
+    let isGithubDeployApp = false;
+    if (VERCEL_ROUTED_TYPES.has(action.action_type)) {
+      const { data: deployFull } = await supabaseAdmin
+        .from("asvc_agent_actions")
+        .select("proposed_payload, modified_payload")
+        .eq("id", actionId)
+        .single();
+      const deployPayload = (deployFull?.modified_payload ?? deployFull?.proposed_payload ?? {}) as Record<string, unknown>;
+      const deployApp = deployPayload.app_name as string | undefined;
+      if (deployApp && GITHUB_DEPLOYED_APPS.has(deployApp)) {
+        isGithubDeployApp = true;
+        if (githubReady) {
+          const ghd = await callConnector("asvc-connector-github-deploy", actionId);
+          if (ghd.ok) {
+            return {
+              action_id: actionId,
+              ok: true,
+              kind: "internal",
+              result: { connector: "github-deploy", ...((ghd.result as Record<string, unknown>) ?? {}) },
+            };
+          }
+          await supabaseAdmin.rpc("asvc_log_audit", {
+            p_actor_type: actorIsCron ? "system" : "ceo",
+            p_actor_id: actorId,
+            p_event_type: "github_deploy_failed_fallback_internal",
+            p_resource_type: "asvc_agent_actions",
+            p_resource_id: actionId,
+            p_payload: { github_deploy_error: ghd.error },
+          });
+        }
+        // App GitHub-déployée : ne PAS router vers Vercel (aucun projet Vercel) —
+        // on laisse le dispatcher SQL clôturer en interne si le connecteur a échoué.
+      }
+    }
+
     // Si action_type routable via Vercel ET un compte est connecté → connecteur
-    if (vercelReady && VERCEL_ROUTED_TYPES.has(action.action_type)) {
+    if (!isGithubDeployApp && vercelReady && VERCEL_ROUTED_TYPES.has(action.action_type)) {
       const vercel = await callConnector("asvc-connector-vercel", actionId);
       if (vercel.ok) {
         return {

@@ -11,6 +11,7 @@
 import { supabaseAdmin } from "../supabase.ts";
 import { asvcChat } from "./llm.ts";
 import { loadAgentSystemPrompt } from "./prompts.ts";
+import { parseJsonOutput } from "./sales-common.ts";
 
 export type OutreachGoal =
   | "onboarding_d1"
@@ -98,18 +99,15 @@ interface DraftEmailOutput {
 }
 
 function parseEmailOutput(raw: string): DraftEmailOutput {
-  let s = raw.trim();
-  s = s.replace(/^```(?:json)?\s*/i, "").replace(/```$/i, "").trim();
-  const i0 = s.indexOf("{");
-  const iN = s.lastIndexOf("}");
-  if (i0 === -1 || iN === -1) throw new Error("Pas de JSON détecté dans l'output");
-  const parsed = JSON.parse(s.slice(i0, iN + 1));
+  // parseJsonOutput gère les fences ```json ET répare les caractères de contrôle
+  // bruts dans les chaînes (fréquents avec Groq/llama → "Bad control character").
+  const parsed = parseJsonOutput<Record<string, unknown>>(raw);
   if (typeof parsed.subject !== "string" || typeof parsed.body !== "string") {
     throw new Error("subject/body manquants");
   }
   return {
-    subject: parsed.subject.slice(0, 200),
-    body: parsed.body,
+    subject: (parsed.subject as string).slice(0, 200),
+    body: parsed.body as string,
     rationale: typeof parsed.rationale === "string" ? parsed.rationale : "",
     tone: typeof parsed.tone === "string" ? parsed.tone : "checkin",
   };
