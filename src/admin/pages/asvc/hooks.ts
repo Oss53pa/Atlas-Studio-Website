@@ -1484,8 +1484,14 @@ export function useTechDebtPriority() {
         if (data?.error) throw new Error(data.error);
         if (data?.summary) setLastScanSummary(data.summary);
         await refresh();
+        return (data?.summary ?? null) as {
+          apps_scanned: number;
+          total_items_detected: number;
+          total_critical: number;
+        } | null;
       } catch (e) {
         setScanError((e as Error).message);
+        throw e;
       } finally {
         setScanning(false);
       }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Sunrise, Sunset, CalendarRange, AlertOctagon, ChevronDown, ChevronRight } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { usePaged, PaginationBar } from '../../components/PaginationBar';
+import { CardListSkeleton } from '../../components/AsvcSkeletons';
 import { useBriefsHistory, timeAgoFr } from './hooks';
 import type { CooBrief } from './types';
 
@@ -64,7 +65,7 @@ export default function AsvcBriefsPage() {
         })}
       </div>
 
-      {loading && <p className="text-neutral-500 text-sm">Chargement...</p>}
+      {loading && <CardListSkeleton />}
 
       {!loading && filtered.length === 0 && (
         <div className="rounded-xl border border-white/5 bg-onyx-light/20 py-12 px-6 text-center">

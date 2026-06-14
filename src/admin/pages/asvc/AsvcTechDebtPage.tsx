@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { AdminModal } from '../../components/AdminModal';
+import { CardListSkeleton } from '../../components/AsvcSkeletons';
+import { useToast } from '../../contexts/ToastContext';
 import {
   useTechDebtPriority,
   useCodeHealthAudits,
@@ -45,14 +47,25 @@ export default function AsvcTechDebtPage() {
     scanning, scanError, lastScanSummary, triggerScan,
   } = useTechDebtPriority();
   const { latest: audits, loading: auditsLoading, refresh: refreshAudits } = useCodeHealthAudits(30);
+  const { success, error: toastError } = useToast();
   const [selected, setSelected] = useState<TechDebtPriorityRow | null>(null);
   const [appFilter, setAppFilter] = useState<string | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<TechDebtPriority | 'all'>('all');
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   const handleScan = async () => {
-    await triggerScan('full');
-    await refreshAudits();
+    try {
+      const summary = await triggerScan('full');
+      await refreshAudits();
+      const detected = summary?.total_items_detected;
+      success(
+        typeof detected === 'number'
+          ? `Scan terminé — ${detected} item${detected > 1 ? 's' : ''} détecté${detected > 1 ? 's' : ''}.`
+          : 'Scan terminé.',
+      );
+    } catch (e) {
+      toastError(`Scan échoué : ${(e as Error).message}`);
+    }
   };
 
   // ─── Derived stats ─────────────────────────────────────────────────────
@@ -95,7 +108,16 @@ export default function AsvcTechDebtPage() {
     setPendingId(selected.id);
     try {
       await updateStatus(selected.id, status);
+      success(
+        status === 'wont_fix'
+          ? 'Item marqué « ne pas corriger ».'
+          : status === 'qualified'
+            ? 'Item qualifié — ajouté au backlog priorisé.'
+            : 'Item mis à jour.',
+      );
       setSelected(null);
+    } catch (e) {
+      toastError(`Échec de la mise à jour : ${(e as Error).message}`);
     } finally {
       setPendingId(null);
     }
@@ -235,7 +257,7 @@ export default function AsvcTechDebtPage() {
 
       {/* ─── Items grouped by app ──────────────────────────────────────── */}
       {loading ? (
-        <p className="text-neutral-500 text-sm py-12 text-center">Chargement du backlog...</p>
+        <CardListSkeleton rows={4} height="h-32" />
       ) : (
         <div className="space-y-3">
           {grouped.map(([app, items]) => (
