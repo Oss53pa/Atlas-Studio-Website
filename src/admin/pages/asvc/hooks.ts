@@ -1144,28 +1144,29 @@ export function useOAuthTokens() {
       try {
         const { data: sessionData } = await supabase.auth.getSession();
         const accessToken = sessionData.session?.access_token;
-        if (!accessToken) return { ok: false, error: 'Session manquante' };
+        if (!accessToken) return { ok: false, error: 'Session manquante — reconnecte-toi (Ctrl+Shift+R)' };
 
-        const { data, error: invokeErr } = await supabase.functions.invoke('asvc-oauth-pat-set', {
-          body: { provider, token },
-          headers: { Authorization: `Bearer ${accessToken}` },
+        // IMPORTANT : on utilise un fetch BRUT (pas supabase.functions.invoke).
+        // invoke() peut PENDRE indéfiniment quand l'état de session/auth est
+        // incohérent (double login / SW périmé) — observé : la requête ne part
+        // même pas. Le fetch direct (comme asvc-connectors-status) passe.
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+        const res = await fetch(`${supabaseUrl}/functions/v1/asvc-oauth-pat-set`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: anonKey,
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ provider, token }),
         });
-        if (invokeErr) {
-          // supabase-js ne donne qu'un message générique ("non-2xx"). On lit le
-          // VRAI message d'erreur dans le corps de la réponse de l'edge function
-          // (ex: "PAT invalide : GitHub /user (401): ...").
-          let msg = invokeErr.message;
-          try {
-            const ctx = (invokeErr as { context?: Response }).context;
-            if (ctx && typeof ctx.json === 'function') {
-              const body = await ctx.json();
-              if (body?.error) msg = body.error;
-            }
-          } catch { /* garde le message générique */ }
-          return { ok: false, error: msg };
+        const data = await res.json().catch(() => ({} as { error?: string; account_email?: string }));
+        if (!res.ok || data?.error) {
+          return { ok: false, error: data?.error ?? `Erreur serveur (HTTP ${res.status})` };
         }
-        if (data?.error) return { ok: false, error: data.error };
-        await refresh();
+        // Rafraîchit la liste en arrière-plan (ne bloque pas le retour).
+        void refresh();
         return { ok: true, account: data?.account_email };
       } catch (e) {
         return { ok: false, error: (e as Error).message };
