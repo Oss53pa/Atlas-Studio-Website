@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Atlas Studio Securite <notifications@atlasstudio.org>",
+        from: "Atlas Studio Securite <notifications@atlas-studio.org>",
         to: [profile.recovery_email],
         subject: `[SECURITE] Reinitialisation de mot de passe — ${profile.email}`,
         html,

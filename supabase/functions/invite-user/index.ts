@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
           method: "POST",
           headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            from: "Pamela — Atlas Studio <notifications@atlasstudio.org>",
+            from: "Pamela — Atlas Studio <notifications@atlas-studio.org>",
             to: [email],
             subject: `${inviterName} vous invite à rejoindre ${appLabel}`,
             html: `<div style="font-family:sans-serif;max-width:580px;margin:0 auto;padding:32px;">

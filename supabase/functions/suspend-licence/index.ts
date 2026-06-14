@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
         method: "POST",
         headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "Atlas Studio <notifications@atlasstudio.org>",
+          from: "Atlas Studio <notifications@atlas-studio.org>",
           to: [licence.tenants.email],
           subject: `Votre licence ${licence.products?.name || ""} a été suspendue`,
           html: `<div style="font-family:sans-serif;max-width:580px;margin:0 auto;padding:32px;"><h2 style="color:#C62828;">Licence suspendue</h2><p>Votre licence a été suspendue pour : <strong>${reason || "Non spécifié"}</strong></p><p>Contactez le support pour réactiver.</p></div>`,

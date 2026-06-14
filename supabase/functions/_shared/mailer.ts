@@ -3,7 +3,7 @@
  * All apps in the catalog must use this service — no app manages its own mailer.
  *
  * Provider: Resend (https://resend.com)
- * Domain: atlasstudio.org
+ * Domain: atlas-studio.org
  *
  * Env vars:
  *   RESEND_API_KEY   — Resend API token

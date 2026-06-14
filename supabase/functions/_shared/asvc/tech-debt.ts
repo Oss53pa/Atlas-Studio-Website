@@ -70,20 +70,20 @@ export interface RunScanResult {
 
 const DEFAULT_APPS: { app: string; url: string | null }[] = [
   { app: "asvc-platform", url: "https://atlas-studio.org" }, // virtuelle : checks DB system-wide
-  { app: "atlas-finance",  url: "https://atlas-finance.atlasstudio.org" },
-  { app: "liasspilot",     url: "https://liasspilot.atlasstudio.org" },
-  { app: "cashpilot",      url: "https://cashpilot.atlasstudio.org" },
-  { app: "wisehr",         url: "https://wisehr.atlasstudio.org" },
-  { app: "wisefm",         url: "https://wisefm.atlasstudio.org" },
-  { app: "atlasbanx",      url: "https://atlasbanx.atlasstudio.org" },
-  { app: "advist",         url: "https://advist.atlasstudio.org" },
-  { app: "docjourney",     url: "https://docjourney.atlasstudio.org" },
-  { app: "duedeck",        url: "https://duedeck.atlasstudio.org" },
-  { app: "atlastrade",     url: "https://atlastrade.atlasstudio.org" },
-  { app: "tablesmart",     url: "https://tablesmart.atlasstudio.org" },
-  { app: "atlas-lease",    url: "https://atlas-lease.atlasstudio.org" },
-  { app: "cockpitjourney", url: "https://cockpitjourney.atlasstudio.org" },
-  { app: "cockpit-fna",    url: "https://cockpit-fna.atlasstudio.org" },
+  { app: "atlas-finance",  url: "https://atlas-finance.atlas-studio.org" },
+  { app: "liasspilot",     url: "https://liasspilot.atlas-studio.org" },
+  { app: "cashpilot",      url: "https://cashpilot.atlas-studio.org" },
+  { app: "wisehr",         url: "https://wisehr.atlas-studio.org" },
+  { app: "wisefm",         url: "https://wisefm.atlas-studio.org" },
+  { app: "atlasbanx",      url: "https://atlasbanx.atlas-studio.org" },
+  { app: "advist",         url: "https://advist.atlas-studio.org" },
+  { app: "docjourney",     url: "https://docjourney.atlas-studio.org" },
+  { app: "duedeck",        url: "https://duedeck.atlas-studio.org" },
+  { app: "atlastrade",     url: "https://atlastrade.atlas-studio.org" },
+  { app: "tablesmart",     url: "https://tablesmart.atlas-studio.org" },
+  { app: "atlas-lease",    url: "https://atlas-lease.atlas-studio.org" },
+  { app: "cockpitjourney", url: "https://cockpitjourney.atlas-studio.org" },
+  { app: "cockpit-fna",    url: "https://cockpit-fna.atlas-studio.org" },
   { app: "wedo",           url: "https://wedo.atlas-studio.org" }, // App mobile — Lighthouse sur la page de téléchargement
 ];
 

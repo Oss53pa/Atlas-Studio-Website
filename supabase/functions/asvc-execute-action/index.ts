@@ -73,6 +73,7 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 async function callConnector(
   name:
     | "asvc-connector-gmail"
+    | "asvc-connector-resend"
     | "asvc-connector-github"
     | "asvc-connector-github-deploy"
     | "asvc-connector-vercel"
@@ -279,6 +280,28 @@ async function executeOne(
           });
         }
       }
+    }
+
+    // Email : Resend en PRIORITÉ (transactionnel, domaine vérifié, sans OAuth).
+    // Choix produit : on n'exige plus Gmail. Fallback Gmail si Resend échoue.
+    if (GMAIL_ROUTED_TYPES.has(action.action_type) && Boolean(Deno.env.get("RESEND_API_KEY"))) {
+      const resend = await callConnector("asvc-connector-resend", actionId);
+      if (resend.ok) {
+        return {
+          action_id: actionId,
+          ok: true,
+          kind: "internal",
+          result: { connector: "resend", ...((resend.result as Record<string, unknown>) ?? {}) },
+        };
+      }
+      await supabaseAdmin.rpc("asvc_log_audit", {
+        p_actor_type: actorIsCron ? "system" : "ceo",
+        p_actor_id: actorId,
+        p_event_type: "resend_failed_fallback",
+        p_resource_type: "asvc_agent_actions",
+        p_resource_id: actionId,
+        p_payload: { resend_error: resend.error },
+      });
     }
 
     // Si action_type routable via Gmail ET un compte est connecté → connecteur
