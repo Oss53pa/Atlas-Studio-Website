@@ -469,11 +469,24 @@ function PatModal({
     }
     setSubmitting(true);
     setError(null);
-    const r = await onSubmit(token.trim());
-    if (!r.ok) {
-      setError(r.error ?? 'Erreur inconnue');
+    try {
+      // Garde-fou : jamais de spinner infini. Si l'appel ne répond pas en 30s
+      // (réseau, edge function lente/bloquée), on débloque et on affiche l'erreur.
+      const r = await Promise.race([
+        onSubmit(token.trim()),
+        new Promise<{ ok: boolean; error?: string }>((_, reject) =>
+          setTimeout(
+            () => reject(new Error('Délai dépassé (30s) — réessaie, ou vérifie ta connexion et le token.')),
+            30000,
+          ),
+        ),
+      ]);
+      if (!r.ok) setError(r.error ?? 'Erreur inconnue');
+    } catch (err) {
+      setError((err as Error).message || 'Erreur réseau inattendue');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   return (

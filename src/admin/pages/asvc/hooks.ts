@@ -1150,7 +1150,20 @@ export function useOAuthTokens() {
           body: { provider, token },
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        if (invokeErr) return { ok: false, error: invokeErr.message };
+        if (invokeErr) {
+          // supabase-js ne donne qu'un message générique ("non-2xx"). On lit le
+          // VRAI message d'erreur dans le corps de la réponse de l'edge function
+          // (ex: "PAT invalide : GitHub /user (401): ...").
+          let msg = invokeErr.message;
+          try {
+            const ctx = (invokeErr as { context?: Response }).context;
+            if (ctx && typeof ctx.json === 'function') {
+              const body = await ctx.json();
+              if (body?.error) msg = body.error;
+            }
+          } catch { /* garde le message générique */ }
+          return { ok: false, error: msg };
+        }
         if (data?.error) return { ok: false, error: data.error };
         await refresh();
         return { ok: true, account: data?.account_email };
