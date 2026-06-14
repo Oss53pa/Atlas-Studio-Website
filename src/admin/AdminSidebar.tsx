@@ -187,7 +187,7 @@ export function AdminSidebar() {
 
   // ─── PRIMARY SIDEBAR — sections only (no items inline), w-56 ─────────
   const primarySidebar = (
-    <div className="w-56 min-h-screen bg-onyx border-r border-white/10 flex flex-col flex-shrink-0">
+    <div className="w-56 h-screen bg-onyx border-r border-white/10 flex flex-col flex-shrink-0">
       {/* Header */}
       <div className="px-4 pt-5 pb-3 border-b border-white/5">
         <div className="flex items-center justify-between">
@@ -279,7 +279,7 @@ export function AdminSidebar() {
 
   // ─── SECONDARY SIDEBAR — items of active section, w-56 ──────────────
   const secondarySidebar = (
-    <div className="w-56 min-h-screen bg-onyx/95 border-r border-white/10 flex flex-col flex-shrink-0">
+    <div className="w-56 h-screen bg-onyx/95 border-r border-white/10 flex flex-col flex-shrink-0">
       {/* Header: active section name */}
       <div className="h-14 px-4 flex items-center gap-2 border-b border-white/5">
         <activeGroup.icon size={15} className="text-admin-accent" strokeWidth={1.75} />
