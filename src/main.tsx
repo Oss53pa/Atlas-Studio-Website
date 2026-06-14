@@ -110,54 +110,23 @@ if (typeof window !== 'undefined') {
 
 initErrorMonitor(ATLAS_APP_ID);
 
-// ── Service Worker auto-update (avec disjoncteur anti-boucle) ──────────
-// Historique : updateSW(true) + skipWaiting/clientsClaim a déjà causé une
-// BOUCLE INFINIE de reloads. Garde-fous actuels :
-//   - vite.config : skipWaiting:false, clientsClaim:false (le SW attend).
-//   - Ici : un DISJONCTEUR. On journalise les reloads d'update dans
-//     localStorage (persistant, contrairement à sessionStorage). Au-delà de
-//     MAX_RELOADS sur une fenêtre glissante, on COUPE l'auto-reload et on
-//     demande un refresh manuel — une boucle infinie devient impossible.
-if (import.meta.env.PROD) {
-  const RELOAD_LOG_KEY = 'atlas_sw_reloads';
-  const WINDOW_MS = 10 * 60 * 1000;   // fenêtre glissante
-  const MAX_RELOADS = 2;              // au-delà = boucle probable → on coupe
-
-  import('virtual:pwa-register').then(({ registerSW }) => {
-    const updateSW = registerSW({
-      immediate: false,
-      onNeedRefresh() {
-        const now = Date.now();
-        let reloads: number[] = [];
-        try {
-          reloads = (JSON.parse(localStorage.getItem(RELOAD_LOG_KEY) || '[]') as number[])
-            .filter((t) => now - t < WINDOW_MS);
-        } catch { /* storage illisible — on repart de zéro */ }
-
-        if (reloads.length >= MAX_RELOADS) {
-          console.warn('[atlas-sw] Boucle de mise à jour détectée — auto-reload coupé. Rafraîchissez manuellement (Ctrl+Shift+R).');
-          return; // disjoncteur : aucune boucle infinie possible
-        }
-
-        reloads.push(now);
-        try { localStorage.setItem(RELOAD_LOG_KEY, JSON.stringify(reloads)); } catch { /* ignore */ }
-        console.info('[atlas-sw] Nouvelle version — application dans 2s...');
-        setTimeout(() => {
-          // updateSW(true) = skipWaiting + reload. Pas de fallback reload ici :
-          // un reload non gardé pourrait relancer la boucle.
-          updateSW(true).catch((err) => console.warn('[atlas-sw] updateSW échoué:', err));
-        }, 2000);
-      },
-      onRegisteredSW(_swUrl, registration) {
-        // Check des updates toutes les 30 min (le disjoncteur protège du loop).
-        if (registration) {
-          setInterval(() => {
-            registration.update().catch(() => { /* ignore */ });
-          }, 30 * 60 * 1000);
-        }
-      },
-    });
-  }).catch(() => { /* SW registration is non-critical */ });
+// ── Service Worker DÉSACTIVÉ (kill-switch) ────────────────────────────
+// Historique houleux : boucle infinie de reloads, puis "double login" —
+// l'auto-reload ~2s après chargement (updateSW(true)) interrompait la
+// connexion et obligeait à se reconnecter / rafraîchir deux fois.
+// La console admin n'a PAS besoin de mode offline. On NE réenregistre plus
+// aucun SW et on DÉSENREGISTRE proprement ceux déjà installés + on purge les
+// caches, pour que les clients existants reviennent à un état réseau-direct
+// sain (fini le vieux build servi en cache → fini le double login).
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations()
+    .then((regs) => regs.forEach((r) => void r.unregister()))
+    .catch(() => { /* ignore */ });
+  if ('caches' in window) {
+    caches.keys()
+      .then((keys) => keys.forEach((k) => void caches.delete(k)))
+      .catch(() => { /* ignore */ });
+  }
 }
 
 // Cache le Root sur l'élément pour éviter de re-créer une racine React
