@@ -5,6 +5,7 @@
 
 import { supabaseAdmin } from "../supabase.ts";
 import { asvcChat } from "./llm.ts";
+import { loadAgentSystemPrompt } from "./prompts.ts";
 
 export type BriefType = "morning" | "evening" | "weekly";
 
@@ -165,7 +166,27 @@ export async function generateBrief(type: BriefType): Promise<GenerateBriefResul
 
   const { start, end, date } = briefWindow(type);
   const stats = await fetchBriefStats(start, end);
-  const { system, user } = buildPrompt(type, stats);
+  const { system: systemDefault, user } = buildPrompt(type, stats);
+  // Le COO lit désormais son system prompt éditable en base (table
+  // asvc_agent_prompts via l'UI « System prompts agents »), comme les 18 autres
+  // agents. Sans version active → fallback sur le prompt par défaut ci-dessus.
+  const system = await loadAgentSystemPrompt("coo", systemDefault);
+
+  // Cohérence des offres : capacité déterministe (RPC asvc_offer_coherence_audit).
+  // Le COO inclut désormais ce signal dans son brief. Non bloquant.
+  let userMsg = user;
+  try {
+    const { data: issues } = await supabaseAdmin.rpc("asvc_offer_coherence_audit");
+    const list = (issues as { severity: string }[] | null) ?? [];
+    if (list.length > 0) {
+      const high = list.filter((i) => i.severity === "high").length;
+      userMsg += `\n\nOFFRES (cohérence des plans d'abonnement)\n- Incohérences détectées: ${list.length}${high > 0 ? ` (dont ${high} critiques: prix incohérents)` : ""}`;
+    } else {
+      userMsg += `\n\nOFFRES (cohérence des plans d'abonnement)\n- Aucune incohérence détectée`;
+    }
+  } catch (_e) {
+    // RPC absente / erreur → on n'ajoute simplement pas la section.
+  }
 
   const model = Deno.env.get("ASVC_COO_MODEL") ?? "claude-sonnet-4-6";
 
@@ -174,7 +195,7 @@ export async function generateBrief(type: BriefType): Promise<GenerateBriefResul
     model,
     messages: [
       { role: "system", content: system },
-      { role: "user", content: user },
+      { role: "user", content: userMsg },
     ],
     temperature: 0.3,
     maxTokens: 800,
