@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { Bot, PauseCircle, PlayCircle, Activity, TrendingUp, Clock } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
 import { useAgents, useAgentStats } from './hooks';
@@ -8,11 +9,20 @@ const DEPT_ORDER: Department[] = ['direction', 'rd', 'production', 'sav', 'marke
 export default function AsvcAgentsPage() {
   const { agents, loading } = useAgents();
   const { stats } = useAgentStats(7);
+  const [activeDept, setActiveDept] = useState<Department | null>(null);
 
-  const grouped = DEPT_ORDER.map((dept) => ({
-    dept,
-    items: agents.filter((a) => a.department === dept),
-  })).filter((g) => g.items.length > 0);
+  const grouped = useMemo(
+    () =>
+      DEPT_ORDER.map((dept) => ({
+        dept,
+        items: agents.filter((a) => a.department === dept),
+      })).filter((g) => g.items.length > 0),
+    [agents],
+  );
+
+  // Onglet actif: premier département disponible par défaut
+  const currentDept = activeDept ?? grouped[0]?.dept ?? null;
+  const currentItems = grouped.find((g) => g.dept === currentDept)?.items ?? [];
 
   // Global stats footer
   const totals = Object.values(stats).reduce(
@@ -46,19 +56,36 @@ export default function AsvcAgentsPage() {
 
       {loading && <p className="text-neutral-500 text-sm">Chargement...</p>}
 
-      <div className="space-y-6">
-        {grouped.map(({ dept, items }) => (
-          <section key={dept}>
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-2">
-              {DEPARTMENT_LABELS[dept]}
-              <span className="ml-2 text-neutral-700">{items.length}</span>
-            </h2>
-            <div className="grid gap-2.5 lg:grid-cols-2">
-              {items.map((agent) => (
-                <AgentMonitorCard key={agent.id} agent={agent} stats={stats[agent.code] ?? null} />
-              ))}
-            </div>
-          </section>
+      {/* Onglets par département */}
+      {grouped.length > 0 && (
+        <div className="flex gap-1 border-b border-white/10 mb-5 overflow-x-auto">
+          {grouped.map(({ dept, items }) => {
+            const active = dept === currentDept;
+            return (
+              <button
+                key={dept}
+                type="button"
+                onClick={() => setActiveDept(dept)}
+                className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold border-b-2 -mb-px whitespace-nowrap transition-colors ${
+                  active
+                    ? 'border-admin-accent text-admin-accent'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-300'
+                }`}
+              >
+                {DEPARTMENT_LABELS[dept]}
+                <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${active ? 'bg-admin-accent/15 text-admin-accent' : 'bg-white/5 text-neutral-500'}`}>
+                  {items.length}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Agents du département actif */}
+      <div className="grid gap-2.5 lg:grid-cols-2">
+        {currentItems.map((agent) => (
+          <AgentMonitorCard key={agent.id} agent={agent} stats={stats[agent.code] ?? null} />
         ))}
       </div>
     </div>

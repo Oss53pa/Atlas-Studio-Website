@@ -13,7 +13,7 @@ interface AdminPageHeaderProps {
 
 export function AdminPageHeader({ title, subtitle, children }: AdminPageHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-7 flex-wrap gap-4">
+    <div className="sticky top-0 z-20 -mx-6 md:-mx-8 -mt-6 md:-mt-8 mb-7 px-6 md:px-8 pt-6 md:pt-8 pb-4 flex items-center justify-between flex-wrap gap-4 bg-admin-bg/90 backdrop-blur-md border-b border-white/5">
       <div>
         <h1 className="text-neutral-text dark:text-admin-text text-2xl font-bold mb-1">
           {typeof title === "string" ? <StyledText>{title}</StyledText> : title}

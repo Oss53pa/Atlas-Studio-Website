@@ -63,7 +63,9 @@ CREATE OR REPLACE FUNCTION public.asvc_oauth_set_token(
 RETURNS UUID
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+-- pgcrypto (pgp_sym_encrypt) vit dans le schéma `extensions` sous Supabase :
+-- il DOIT être sur le search_path sinon "function pgp_sym_encrypt does not exist".
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_id UUID;
@@ -117,7 +119,7 @@ CREATE OR REPLACE FUNCTION public.asvc_oauth_get_token(
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_encrypted BYTEA;

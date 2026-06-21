@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Sunrise, Sunset, CalendarRange, AlertOctagon, ChevronDown, ChevronRight } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { usePaged, PaginationBar } from '../../components/PaginationBar';
+import { CardListSkeleton } from '../../components/AsvcSkeletons';
 import { useBriefsHistory, timeAgoFr } from './hooks';
 import type { CooBrief } from './types';
 
@@ -32,6 +34,7 @@ export default function AsvcBriefsPage() {
   const [filter, setFilter] = useState<Filter>('all');
 
   const filtered = filter === 'all' ? briefs : briefs.filter((b) => b.brief_type === filter);
+  const { pageItems, page, setPage, totalPages, total, pageSize } = usePaged(filtered, 20);
 
   return (
     <div className="max-w-4xl">
@@ -62,7 +65,7 @@ export default function AsvcBriefsPage() {
         })}
       </div>
 
-      {loading && <p className="text-neutral-500 text-sm">Chargement...</p>}
+      {loading && <CardListSkeleton />}
 
       {!loading && filtered.length === 0 && (
         <div className="rounded-xl border border-white/5 bg-onyx-light/20 py-12 px-6 text-center">
@@ -75,10 +78,12 @@ export default function AsvcBriefsPage() {
       )}
 
       <div className="space-y-2">
-        {filtered.map((b) => (
+        {pageItems.map((b) => (
           <BriefCard key={b.id} brief={b} />
         ))}
       </div>
+
+      <PaginationBar page={page} totalPages={totalPages} total={total} pageSize={pageSize} onPage={setPage} />
     </div>
   );
 }

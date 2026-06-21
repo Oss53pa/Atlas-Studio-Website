@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Atlas Studio Admin <notifications@atlasstudio.org>",
+            from: "Atlas Studio Admin <notifications@atlas-studio.org>",
             to: [admin.email],
             subject: `[${severity.toUpperCase()}] ${title}`,
             html,

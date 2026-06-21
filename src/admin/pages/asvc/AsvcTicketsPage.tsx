@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MessageSquare, Sparkles, Loader2, AlertCircle, ArrowLeft, Bug } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { AdminTable } from '../../components/AdminTable';
 import { useTickets, useTicketDetail, timeAgoFr } from './hooks';
 import {
   TICKET_PRIORITY_LABELS,
@@ -14,7 +15,7 @@ export default function AsvcTicketsPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   return (
-    <div className="max-w-6xl">
+    <div>
       <AdminPageHeader
         title="Tickets SAV"
         subtitle="Conversations clients — le Support N1 Agent peut proposer des drafts de réponse"
@@ -42,72 +43,78 @@ function TicketsList({
   loading: boolean;
   onSelect: (t: Ticket) => void;
 }) {
-  if (loading) return <p className="text-neutral-500 text-sm">Chargement...</p>;
-
-  if (tickets.length === 0) {
-    return (
-      <div className="rounded-xl border border-white/5 bg-onyx-light/20 py-12 px-6 text-center">
-        <MessageSquare size={20} className="text-neutral-600 mx-auto mb-2" />
-        <p className="text-neutral-400 text-sm">Aucun ticket pour le moment.</p>
-        <p className="text-neutral-600 text-[11px] mt-1">
-          Les tickets arrivent via les connecteurs (Gmail, WhatsApp, in-app) une fois configurés.
-        </p>
-      </div>
-    );
-  }
+  const columns = [
+    {
+      key: 'ticket_number',
+      label: 'N°',
+      sortable: true,
+      className: 'font-mono text-[11px] whitespace-nowrap',
+      render: (t: Ticket) => <span className="text-admin-muted">{t.ticket_number}</span>,
+    },
+    {
+      key: 'subject',
+      label: 'Client / Sujet',
+      sortable: true,
+      render: (t: Ticket) => (
+        <div>
+          <div className="text-admin-text truncate max-w-md">
+            {t.subject ?? <span className="italic text-admin-muted">(sans objet)</span>}
+          </div>
+          <div className="text-admin-muted text-[11px]">
+            {t.client_name ?? t.client_email ?? 'anonyme'}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'app_concerned',
+      label: 'App',
+      sortable: true,
+      render: (t: Ticket) => (
+        <span className="text-admin-muted text-[11px]">{t.app_concerned ?? '—'}</span>
+      ),
+    },
+    {
+      key: 'priority',
+      label: 'Priorité',
+      sortable: true,
+      render: (t: Ticket) => (
+        <span
+          className={`text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded border ${TICKET_PRIORITY_CLASSES[t.priority]}`}
+        >
+          {TICKET_PRIORITY_LABELS[t.priority]}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Statut',
+      sortable: true,
+      render: (t: Ticket) => (
+        <span className="text-admin-muted text-[11px]">{TICKET_STATUS_LABELS[t.status]}</span>
+      ),
+    },
+    {
+      key: 'created_at',
+      label: 'Reçu',
+      sortable: true,
+      className: 'whitespace-nowrap',
+      render: (t: Ticket) => <span className="text-admin-muted text-[11px]">{timeAgoFr(t.created_at)}</span>,
+    },
+  ];
 
   return (
-    <div className="rounded-xl border border-white/10 overflow-hidden">
-      <table className="w-full text-[12.5px]">
-        <thead className="bg-onyx-light/40">
-          <tr className="text-neutral-500 text-[10.5px] uppercase tracking-wider">
-            <th className="text-left px-3 py-2 font-semibold">N°</th>
-            <th className="text-left px-3 py-2 font-semibold">Client / Sujet</th>
-            <th className="text-left px-3 py-2 font-semibold">App</th>
-            <th className="text-left px-3 py-2 font-semibold">Priorité</th>
-            <th className="text-left px-3 py-2 font-semibold">Statut</th>
-            <th className="text-left px-3 py-2 font-semibold">Reçu</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tickets.map((t) => (
-            <tr
-              key={t.id}
-              onClick={() => onSelect(t)}
-              className="border-t border-white/5 hover:bg-white/[0.03] cursor-pointer"
-            >
-              <td className="px-3 py-2.5 text-neutral-500 font-mono text-[11px]">
-                {t.ticket_number}
-              </td>
-              <td className="px-3 py-2.5">
-                <div className="text-neutral-light truncate max-w-md">
-                  {t.subject ?? <span className="italic text-neutral-500">(sans objet)</span>}
-                </div>
-                <div className="text-neutral-600 text-[11px]">
-                  {t.client_name ?? t.client_email ?? 'anonyme'}
-                </div>
-              </td>
-              <td className="px-3 py-2.5 text-neutral-400 text-[11px]">
-                {t.app_concerned ?? '—'}
-              </td>
-              <td className="px-3 py-2.5">
-                <span
-                  className={`text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded border ${TICKET_PRIORITY_CLASSES[t.priority]}`}
-                >
-                  {TICKET_PRIORITY_LABELS[t.priority]}
-                </span>
-              </td>
-              <td className="px-3 py-2.5 text-neutral-400 text-[11px]">
-                {TICKET_STATUS_LABELS[t.status]}
-              </td>
-              <td className="px-3 py-2.5 text-neutral-500 text-[11px] whitespace-nowrap">
-                {timeAgoFr(t.created_at)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <AdminTable
+      columns={columns}
+      data={tickets}
+      keyExtractor={(t) => t.id}
+      loading={loading}
+      onRowClick={onSelect}
+      pageSize={25}
+      stickyHeader
+      emptyMessage="Aucun ticket pour le moment. Les tickets arrivent via les connecteurs (Gmail, WhatsApp, in-app) une fois configurés."
+      emptyIcon={<MessageSquare size={32} strokeWidth={1.5} />}
+    />
   );
 }
 

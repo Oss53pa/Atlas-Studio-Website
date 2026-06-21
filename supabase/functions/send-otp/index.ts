@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Atlas Studio <notifications@atlasstudio.org>",
+        from: "Atlas Studio <notifications@atlas-studio.org>",
         to: [normalizedEmail],
         subject: `Atlas Studio — Code de verification : ${code}`,
         html,

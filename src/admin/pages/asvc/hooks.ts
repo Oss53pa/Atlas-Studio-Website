@@ -1144,15 +1144,29 @@ export function useOAuthTokens() {
       try {
         const { data: sessionData } = await supabase.auth.getSession();
         const accessToken = sessionData.session?.access_token;
-        if (!accessToken) return { ok: false, error: 'Session manquante' };
+        if (!accessToken) return { ok: false, error: 'Session manquante — reconnecte-toi (Ctrl+Shift+R)' };
 
-        const { data, error: invokeErr } = await supabase.functions.invoke('asvc-oauth-pat-set', {
-          body: { provider, token },
-          headers: { Authorization: `Bearer ${accessToken}` },
+        // IMPORTANT : on utilise un fetch BRUT (pas supabase.functions.invoke).
+        // invoke() peut PENDRE indéfiniment quand l'état de session/auth est
+        // incohérent (double login / SW périmé) — observé : la requête ne part
+        // même pas. Le fetch direct (comme asvc-connectors-status) passe.
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+        const res = await fetch(`${supabaseUrl}/functions/v1/asvc-oauth-pat-set`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: anonKey,
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ provider, token }),
         });
-        if (invokeErr) return { ok: false, error: invokeErr.message };
-        if (data?.error) return { ok: false, error: data.error };
-        await refresh();
+        const data = await res.json().catch(() => ({} as { error?: string; account_email?: string }));
+        if (!res.ok || data?.error) {
+          return { ok: false, error: data?.error ?? `Erreur serveur (HTTP ${res.status})` };
+        }
+        // Rafraîchit la liste en arrière-plan (ne bloque pas le retour).
+        void refresh();
         return { ok: true, account: data?.account_email };
       } catch (e) {
         return { ok: false, error: (e as Error).message };
@@ -1470,8 +1484,14 @@ export function useTechDebtPriority() {
         if (data?.error) throw new Error(data.error);
         if (data?.summary) setLastScanSummary(data.summary);
         await refresh();
+        return (data?.summary ?? null) as {
+          apps_scanned: number;
+          total_items_detected: number;
+          total_critical: number;
+        } | null;
       } catch (e) {
         setScanError((e as Error).message);
+        throw e;
       } finally {
         setScanning(false);
       }

@@ -68,7 +68,52 @@ export function parseJsonOutput<T>(raw: string): T {
   const i0 = s.indexOf("{");
   const iN = s.lastIndexOf("}");
   if (i0 === -1 || iN === -1) throw new Error("Pas de JSON détecté");
-  return JSON.parse(s.slice(i0, iN + 1)) as T;
+  const slice = s.slice(i0, iN + 1);
+  try {
+    return JSON.parse(slice) as T;
+  } catch {
+    // Réparation : les LLM (Groq/llama notamment) émettent souvent des
+    // caractères de contrôle BRUTS (retour ligne, tab) à l'intérieur des
+    // chaînes JSON, ce que JSON.parse refuse ("Bad control character").
+    // On les échappe uniquement quand on est à l'intérieur d'une chaîne.
+    return JSON.parse(escapeRawControlChars(slice)) as T;
+  }
+}
+
+/** Échappe les caractères de contrôle bruts présents À L'INTÉRIEUR des chaînes JSON. */
+function escapeRawControlChars(s: string): string {
+  let out = "";
+  let inStr = false;
+  let escaped = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    const code = s.charCodeAt(i);
+    if (inStr) {
+      if (escaped) {
+        out += ch;
+        escaped = false;
+      } else if (ch === "\\") {
+        out += ch;
+        escaped = true;
+      } else if (ch === '"') {
+        out += ch;
+        inStr = false;
+      } else if (code < 0x20) {
+        out += ch === "\n" ? "\\n"
+          : ch === "\r" ? "\\r"
+          : ch === "\t" ? "\\t"
+          : "\\u" + code.toString(16).padStart(4, "0");
+      } else {
+        out += ch;
+      }
+    } else if (ch === '"') {
+      inStr = true;
+      out += ch;
+    } else {
+      out += ch;
+    }
+  }
+  return out;
 }
 
 export function fcfa(n: number | null | undefined): string {

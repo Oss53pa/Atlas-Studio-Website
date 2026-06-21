@@ -44,6 +44,10 @@ Deno.serve(async (req) => {
             sendEvent({ type: "step_start", step: stepNum, tool: name, label: humanLabel(name) });
             const t0 = Date.now();
             try {
+              // Wave A (TI-1/2/3) : `requireUser` (utilisateur Supabase core)
+              // ne porte pas de claim `allowed_societies` → workflow non scopé
+              // (rétrocompatible). Injecter ici le périmètre si le core adopte
+              // sa propre multi-tenance.
               const result = await runTool(name as ToolName, args, { user_id: user.id });
               sendEvent({
                 type: "step_done", step: stepNum, tool: name,

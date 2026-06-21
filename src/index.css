@@ -769,3 +769,112 @@
     cursor: not-allowed;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   SIGNATURE Atlas Studio — kinetic hero, constellation OHADA, data tape
+   (palette de marque : kaki #A9B57E / clair #C2CC92)
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Constellation : pulsation lente, calée par État (delay inline) */
+@keyframes ohada-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.55; }
+  50%      { transform: scale(1.6); opacity: 0.25; }
+}
+.ohada-pulse {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: ohada-pulse 4.2s ease-in-out infinite;
+}
+
+/* Grille technique de fond — sensation futuriste, mathématique */
+.hero-techgrid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, #000 0%, transparent 75%);
+}
+.hero-techgrid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(169,181,126,0.18) 0.5px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(169,181,126,0.10) 0.5px, transparent 1px);
+  background-size: 112px 112px;
+  pointer-events: none;
+}
+
+/* Bande de données défilante (ticker) */
+@keyframes data-tape-scroll {
+  from { transform: translate3d(0,0,0); }
+  to   { transform: translate3d(-50%,0,0); }
+}
+.data-tape {
+  display: flex;
+  width: max-content;
+  animation: data-tape-scroll 60s linear infinite;
+  will-change: transform;
+}
+.data-tape:hover { animation-play-state: paused; }
+
+/* Mot kinétique : dégradé kaki → champagne sur emphase */
+.kinetic-word {
+  font-style: italic;
+  background: linear-gradient(120deg, #D6DDB3 0%, #A9B57E 50%, #C8A672 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.015em;
+}
+
+/* LED méta — petit indicateur pulsant */
+.meta-led {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #A9B57E;
+  box-shadow: 0 0 8px rgba(169,181,126,0.7);
+  animation: glow-pulse 2.4s ease-in-out infinite;
+}
+
+/* Type mono éditorial */
+.meta-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}
+
+/* CTA fleche premium — remplace les boutons pour un effet éditorial */
+.cta-arrow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  color: #F5F5F5;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  position: relative;
+  padding: 0.25rem 0;
+  transition: gap .35s cubic-bezier(.2,.7,.2,1), color .25s;
+}
+.cta-arrow::after {
+  content: "→";
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  color: #A9B57E;
+  transition: transform .35s cubic-bezier(.2,.7,.2,1);
+}
+.cta-arrow:hover { gap: 1rem; color: #FFF; }
+.cta-arrow:hover::after { transform: translateX(4px); }
+
+.cta-arrow--primary {
+  color: #1a1c12;
+  background: linear-gradient(120deg, #D6DDB3 0%, #A9B57E 100%);
+  padding: 0.7rem 1.1rem 0.7rem 1.4rem;
+  border-radius: 999px;
+}
+.cta-arrow--primary::after { color: #1a1c12; }
+.cta-arrow--primary:hover { color: #000; }
+

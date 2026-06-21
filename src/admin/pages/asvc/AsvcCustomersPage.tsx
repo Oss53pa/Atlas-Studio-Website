@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Sparkles, Loader2, Users, AlertCircle } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { usePaged, PaginationBar } from '../../components/PaginationBar';
+import { CardListSkeleton } from '../../components/AsvcSkeletons';
 import { useClientsLifecycle, timeAgoFr } from './hooks';
 import {
   LIFECYCLE_LABELS,
@@ -44,8 +46,10 @@ export default function AsvcCustomersPage() {
     return c;
   }, [rows]);
 
+  const { pageItems, page, setPage, totalPages, total, pageSize } = usePaged(filtered, 20);
+
   return (
-    <div className="max-w-6xl">
+    <div>
       <AdminPageHeader
         title="Customer Lifecycle"
         subtitle="Étape de cycle de vie de chaque client — l'agent Customer Success peut drafter l'outreach approprié"
@@ -91,7 +95,7 @@ export default function AsvcCustomersPage() {
         </div>
       )}
 
-      {loading && <p className="text-neutral-500 text-sm">Chargement...</p>}
+      {loading && <CardListSkeleton />}
 
       {!loading && filtered.length === 0 && (
         <div className="rounded-xl border border-white/5 bg-onyx-light/20 py-12 px-6 text-center">
@@ -101,7 +105,7 @@ export default function AsvcCustomersPage() {
       )}
 
       <div className="space-y-2">
-        {filtered.map((r) => {
+        {pageItems.map((r) => {
           const goal = STAGE_TO_GOAL[r.stage];
           const isPending = pendingClientId === r.client_id;
           const daysSinceSignup = r.signal_payload.days_since_signup ?? null;
@@ -160,6 +164,8 @@ export default function AsvcCustomersPage() {
           );
         })}
       </div>
+
+      <PaginationBar page={page} totalPages={totalPages} total={total} pageSize={pageSize} onPage={setPage} />
     </div>
   );
 }

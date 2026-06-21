@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { BookOpen, Check, FileText, Loader2, RotateCcw, Save, X, Power } from 'lucide-react';
 import { AdminPageHeader } from '../../components/AdminPageHeader';
+import { useToast } from '../../contexts/ToastContext';
 import { useAgents, useAgentPromptVersions, timeAgoFr } from './hooks';
 import type { AgentPromptVersion } from './types';
 
@@ -22,7 +23,7 @@ export default function AsvcAgentPromptsPage() {
     <div className="max-w-7xl">
       <AdminPageHeader
         title="System prompts agents"
-        subtitle="Édite les system prompts en DB — itère sans redéploiement. Fallback hardcodé si aucune version active."
+        subtitle="Édite les system prompts en base — itère sans redéploiement. Sans version active, l'agent utilise son prompt par défaut (livré avec le code)."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
@@ -72,6 +73,7 @@ export default function AsvcAgentPromptsPage() {
 function AgentPromptPanel({ agentCode, agentName }: { agentCode: string; agentName: string }) {
   const { versions, loading, saving, error, createVersion, activateVersion, deactivateActive } =
     useAgentPromptVersions(agentCode);
+  const { success, error: toastError } = useToast();
   const [draft, setDraft] = useState('');
   const [notes, setNotes] = useState('');
   const [showEditor, setShowEditor] = useState(false);
@@ -81,10 +83,33 @@ function AgentPromptPanel({ agentCode, agentName }: { agentCode: string; agentNa
 
   const handleSave = async () => {
     if (!draft.trim()) return;
-    await createVersion(draft, notes.trim() || null);
-    setDraft('');
-    setNotes('');
-    setShowEditor(false);
+    try {
+      await createVersion(draft, notes.trim() || null);
+      setDraft('');
+      setNotes('');
+      setShowEditor(false);
+      success(`Nouvelle version du prompt « ${agentName} » enregistrée et activée.`);
+    } catch (e) {
+      toastError(`Échec de l'enregistrement : ${(e as Error).message}`);
+    }
+  };
+
+  const handleActivate = async (v: AgentPromptVersion) => {
+    try {
+      await activateVersion(v.id);
+      success(`Version v${v.version} activée pour « ${agentName} ».`);
+    } catch (e) {
+      toastError(`Échec de l'activation : ${(e as Error).message}`);
+    }
+  };
+
+  const handleDeactivate = async () => {
+    try {
+      await deactivateActive();
+      success(`Retour au prompt par défaut pour « ${agentName} ».`);
+    } catch (e) {
+      toastError(`Échec : ${(e as Error).message}`);
+    }
   };
 
   const handleStartFromActive = () => {
@@ -108,7 +133,7 @@ function AgentPromptPanel({ agentCode, agentName }: { agentCode: string; agentNa
               </span>
             ) : (
               <span className="text-neutral-500">
-                Aucune version DB active — fallback hardcodé utilisé par l'agent.
+                Aucune version en base — l'agent utilise son prompt par défaut (livré avec le code).
               </span>
             )}
           </div>
@@ -125,10 +150,10 @@ function AgentPromptPanel({ agentCode, agentName }: { agentCode: string; agentNa
           )}
           {activeVersion && !showEditor && (
             <button
-              onClick={deactivateActive}
+              onClick={handleDeactivate}
               disabled={saving}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-300 text-[11.5px] transition disabled:opacity-50"
-              title="Désactive la version DB → retour au prompt hardcodé"
+              title="Désactive la version DB → retour au prompt par défaut"
             >
               <Power size={12} />
               Retour fallback
@@ -207,7 +232,7 @@ function AgentPromptPanel({ agentCode, agentName }: { agentCode: string; agentNa
         {loading && <p className="text-neutral-500 text-[12px]">Chargement...</p>}
         {!loading && versions.length === 0 && (
           <p className="text-neutral-500 text-[12px] italic">
-            Aucune version éditée pour le moment. L'agent utilise le prompt hardcodé par défaut.
+            Aucune version éditée pour le moment. L'agent utilise son prompt par défaut (livré avec le code).
           </p>
         )}
         <ul className="space-y-1.5">
@@ -243,7 +268,7 @@ function AgentPromptPanel({ agentCode, agentName }: { agentCode: string; agentNa
               </button>
               {!v.is_active && (
                 <button
-                  onClick={() => activateVersion(v.id)}
+                  onClick={() => handleActivate(v)}
                   disabled={saving}
                   className="inline-flex items-center gap-1 text-[11px] text-admin-accent hover:bg-admin-accent/10 px-2 py-1 rounded disabled:opacity-50"
                   title="Réactive cette version"

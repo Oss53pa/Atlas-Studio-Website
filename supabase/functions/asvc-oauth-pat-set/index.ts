@@ -220,7 +220,10 @@ Deno.serve(async (req) => {
   if (!body.provider || !VALID_PROVIDERS.includes(body.provider)) {
     return errorResponse(`provider invalide: ${body.provider}`, 400);
   }
-  if (!body.token || body.token.length < 10) {
+  // Nettoie le token : un copier-coller depuis l'UI ajoute souvent un
+  // espace / retour-ligne final → GitHub renvoie 401 "Bad credentials".
+  const token = (body.token ?? "").trim();
+  if (token.length < 10) {
     return errorResponse("token manquant ou trop court", 400);
   }
 
@@ -228,16 +231,16 @@ Deno.serve(async (req) => {
   let validation: ValidationResult;
   switch (body.provider) {
     case "github":
-      validation = await validateGithubPat(body.token);
+      validation = await validateGithubPat(token);
       break;
     case "vercel":
-      validation = await validateVercelPat(body.token);
+      validation = await validateVercelPat(token);
       break;
     case "sentry":
-      validation = await validateSentryPat(body.token);
+      validation = await validateSentryPat(token);
       break;
     case "apollo":
-      validation = await validateApolloKey(body.token);
+      validation = await validateApolloKey(token);
       break;
   }
 
@@ -254,7 +257,7 @@ Deno.serve(async (req) => {
   const { error: setErr } = await supabaseAdmin.rpc("asvc_oauth_set_token", {
     p_provider: body.provider,
     p_account_email: validation.account_email,
-    p_refresh_token: body.token,
+    p_refresh_token: token,
     p_master_key: masterKey,
     p_access_token: null,                  // PATs sont leur propre access token
     p_expires_at: null,

@@ -35,7 +35,7 @@ export default function AsvcPipelinePage() {
   const [signalModalOpen, setSignalModalOpen] = useState(false);
 
   return (
-    <div className="max-w-[1600px]">
+    <div>
       <AdminPageHeader
         title="Pipeline Produit"
         subtitle="R&D → Build → Release — cycle de vie produit complet, géré par les 7 agents R&D + Production"
@@ -209,13 +209,13 @@ function Column({
   };
 
   return (
-    <div className="bg-onyx-light/20 border border-white/5 rounded-xl p-3 min-h-[400px]">
-      <div className={`flex items-center gap-2 mb-3 pb-2 border-b ${accentClasses[accent]}`}>
+    <div className="bg-onyx-light/20 border border-white/5 rounded-xl p-3 flex flex-col max-h-[calc(100vh-220px)]">
+      <div className={`flex items-center gap-2 mb-3 pb-2 border-b flex-shrink-0 ${accentClasses[accent]}`}>
         <Icon size={14} />
         <span className="text-[12px] font-semibold uppercase tracking-wider">{title}</span>
         <span className="ml-auto text-[11px] opacity-70 font-mono">{count}</span>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 overflow-y-auto flex-1 -mr-1 pr-1 scrollbar-thin">
         {count === 0 && (
           <div className="text-neutral-600 text-[11px] italic text-center py-6">{empty}</div>
         )}

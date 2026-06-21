@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
               method: "POST",
               headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
               body: JSON.stringify({
-                from: "Atlas Studio <notifications@atlasstudio.org>",
+                from: "Atlas Studio <notifications@atlas-studio.org>",
                 to: [email],
                 subject: "Bienvenue sur Atlas Studio — Vos identifiants",
                 html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
                   </div>
                   <div style="text-align:center;padding:20px;color:#999;font-size:12px;">
                     Atlas Studio — Solutions digitales professionnelles<br>
-                    Si vous n'attendiez pas cet email, contactez-nous à support@atlasstudio.org
+                    Si vous n'attendiez pas cet email, contactez-nous à support@atlas-studio.org
                   </div>
                 </div>`,
               }),

@@ -1,197 +1,278 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// Proph3t — L3 : ATLASBANX (Banking)
-// 5 tools : echeancier credit, scoring credit, virement multiple, reconcile interbank, alertes prudentielles
+// Proph3t — L3 : ATLASBANX (Audit d'anomalies de relevés bancaires CEMAC/UEMOA)
+// ═══════════════════════════════════════════════════════════════════════════
+// Aligné sur le registry proph3t_apps : domaine FINANCE_AUDIT, mode strict.
+// AtlasBanx (codename Scrutix) détecte les anomalies des relevés bancaires :
+// frais dupliqués, ghost fees, surfacturations, erreurs d'intérêts. 5 tools de
+// détection statistique : loi de Benford, Z-score, ghost fees, score de risque
+// global, rapport d'audit. (Les anciens tools « opérations crédit/virements »
+// étaient hors-métier — voir audit 360° §Uniformité.)
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { formatMoneyFcfa } from "./calculators.ts";
 
-export function computeEcheancierCredit(args: {
-  capital_centimes: string | bigint;
-  taux_annuel_pct: number;
-  duree_mois: number;
-  type: "amortissement_constant" | "annuites_constantes" | "in_fine";
+/**
+ * Loi de Benford sur le premier chiffre significatif des montants. Détecte les
+ * distributions anormales (saisies manuelles, fraude). Seuil de conformité basé
+ * sur le MAD (Mean Absolute Deviation, Nigrini).
+ */
+export function applyBenfordAnalysis(args: {
+  montants: number[];
 }): {
   ok: boolean;
-  echeancier: { mois: number; capital_du_centimes: string; interets_centimes: string; principal_centimes: string; mensualite_centimes: string; capital_restant_centimes: string }[];
-  total_interets_centimes: string;
-  cout_total_credit_centimes: string;
-  mensualite_si_constante_centimes?: string;
+  n: number;
+  distribution: { chiffre: number; observe_pct: number; attendu_pct: number; ecart_pct: number }[];
+  mad: number;
+  conformite: "conforme" | "acceptable" | "non_conforme" | "suspect";
+  message: string;
 } {
-  const cap = BigInt(args.capital_centimes);
-  const tauxMensuel = args.taux_annuel_pct / 12 / 100;
-  const echeancier: any[] = [];
-  let restant = cap;
-  let totalInterets = 0n;
-
-  if (args.type === "annuites_constantes") {
-    const r = tauxMensuel;
-    const n = args.duree_mois;
-    const mens = r > 0 ? Math.round(Number(cap) * r / (1 - Math.pow(1 + r, -n))) : Math.round(Number(cap) / n);
-    const mensBn = BigInt(mens);
-    for (let m = 1; m <= n; m++) {
-      const interets = (restant * BigInt(Math.round(tauxMensuel * 1_000_000))) / 1_000_000n;
-      const principal = mensBn - interets;
-      restant -= principal;
-      totalInterets += interets;
-      echeancier.push({
-        mois: m, capital_du_centimes: (restant + principal).toString(),
-        interets_centimes: interets.toString(),
-        principal_centimes: principal.toString(),
-        mensualite_centimes: mensBn.toString(),
-        capital_restant_centimes: (restant > 0n ? restant : 0n).toString(),
-      });
-    }
-    return { ok: true, echeancier, total_interets_centimes: totalInterets.toString(), cout_total_credit_centimes: (cap + totalInterets).toString(), mensualite_si_constante_centimes: mensBn.toString() };
-  } else if (args.type === "amortissement_constant") {
-    const principal = cap / BigInt(args.duree_mois);
-    for (let m = 1; m <= args.duree_mois; m++) {
-      const interets = (restant * BigInt(Math.round(tauxMensuel * 1_000_000))) / 1_000_000n;
-      restant -= principal;
-      totalInterets += interets;
-      echeancier.push({
-        mois: m, capital_du_centimes: (restant + principal).toString(),
-        interets_centimes: interets.toString(),
-        principal_centimes: principal.toString(),
-        mensualite_centimes: (principal + interets).toString(),
-        capital_restant_centimes: (restant > 0n ? restant : 0n).toString(),
-      });
-    }
-  } else {
-    // in_fine : pas de remboursement avant la fin
-    for (let m = 1; m < args.duree_mois; m++) {
-      const interets = (cap * BigInt(Math.round(tauxMensuel * 1_000_000))) / 1_000_000n;
-      totalInterets += interets;
-      echeancier.push({
-        mois: m, capital_du_centimes: cap.toString(), interets_centimes: interets.toString(),
-        principal_centimes: "0", mensualite_centimes: interets.toString(), capital_restant_centimes: cap.toString(),
-      });
-    }
-    const interetsFin = (cap * BigInt(Math.round(tauxMensuel * 1_000_000))) / 1_000_000n;
-    totalInterets += interetsFin;
-    echeancier.push({ mois: args.duree_mois, capital_du_centimes: cap.toString(), interets_centimes: interetsFin.toString(), principal_centimes: cap.toString(), mensualite_centimes: (cap + interetsFin).toString(), capital_restant_centimes: "0" });
+  const compte = [0, 0, 0, 0, 0, 0, 0, 0, 0]; // chiffres 1..9
+  let n = 0;
+  for (const m of args.montants) {
+    const v = Math.abs(m);
+    if (v < 1) continue;
+    const s = Math.floor(v).toString();
+    const d = parseInt(s[0], 10);
+    if (d >= 1 && d <= 9) { compte[d - 1]++; n++; }
   }
 
-  return { ok: true, echeancier, total_interets_centimes: totalInterets.toString(), cout_total_credit_centimes: (cap + totalInterets).toString() };
+  const distribution: { chiffre: number; observe_pct: number; attendu_pct: number; ecart_pct: number }[] = [];
+  let sommeEcart = 0;
+  for (let d = 1; d <= 9; d++) {
+    const attendu = Math.log10(1 + 1 / d) * 100;
+    const observe = n > 0 ? (compte[d - 1] / n) * 100 : 0;
+    const ecart = observe - attendu;
+    sommeEcart += Math.abs(ecart) / 100; // MAD en proportion
+    distribution.push({
+      chiffre: d,
+      observe_pct: Math.round(observe * 100) / 100,
+      attendu_pct: Math.round(attendu * 100) / 100,
+      ecart_pct: Math.round(ecart * 100) / 100,
+    });
+  }
+  const mad = n > 0 ? sommeEcart / 9 : 0;
+
+  // Seuils Nigrini : <0.006 conforme, <0.012 acceptable, <0.015 marginal, sinon non-conforme.
+  const conformite: "conforme" | "acceptable" | "non_conforme" | "suspect" =
+    n < 30 ? "suspect"
+      : mad < 0.006 ? "conforme"
+        : mad < 0.012 ? "acceptable"
+          : mad < 0.015 ? "non_conforme"
+            : "suspect";
+
+  const message = n < 30
+    ? `Échantillon trop faible (${n} montants) — Benford non significatif (min 30)`
+    : `MAD = ${mad.toFixed(4)} → distribution ${conformite}`;
+
+  return { ok: true, n, distribution, mad: Math.round(mad * 10000) / 10000, conformite, message };
 }
 
-export function scoreCreditDemande(args: {
-  revenus_mensuels_centimes: string | bigint;
-  charges_fixes_centimes: string | bigint;
-  apport_centimes: string | bigint;
-  montant_credit_centimes: string | bigint;
-  duree_mois: number;
-  taux_annuel_pct: number;
-  garanties: ("hypotheque" | "caution" | "nantissement" | "aucune")[];
-  historique_bancaire_score?: 1 | 2 | 3 | 4 | 5;
-}): { ok: boolean; score: number; verdict: "accord" | "etude_complementaire" | "refus"; taux_endettement_pct: number; ratio_apport_pct: number; recommendations: string[] } {
-  const rev = Number(BigInt(args.revenus_mensuels_centimes));
-  const charges = Number(BigInt(args.charges_fixes_centimes));
-  const apport = Number(BigInt(args.apport_centimes));
-  const credit = Number(BigInt(args.montant_credit_centimes));
-  const tauxMensuel = args.taux_annuel_pct / 12 / 100;
-  const mensualite = tauxMensuel > 0 ? credit * tauxMensuel / (1 - Math.pow(1 + tauxMensuel, -args.duree_mois)) : credit / args.duree_mois;
-  const tauxEndettement = rev > 0 ? ((charges + mensualite) / rev) * 100 : 100;
-  const ratioApport = (apport / (apport + credit)) * 100;
-
-  let score = 0;
-  if (tauxEndettement < 33) score += 30; else if (tauxEndettement < 40) score += 15; else score -= 20;
-  if (ratioApport >= 30) score += 25; else if (ratioApport >= 20) score += 15; else if (ratioApport >= 10) score += 5;
-  if (args.garanties.includes("hypotheque")) score += 20;
-  else if (args.garanties.includes("caution")) score += 12;
-  else if (args.garanties.includes("nantissement")) score += 10;
-  else score -= 10;
-  if (args.historique_bancaire_score) score += args.historique_bancaire_score * 5;
-
-  const verdict: "accord" | "etude_complementaire" | "refus" =
-    score >= 70 ? "accord" : score >= 40 ? "etude_complementaire" : "refus";
-  const recos: string[] = [];
-  if (tauxEndettement >= 33) recos.push(`Taux endettement ${tauxEndettement.toFixed(1)}% > 33% — augmenter apport ou allonger duree`);
-  if (ratioApport < 20) recos.push("Apport < 20% — exiger garantie hypothecaire");
-  if (verdict === "refus") recos.push("Refuser ou demander co-emprunteur solvable");
-
-  return { ok: true, score: Math.max(0, score), verdict, taux_endettement_pct: Math.round(tauxEndettement * 100) / 100, ratio_apport_pct: Math.round(ratioApport * 100) / 100, recommendations: recos };
-}
-
-export function executeBatchVirements(args: {
-  virements: { id: string; iban_destinataire: string; nom_destinataire: string; montant_centimes: string | bigint; libelle: string }[];
-  compte_emetteur_solde_centimes: string | bigint;
-  limite_journaliere_centimes?: string | bigint;
+/**
+ * Z-score sur une série d'opérations : isole les montants statistiquement
+ * aberrants (|z| > seuil).
+ */
+export function computeZscoreAnomalies(args: {
+  operations: { id: string; montant: number; libelle?: string }[];
+  seuil_z?: number;
 }): {
   ok: boolean;
-  virements_valides: string[];
-  virements_rejetes: { id: string; raison: string }[];
-  total_debite_centimes: string;
-  solde_apres_centimes: string;
-  cumul_journalier_atteint: boolean;
+  n: number;
+  moyenne: number;
+  ecart_type: number;
+  seuil_z: number;
+  anomalies: { id: string; montant: number; z_score: number; severite: "warning" | "critical"; libelle?: string }[];
 } {
-  let solde = BigInt(args.compte_emetteur_solde_centimes);
-  const limite = args.limite_journaliere_centimes ? BigInt(args.limite_journaliere_centimes) : null;
-  let cumul = 0n;
-  const valides: string[] = [];
-  const rejetes: any[] = [];
-  let limiteAtteinte = false;
+  const seuil = args.seuil_z ?? 3;
+  const n = args.operations.length;
+  const vals = args.operations.map((o) => o.montant);
+  const moyenne = n > 0 ? vals.reduce((a, b) => a + b, 0) / n : 0;
+  const variance = n > 0 ? vals.reduce((a, b) => a + (b - moyenne) ** 2, 0) / n : 0;
+  const ecartType = Math.sqrt(variance);
 
-  for (const v of args.virements) {
-    const m = BigInt(v.montant_centimes);
-    if (!/^[A-Z]{2}\d{2}[\sA-Z0-9]{15,30}$/.test(v.iban_destinataire.replace(/\s/g, ""))) {
-      rejetes.push({ id: v.id, raison: "IBAN invalide" }); continue;
-    }
-    if (m > solde) { rejetes.push({ id: v.id, raison: "Solde insuffisant" }); continue; }
-    if (limite && cumul + m > limite) { rejetes.push({ id: v.id, raison: "Limite journaliere atteinte" }); limiteAtteinte = true; continue; }
-    solde -= m; cumul += m; valides.push(v.id);
-  }
+  const anomalies = ecartType === 0
+    ? []
+    : args.operations
+        .map((o) => {
+          const z = (o.montant - moyenne) / ecartType;
+          return { id: o.id, montant: o.montant, z_score: Math.round(z * 100) / 100, severite: (Math.abs(z) > seuil + 2 ? "critical" : "warning") as "warning" | "critical", libelle: o.libelle };
+        })
+        .filter((a) => Math.abs(a.z_score) > seuil);
+
   return {
     ok: true,
-    virements_valides: valides,
-    virements_rejetes: rejetes,
-    total_debite_centimes: cumul.toString(),
-    solde_apres_centimes: solde.toString(),
-    cumul_journalier_atteint: limiteAtteinte,
+    n,
+    moyenne: Math.round(moyenne * 100) / 100,
+    ecart_type: Math.round(ecartType * 100) / 100,
+    seuil_z: seuil,
+    anomalies,
   };
 }
 
-export function reconcileInterbank(args: {
-  envois: { id: string; date: string; montant_centimes: string | bigint; reference: string; banque_distante: string }[];
-  reception_distante: { id: string; date: string; montant_centimes: string | bigint; reference: string }[];
-  tolerance_jours?: number;
-}): { ok: boolean; matched: { envoi_id: string; reception_id: string }[]; envois_non_matches: string[]; receptions_non_matchees: string[] } {
-  const tol = args.tolerance_jours ?? 2;
-  const matched: any[] = [];
-  const seenR = new Set<string>();
-  const seenE = new Set<string>();
-  for (const e of args.envois) {
-    const r = args.reception_distante.find(rc =>
-      !seenR.has(rc.id) && rc.reference === e.reference &&
-      BigInt(rc.montant_centimes) === BigInt(e.montant_centimes) &&
-      Math.abs(new Date(rc.date).getTime() - new Date(e.date).getTime()) / 86400000 <= tol,
-    );
-    if (r) { matched.push({ envoi_id: e.id, reception_id: r.id }); seenE.add(e.id); seenR.add(r.id); }
+/**
+ * Détecte les « ghost fees » : frais dupliqués (même date/libellé/montant),
+ * surfacturations (montant > grille tarifaire), récurrences anormales.
+ */
+export function detectGhostFees(args: {
+  frais: { id: string; date: string; libelle: string; montant_centimes: string | bigint }[];
+  grille_attendue?: { libelle: string; montant_max_centimes: string | bigint }[];
+}): {
+  ok: boolean;
+  ghost_fees: { id: string; type: "doublon" | "hors_grille" | "recurrence_anormale"; montant_centimes: string; raison: string }[];
+  total_suspect_centimes: string;
+  total_suspect_formatted: string;
+  nb_anomalies: number;
+} {
+  const ghost: { id: string; type: "doublon" | "hors_grille" | "recurrence_anormale"; montant_centimes: string; raison: string }[] = [];
+  const flagged = new Set<string>();
+
+  const norm = (s: string) => s.trim().toLowerCase();
+  const grille = new Map<string, bigint>();
+  for (const g of args.grille_attendue ?? []) grille.set(norm(g.libelle), BigInt(g.montant_max_centimes));
+
+  // Doublons exacts : même date + libellé + montant.
+  const vus = new Map<string, string>();
+  for (const f of args.frais) {
+    const key = `${f.date}|${norm(f.libelle)}|${BigInt(f.montant_centimes).toString()}`;
+    if (vus.has(key)) {
+      ghost.push({ id: f.id, type: "doublon", montant_centimes: BigInt(f.montant_centimes).toString(), raison: `Doublon de ${vus.get(key)} (même date/libellé/montant)` });
+      flagged.add(f.id);
+    } else {
+      vus.set(key, f.id);
+    }
   }
+
+  // Hors grille tarifaire.
+  for (const f of args.frais) {
+    if (flagged.has(f.id)) continue;
+    const max = grille.get(norm(f.libelle));
+    const montant = BigInt(f.montant_centimes);
+    if (max !== undefined && montant > max) {
+      ghost.push({ id: f.id, type: "hors_grille", montant_centimes: (montant - max).toString(), raison: `Surfacturation : ${formatMoneyFcfa(montant)} > plafond ${formatMoneyFcfa(max)}` });
+      flagged.add(f.id);
+    }
+  }
+
+  // Récurrence anormale : même libellé prélevé > 1 fois sur la période (hors grille connue).
+  const compteLibelle = new Map<string, number>();
+  for (const f of args.frais) {
+    if (flagged.has(f.id)) continue;
+    compteLibelle.set(norm(f.libelle), (compteLibelle.get(norm(f.libelle)) ?? 0) + 1);
+  }
+  for (const f of args.frais) {
+    if (flagged.has(f.id)) continue;
+    const c = compteLibelle.get(norm(f.libelle)) ?? 0;
+    if (c >= 3 && !grille.has(norm(f.libelle))) {
+      ghost.push({ id: f.id, type: "recurrence_anormale", montant_centimes: BigInt(f.montant_centimes).toString(), raison: `Frais « ${f.libelle} » prélevé ${c}× sur la période — vérifier la justification` });
+      flagged.add(f.id);
+    }
+  }
+
+  let total = 0n;
+  for (const g of ghost) total += BigInt(g.montant_centimes);
+
   return {
-    ok: true, matched,
-    envois_non_matches: args.envois.filter(e => !seenE.has(e.id)).map(e => e.id),
-    receptions_non_matchees: args.reception_distante.filter(r => !seenR.has(r.id)).map(r => r.id),
+    ok: true,
+    ghost_fees: ghost,
+    total_suspect_centimes: total.toString(),
+    total_suspect_formatted: formatMoneyFcfa(total),
+    nb_anomalies: ghost.length,
   };
 }
 
-export function alertesPrudentielles(args: {
-  fonds_propres_centimes: string | bigint;
-  total_engagements_centimes: string | bigint;
-  ratio_solvabilite_minimum?: number;
-  liquidite_court_terme_centimes?: string | bigint;
-  exigibilites_court_terme_centimes?: string | bigint;
-}): { ok: boolean; alertes: { code: string; severity: "info" | "warning" | "critical"; metric: string; valeur: number; seuil: number; message: string }[]; conformite_globale: boolean } {
-  const fp = BigInt(args.fonds_propres_centimes);
-  const eng = BigInt(args.total_engagements_centimes);
-  const ratioMin = args.ratio_solvabilite_minimum ?? 9;
-  const ratioSolv = eng > 0n ? (Number(fp) / Number(eng)) * 100 : 100;
-  const alertes: any[] = [];
-  if (ratioSolv < ratioMin) alertes.push({ code: "SOLVABILITE", severity: "critical", metric: "Ratio solvabilite (Bale)", valeur: Math.round(ratioSolv * 100) / 100, seuil: ratioMin, message: "Sous le seuil prudentiel — recapitaliser ou reduire engagements" });
-  if (args.liquidite_court_terme_centimes && args.exigibilites_court_terme_centimes) {
-    const liq = Number(BigInt(args.liquidite_court_terme_centimes));
-    const exi = Number(BigInt(args.exigibilites_court_terme_centimes));
-    const lcr = exi > 0 ? (liq / exi) * 100 : 100;
-    if (lcr < 100) alertes.push({ code: "LIQUIDITE", severity: lcr < 80 ? "critical" : "warning", metric: "LCR", valeur: Math.round(lcr * 100) / 100, seuil: 100, message: "Sous-liquidite court terme" });
-  }
-  return { ok: true, alertes, conformite_globale: alertes.filter(a => a.severity === "critical").length === 0 };
+/**
+ * Agrège les détecteurs en un score de risque global 0-100 par compte/client.
+ */
+export function scoreBankRiskGlobal(args: {
+  nb_anomalies_benford: number;
+  nb_anomalies_zscore: number;
+  nb_ghost_fees: number;
+  montant_suspect_centimes: string | bigint;
+  montant_total_centimes: string | bigint;
+  nb_operations: number;
+}): {
+  ok: boolean;
+  score_risque: number;
+  niveau: "faible" | "modere" | "eleve" | "critique";
+  ratio_montant_suspect_pct: number;
+  recommandations: string[];
+} {
+  const total = Number(BigInt(args.montant_total_centimes));
+  const suspect = Number(BigInt(args.montant_suspect_centimes));
+  const ratio = total > 0 ? (suspect / total) * 100 : 0;
+  const ops = Math.max(1, args.nb_operations);
+
+  let score = 0;
+  score += Math.min(25, (args.nb_anomalies_benford / ops) * 100 * 5);
+  score += Math.min(20, (args.nb_anomalies_zscore / ops) * 100 * 4);
+  score += Math.min(30, args.nb_ghost_fees * 6);
+  score += Math.min(25, ratio * 2.5);
+  score = Math.round(Math.min(100, score));
+
+  const niveau: "faible" | "modere" | "eleve" | "critique" =
+    score >= 75 ? "critique" : score >= 50 ? "eleve" : score >= 25 ? "modere" : "faible";
+
+  const recos: string[] = [];
+  if (args.nb_ghost_fees > 0) recos.push(`${args.nb_ghost_fees} ghost fee(s) détecté(s) — réclamer le remboursement à la banque`);
+  if (ratio > 5) recos.push(`Montant suspect = ${ratio.toFixed(1)}% du total — diligence approfondie requise`);
+  if (args.nb_anomalies_benford > 0) recos.push("Distribution de Benford anormale — contrôler les saisies manuelles / écritures forcées");
+  if (niveau === "critique") recos.push("Risque critique — escalade au commissaire aux comptes / direction financière");
+
+  return {
+    ok: true,
+    score_risque: score,
+    niveau,
+    ratio_montant_suspect_pct: Math.round(ratio * 100) / 100,
+    recommandations: recos,
+  };
+}
+
+/**
+ * Génère un rapport d'audit des anomalies (format SYSCOHADA, prêt à signer).
+ */
+export function generateAuditReportAnomalies(args: {
+  client: string;
+  periode: string;
+  banque?: string;
+  score_risque: number;
+  anomalies: { type: string; description: string; montant_centimes?: string | bigint; severite?: "info" | "warning" | "critical" }[];
+}): {
+  ok: boolean;
+  rapport_markdown: string;
+  nb_anomalies: number;
+  nb_critiques: number;
+  montant_total_anomalies_centimes: string;
+} {
+  const nbCritiques = args.anomalies.filter((a) => a.severite === "critical").length;
+  let total = 0n;
+  for (const a of args.anomalies) if (a.montant_centimes !== undefined) total += BigInt(a.montant_centimes);
+
+  const lignes = args.anomalies
+    .map((a, i) => {
+      const sev = a.severite === "critical" ? "🔴" : a.severite === "warning" ? "🟠" : "🔵";
+      const montant = a.montant_centimes !== undefined ? ` — ${formatMoneyFcfa(BigInt(a.montant_centimes))}` : "";
+      return `${i + 1}. ${sev} **${a.type}** — ${a.description}${montant}`;
+    })
+    .join("\n");
+
+  const md = `# Rapport d'audit bancaire — ${args.client}
+
+**Période auditée :** ${args.periode}${args.banque ? `  ·  **Banque :** ${args.banque}` : ""}
+**Score de risque global :** ${args.score_risque}/100
+
+## Anomalies détectées (${args.anomalies.length})
+${lignes || "_Aucune anomalie détectée sur la période._"}
+
+## Synthèse
+- Anomalies critiques : ${nbCritiques}
+- Montant total des anomalies : ${formatMoneyFcfa(total)}
+
+> Rapport généré par AtlasBanx (18 détecteurs statistiques + IA). Décision finale : votre responsabilité, validation expert-comptable recommandée.`;
+
+  return {
+    ok: true,
+    rapport_markdown: md,
+    nb_anomalies: args.anomalies.length,
+    nb_critiques: nbCritiques,
+    montant_total_anomalies_centimes: total.toString(),
+  };
 }

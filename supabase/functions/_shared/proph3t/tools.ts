@@ -2,6 +2,7 @@
 // Chaque tool: declaration JSON Schema + runner que l'orchestrateur appelle.
 
 import { supabaseAdmin } from "../supabase.ts";
+import { enforceTenantScope } from "./tenant_scope.ts";
 import type { OllamaTool } from "./ollama.ts";
 import { embed } from "./ollama.ts";
 import {
@@ -1201,6 +1202,13 @@ export const TOOL_DECLARATIONS: OllamaTool[] = [
  */
 export interface ToolContext {
   user_id?: string;
+  /**
+   * Périmètre tenant autorisé, issu du token SSO signé (claim
+   * `allowed_societies`). Propagé par les endpoints via `getFederationUser`.
+   * `undefined` → pas d'enforcement (rétrocompatible) ; `string[]` →
+   * fail-closed sur `args.society_id` / `args.tenant_id`. (Wave A — TI-1/2/3)
+   */
+  allowed_societies?: string[];
 }
 
 export async function runTool(
@@ -1208,6 +1216,12 @@ export async function runTool(
   args: Record<string, unknown>,
   ctx?: ToolContext,
 ): Promise<unknown> {
+  // Wave A (Audit 360° — TI-1/2/3) : un appelant scopé (token SSO portant
+  // `allowed_societies`) ne peut toucher QUE ses tenants. No-op quand le claim
+  // est absent. Appliqué AVANT le dispatch — couvre aussi les sous-appels des
+  // workflows (qui forwardent `ctx`) et le dispatcher L3.
+  enforceTenantScope({ tool: name, args, allowedSocieties: ctx?.allowed_societies });
+
   switch (name) {
     // ─── Data L1 (legacy + core) ───
     case "search_knowledge": {
@@ -1777,8 +1791,11 @@ function buildToolDomainMapStatic(): Map<string, string> {
   for (const t of ["workflow_audit_complet_societe", "workflow_closing_mensuel", "workflow_due_diligence_lite", "workflow_simulation_recrutement", "workflow_analyse_client_360", "workflow_closing_annuel", "workflow_paie_mensuelle", "workflow_audit_juridique"]) m.set(t, "workflows");
   // L3
   for (const t of ["compute_kpi_dashboard", "detect_cycle_breaks", "forecast_dso_evolution", "compute_grand_livre_summary", "validate_clos_exercice", "compute_immobilisations_amortissements", "detect_ecart_inventaire", "generate_situation_intermediaire"]) m.set(t, "cockpit-fa");
-  for (const t of ["compute_paie_batch", "compute_indemnite_transport", "compute_heures_supp", "validate_avenant_salaire", "compute_solde_tout_compte", "forecast_masse_salariale"]) m.set(t, "wisehr");
-  for (const t of ["generate_lettre_affirmation", "compute_risk_assessment_matrix", "detect_round_tripping", "compute_substantive_test", "analyze_journal_entries_anomalies", "generate_audit_report"]) m.set(t, "duedeck");
+  // L3 advist (signature → documentaire) et atlasbanx (audit anomalies → audit).
+  for (const t of ["verify_signature_validity", "generate_otp_challenge", "define_signature_circuit", "track_signature_status", "compute_signature_legal_value"]) m.set(t, "documentaire");
+  for (const t of ["apply_benford_analysis", "compute_zscore_anomalies", "detect_ghost_fees", "score_bank_risk_global", "generate_audit_report_anomalies"]) m.set(t, "audit");
+  // NB : les tools L3 paie (ex-wisehr) et audit (ex-duedeck) restent implémentés
+  // mais sont débranchés du routing — leurs apps ont été purgées (audit §Uniformité).
   _toolDomainMapCache = m;
   return m;
 }

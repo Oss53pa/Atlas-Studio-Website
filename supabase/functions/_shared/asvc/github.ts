@@ -133,6 +133,64 @@ export async function createRef(token: string, owner: string, repo: string, refN
   });
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// GitHub Actions — workflow_dispatch (déploiement des apps buildées par CI
+// GitHub plutôt que Vercel, ex: WeDo = APK Android via android.yml).
+// ───────────────────────────────────────────────────────────────────────────
+
+/** Parse "owner/repo" ou une URL github.com/owner/repo(.git) → {owner, repo}. */
+export function parseRepoSlug(input: string): { owner: string; repo: string } | null {
+  if (!input) return null;
+  const s = input.trim();
+  const m = s.match(/github\.com[/:]([^/]+)\/([^/]+?)(?:\.git)?(?:\/.*)?$/i);
+  if (m) return { owner: m[1], repo: m[2] };
+  const parts = s.replace(/\.git$/i, "").split("/").filter(Boolean);
+  if (parts.length >= 2) return { owner: parts[parts.length - 2], repo: parts[parts.length - 1] };
+  return null;
+}
+
+interface WorkflowRun {
+  id: number;
+  html_url: string;
+  status: string;
+  created_at: string;
+  event: string;
+}
+
+/** Déclenche un workflow GitHub Actions (workflow_dispatch). 204 No Content si OK. */
+export async function dispatchWorkflow(
+  token: string,
+  owner: string,
+  repo: string,
+  workflowFileOrId: string,
+  ref: string,
+  inputs?: Record<string, string>,
+): Promise<void> {
+  await gh(`/repos/${owner}/${repo}/actions/workflows/${encodeURIComponent(workflowFileOrId)}/dispatches`, {
+    method: "POST",
+    token,
+    body: { ref, inputs: inputs ?? {} },
+  });
+}
+
+/** Best-effort : run le plus récent d'un workflow (pour un lien UI après dispatch). */
+export async function getLatestWorkflowRun(
+  token: string,
+  owner: string,
+  repo: string,
+  workflowFileOrId: string,
+): Promise<WorkflowRun | null> {
+  try {
+    const data = await gh<{ workflow_runs?: WorkflowRun[] }>(
+      `/repos/${owner}/${repo}/actions/workflows/${encodeURIComponent(workflowFileOrId)}/runs?per_page=1`,
+      { token },
+    );
+    return data.workflow_runs?.[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Encode UTF-8 → base64 (sans dépendre de Buffer). */
 function toBase64Utf8(s: string): string {
   const bytes = new TextEncoder().encode(s);

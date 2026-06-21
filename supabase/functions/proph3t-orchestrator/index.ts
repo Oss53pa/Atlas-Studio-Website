@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireAdmin, AuthError } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,6 +122,18 @@ async function callAI(systemPrompt: string, userMessage: string): Promise<{ resp
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  // SÉCURITÉ : cet endpoint expose des KPI financiers (MRR/ARR) et des PII
+  // clients (noms, emails). Réservé aux admins authentifiés. (Audit 360° — AZ-3)
+  try {
+    await requireAdmin(req);
+  } catch (e) {
+    const status = e instanceof AuthError ? e.status : 401;
+    return new Response(JSON.stringify({ error: (e as Error).message }), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
   try {
     const { conversation_id, message } = await req.json();

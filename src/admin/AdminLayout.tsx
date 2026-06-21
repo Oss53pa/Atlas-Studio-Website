@@ -38,10 +38,18 @@ function AdminShell() {
   // (labels, inputs, modals) become unreadable (dark text on dark bg).
   return (
     <div className="dark">
-      <div className="flex min-h-screen bg-admin-bg">
+      {/* Cadre BORNÉ à la hauteur de l'écran : seul <main> scrolle.
+          Avant : `min-h-screen` sans overflow cadré → tout le body grandissait
+          (scrolls interminables). Maintenant la zone contenu a son propre scroll
+          et la sidebar reste fixe. */}
+      <div className="flex h-screen overflow-hidden bg-admin-bg">
         <AdminSidebar />
-        <main className="flex-1 p-8 md:p-10 overflow-y-auto">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto">
+          {/* Largeur + padding cohérents pour TOUTES les pages admin
+              (remplace les max-width disparates page par page). */}
+          <div className="mx-auto w-full max-w-[1400px] px-6 py-6 md:px-8 md:py-8">
+            <Outlet />
+          </div>
         </main>
       </div>
 

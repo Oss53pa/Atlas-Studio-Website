@@ -17,6 +17,7 @@
 // pourrait poster ses résultats via cette même Edge Function (mode "ingest").
 // ───────────────────────────────────────────────────────────────────────────
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { supabaseAdmin } from "../supabase.ts";
 
 export type ScanMode = "full" | "internal_only" | "lighthouse_only";
@@ -69,20 +70,21 @@ export interface RunScanResult {
 
 const DEFAULT_APPS: { app: string; url: string | null }[] = [
   { app: "asvc-platform", url: "https://atlas-studio.org" }, // virtuelle : checks DB system-wide
-  { app: "atlas-finance",  url: "https://atlas-finance.atlasstudio.org" },
-  { app: "liasspilot",     url: "https://liasspilot.atlasstudio.org" },
-  { app: "cashpilot",      url: "https://cashpilot.atlasstudio.org" },
-  { app: "wisehr",         url: "https://wisehr.atlasstudio.org" },
-  { app: "wisefm",         url: "https://wisefm.atlasstudio.org" },
-  { app: "atlasbanx",      url: "https://atlasbanx.atlasstudio.org" },
-  { app: "advist",         url: "https://advist.atlasstudio.org" },
-  { app: "docjourney",     url: "https://docjourney.atlasstudio.org" },
-  { app: "duedeck",        url: "https://duedeck.atlasstudio.org" },
-  { app: "atlastrade",     url: "https://atlastrade.atlasstudio.org" },
-  { app: "tablesmart",     url: "https://tablesmart.atlasstudio.org" },
-  { app: "atlas-lease",    url: "https://atlas-lease.atlasstudio.org" },
-  { app: "cockpitjourney", url: "https://cockpitjourney.atlasstudio.org" },
-  { app: "cockpit-fna",    url: "https://cockpit-fna.atlasstudio.org" },
+  { app: "atlas-finance",  url: "https://atlas-finance.atlas-studio.org" },
+  { app: "liasspilot",     url: "https://liasspilot.atlas-studio.org" },
+  { app: "cashpilot",      url: "https://cashpilot.atlas-studio.org" },
+  { app: "wisehr",         url: "https://wisehr.atlas-studio.org" },
+  { app: "wisefm",         url: "https://wisefm.atlas-studio.org" },
+  { app: "atlasbanx",      url: "https://atlasbanx.atlas-studio.org" },
+  { app: "advist",         url: "https://advist.atlas-studio.org" },
+  { app: "docjourney",     url: "https://docjourney.atlas-studio.org" },
+  { app: "duedeck",        url: "https://duedeck.atlas-studio.org" },
+  { app: "atlastrade",     url: "https://atlastrade.atlas-studio.org" },
+  { app: "tablesmart",     url: "https://tablesmart.atlas-studio.org" },
+  { app: "atlas-lease",    url: "https://atlas-lease.atlas-studio.org" },
+  { app: "cockpitjourney", url: "https://cockpitjourney.atlas-studio.org" },
+  { app: "cockpit-fna",    url: "https://cockpit-fna.atlas-studio.org" },
+  { app: "wedo",           url: "https://wedo.atlas-studio.org" }, // App mobile — Lighthouse sur la page de téléchargement
 ];
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -124,6 +126,14 @@ export async function runScan(opts: {
       const dbItems = await scanDbSecurity();
       scanResult.items.push(...dbItems);
       scanResult.scanToolsUsed.push("supabase_pg_catalog");
+      scanResult.metrics.db_security_items = dbItems.length;
+    }
+
+    // ─── Scanner 1b : DB security WeDo (projet Supabase dédié, schéma `wedo`) ───
+    if (mode !== "lighthouse_only" && target.app === "wedo") {
+      const dbItems = await scanWedoDbSecurity();
+      scanResult.items.push(...dbItems);
+      scanResult.scanToolsUsed.push("wedo_pg_catalog");
       scanResult.metrics.db_security_items = dbItems.length;
     }
 
@@ -219,6 +229,79 @@ async function scanDbSecurity(): Promise<ScanItem[]> {
         priority: "P1",
         file_paths: [`supabase/migrations/*${row.function_name}*.sql`],
         detected_metric: { function: row.function_name },
+        effort_estimate: "XS",
+      });
+    }
+  }
+
+  return items;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// SCANNER 1b : DB security WeDo (cross-projet — projet Supabase dédié `easoqo…`)
+// WeDo est géré par la console mais vit dans un autre projet Supabase. On scanne
+// son schéma applicatif `wedo` via un client service-role WeDo + 2 RPC dédiées
+// (wedo_scan_*). Si le secret WEDO_SERVICE_ROLE_KEY n'est pas configuré côté
+// Edge Function, le scan est sauté proprement (l'audit Lighthouse reste fait).
+// ───────────────────────────────────────────────────────────────────────────
+
+let wedoClient: ReturnType<typeof createClient> | null = null;
+function getWedoClient(): ReturnType<typeof createClient> | null {
+  const url = Deno.env.get("WEDO_SUPABASE_URL") ?? "https://easoqoswtmvtkdwwkqtc.supabase.co";
+  const key = Deno.env.get("WEDO_SERVICE_ROLE_KEY");
+  if (!key) return null;
+  if (!wedoClient) {
+    wedoClient = createClient(url, key, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  }
+  return wedoClient;
+}
+
+async function scanWedoDbSecurity(): Promise<ScanItem[]> {
+  const items: ScanItem[] = [];
+  const client = getWedoClient();
+  if (!client) {
+    console.warn("[scanWedoDbSecurity] WEDO_SERVICE_ROLE_KEY manquante — scan DB WeDo sauté");
+    return items;
+  }
+
+  // 1.a — Tables du schéma `wedo` sans RLS
+  const { data: noRls, error: noRlsErr } = await client.rpc("wedo_scan_rls_missing");
+  if (noRlsErr) {
+    console.warn("[scanWedoDbSecurity] wedo_scan_rls_missing:", noRlsErr.message);
+  } else if (Array.isArray(noRls)) {
+    for (const row of noRls as { table_name: string }[]) {
+      const sensitive = /audit|payment|sequestre|mouvement|contribution|transaction|compte/.test(row.table_name);
+      items.push({
+        category: "rls_missing",
+        title: `Table \`wedo.${row.table_name}\` sans RLS`,
+        description:
+          "Table du schéma applicatif `wedo` sans Row Level Security activée. Activer ENABLE ROW LEVEL SECURITY + policies appropriées.",
+        severity: sensitive ? "critical" : "high",
+        priority: /audit|payment|sequestre|mouvement|transaction/.test(row.table_name) ? "P0" : "P1",
+        file_paths: [`mobile/supabase/migrations/*${row.table_name}*.sql`],
+        detected_metric: { schema: "wedo", table: row.table_name },
+        effort_estimate: "S",
+      });
+    }
+  }
+
+  // 1.b — SECURITY DEFINER sans search_path dans `wedo`
+  const { data: sdNoPath, error: sdErr } = await client.rpc("wedo_scan_security_definer_search_path");
+  if (sdErr) {
+    console.warn("[scanWedoDbSecurity] wedo_scan_security_definer_search_path:", sdErr.message);
+  } else if (Array.isArray(sdNoPath)) {
+    for (const row of sdNoPath as { function_name: string }[]) {
+      items.push({
+        category: "security_definer_search_path",
+        title: `Fonction \`wedo.${row.function_name}\` SECURITY DEFINER sans search_path`,
+        description:
+          "Fonction SECURITY DEFINER du schéma `wedo` sans SET search_path explicite. Risque d'injection de schema. Ajouter `SET search_path = wedo, public`.",
+        severity: "high",
+        priority: "P1",
+        file_paths: [`mobile/supabase/migrations/*${row.function_name}*.sql`],
+        detected_metric: { schema: "wedo", function: row.function_name },
         effort_estimate: "XS",
       });
     }
