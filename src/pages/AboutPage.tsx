@@ -1,6 +1,4 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { SEOHead } from "../components/ui/SEOHead";
 import { AboutHero } from "../components/about/AboutHero";
 import { ProblemsGrid } from "../components/about/ProblemsGrid";
@@ -23,28 +21,28 @@ export default function AboutPage() {
       <CredibilitySection />
       <CommitmentsGrid />
 
-      {/* ===== CTA final ===== */}
-      <section className="relative bg-onyx py-24 md:py-32 px-5 md:px-8 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-dotgrid opacity-30 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] glow-gold pointer-events-none" />
-        <div className="relative max-w-2xl mx-auto">
-          <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium text-gradient-light leading-[1.12] tracking-tight mb-5">
-              Vos outils peuvent enfin travailler pour vous
-            </h2>
-            <p className="text-neutral-muted text-[15px] md:text-base font-light leading-relaxed mb-10">
-              14 jours d'essai gratuit. Aucune carte requise. Accès immédiat.
-            </p>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              <Link to="/portal" className="btn-gold">
-                Essai gratuit — 14 jours
-                <ArrowRight size={16} strokeWidth={2.2} />
-              </Link>
-              <Link to="/contact" className="btn-outline-light">
-                Demander une démo
-              </Link>
-            </div>
-          </ScrollReveal>
+      {/* § FIN — closing manifesto */}
+      <section className="relative bg-ink-100 border-t border-white/[0.06] py-28 md:py-40 px-5 md:px-10 lg:px-16 overflow-hidden">
+        <div className="absolute inset-0 hero-techgrid pointer-events-none" />
+        <div className="relative max-w-[1280px] mx-auto">
+          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-8 flex items-center gap-3">
+            <span className="meta-led" />
+            <span>§ FIN — Manifeste</span>
+          </div>
+          <h2 className="font-display font-medium tracking-[-0.03em] leading-[0.98] text-[20px] sm:text-[24px] md:text-[28px] lg:text-[34px] text-neutral-light max-w-5xl mb-12">
+            Vos outils peuvent enfin <span className="italic font-light text-neutral-light/70">travailler pour vous</span>.
+          </h2>
+          <p className="text-[15px] md:text-[17px] text-neutral-muted font-light leading-relaxed max-w-[540px] mb-10">
+            14 jours d'essai gratuit. Aucune carte requise. Accès immédiat.
+          </p>
+          <div className="flex items-baseline gap-8 flex-wrap">
+            <Link to="/portal" className="cta-arrow cta-arrow--primary">
+              Essai gratuit — 14 jours
+            </Link>
+            <Link to="/contact" className="cta-arrow">
+              Demander une démo
+            </Link>
+          </div>
         </div>
       </section>
     </div>

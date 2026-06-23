@@ -18,49 +18,53 @@ const FOUNDER = {
 
 export function CredibilitySection() {
   return (
-    <section className="relative bg-onyx border-b border-white/[0.04] py-20 md:py-28 px-5 md:px-8 overflow-hidden">
-      <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
-      <div className="relative max-w-site mx-auto">
-        <ScrollReveal>
-          <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-7 max-w-3xl">
-            Atlas Studio est née{" "}
-            <span className="text-gradient-gold">sur le terrain</span>, pas dans une salle de réunion.
-          </h2>
-          <p className="text-neutral-muted text-[15px] md:text-base font-light leading-relaxed max-w-2xl mb-14">
-            Nous ne promettons pas la perfection. Nous promettons la pertinence. Pour chaque
-            fonctionnalité, nous savons précisément qui s'en servira, dans quelle situation et
-            avec quelles contraintes.
-          </p>
-        </ScrollReveal>
+    <section className="relative bg-ink-100 border-b border-white/[0.06] py-24 md:py-32 px-5 md:px-10 lg:px-16 overflow-hidden">
+      <div className="absolute inset-0 hero-techgrid opacity-60 pointer-events-none" />
+      <div className="relative max-w-[1280px] mx-auto">
+        <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+          § Origine — Sur le terrain
+        </div>
+        <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[14px] md:text-[16px] lg:text-[26px] text-neutral-light max-w-4xl mb-7">
+          Atlas Studio est née <span className="kinetic-word">sur le terrain</span>,<br className="hidden md:block" />
+          <span className="italic font-light text-neutral-light/75">pas dans une salle de réunion.</span>
+        </h2>
+        <p className="text-[15px] md:text-[17px] text-neutral-muted font-light leading-relaxed max-w-3xl mb-16">
+          Nous ne promettons pas la perfection. Nous promettons la pertinence. Pour chaque
+          fonctionnalité, nous savons précisément qui s'en servira, dans quelle situation et
+          avec quelles contraintes.
+        </p>
 
         <ScrollReveal delay={100}>
-          <div className="relative bg-ink-100 border border-white/[0.06] rounded-2xl p-9 md:p-14 overflow-hidden shadow-premium-lg">
-            <div className="absolute -top-px left-[8%] right-[8%] h-px"
-              style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.6) 50%, transparent 100%)" }}
-            />
-            <div className="absolute -top-1/2 left-1/2 -translate-x-1/2 w-[100%] h-[80%] pointer-events-none opacity-50"
-              style={{
-                background: "radial-gradient(ellipse 30% 50% at 50% 50%, rgba(169,181,126,0.08) 0%, transparent 70%)",
-                filter: "blur(40px)",
-              }}
-            />
-            <div className="relative">
-              <div className="text-neutral-light text-2xl md:text-3xl font-semibold mb-1 tracking-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 border-t border-white/[0.06] pt-12">
+            {/* Identité */}
+            <div className="lg:col-span-4">
+              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-[#A9B57E] mb-4">
+                Fondatrice
+              </div>
+              <div className="font-display font-medium text-[28px] md:text-[36px] text-neutral-light tracking-tight leading-tight mb-2">
                 {FOUNDER.name}
               </div>
-              <div className="text-gradient-gold text-[13px] md:text-sm font-semibold tracking-wide mb-6">
+              <div className="meta-mono text-[11px] tracking-[0.18em] uppercase text-neutral-light/55">
                 {FOUNDER.title}
               </div>
-              <p className="text-neutral-muted text-[14px] md:text-[15px] font-light leading-relaxed mb-7 max-w-3xl">
+            </div>
+
+            {/* Bio + parcours */}
+            <div className="lg:col-span-8">
+              <blockquote className="font-display font-light italic text-[14px] md:text-[16px] text-neutral-light/85 leading-snug mb-10">
+                <span className="text-[#A9B57E] mr-1">«</span>
                 {FOUNDER.bio}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {FOUNDER.badges.map((b) => (
-                  <span
-                    key={b}
-                    className="inline-block text-[11px] md:text-xs text-neutral-muted font-medium px-3 py-1.5 rounded-full bg-white/[0.025] border border-white/[0.08] tracking-wide"
-                  >
+                <span className="text-[#A9B57E] ml-1">»</span>
+              </blockquote>
+
+              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/45 mb-4">
+                Parcours
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-2 meta-mono text-[11px] tracking-[0.14em] uppercase text-neutral-light/70">
+                {FOUNDER.badges.map((b, i, arr) => (
+                  <span key={b} className="inline-flex items-center">
                     {b}
+                    {i < arr.length - 1 && <span className="text-[#A9B57E]/40 ml-4">·</span>}
                   </span>
                 ))}
               </div>
