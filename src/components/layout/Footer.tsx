@@ -108,7 +108,7 @@ export function Footer() {
               <p className="text-emerald-400 text-[11px] mt-2 flex items-center gap-1"><CheckCircle2 size={11} /> Inscription confirmée !</p>
             )}
             {newsletterStatus === "error" && (
-              <p className="text-red-400 text-[11px] mt-2">Erreur, réessayez.</p>
+              <p className="text-red-700 text-[11px] mt-2">Erreur, réessayez.</p>
             )}
           </div>
 

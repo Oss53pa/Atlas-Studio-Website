@@ -162,13 +162,13 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
               <div className="flex items-center gap-2 text-[13px]">
                 {s.status === "running" && <Loader2 size={13} className="animate-spin text-gold flex-shrink-0" />}
                 {s.status === "done" && <CheckCircle2 size={13} className="text-emerald-400 flex-shrink-0" />}
-                {s.status === "failed" && <XCircle size={13} className="text-red-400 flex-shrink-0" />}
+                {s.status === "failed" && <XCircle size={13} className="text-red-700 flex-shrink-0" />}
                 <span className="text-neutral-light flex-1">{s.label}</span>
                 {s.duration_ms !== undefined && (
                   <span className="text-neutral-500 text-[11px]">{s.duration_ms}ms</span>
                 )}
               </div>
-              {s.error && <div className="mt-1.5 text-[11px] text-red-400 break-all">{s.error}</div>}
+              {s.error && <div className="mt-1.5 text-[11px] text-red-700 break-all">{s.error}</div>}
               {s.preview && s.status === "done" && (
                 <div className="mt-1.5 text-[10px] text-neutral-500 font-mono truncate" title={s.preview}>
                   {s.preview}
@@ -195,8 +195,8 @@ export function Proph3tWorkflowStream({ open, workflow_name, args, onClose, onCo
 
           {error && (
             <div className="border border-red-500/30 bg-red-500/10 rounded-lg p-3 mt-3">
-              <div className="text-red-400 text-[13px] font-semibold">Erreur</div>
-              <div className="text-red-300 text-[12px] mt-1">{error}</div>
+              <div className="text-red-700 text-[13px] font-semibold">Erreur</div>
+              <div className="text-red-700 text-[12px] mt-1">{error}</div>
             </div>
           )}
         </div>

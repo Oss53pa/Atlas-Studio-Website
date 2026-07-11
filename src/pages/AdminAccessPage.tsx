@@ -202,9 +202,9 @@ export default function AdminAccessPage() {
     return (
       <div className="min-h-screen bg-p-bg flex items-center justify-center px-4">
         <div className="bg-p-surface border border-[#2a2a2a] rounded-xl p-8 max-w-md w-full text-center">
-          <AlertCircle size={40} className="text-red-400 mx-auto mb-4" strokeWidth={1.5} />
+          <AlertCircle size={40} className="text-red-700 mx-auto mb-4" strokeWidth={1.5} />
           <h2 className="text-[#e5e5e5] text-lg font-medium mb-2">Acces refuse</h2>
-          <p className="text-red-400 text-sm">{error || "Lien invalide ou expire."}</p>
+          <p className="text-red-700 text-sm">{error || "Lien invalide ou expire."}</p>
         </div>
       </div>
     );
@@ -235,12 +235,12 @@ export default function AdminAccessPage() {
             </div>
 
             {inviteSuccess && (
-              <div className="mb-4 px-4 py-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
+              <div className="mb-4 px-4 py-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-700 text-sm">
                 {inviteSuccess}
               </div>
             )}
             {inviteError && (
-              <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-700 text-sm">
                 {inviteError}
               </div>
             )}

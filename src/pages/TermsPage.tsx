@@ -71,9 +71,9 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
 
     case "callout": {
       const variantStyles = {
-        warning: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-300", Icon: AlertTriangle },
-        info: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-300", Icon: Info },
-        important: { bg: "bg-red-500/10", border: "border-red-500/30", text: "text-red-300", Icon: AlertCircle },
+        warning: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-700", Icon: AlertTriangle },
+        info: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-700", Icon: Info },
+        important: { bg: "bg-red-500/10", border: "border-red-500/30", text: "text-red-700", Icon: AlertCircle },
       }[block.variant];
       const { Icon } = variantStyles;
       return (

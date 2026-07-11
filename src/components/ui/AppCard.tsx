@@ -13,7 +13,7 @@ interface AppCardProps {
 
 const typeBadgeClass: Record<string, string> = {
   "Module ERP": "bg-gold/10 text-gold border-gold/25",
-  "App": "bg-blue-500/10 text-blue-300 border-blue-500/25",
+  "App": "bg-blue-500/10 text-blue-700 border-blue-500/25",
   "App mobile": "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
 };
 
@@ -52,7 +52,7 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
           <AppLogo name={app.name} size={20} color="text-gold" />
           <div className="flex items-center gap-1.5">
             {isComingSoon && (
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-700 border-amber-500/25">
                 <Clock size={10} />
                 Bientôt
               </span>

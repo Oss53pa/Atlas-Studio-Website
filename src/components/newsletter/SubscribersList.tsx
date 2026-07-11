@@ -101,12 +101,12 @@ export function SubscribersList() {
                 <tr key={s.id} className="border-b border-p-border/50 hover:bg-p-surface-alt/20">
                   <td className="px-4 py-2.5 text-xs text-[#F5F5F5]">{s.email}</td>
                   <td className="px-4 py-2.5 text-xs text-[#888]">{s.full_name || '-'}</td>
-                  <td className="px-4 py-2.5"><span className={`text-[10px] px-2 py-0.5 rounded-full ${s.status === 'active' ? 'text-green-400 bg-green-400/10' : s.status === 'unsubscribed' ? 'text-yellow-400 bg-yellow-400/10' : 'text-red-400 bg-red-400/10'}`}>{s.status}</span></td>
+                  <td className="px-4 py-2.5"><span className={`text-[10px] px-2 py-0.5 rounded-full ${s.status === 'active' ? 'text-green-700 bg-green-400/10' : s.status === 'unsubscribed' ? 'text-yellow-700 bg-yellow-400/10' : 'text-red-700 bg-red-400/10'}`}>{s.status}</span></td>
                   <td className="px-4 py-2.5 text-xs text-[#888]">{s.source}</td>
                   <td className="px-4 py-2.5 text-xs text-[#888]">{s.open_count}</td>
                   <td className="px-4 py-2.5 text-xs text-[#888]">{s.click_count}</td>
                   <td className="px-4 py-2.5 text-right">
-                    <button onClick={() => deleteSubscriber(s.id)} className="p-1 rounded hover:bg-red-500/10 text-[#888] hover:text-red-400"><Trash2 size={13} /></button>
+                    <button onClick={() => deleteSubscriber(s.id)} className="p-1 rounded hover:bg-red-500/10 text-[#888] hover:text-red-700"><Trash2 size={13} /></button>
                   </td>
                 </tr>
               ))}

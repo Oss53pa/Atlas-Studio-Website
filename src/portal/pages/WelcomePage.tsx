@@ -119,7 +119,7 @@ export default function WelcomePage() {
                       <div className="text-neutral-light font-medium truncate">{app.app_name}</div>
                       <div className="mt-1.5">
                         {isTrial ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-[0.02em] bg-amber-500/[0.12] text-amber-300 border border-amber-500/25">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-[0.02em] bg-amber-500/[0.12] text-amber-700 border border-amber-500/25">
                             Trial — {daysLeft !== null ? `${daysLeft}j restants` : "actif"}
                           </span>
                         ) : (

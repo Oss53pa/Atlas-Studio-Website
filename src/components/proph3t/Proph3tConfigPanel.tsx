@@ -386,7 +386,7 @@ function KeyManagementBlock(props: {
                 {props.testingKey ? "Test…" : "Tester"}
               </button>
               <button onClick={props.onClear} disabled={props.clearingKey}
-                className="px-3 py-1.5 border border-red-200 dark:border-red-900/40 rounded-lg text-red-600 dark:text-red-400 text-[12px] hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                className="px-3 py-1.5 border border-red-200 dark:border-red-900/40 rounded-lg text-red-600 dark:text-red-700 text-[12px] hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
                 {props.clearingKey ? "…" : "Supprimer"}
               </button>
             </div>

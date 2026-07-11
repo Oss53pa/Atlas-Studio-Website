@@ -130,10 +130,12 @@ export default {
           info: '#7E94B8',
         },
         neutral: {
+          50: '#F5F4F1', 100: '#E9E7E1', 200: '#D6D3CA', 300: '#A7A398', 400: '#807B70',
+          500: '#66625A', 600: '#4C4942', 700: '#37342E', 800: '#26241F', 900: '#1A1712', 950: '#120F0B',
           text: 'rgb(var(--c-text-rgb) / <alpha-value>)',
           body: 'rgb(var(--c-text-2-rgb) / <alpha-value>)',
           muted: 'rgb(var(--c-muted-rgb) / <alpha-value>)',
-          placeholder: '#bdbab0',
+          placeholder: 'rgb(var(--c-muted-rgb) / <alpha-value>)',
           light: 'rgb(var(--c-text-rgb) / <alpha-value>)',
         },
       },

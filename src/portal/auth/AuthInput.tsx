@@ -40,7 +40,7 @@ export function AuthInput({
     <div className="mb-4">
       <label className="block text-neutral-light text-[12px] font-semibold uppercase tracking-wider mb-2">
         {label}
-        {required && <span className="text-rose-400 ml-0.5">*</span>}
+        {required && <span className="text-rose-700 ml-0.5">*</span>}
       </label>
       <div className="relative">
         <input
@@ -69,7 +69,7 @@ export function AuthInput({
           </button>
         )}
       </div>
-      {error && <p className="mt-1.5 text-rose-400 text-[11px]">{error}</p>}
+      {error && <p className="mt-1.5 text-rose-700 text-[11px]">{error}</p>}
       {!error && hint && <p className="mt-1.5 text-emerald-400 text-[11px]">{hint}</p>}
     </div>
   );

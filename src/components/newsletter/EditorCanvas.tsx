@@ -33,7 +33,7 @@ function SortableBlock({ block, isSelected, onSelect, onRemove }: {
       {/* Controls overlay */}
       <div className="absolute -left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
         <button {...attributes} {...listeners} className="p-1 rounded bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] cursor-grab"><GripVertical size={14} /></button>
-        <button onClick={(e) => { e.stopPropagation(); onRemove() }} className="p-1 rounded bg-p-surface-alt text-[#888] hover:text-red-400"><Trash2 size={14} /></button>
+        <button onClick={(e) => { e.stopPropagation(); onRemove() }} className="p-1 rounded bg-p-surface-alt text-[#888] hover:text-red-700"><Trash2 size={14} /></button>
       </div>
       {/* Block render */}
       <div className="bg-white rounded overflow-hidden">

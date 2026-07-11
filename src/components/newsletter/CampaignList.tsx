@@ -76,7 +76,7 @@ export function CampaignList({ onEdit, onStats, onCreate }: Props) {
                     <button onClick={() => onEdit(c.id)} className="p-2 rounded-lg hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors" title="Modifier"><Pencil size={14} /></button>
                     {c.status === 'sent' && <button onClick={() => onStats(c.id)} className="p-2 rounded-lg hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors" title="Statistiques"><BarChart3 size={14} /></button>}
                     <button onClick={() => duplicateCampaign(c)} className="p-2 rounded-lg hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors" title="Dupliquer"><Copy size={14} /></button>
-                    <button onClick={() => handleDelete(c.id)} disabled={deleting === c.id} className="p-2 rounded-lg hover:bg-red-500/10 text-[#888] hover:text-red-400 transition-colors" title="Supprimer">
+                    <button onClick={() => handleDelete(c.id)} disabled={deleting === c.id} className="p-2 rounded-lg hover:bg-red-500/10 text-[#888] hover:text-red-700 transition-colors" title="Supprimer">
                       {deleting === c.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                     </button>
                   </div>

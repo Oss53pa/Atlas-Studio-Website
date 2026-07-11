@@ -176,9 +176,9 @@ export default function InvitePage() {
           {/* Error state (no signup form visible) */}
           {!loading && error && !showSignup && (
             <div className="text-center py-8">
-              <AlertCircle size={40} className="text-red-400 mx-auto mb-4" strokeWidth={1.5} />
+              <AlertCircle size={40} className="text-red-700 mx-auto mb-4" strokeWidth={1.5} />
               <h2 className="text-[#e5e5e5] text-lg font-medium mb-2">Invitation invalide</h2>
-              <p className="text-red-400 text-sm">{error}</p>
+              <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
@@ -202,7 +202,7 @@ export default function InvitePage() {
               </div>
 
               {error && (
-                <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-700 text-sm">
                   {error}
                 </div>
               )}

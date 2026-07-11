@@ -160,13 +160,13 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
                       <span className={`px-2 py-0.5 rounded-full font-mono ${
                         msg.confidence >= 70
                           ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-amber-500/20 text-amber-400"
+                          : "bg-amber-500/20 text-amber-700"
                       }`}>
                         confiance {msg.confidence}/100
                       </span>
                     )}
                     {msg.citations && msg.citations.length > 0 && (
-                      <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">
+                      <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-700">
                         {msg.citations.length} source(s)
                       </span>
                     )}
@@ -179,7 +179,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
                       className="px-2 py-1 rounded hover:bg-emerald-500/10 text-neutral-500 hover:text-emerald-400 transition-colors"
                       title="Bonne reponse">Utile</button>
                     <button onClick={() => sendFeedback(msg.message_id!, "down")}
-                      className="px-2 py-1 rounded hover:bg-red-500/10 text-neutral-500 hover:text-red-400 transition-colors"
+                      className="px-2 py-1 rounded hover:bg-red-500/10 text-neutral-500 hover:text-red-700 transition-colors"
                       title="Reponse a ameliorer">A revoir</button>
                   </div>
                 )}

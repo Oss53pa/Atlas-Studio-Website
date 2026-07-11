@@ -146,7 +146,7 @@ export default function ApplicationDetailPage() {
                 </span>
               ))}
               {status === "coming_soon" && (
-                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">
+                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-700 border-amber-500/25">
                   <Clock size={12} /> Bientôt disponible
                 </span>
               )}

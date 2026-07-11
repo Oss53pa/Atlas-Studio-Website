@@ -167,7 +167,7 @@ export function OTPVerification({ email, purpose, emailHint, onSuccess, onBack, 
       </div>
 
       {error && (
-        <div className="mb-4 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-[12px] text-center">
+        <div className="mb-4 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-700 text-[12px] text-center">
           {error}
         </div>
       )}

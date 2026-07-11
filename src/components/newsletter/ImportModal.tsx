@@ -61,7 +61,7 @@ export function ImportModal({ onClose, onImported }: Props) {
 
         {result ? (
           <div className="text-center py-8">
-            <CheckCircle size={40} className="mx-auto text-green-400 mb-4" />
+            <CheckCircle size={40} className="mx-auto text-green-700 mb-4" />
             <p className="text-[#F5F5F5] font-medium">{result.added} ajoutés, {result.skipped} ignorés (doublons)</p>
             <button onClick={onClose} className="mt-4 px-6 py-2 bg-p-accent text-black rounded-lg text-sm font-medium">Fermer</button>
           </div>
