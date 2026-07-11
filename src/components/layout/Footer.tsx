@@ -166,7 +166,7 @@ export function Footer() {
 
       <div className="relative border-t border-white/[0.05] px-5 md:px-8 py-5 flex justify-between flex-wrap gap-4 max-w-site mx-auto">
         <p className="text-neutral-muted/60 text-[11px] font-light">
-          &copy; 2026 Atlas Studio<a href="https://atlas-studio-console-admin.vercel.app/admin/login" className="text-neutral-muted/60 hover:text-neutral-muted/60 cursor-default">.</a> Abidjan, Côte d'Ivoire
+          &copy; 2026 Atlas Studio. Abidjan, Côte d'Ivoire
         </p>
         <p className="text-neutral-muted/60 text-[11px] font-light">
           Données chiffrées AES-256 — traitement IA 100% local sur nos serveurs dédiés
