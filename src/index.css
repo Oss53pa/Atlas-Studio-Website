@@ -342,13 +342,13 @@
 /* ---------- HERO ---------- */
 
 @keyframes hero-fade-in {
-  from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
-  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+  from { opacity: 1; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .hero-anim > * {
-  opacity: 0;
-  animation: hero-fade-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 1;
+  animation: hero-fade-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-anim > *:nth-child(1) { animation-delay: 0.10s; }
