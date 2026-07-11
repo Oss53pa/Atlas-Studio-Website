@@ -39,7 +39,7 @@ function BundlesSection() {
                     ? "border border-gold/35 shadow-[0_0_0_1px_rgba(169,181,126,0.15),0_24px_56px_-12px_rgba(169,181,126,0.18)]"
                     : "border border-white/[0.06] shadow-premium"
                 }`}
-                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20" }}
+                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), var(--c-surface)" }}
               >
                 {b.is_popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -99,7 +99,7 @@ const cleanFeatureName = (f: string) => {
 function AppPricingSection({ app }: { app: AppItem }) {
   const plans = planEntries(app.pricing);
   const period = app.pricingPeriod || "mois";
-  const appColor = app.color || "#A9B57E";
+  const appColor = app.color || "var(--c-accent)";
 
   return (
     <div className="mb-24 last:mb-0">
@@ -134,8 +134,8 @@ function AppPricingSection({ app }: { app: AppItem }) {
               }`}
               style={{
                 background: isPopular
-                  ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), #1c1c20"
-                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20",
+                  ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), var(--c-surface)"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), var(--c-surface)",
               }}
             >
               {isPopular && (

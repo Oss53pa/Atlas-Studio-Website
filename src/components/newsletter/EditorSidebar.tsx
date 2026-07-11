@@ -19,16 +19,16 @@ export function EditorSidebar({ campaign, accentColor, onAddBlock, onUpdateMeta,
   const [tab, setTab] = useState<'blocks' | 'settings' | 'segment'>('blocks')
 
   return (
-    <div className="w-64 bg-[#1c1c20] border-r border-[#2a2a30] flex flex-col overflow-hidden">
+    <div className="w-64 bg-p-surface border-r border-p-border flex flex-col overflow-hidden">
       {/* Tabs */}
-      <div className="flex border-b border-[#2a2a30]">
+      <div className="flex border-b border-p-border">
         {([
           { key: 'blocks', icon: Blocks, label: 'Blocs' },
           { key: 'settings', icon: Settings, label: 'Réglages' },
           { key: 'segment', icon: Users, label: 'Segment' },
         ] as const).map(({ key, icon: Icon, label }) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs transition-colors ${tab === key ? 'text-[#A9B57E] border-b-2 border-[#A9B57E]' : 'text-[#888] hover:text-[#F5F5F5]'}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs transition-colors ${tab === key ? 'text-p-accent border-b-2 border-p-accent' : 'text-[#888] hover:text-[#F5F5F5]'}`}
           >
             <Icon size={13} />
             {label}
@@ -44,7 +44,7 @@ export function EditorSidebar({ campaign, accentColor, onAddBlock, onUpdateMeta,
               const Icon = ICONS[meta.icon] || Blocks
               return (
                 <button key={type} onClick={() => onAddBlock(type)}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-[#2a2a30]/50 hover:bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5] transition-colors text-xs"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-p-surface-alt/50 hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors text-xs"
                 >
                   <Icon size={18} />
                   {meta.label}
@@ -67,13 +67,13 @@ export function EditorSidebar({ campaign, accentColor, onAddBlock, onUpdateMeta,
               <input type="color" value={accentColor} onChange={e => onAccentColorChange(e.target.value)} className="w-full h-8 rounded cursor-pointer bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
-              <input type="checkbox" checked={campaign.ab_test_enabled} onChange={e => onUpdateMeta({ ab_test_enabled: e.target.checked })} className="accent-[#A9B57E]" />
+              <input type="checkbox" checked={campaign.ab_test_enabled} onChange={e => onUpdateMeta({ ab_test_enabled: e.target.checked })} className="accent-[var(--c-accent)]" />
               <span className="text-xs text-[#F5F5F5]">Test A/B</span>
             </div>
             {campaign.ab_test_enabled && (
               <div>
                 <label className="text-[11px] text-[#888] mb-1 block">Split ratio (% variante A)</label>
-                <input type="range" min={10} max={90} value={campaign.ab_split_ratio} onChange={e => onUpdateMeta({ ab_split_ratio: parseInt(e.target.value) })} className="w-full accent-[#A9B57E]" />
+                <input type="range" min={10} max={90} value={campaign.ab_split_ratio} onChange={e => onUpdateMeta({ ab_split_ratio: parseInt(e.target.value) })} className="w-full accent-[var(--c-accent)]" />
                 <div className="text-[11px] text-[#888] text-center">{campaign.ab_split_ratio}% A / {100 - campaign.ab_split_ratio}% B</div>
               </div>
             )}
@@ -96,7 +96,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
     <div>
       <label className="text-[11px] text-[#888] mb-1 block">{label}</label>
       <input value={value} onChange={e => onChange(e.target.value)}
-        className="w-full px-2.5 py-1.5 bg-[#2a2a30] border border-[#2a2a30] rounded text-xs text-[#F5F5F5] focus:border-[#A9B57E] outline-none"
+        className="w-full px-2.5 py-1.5 bg-p-surface-alt border border-p-border rounded text-xs text-[#F5F5F5] focus:border-p-accent outline-none"
       />
     </div>
   )

@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './lib/auth';
+import { PaletteProvider } from './theme/palette';
 import { initErrorMonitor, AtlasErrorBoundary } from './lib/error-sdk';
 import { Layout } from './components/layout/Layout';
 import { ScrollToTop } from './components/layout/RouteHelpers';
@@ -81,6 +82,7 @@ container.__reactRoot = root;
 root.render(
   <StrictMode>
     <AtlasErrorBoundary appId={ATLAS_APP_ID}>
+    <PaletteProvider>
     <HelmetProvider>
     <BrowserRouter>
       <AuthProvider>
@@ -118,6 +120,7 @@ root.render(
       </AuthProvider>
     </BrowserRouter>
     </HelmetProvider>
+    </PaletteProvider>
     </AtlasErrorBoundary>
   </StrictMode>
 );

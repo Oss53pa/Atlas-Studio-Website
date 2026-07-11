@@ -261,7 +261,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
               }}
               placeholder="Posez votre question (Enter pour envoyer, Shift+Enter pour saut de ligne)"
               rows={1}
-              className="flex-1 bg-[#141417] text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none border border-white/[0.07] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200"
+              className="flex-1 bg-p-surface text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none border border-white/[0.07] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200"
             />
             <button onClick={() => sendMessage(input)} disabled={isLoading || !input.trim()}
               className="p-3 bg-gold text-onyx rounded-xl hover:bg-gold/80 hover:shadow-gold-sm disabled:opacity-40 transition-all duration-200 flex-shrink-0">

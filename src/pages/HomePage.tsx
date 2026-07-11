@@ -116,10 +116,10 @@ export default function HomePage() {
               <div className="lg:col-span-5">
                 <div className="relative aspect-square w-full max-w-[460px] lg:max-w-[520px] mx-auto lg:ml-auto lg:mr-0">
                   {/* repères mathématiques aux quatre coins */}
-                  <div className="absolute -top-3 -left-3 w-6 h-6 border-t border-l border-[#A9B57E]/40" />
-                  <div className="absolute -top-3 -right-3 w-6 h-6 border-t border-r border-[#A9B57E]/40" />
-                  <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b border-l border-[#A9B57E]/40" />
-                  <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b border-r border-[#A9B57E]/40" />
+                  <div className="absolute -top-3 -left-3 w-6 h-6 border-t border-l border-p-accent/40" />
+                  <div className="absolute -top-3 -right-3 w-6 h-6 border-t border-r border-p-accent/40" />
+                  <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b border-l border-p-accent/40" />
+                  <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b border-r border-p-accent/40" />
                   <AtlasConstellation className="w-full h-full" />
                 </div>
                 {/* Légende discrète sous la constellation, en mono */}
@@ -137,7 +137,7 @@ export default function HomePage() {
                 <div className="data-tape py-4">
                   {tapeItems.concat(tapeItems).map((it, i) => (
                     <span key={i} className="flex items-baseline gap-3 px-8 meta-mono text-[11px] tracking-[0.18em] uppercase whitespace-nowrap">
-                      <span className="text-[#A9B57E]">{it.glyph}</span>
+                      <span className="text-p-accent">{it.glyph}</span>
                       <span className="text-neutral-light/85"><StyledText>{it.value}</StyledText></span>
                       {it.label && <span className="text-neutral-light/45"><StyledText>{it.label}</StyledText></span>}
                     </span>
@@ -156,7 +156,7 @@ export default function HomePage() {
         <div className="relative max-w-[1280px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-end mb-14 md:mb-20">
             <div className="lg:col-span-7">
-              <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+              <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
                 § 02 — {t("home.platform")}
               </div>
               <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[30px] sm:text-[38px] md:text-[46px] lg:text-[52px] text-neutral-light">
@@ -208,7 +208,7 @@ export default function HomePage() {
       <section className="relative bg-onyx border-t border-white/[0.06] py-24 md:py-32 px-5 md:px-10 lg:px-16 overflow-hidden">
         <div className="relative max-w-[1100px] mx-auto">
           <div className="mb-14 md:mb-20">
-            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
               § 03 — {t("home.howItWorks")}
             </div>
             <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[36px] sm:text-[44px] md:text-[56px] lg:text-[64px] text-neutral-light max-w-3xl">
@@ -226,7 +226,7 @@ export default function HomePage() {
                 <ScrollReveal key={i} delay={i * 80}>
                   <div className={`grid grid-cols-12 gap-4 md:gap-8 py-8 md:py-10 border-t border-white/[0.06] ${i === (content.steps || []).length - 1 ? "border-b" : ""}`}>
                     <div className={`col-span-12 ${right ? "md:col-start-2 md:col-span-2" : "md:col-span-2"} flex items-baseline`}>
-                      <span className="font-display font-light text-[44px] md:text-[64px] leading-none text-[#A9B57E]/80 tracking-tighter">
+                      <span className="font-display font-light text-[44px] md:text-[64px] leading-none text-p-accent/80 tracking-tighter">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                     </div>
@@ -256,13 +256,13 @@ export default function HomePage() {
         <div className="absolute inset-0 hero-techgrid opacity-60 pointer-events-none" />
         <div className="relative max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           <div className="lg:col-span-8">
-            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
               § 04 — {t("home.aboutLabel")}
             </div>
             <blockquote className="font-display font-medium tracking-[-0.025em] leading-[1.1] text-[24px] sm:text-[30px] md:text-[38px] lg:text-[44px] text-neutral-light mb-8">
-              <span className="text-[#A9B57E] font-light italic mr-2">«</span>
+              <span className="text-p-accent font-light italic mr-2">«</span>
               <span className="italic font-light">{content.about?.p1}</span>
-              <span className="text-[#A9B57E] font-light italic ml-1">»</span>
+              <span className="text-p-accent font-light italic ml-1">»</span>
             </blockquote>
             <p className="text-[15px] md:text-[16px] text-neutral-muted font-light leading-relaxed max-w-[640px] mb-8">
               {content.about?.p2}
@@ -280,7 +280,7 @@ export default function HomePage() {
             <dl className="space-y-5">
               {(content.about?.values || []).map((v, i) => (
                 <div key={i} className="border-t border-white/[0.06] pt-4">
-                  <dt className="meta-mono text-[10px] tracking-[0.18em] uppercase text-[#A9B57E] mb-1.5">
+                  <dt className="meta-mono text-[10px] tracking-[0.18em] uppercase text-p-accent mb-1.5">
                     {String(i + 1).padStart(2, "0")} · {v.title}
                   </dt>
                   <dd className="text-[13px] text-neutral-muted font-light leading-relaxed">
@@ -300,7 +300,7 @@ export default function HomePage() {
         <div className="relative max-w-[1280px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mb-14 items-end">
             <div className="lg:col-span-7">
-              <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+              <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
                 § 05 — {t("home.sectors")}
               </div>
               <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light">
@@ -330,7 +330,7 @@ export default function HomePage() {
         <div className="relative max-w-[1280px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mb-12 items-end">
             <div className="lg:col-span-7">
-              <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+              <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
                 § 06 — {t("home.comparison")}
               </div>
               <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light">
@@ -368,7 +368,7 @@ export default function HomePage() {
          ════════════════════════════════════════════════════════════════ */}
       <section className="relative bg-onyx border-t border-white/[0.06] py-24 md:py-32 px-5 md:px-10 lg:px-16 overflow-hidden">
         <div className="relative max-w-[1280px] mx-auto">
-          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
             § 07 — {t("home.testimonials")}
           </div>
           <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[44px] lg:text-[52px] text-neutral-light mb-14 md:mb-20 max-w-3xl">
@@ -385,11 +385,11 @@ export default function HomePage() {
                 <ScrollReveal>
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 mb-14 md:mb-20">
                     <div className="lg:col-span-8">
-                      <div className="text-[#A9B57E] text-[15px] mb-6 tracking-[0.3em]">★ ★ ★ ★ ★</div>
+                      <div className="text-p-accent text-[15px] mb-6 tracking-[0.3em]">★ ★ ★ ★ ★</div>
                       <blockquote className="font-display font-light italic tracking-[-0.02em] leading-[1.12] text-[24px] md:text-[34px] lg:text-[40px] text-neutral-light">
-                        <span className="text-[#A9B57E] font-normal mr-2">«</span>
+                        <span className="text-p-accent font-normal mr-2">«</span>
                         {lead.text}
-                        <span className="text-[#A9B57E] font-normal ml-1">»</span>
+                        <span className="text-p-accent font-normal ml-1">»</span>
                       </blockquote>
                     </div>
                     <div className="lg:col-span-4 lg:border-l border-white/[0.06] lg:pl-10">
@@ -413,7 +413,7 @@ export default function HomePage() {
                     {rest.map((tm, i) => (
                       <ScrollReveal key={i} delay={i * 80}>
                         <div className="relative">
-                          <div className="text-[#A9B57E] text-[11px] mb-3 tracking-[0.3em]">★ ★ ★ ★ ★</div>
+                          <div className="text-p-accent text-[11px] mb-3 tracking-[0.3em]">★ ★ ★ ★ ★</div>
                           <p className="text-[13px] text-neutral-light/85 font-light italic leading-relaxed mb-4">
                             « {tm.text} »
                           </p>
@@ -436,7 +436,7 @@ export default function HomePage() {
          ════════════════════════════════════════════════════════════════ */}
       <section className="relative bg-ink-100 border-t border-white/[0.06] py-24 md:py-32 px-5 md:px-10 lg:px-16 overflow-hidden">
         <div className="relative max-w-[1280px] mx-auto">
-          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
             § 08 — {t("home.pricingLabel")}
           </div>
           <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[30px] sm:text-[40px] md:text-[50px] lg:text-[58px] text-neutral-light mb-4">
@@ -452,7 +452,7 @@ export default function HomePage() {
                 {t("home.atlasFNA")}
               </div>
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="font-display font-medium text-[32px] md:text-[42px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">99 000</span>
+                <span className="font-display font-medium text-[32px] md:text-[42px] leading-none text-p-accent tracking-tight tabular-nums whitespace-nowrap">99 000</span>
                 <span className="text-neutral-muted text-[14px] font-light">FCFA/mois</span>
               </div>
               <p className="text-[13px] text-neutral-muted font-light mt-3 max-w-[300px]">{t("home.accountingSyscohada")}</p>
@@ -463,7 +463,7 @@ export default function HomePage() {
               </div>
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="font-display font-light italic text-[20px] md:text-[26px] leading-none text-neutral-light/70 mr-1">dès</span>
-                <span className="font-display font-medium text-[32px] md:text-[42px] leading-none text-[#A9B57E] tracking-tight tabular-nums whitespace-nowrap">25 000</span>
+                <span className="font-display font-medium text-[32px] md:text-[42px] leading-none text-p-accent tracking-tight tabular-nums whitespace-nowrap">25 000</span>
                 <span className="text-neutral-muted text-[14px] font-light">{t("home.perMonthOrYear")}</span>
               </div>
               <p className="text-[13px] text-neutral-muted font-light mt-3 max-w-[300px]">{t("home.liasspilotAdvist")}</p>
@@ -487,7 +487,7 @@ export default function HomePage() {
       <section className="relative bg-onyx border-t border-white/[0.06] py-24 md:py-32 px-5 md:px-10 lg:px-16 overflow-hidden">
         <div className="relative max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           <div className="lg:col-span-4">
-            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-6">
+            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-6">
               § 09 — {t("home.faqLabel")}
             </div>
             <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[40px] lg:text-[44px] text-neutral-light">
@@ -501,7 +501,7 @@ export default function HomePage() {
             <ScrollReveal>
               {(content.faqs || []).map((faq, i) => (
                 <div key={i} className="flex gap-4 md:gap-6 items-start border-t border-white/[0.06] first:border-t-0 first:pt-0">
-                  <span className="meta-mono text-[11px] tracking-[0.18em] text-[#A9B57E] pt-6 hidden md:block min-w-[28px]">
+                  <span className="meta-mono text-[11px] tracking-[0.18em] text-p-accent pt-6 hidden md:block min-w-[28px]">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="flex-1">
@@ -520,7 +520,7 @@ export default function HomePage() {
       <section className="relative bg-ink-100 border-t border-white/[0.06] py-28 md:py-40 px-5 md:px-10 lg:px-16 overflow-hidden">
         <div className="absolute inset-0 hero-techgrid pointer-events-none" />
         <div className="relative max-w-[1280px] mx-auto">
-          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-[#A9B57E] mb-8 flex items-center gap-3">
+          <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-p-accent mb-8 flex items-center gap-3">
             <span className="meta-led" />
             <span>§ FIN — Atlas Studio · MMXXVI</span>
           </div>
