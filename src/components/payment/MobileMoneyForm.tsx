@@ -47,7 +47,7 @@ export default function MobileMoneyForm({ operator, onSubmit, loading }: Props) 
             width: '100%',
             padding: '12px 12px 12px 36px',
             fontSize: 15,
-            border: `1px solid ${detection.valid ? '#A9B57E' : '#E8E8E0'}`,
+            border: `1px solid ${detection.valid ? 'var(--c-accent)' : '#E8E8E0'}`,
             borderRadius: 8,
             background: '#FFFFFF',
             color: '#1A1A1A',
@@ -90,7 +90,7 @@ export default function MobileMoneyForm({ operator, onSubmit, loading }: Props) 
           type="checkbox"
           checked={save}
           onChange={(e) => setSave(e.target.checked)}
-          style={{ accentColor: '#A9B57E', width: 16, height: 16 }}
+          style={{ accentColor: 'var(--c-accent)', width: 16, height: 16 }}
         />
         Enregistrer ce num\u00e9ro pour mes prochains paiements
       </label>
@@ -105,7 +105,7 @@ export default function MobileMoneyForm({ operator, onSubmit, loading }: Props) 
           justifyContent: 'center',
           gap: 8,
           padding: '13px 0',
-          background: detection.valid ? '#A9B57E' : '#E8E8E0',
+          background: detection.valid ? 'var(--c-accent)' : '#E8E8E0',
           color: detection.valid ? '#fff' : '#888',
           border: 'none',
           borderRadius: 8,

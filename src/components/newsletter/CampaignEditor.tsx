@@ -25,7 +25,7 @@ export function CampaignEditor({ campaignId, onBack }: Props) {
   } = useCampaignEditor(campaignId)
 
   const [viewMode, setViewMode] = useState<ViewMode>('editor')
-  const [accentColor, setAccentColor] = useState('#A9B57E')
+  const [accentColor, setAccentColor] = useState('var(--c-accent)')
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
@@ -52,19 +52,19 @@ export function CampaignEditor({ campaignId, onBack }: Props) {
   }
 
   if (!campaign) return (
-    <div className="flex-1 flex items-center justify-center bg-[#131316]">
-      <Loader2 size={24} className="animate-spin text-[#A9B57E]" />
+    <div className="flex-1 flex items-center justify-center bg-p-bg">
+      <Loader2 size={24} className="animate-spin text-p-accent" />
     </div>
   )
 
   return (
-    <div className="flex h-full bg-[#131316] overflow-hidden">
+    <div className="flex h-full bg-p-bg overflow-hidden">
       <EditorSidebar campaign={campaign} accentColor={accentColor} onAddBlock={handleAddBlock} onUpdateMeta={updateCampaignMeta} onAccentColorChange={setAccentColor} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
-        <div className="flex items-center gap-2 px-4 py-2 bg-[#1c1c20] border-b border-[#2a2a30]">
-          <button onClick={onBack} className="p-1.5 rounded hover:bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5] transition-colors"><ArrowLeft size={16} /></button>
+        <div className="flex items-center gap-2 px-4 py-2 bg-p-surface border-b border-p-border">
+          <button onClick={onBack} className="p-1.5 rounded hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors"><ArrowLeft size={16} /></button>
           <input className="text-sm font-medium bg-transparent text-[#F5F5F5] outline-none w-48" value={campaign.name} onChange={e => updateCampaignMeta({ name: e.target.value })} placeholder="Nom de la campagne" />
 
           <div className="flex gap-1 ml-auto">
@@ -74,7 +74,7 @@ export function CampaignEditor({ campaignId, onBack }: Props) {
               { mode: 'preview-mobile' as const, icon: Smartphone, label: 'Mobile' },
             ]).map(({ mode, icon: Icon, label }) => (
               <button key={mode} onClick={() => setViewMode(mode)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-colors ${viewMode === mode ? 'bg-[#A9B57E] text-black font-medium' : 'text-[#888] hover:text-[#F5F5F5] hover:bg-[#2a2a30]'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs transition-colors ${viewMode === mode ? 'bg-p-accent text-black font-medium' : 'text-[#888] hover:text-[#F5F5F5] hover:bg-p-surface-alt'}`}
               >
                 <Icon size={13} />{label}
               </button>
@@ -82,16 +82,16 @@ export function CampaignEditor({ campaignId, onBack }: Props) {
           </div>
 
           <div className="flex gap-2 ml-4">
-            <button onClick={handleSendTest} className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#2a2a30] text-[#F5F5F5] rounded-md hover:bg-[#2a2a30] transition-colors"><TestTube2 size={13} />Tester</button>
-            <button onClick={saveCampaign} disabled={isSaving} className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#2a2a30] text-[#F5F5F5] rounded-md hover:bg-[#2a2a30] transition-colors">
+            <button onClick={handleSendTest} className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-p-border text-[#F5F5F5] rounded-md hover:bg-p-surface-alt transition-colors"><TestTube2 size={13} />Tester</button>
+            <button onClick={saveCampaign} disabled={isSaving} className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-p-border text-[#F5F5F5] rounded-md hover:bg-p-surface-alt transition-colors">
               <Save size={13} />{isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#A9B57E] text-black rounded-md font-medium hover:bg-[#C47E00] transition-colors"><Send size={13} />Envoyer</button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-p-accent text-black rounded-md font-medium hover:bg-[#C47E00] transition-colors"><Send size={13} />Envoyer</button>
           </div>
         </div>
 
         {/* Canvas */}
-        <div className="flex-1 overflow-auto p-6 flex justify-center bg-[#131316]">
+        <div className="flex-1 overflow-auto p-6 flex justify-center bg-p-bg">
           <div className={`transition-all duration-300 ${viewMode === 'preview-mobile' ? 'w-[375px]' : 'w-[580px]'}`}>
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>

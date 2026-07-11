@@ -180,17 +180,17 @@ export default function AdminAccessPage() {
   };
 
   const inputClass =
-    "w-full px-4 py-3 bg-[#141414] border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-[#A9B57E] transition-colors placeholder:text-[#666]";
+    "w-full px-4 py-3 bg-p-surface border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-p-accent transition-colors placeholder:text-[#666]";
 
   const selectClass =
-    "px-4 py-3 bg-[#141414] border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-[#A9B57E] transition-colors appearance-none cursor-pointer";
+    "px-4 py-3 bg-p-surface border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-sm outline-none focus:border-p-accent transition-colors appearance-none cursor-pointer";
 
   // Loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#131316] flex items-center justify-center">
+      <div className="min-h-screen bg-p-bg flex items-center justify-center">
         <div className="text-center">
-          <Loader2 size={32} className="animate-spin text-[#A9B57E] mx-auto mb-4" />
+          <Loader2 size={32} className="animate-spin text-p-accent mx-auto mb-4" />
           <p className="text-[#999] text-sm">Validation du lien administrateur...</p>
         </div>
       </div>
@@ -200,23 +200,23 @@ export default function AdminAccessPage() {
   // Error
   if (error || !adminInfo) {
     return (
-      <div className="min-h-screen bg-[#131316] flex items-center justify-center px-4">
-        <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-8 max-w-md w-full text-center">
-          <AlertCircle size={40} className="text-red-400 mx-auto mb-4" strokeWidth={1.5} />
+      <div className="min-h-screen bg-p-bg flex items-center justify-center px-4">
+        <div className="bg-p-surface border border-[#2a2a2a] rounded-xl p-8 max-w-md w-full text-center">
+          <AlertCircle size={40} className="text-red-700 mx-auto mb-4" strokeWidth={1.5} />
           <h2 className="text-[#e5e5e5] text-lg font-medium mb-2">Acces refuse</h2>
-          <p className="text-red-400 text-sm">{error || "Lien invalide ou expire."}</p>
+          <p className="text-red-700 text-sm">{error || "Lien invalide ou expire."}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#131316] px-4 py-8">
+    <div className="min-h-screen bg-p-bg px-4 py-8">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-full bg-[#A9B57E] flex items-center justify-center flex-shrink-0">
-            <span className="text-[#131316] text-lg font-bold">A</span>
+          <div className="w-10 h-10 rounded-full bg-p-accent flex items-center justify-center flex-shrink-0">
+            <span className="text-[var(--c-bg)] text-lg font-bold">A</span>
           </div>
           <div>
             <h1 className="text-[#e5e5e5] text-xl font-medium">
@@ -228,19 +228,19 @@ export default function AdminAccessPage() {
 
         {/* Invite form */}
         {adminInfo.can_invite_users && (
-          <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6 mb-6">
+          <div className="bg-p-surface border border-[#2a2a2a] rounded-xl p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <UserPlus size={18} className="text-[#A9B57E]" />
+              <UserPlus size={18} className="text-p-accent" />
               <h2 className="text-[#e5e5e5] text-base font-medium">Inviter un membre</h2>
             </div>
 
             {inviteSuccess && (
-              <div className="mb-4 px-4 py-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
+              <div className="mb-4 px-4 py-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-700 text-sm">
                 {inviteSuccess}
               </div>
             )}
             {inviteError && (
-              <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-700 text-sm">
                 {inviteError}
               </div>
             )}
@@ -275,7 +275,7 @@ export default function AdminAccessPage() {
               <button
                 onClick={handleInvite}
                 disabled={inviting}
-                className="px-6 py-3 bg-[#A9B57E] hover:bg-[#d88f22] text-[#131316] font-medium text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                className="px-6 py-3 bg-p-accent hover:bg-[#d88f22] text-[var(--c-bg)] font-medium text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 {inviting ? (
                   <>
@@ -291,16 +291,16 @@ export default function AdminAccessPage() {
         )}
 
         {/* Member list */}
-        <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6">
+        <div className="bg-p-surface border border-[#2a2a2a] rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Users size={18} className="text-[#A9B57E]" />
+            <Users size={18} className="text-p-accent" />
             <h2 className="text-[#e5e5e5] text-base font-medium">Membres</h2>
             <span className="text-[#666] text-xs ml-auto">{seats.length} membre{seats.length !== 1 ? "s" : ""}</span>
           </div>
 
           {seatsLoading ? (
             <div className="text-center py-8">
-              <Loader2 size={24} className="animate-spin text-[#A9B57E] mx-auto mb-2" />
+              <Loader2 size={24} className="animate-spin text-p-accent mx-auto mb-2" />
               <p className="text-[#666] text-sm">Chargement...</p>
             </div>
           ) : seats.length === 0 ? (
@@ -310,8 +310,8 @@ export default function AdminAccessPage() {
               {seats.map((seat) => (
                 <div key={seat.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#A9B57E] text-xs font-medium">
+                    <div className="w-8 h-8 rounded-full bg-p-surface border border-[#2a2a2a] flex items-center justify-center flex-shrink-0">
+                      <span className="text-p-accent text-xs font-medium">
                         {(seat.first_name?.[0] || seat.email[0] || "?").toUpperCase()}
                       </span>
                     </div>
@@ -329,7 +329,7 @@ export default function AdminAccessPage() {
 
                   <div className="flex items-center gap-3 flex-shrink-0 ml-4">
                     {seat.status === "pending" && (
-                      <span className="text-[10px] uppercase tracking-wider text-[#A9B57E] bg-[#A9B57E]/10 px-2 py-0.5 rounded">
+                      <span className="text-[10px] uppercase tracking-wider text-p-accent bg-p-accent/10 px-2 py-0.5 rounded">
                         En attente
                       </span>
                     )}
@@ -340,7 +340,7 @@ export default function AdminAccessPage() {
                           value={seat.role}
                           onChange={(e) => handleRoleChange(seat.id, e.target.value)}
                           disabled={updatingRole === seat.id}
-                          className="bg-[#141414] border border-[#2a2a2a] rounded text-[#e5e5e5] text-xs px-2 py-1.5 pr-7 outline-none focus:border-[#A9B57E] transition-colors appearance-none cursor-pointer disabled:opacity-50"
+                          className="bg-p-surface border border-[#2a2a2a] rounded text-[#e5e5e5] text-xs px-2 py-1.5 pr-7 outline-none focus:border-p-accent transition-colors appearance-none cursor-pointer disabled:opacity-50"
                         >
                           {ROLE_OPTIONS.map((r) => (
                             <option key={r} value={r}>
@@ -351,7 +351,7 @@ export default function AdminAccessPage() {
                         {updatingRole === seat.id ? (
                           <Loader2
                             size={10}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 animate-spin text-[#A9B57E]"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 animate-spin text-p-accent"
                           />
                         ) : (
                           <ChevronDown

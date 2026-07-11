@@ -78,7 +78,7 @@ export default function ApplicationDetailPage() {
   const pricingEntries = planEntries(app.pricing);
   const status = appWithStatus?.status || "available";
   const isAvailable = status === "available";
-  const appColor = app.color || "#A9B57E";
+  const appColor = app.color || "var(--c-accent)";
   const iconName = app.icon || "receipt";
   const highlights = app.highlights || [];
   const IconComponent = ICON_MAP[iconName] || CheckCircle2;
@@ -146,7 +146,7 @@ export default function ApplicationDetailPage() {
                 </span>
               ))}
               {status === "coming_soon" && (
-                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">
+                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-700 border-amber-500/25">
                   <Clock size={12} /> Bientôt disponible
                 </span>
               )}
@@ -176,7 +176,7 @@ export default function ApplicationDetailPage() {
       {/* ===== MOCKUPS ===== */}
       <section className="relative py-20 md:py-28 px-5 md:px-8 overflow-hidden border-y border-white/[0.04]"
         style={{
-          background: "linear-gradient(180deg, #1c1c20 0%, #212126 50%, #1c1c20 100%)",
+          background: "linear-gradient(180deg, var(--c-surface) 0%, var(--c-surface-alt) 50%, var(--c-surface) 100%)",
         }}
       >
         <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
@@ -307,8 +307,8 @@ export default function ApplicationDetailPage() {
                     }`}
                     style={{
                       background: isPopular
-                        ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), #1c1c20"
-                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20",
+                        ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), var(--c-surface)"
+                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), var(--c-surface)",
                     }}
                   >
                     {isPopular && (

@@ -74,7 +74,7 @@ export default function ContactPage() {
                   style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 {error && (
-                  <div className="mb-5 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-sm">
+                  <div className="mb-5 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-700 text-sm">
                     {error}
                   </div>
                 )}

@@ -24,8 +24,8 @@ const COORDS: Record<string, [number, number]> = {
 };
 
 const ZONE_COLOR: Record<string, string> = {
-  UEMOA: "#A9B57E", // kaki (couleur de marque Atlas Studio)
-  CEMAC: "#C2CC92", // kaki clair
+  UEMOA: "var(--c-accent)", // kaki (couleur de marque Atlas Studio)
+  CEMAC: "var(--c-accent)", // kaki clair
   other: "#C8A672", // champagne
 };
 
@@ -149,7 +149,7 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
                       bg-gradient-to-t from-black/40 via-black/10 to-transparent">
         {hovered ? (
           <div className="font-mono text-[11px] tracking-wide text-neutral-light flex items-baseline gap-2 flex-wrap">
-            <span className="text-[#A9B57E]">{hovered.country_code}</span>
+            <span className="text-p-accent">{hovered.country_code}</span>
             <span className="text-neutral-light/90">{hovered.country_name}</span>
             <span className="text-neutral-light/40">·</span>
             <span className="text-neutral-light/60">{hovered.zone}</span>

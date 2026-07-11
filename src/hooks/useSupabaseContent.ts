@@ -58,7 +58,7 @@ export function useSupabaseContent() {
           pricing: row.pricing || {},
           pricingPeriod: row.pricing_period || 'mois',
           pricingNotes: row.pricing_notes || {},
-          color: row.color || '#8E9A63',
+          color: row.color || 'var(--c-accent-dark)',
           icon: row.icon || 'receipt',
           highlights: row.highlights || [],
           external_url: row.external_url || undefined,

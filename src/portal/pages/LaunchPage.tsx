@@ -58,7 +58,7 @@ export default function LaunchPage() {
         {error ? (
           <>
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-500/15 border border-red-500/30 mb-5">
-              <AlertTriangle size={22} className="text-red-400" strokeWidth={1.5} />
+              <AlertTriangle size={22} className="text-red-700" strokeWidth={1.5} />
             </div>
             <h1 className="text-xl font-medium text-neutral-light mb-2">
               Lancement impossible

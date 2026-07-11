@@ -160,13 +160,13 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
                       <span className={`px-2 py-0.5 rounded-full font-mono ${
                         msg.confidence >= 70
                           ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-amber-500/20 text-amber-400"
+                          : "bg-amber-500/20 text-amber-700"
                       }`}>
                         confiance {msg.confidence}/100
                       </span>
                     )}
                     {msg.citations && msg.citations.length > 0 && (
-                      <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">
+                      <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-700">
                         {msg.citations.length} source(s)
                       </span>
                     )}
@@ -179,7 +179,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
                       className="px-2 py-1 rounded hover:bg-emerald-500/10 text-neutral-500 hover:text-emerald-400 transition-colors"
                       title="Bonne reponse">Utile</button>
                     <button onClick={() => sendFeedback(msg.message_id!, "down")}
-                      className="px-2 py-1 rounded hover:bg-red-500/10 text-neutral-500 hover:text-red-400 transition-colors"
+                      className="px-2 py-1 rounded hover:bg-red-500/10 text-neutral-500 hover:text-red-700 transition-colors"
                       title="Reponse a ameliorer">A revoir</button>
                   </div>
                 )}
@@ -261,7 +261,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
               }}
               placeholder="Posez votre question (Enter pour envoyer, Shift+Enter pour saut de ligne)"
               rows={1}
-              className="flex-1 bg-[#141417] text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none border border-white/[0.07] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200"
+              className="flex-1 bg-p-surface text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none border border-white/[0.07] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200"
             />
             <button onClick={() => sendMessage(input)} disabled={isLoading || !input.trim()}
               className="p-3 bg-gold text-onyx rounded-xl hover:bg-gold/80 hover:shadow-gold-sm disabled:opacity-40 transition-all duration-200 flex-shrink-0">

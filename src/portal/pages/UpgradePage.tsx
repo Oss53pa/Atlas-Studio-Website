@@ -79,7 +79,7 @@ export function UpgradePage({ userId }: { userId?: string }) {
       <div style={{ display: "flex", justifyContent: "center", padding: 60 }}>
         <Loader2
           size={28}
-          style={{ color: "#A9B57E", animation: "spin 1s linear infinite" }}
+          style={{ color: "var(--c-accent)", animation: "spin 1s linear infinite" }}
         />
       </div>
     );
@@ -134,7 +134,7 @@ export function UpgradePage({ userId }: { userId?: string }) {
               fontWeight: 600,
               fontSize: 15,
               cursor: confirming ? "wait" : "pointer",
-              background: "#A9B57E",
+              background: "var(--c-accent)",
               color: "#FFFFFF",
               opacity: confirming ? 0.7 : 1,
               transition: "opacity 0.2s",

@@ -13,7 +13,7 @@ interface AppCardProps {
 
 const typeBadgeClass: Record<string, string> = {
   "Module ERP": "bg-gold/10 text-gold border-gold/25",
-  "App": "bg-blue-500/10 text-blue-300 border-blue-500/25",
+  "App": "bg-blue-500/10 text-blue-700 border-blue-500/25",
   "App mobile": "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
 };
 
@@ -25,7 +25,7 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
   const minPrice = Math.min(...planEntries(app.pricing).map(([, v]) => v));
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === 'coming_soon';
-  const accent = app.color || '#A9B57E';
+  const accent = app.color || 'var(--c-accent)';
 
   const sharedClassName = `relative block bg-ink-100 border border-white/[0.05] rounded-2xl p-6 card-hover shadow-premium group overflow-hidden ${isComingSoon ? 'opacity-85' : ''}`;
   const sharedStyle = { animationDelay: `${index * 60}ms` };
@@ -52,7 +52,7 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
           <AppLogo name={app.name} size={20} color="text-gold" />
           <div className="flex items-center gap-1.5">
             {isComingSoon && (
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-700 border-amber-500/25">
                 <Clock size={10} />
                 Bientôt
               </span>

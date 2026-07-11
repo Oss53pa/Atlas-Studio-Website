@@ -144,12 +144,12 @@ export default function SignupPage() {
             >
               politique de confidentialité
             </Link>
-            <span className="text-rose-400 ml-0.5">*</span>
+            <span className="text-rose-700 ml-0.5">*</span>
           </span>
         </label>
 
         {globalError && (
-          <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-[12px]">
+          <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-700 text-[12px]">
             {globalError}
           </div>
         )}

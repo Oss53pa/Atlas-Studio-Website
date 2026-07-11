@@ -19,7 +19,7 @@ function Confetti() {
   const dots = Array.from({ length: 18 }, (_, i) => {
     const left = Math.random() * 100
     const delay = Math.random() * 1.2
-    const colors = ['#A9B57E', '#22C55E', '#3B82F6', '#F97316', '#8B5CF6']
+    const colors = ['var(--c-accent)', '#22C55E', '#3B82F6', '#F97316', '#8B5CF6']
     const color = colors[i % colors.length]
     return (
       <span
@@ -68,7 +68,7 @@ export default function PaymentStatus({ transactionId, onRetry, onSuccess }: Pro
       {/* Pending / Processing */}
       {(status === 'pending' || status === 'processing') && (
         <>
-          <Loader2 size={48} color="#A9B57E" className="animate-spin" />
+          <Loader2 size={48} color="var(--c-accent)" className="animate-spin" />
           <p style={{ fontSize: 16, fontWeight: 600, color: '#1A1A1A', margin: 0 }}>
             Paiement en cours de traitement
           </p>
@@ -106,7 +106,7 @@ export default function PaymentStatus({ transactionId, onRetry, onSuccess }: Pro
               alignItems: 'center',
               gap: 6,
               padding: '10px 20px',
-              background: '#A9B57E',
+              background: 'var(--c-accent)',
               color: '#fff',
               border: 'none',
               borderRadius: 8,
