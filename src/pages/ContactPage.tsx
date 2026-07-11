@@ -36,7 +36,7 @@ export default function ContactPage() {
     }
   };
 
-  const inputClass = "w-full px-4 py-3 bg-ink-200 border border-white/[0.06] rounded-lg text-neutral-light text-sm outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted/50";
+  const inputClass = "w-full px-4 py-3 bg-ink-200 border border-white/[0.06] rounded-lg text-neutral-light text-sm outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted";
 
   return (
     <>

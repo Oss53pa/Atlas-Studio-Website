@@ -350,11 +350,11 @@ export default function ApplicationDetailPage() {
                         {allFeatures.map((feature, fi) => {
                           const included = isFeatureIncluded(feature, pi);
                           return (
-                            <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted/40"}`}>
+                            <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted"}`}>
                               {included ? (
                                 <CheckCircle2 size={16} className="text-gold flex-shrink-0 mt-0.5" strokeWidth={2} />
                               ) : (
-                                <span className="w-4 h-4 flex-shrink-0 mt-0.5 text-center text-neutral-muted/30">&mdash;</span>
+                                <span className="w-4 h-4 flex-shrink-0 mt-0.5 text-center text-neutral-muted">&mdash;</span>
                               )}
                               <span><StyledText>{cleanFeatureName(feature)}</StyledText></span>
                             </div>
@@ -374,7 +374,7 @@ export default function ApplicationDetailPage() {
                     ) : (
                       <button
                         disabled
-                        className="w-full py-3.5 rounded-xl bg-white/[0.03] text-neutral-muted/60 font-medium text-sm cursor-not-allowed border border-white/[0.06]"
+                        className="w-full py-3.5 rounded-xl bg-white/[0.03] text-neutral-muted font-medium text-sm cursor-not-allowed border border-white/[0.06]"
                       >
                         {status === "coming_soon" ? "Bientôt disponible" : "Indisponible"}
                       </button>
@@ -448,7 +448,7 @@ export default function ApplicationDetailPage() {
                               {isIncluded ? (
                                 <CheckCircle2 size={18} className="text-gold mx-auto" strokeWidth={2} />
                               ) : (
-                                <span className="text-neutral-muted/30">&mdash;</span>
+                                <span className="text-neutral-muted">&mdash;</span>
                               )}
                             </td>
                           );
@@ -509,7 +509,7 @@ export default function ApplicationDetailPage() {
             ) : (
               <button
                 disabled
-                className="py-3 px-6 rounded-lg bg-white/[0.03] text-neutral-muted/60 font-medium text-sm cursor-not-allowed border border-white/[0.06]"
+                className="py-3 px-6 rounded-lg bg-white/[0.03] text-neutral-muted font-medium text-sm cursor-not-allowed border border-white/[0.06]"
               >
                 {status === "coming_soon" ? "Bientôt disponible" : "Indisponible"}
               </button>

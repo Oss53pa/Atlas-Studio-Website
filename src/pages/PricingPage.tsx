@@ -170,11 +170,11 @@ function AppPricingSection({ app }: { app: AppItem }) {
                 {app.features.map((feature, fi) => {
                   const included = i > 0 || !isPremiumFeature(feature);
                   return (
-                    <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted/40"}`}>
+                    <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted"}`}>
                       {included ? (
                         <CheckCircle2 size={16} className="text-gold flex-shrink-0 mt-0.5" strokeWidth={2} />
                       ) : (
-                        <X size={16} className="text-neutral-muted/30 flex-shrink-0 mt-0.5" />
+                        <X size={16} className="text-neutral-muted flex-shrink-0 mt-0.5" />
                       )}
                       <span>{cleanFeatureName(feature)}</span>
                     </div>

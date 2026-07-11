@@ -19,7 +19,7 @@ export function TestimonialCard({ name, role, company, text, avatar }: Testimoni
           <div>
             <div className="text-neutral-light text-sm font-normal">{name}</div>
             <div className="text-neutral-muted text-xs font-light">{role}</div>
-            <div className="text-neutral-muted/60 text-[11px] font-light">{company}</div>
+            <div className="text-neutral-muted text-[11px] font-light">{company}</div>
           </div>
         </div>
       </div>

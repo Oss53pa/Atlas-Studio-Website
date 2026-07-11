@@ -62,7 +62,7 @@ export function ProblemsGrid() {
                 <p className="text-neutral-muted text-[13px] md:text-sm font-light leading-relaxed mb-3">
                   {p.body}
                 </p>
-                <p className="text-neutral-light/85 text-[13px] md:text-sm font-medium leading-relaxed">
+                <p className="text-neutral-body text-[13px] md:text-sm font-medium leading-relaxed">
                   {p.emphasis}
                 </p>
               </div>

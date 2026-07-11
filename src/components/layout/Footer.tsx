@@ -86,14 +86,14 @@ export function Footer() {
             )}
 
             {/* Newsletter */}
-            <div className="text-neutral-muted/60 text-[10px] font-semibold uppercase tracking-[0.16em] mb-2.5">Newsletter</div>
+            <div className="text-neutral-muted text-[10px] font-semibold uppercase tracking-[0.16em] mb-2.5">Newsletter</div>
             <div className="flex gap-2">
               <input
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 onKeyDown={e => e.key === "Enter" && handleNewsletter()}
-                className="flex-1 px-3.5 py-2.5 bg-ink-200 border border-white/[0.08] rounded-lg text-neutral-light text-[13px] outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted/50"
+                className="flex-1 px-3.5 py-2.5 bg-ink-200 border border-white/[0.08] rounded-lg text-neutral-light text-[13px] outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted"
               />
               <button
                 onClick={handleNewsletter}
@@ -165,10 +165,10 @@ export function Footer() {
       </div>
 
       <div className="relative border-t border-white/[0.05] px-5 md:px-8 py-5 flex justify-between flex-wrap gap-4 max-w-site mx-auto">
-        <p className="text-neutral-muted/60 text-[11px] font-light">
+        <p className="text-neutral-muted text-[11px] font-light">
           &copy; 2026 Atlas Studio. Abidjan, Côte d'Ivoire
         </p>
-        <p className="text-neutral-muted/60 text-[11px] font-light">
+        <p className="text-neutral-muted text-[11px] font-light">
           Données chiffrées AES-256 — traitement IA 100% local sur nos serveurs dédiés
         </p>
       </div>

@@ -183,7 +183,7 @@ export default {
         'gradient-gold': 'linear-gradient(135deg, var(--c-accent-dark) 0%, var(--c-accent) 35%, #E8C88A 50%, var(--c-accent) 65%, var(--c-accent-dark) 100%)',
         'gradient-gold-soft': 'linear-gradient(135deg, rgba(201,148,58,0.14) 0%, rgba(221,184,118,0.06) 100%)',
         // Cream for brand wordmark
-        'gradient-champagne': 'linear-gradient(135deg, #A39E87 0%, #DEDBCF 35%, #FAF9F5 50%, #DEDBCF 65%, #A39E87 100%)',
+        'gradient-champagne': 'linear-gradient(135deg, var(--c-accent-dark) 0%, var(--c-accent) 50%, var(--c-accent-dark) 100%)',
         'gradient-ink': 'linear-gradient(180deg, #17171a 0%, #1c1c20 100%)',
         'gradient-ink-radial': 'radial-gradient(ellipse at top, #212126 0%, #17171a 60%)',
         'gradient-card': 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',

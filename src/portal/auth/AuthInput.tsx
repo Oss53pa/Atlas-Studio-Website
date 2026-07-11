@@ -51,7 +51,7 @@ export function AuthInput({
           placeholder={placeholder}
           autoComplete={autoComplete}
           inputMode={inputMode}
-          className={`w-full px-4 py-3.5 bg-p-surface border rounded-xl text-neutral-light text-sm outline-none transition-all duration-200 placeholder:text-neutral-muted/50 shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] ${
+          className={`w-full px-4 py-3.5 bg-p-surface border rounded-xl text-neutral-light text-sm outline-none transition-all duration-200 placeholder:text-neutral-muted shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] ${
             error
               ? "border-rose-500/60 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
               : "border-white/[0.07] focus:border-gold/55 focus:ring-2 focus:ring-gold/30"

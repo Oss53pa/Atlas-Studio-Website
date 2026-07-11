@@ -55,7 +55,7 @@ function BlogCard({ post, featured = false }: { post: BlogPost; featured?: boole
               {post.readTime}
             </span>
           </div>
-          <ArrowRight size={16} className="text-neutral-muted/40 group-hover:text-gold group-hover:translate-x-1 transition-all duration-300" strokeWidth={1.8} />
+          <ArrowRight size={16} className="text-neutral-muted group-hover:text-gold group-hover:translate-x-1 transition-all duration-300" strokeWidth={1.8} />
         </div>
       </div>
     </Link>
@@ -125,12 +125,12 @@ export default function BlogPage() {
           </div>
 
           <div className="relative w-full md:w-72">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted/50" strokeWidth={1.8} />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-muted" strokeWidth={1.8} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Rechercher un article..."
-              className="w-full pl-9 pr-4 py-2.5 bg-ink-200 border border-white/[0.08] rounded-lg text-neutral-light text-[13px] outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted/50"
+              className="w-full pl-9 pr-4 py-2.5 bg-ink-200 border border-white/[0.08] rounded-lg text-neutral-light text-[13px] outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted"
             />
           </div>
         </div>

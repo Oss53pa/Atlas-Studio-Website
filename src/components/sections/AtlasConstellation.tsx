@@ -150,29 +150,29 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
         {hovered ? (
           <div className="font-mono text-[11px] tracking-wide text-neutral-light flex items-baseline gap-2 flex-wrap">
             <span className="text-p-accent">{hovered.country_code}</span>
-            <span className="text-neutral-light/90">{hovered.country_name}</span>
-            <span className="text-neutral-light/40">·</span>
-            <span className="text-neutral-light/60">{hovered.zone}</span>
-            <span className="text-neutral-light/40">·</span>
-            <span className="text-neutral-light/60">{hovered.currency}</span>
+            <span className="text-neutral-body">{hovered.country_name}</span>
+            <span className="text-neutral-muted">·</span>
+            <span className="text-neutral-muted">{hovered.zone}</span>
+            <span className="text-neutral-muted">·</span>
+            <span className="text-neutral-muted">{hovered.currency}</span>
             {hovered.vat_standard_rate !== null && (
               <>
-                <span className="text-neutral-light/40">·</span>
-                <span className="text-neutral-light/80">TVA {hovered.vat_standard_rate}%</span>
+                <span className="text-neutral-muted">·</span>
+                <span className="text-neutral-body">TVA {hovered.vat_standard_rate}%</span>
               </>
             )}
             {hovered.corporate_tax_rate !== null && (
               <>
-                <span className="text-neutral-light/40">·</span>
-                <span className="text-neutral-light/80">IS {hovered.corporate_tax_rate}%</span>
+                <span className="text-neutral-muted">·</span>
+                <span className="text-neutral-body">IS {hovered.corporate_tax_rate}%</span>
               </>
             )}
-            <span className="ml-auto text-[9px] uppercase tracking-[0.2em] text-neutral-light/40">
+            <span className="ml-auto text-[9px] uppercase tracking-[0.2em] text-neutral-muted">
               {hovered.rates_verified ? "vérifié" : "à confirmer"}
             </span>
           </div>
         ) : (
-          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-neutral-light/35">
+          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-neutral-muted">
             17 états · UEMOA · CEMAC · survolez un point
           </div>
         )}

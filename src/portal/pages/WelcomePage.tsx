@@ -140,11 +140,11 @@ export default function WelcomePage() {
           <Link to="/portal" className="text-neutral-muted hover:text-gold transition-colors">
             Tableau de bord portail
           </Link>
-          <span className="text-neutral-muted/40">·</span>
+          <span className="text-neutral-muted">·</span>
           <Link to="/portal" className="text-neutral-muted hover:text-gold transition-colors">
             Catalogue d'applications
           </Link>
-          <span className="text-neutral-muted/40">·</span>
+          <span className="text-neutral-muted">·</span>
           <Link to="/portal" className="text-neutral-muted hover:text-gold transition-colors">
             Mon profil
           </Link>

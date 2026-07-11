@@ -54,19 +54,19 @@ export default function HomePage() {
 
             {/* META STRIP — bandeau éditorial supérieur */}
             <div className="relative max-w-[1280px] mx-auto w-full flex items-baseline justify-between gap-4 flex-wrap mb-12 md:mb-16">
-              <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/55 flex items-baseline gap-3 md:gap-4">
+              <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-muted flex items-baseline gap-3 md:gap-4">
                 <span className="meta-led" />
                 <span>Édition MMXXVI</span>
-                <span className="text-neutral-light/25">/</span>
+                <span className="text-neutral-muted">/</span>
                 <span>OHADA · 17 États</span>
                 {productCount > 0 && (
                   <>
-                    <span className="text-neutral-light/25 hidden sm:inline">/</span>
+                    <span className="text-neutral-muted hidden sm:inline">/</span>
                     <span className="hidden sm:inline">{productCount} produits actifs</span>
                   </>
                 )}
               </div>
-              <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-light/45 hidden md:block">
+              <div className="meta-mono text-[10px] md:text-[11px] tracking-[0.22em] uppercase text-neutral-muted hidden md:block">
                 Suite logicielle — Afrique francophone
               </div>
             </div>
@@ -91,7 +91,7 @@ export default function HomePage() {
                   {line2 && (
                     <>
                       <br />
-                      <span className="italic font-light text-neutral-light/75 text-[78%]">
+                      <span className="italic font-light text-neutral-body text-[78%]">
                         {line2}.
                       </span>
                     </>
@@ -123,7 +123,7 @@ export default function HomePage() {
                   <AtlasConstellation className="w-full h-full" />
                 </div>
                 {/* Légende discrète sous la constellation, en mono */}
-                <div className="hidden lg:flex justify-between items-baseline mt-4 max-w-[520px] ml-auto meta-mono text-[10px] tracking-[0.2em] uppercase text-neutral-light/40">
+                <div className="hidden lg:flex justify-between items-baseline mt-4 max-w-[520px] ml-auto meta-mono text-[10px] tracking-[0.2em] uppercase text-neutral-muted">
                   <span>UEMOA · 8</span>
                   <span>CEMAC · 6</span>
                   <span>Hors zone · 3</span>
@@ -138,8 +138,8 @@ export default function HomePage() {
                   {tapeItems.concat(tapeItems).map((it, i) => (
                     <span key={i} className="flex items-baseline gap-3 px-8 meta-mono text-[11px] tracking-[0.18em] uppercase whitespace-nowrap">
                       <span className="text-p-accent">{it.glyph}</span>
-                      <span className="text-neutral-light/85"><StyledText>{it.value}</StyledText></span>
-                      {it.label && <span className="text-neutral-light/45"><StyledText>{it.label}</StyledText></span>}
+                      <span className="text-neutral-body"><StyledText>{it.value}</StyledText></span>
+                      {it.label && <span className="text-neutral-muted"><StyledText>{it.label}</StyledText></span>}
                     </span>
                   ))}
                 </div>
@@ -165,18 +165,18 @@ export default function HomePage() {
                   {content.apps?.length ?? 0} apps
                 </span>{" "}
                 <br className="hidden md:block" />
-                <span className="italic font-light text-neutral-light/75">pensées pour l'OHADA.</span>
+                <span className="italic font-light text-neutral-body">pensées pour l'OHADA.</span>
               </h2>
             </div>
             <div className="lg:col-span-5 lg:text-right">
-              <div className="meta-mono text-[11px] tracking-[0.2em] uppercase text-neutral-light/40 mb-3">
+              <div className="meta-mono text-[11px] tracking-[0.2em] uppercase text-neutral-muted mb-3">
                 Catalogue actif
               </div>
-              <div className="flex flex-wrap lg:justify-end gap-x-3 gap-y-1.5 meta-mono text-[12px] text-neutral-light/70">
+              <div className="flex flex-wrap lg:justify-end gap-x-3 gap-y-1.5 meta-mono text-[12px] text-neutral-body">
                 {(content.apps || []).map((app, i, arr) => (
                   <span key={app.id}>
                     {app.name}
-                    {i < arr.length - 1 && <span className="text-neutral-light/25"> · </span>}
+                    {i < arr.length - 1 && <span className="text-neutral-muted"> · </span>}
                   </span>
                 ))}
               </div>
@@ -192,7 +192,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-16 flex items-baseline justify-between gap-4 flex-wrap">
-            <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/35">
+            <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted">
               Fin de section · 02 / 09
             </div>
             <Link to="/applications" className="cta-arrow">
@@ -231,7 +231,7 @@ export default function HomePage() {
                       </span>
                     </div>
                     <div className={`col-span-12 ${right ? "md:col-start-5 md:col-span-8 md:text-right" : "md:col-span-8"}`}>
-                      <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/40 mb-3">
+                      <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted mb-3">
                         <StyledText>{step.num}</StyledText>
                       </div>
                       <h3 className="font-display font-medium text-[22px] md:text-[28px] leading-tight text-neutral-light mb-3 tracking-[-0.02em]">
@@ -267,14 +267,14 @@ export default function HomePage() {
             <p className="text-[15px] md:text-[16px] text-neutral-muted font-light leading-relaxed max-w-[640px] mb-8">
               {content.about?.p2}
             </p>
-            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-neutral-light/45">
+            <div className="meta-mono text-[11px] tracking-[0.22em] uppercase text-neutral-muted">
               <span className="font-logo text-gradient-champagne text-[20px] tracking-normal normal-case mr-3">Atlas Studio</span>
               · Origine du projet
             </div>
           </div>
 
           <div className="lg:col-span-4">
-            <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/40 mb-5">
+            <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted mb-5">
               Ledger
             </div>
             <dl className="space-y-5">
@@ -337,7 +337,7 @@ export default function HomePage() {
                 {t("home.vsAlternatives")}
               </h2>
             </div>
-            <div className="lg:col-span-5 lg:text-right meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/45">
+            <div className="lg:col-span-5 lg:text-right meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted">
               Recoupé sur le marché OHADA · {new Date().getFullYear()}
             </div>
           </div>
@@ -350,7 +350,7 @@ export default function HomePage() {
                     <tr key={ri} className={row.highlight ? "comp-hl" : ""}>
                       <td>{row.name}</td>
                       {row.values.map((v, vi) => (
-                        <td key={vi} className={vi === 0 ? "font-mono" : v.startsWith("✓") ? "text-gold font-medium" : v === "✗" ? "text-neutral-muted/40" : ""}>
+                        <td key={vi} className={vi === 0 ? "font-mono" : v.startsWith("✓") ? "text-gold font-medium" : v === "✗" ? "text-neutral-muted" : ""}>
                           <StyledText>{v}</StyledText>
                         </td>
                       ))}
@@ -400,7 +400,7 @@ export default function HomePage() {
                           <div className="text-[11px] text-neutral-muted font-light">{lead.role}</div>
                         </div>
                       </div>
-                      <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/45 mt-4">
+                      <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted mt-4">
                         {lead.company}
                       </div>
                     </div>
@@ -414,11 +414,11 @@ export default function HomePage() {
                       <ScrollReveal key={i} delay={i * 80}>
                         <div className="relative">
                           <div className="text-p-accent text-[11px] mb-3 tracking-[0.3em]">★ ★ ★ ★ ★</div>
-                          <p className="text-[13px] text-neutral-light/85 font-light italic leading-relaxed mb-4">
+                          <p className="text-[13px] text-neutral-body font-light italic leading-relaxed mb-4">
                             « {tm.text} »
                           </p>
-                          <div className="meta-mono text-[10px] tracking-[0.18em] uppercase text-neutral-light/55">
-                            {tm.name} · <span className="text-neutral-light/35">{tm.company}</span>
+                          <div className="meta-mono text-[10px] tracking-[0.18em] uppercase text-neutral-muted">
+                            {tm.name} · <span className="text-neutral-muted">{tm.company}</span>
                           </div>
                         </div>
                       </ScrollReveal>
@@ -448,7 +448,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 max-w-3xl mb-14 border-t border-white/[0.06] pt-10">
             <div>
-              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/45 mb-3">
+              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted mb-3">
                 {t("home.atlasFNA")}
               </div>
               <div className="flex items-baseline gap-2 flex-wrap">
@@ -458,11 +458,11 @@ export default function HomePage() {
               <p className="text-[13px] text-neutral-muted font-light mt-3 max-w-[300px]">{t("home.accountingSyscohada")}</p>
             </div>
             <div>
-              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/45 mb-3">
+              <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted mb-3">
                 {t("home.standaloneAppsLabel")}
               </div>
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="font-display font-light italic text-[20px] md:text-[26px] leading-none text-neutral-light/70 mr-1">dès</span>
+                <span className="font-display font-light italic text-[20px] md:text-[26px] leading-none text-neutral-body mr-1">dès</span>
                 <span className="font-display font-medium text-[32px] md:text-[42px] leading-none text-p-accent tracking-tight tabular-nums whitespace-nowrap">25 000</span>
                 <span className="text-neutral-muted text-[14px] font-light">{t("home.perMonthOrYear")}</span>
               </div>
@@ -493,7 +493,7 @@ export default function HomePage() {
             <h2 className="font-display font-medium tracking-[-0.025em] leading-[1.04] text-[32px] md:text-[40px] lg:text-[44px] text-neutral-light">
               {t("home.faqTitle")}
             </h2>
-            <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/40 mt-8">
+            <div className="meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted mt-8">
               {(content.faqs || []).length} questions
             </div>
           </div>
@@ -526,7 +526,7 @@ export default function HomePage() {
           </div>
           <h2 className="font-display font-medium tracking-[-0.03em] leading-[1.02] text-[32px] sm:text-[42px] md:text-[54px] lg:text-[64px] text-neutral-light max-w-4xl mb-12">
             {t("home.readyTitle")}{" "}
-            <span className="italic font-light text-neutral-light/70">{t("home.readySubtitle")}</span>
+            <span className="italic font-light text-neutral-body">{t("home.readySubtitle")}</span>
           </h2>
           <div className="flex items-baseline gap-8 flex-wrap">
             <Link to="/portal" className="cta-arrow cta-arrow--primary">
@@ -536,7 +536,7 @@ export default function HomePage() {
               {t("home.contactUs")}
             </Link>
           </div>
-          <div className="mt-20 flex items-baseline justify-between flex-wrap gap-4 meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-light/35">
+          <div className="mt-20 flex items-baseline justify-between flex-wrap gap-4 meta-mono text-[10px] tracking-[0.22em] uppercase text-neutral-muted">
             <span>09 / 09 · fin du document</span>
             <span>Atlas Studio · OHADA · {new Date().getFullYear()}</span>
           </div>
