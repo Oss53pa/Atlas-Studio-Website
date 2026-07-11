@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { User, Lock, ShieldAlert, Sparkles } from "lucide-react";
+import { User, Lock, ShieldAlert, Sparkles, Palette } from "lucide-react";
 import { useAuth } from "../../lib/auth";
+import { PaletteSwitcher } from "../../theme/PaletteSwitcher";
 import { supabase } from "../../lib/supabase";
 import { apiCall } from "../../lib/api";
 import { Proph3tConfigPanel } from "../../components/proph3t/Proph3tConfigPanel";
@@ -85,6 +86,15 @@ export function SettingsPage() {
     <div>
       <h1 className="text-neutral-text text-2xl font-bold mb-1">Paramètres</h1>
       <p className="text-neutral-muted text-sm mb-6">Gérez votre compte</p>
+
+      {/* Apparence — choix de la palette */}
+      <div className="bg-white border border-warm-border rounded-2xl p-6 max-w-md mb-6">
+        <h3 className="text-neutral-text text-base font-bold mb-1 flex items-center gap-2">
+          <Palette size={16} className="text-gold" /> Apparence
+        </h3>
+        <p className="text-neutral-muted text-[12px] mb-4">Choisissez la palette de couleurs.</p>
+        <PaletteSwitcher variant="cards" />
+      </div>
 
       {toast && (
         <div className="mb-5 px-4 py-3 rounded-lg bg-gold/10 border border-gold/20 text-gold text-sm font-medium max-w-md">
