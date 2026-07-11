@@ -686,7 +686,7 @@
   }
 
   .text-gradient-light {
-    background: linear-gradient(180deg, #FFFFFF 0%, #b3afa3 100%);
+    background: linear-gradient(180deg, var(--c-text) 0%, var(--c-text-2) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
