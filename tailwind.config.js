@@ -14,6 +14,8 @@ export default {
           accent: 'rgb(var(--c-accent-rgb) / <alpha-value>)',
           'accent-dark': 'rgb(var(--c-accent-dark-rgb) / <alpha-value>)',
           'on-accent': 'rgb(var(--c-on-accent-rgb) / <alpha-value>)',
+          volt: 'rgb(var(--c-volt-rgb) / <alpha-value>)',
+          'on-volt': 'rgb(var(--c-on-volt-rgb) / <alpha-value>)',
           text: 'rgb(var(--c-text-rgb) / <alpha-value>)',
           'text-2': 'rgb(var(--c-text-2-rgb) / <alpha-value>)',
           muted: 'rgb(var(--c-muted-rgb) / <alpha-value>)',
@@ -21,6 +23,11 @@ export default {
           ok: 'rgb(var(--c-ok-rgb) / <alpha-value>)',
           warn: 'rgb(var(--c-warn-rgb) / <alpha-value>)',
           err: 'rgb(var(--c-err-rgb) / <alpha-value>)',
+        },
+        // Ponctuation volt (Lando) — aplats uniquement (jamais texte sur clair).
+        volt: {
+          DEFAULT: 'rgb(var(--c-volt-rgb) / <alpha-value>)',
+          on: 'rgb(var(--c-on-volt-rgb) / <alpha-value>)',
         },
         // Basculés en clair (palette) — anciennement surfaces sombres.
         onyx: 'rgb(var(--c-bg-rgb) / <alpha-value>)',
@@ -141,6 +148,7 @@ export default {
       },
       fontFamily: {
         body: ["'Exo 2'", 'sans-serif'],
+        dosis: ["'Dosis'", 'sans-serif'],
         inter: ["'Inter'", 'sans-serif'],
         logo: ["'Grand Hotel'", 'cursive'],
         mono: ["'JetBrains Mono'", 'monospace'],
@@ -179,10 +187,10 @@ export default {
         'focus-ring': '0 0 0 3px rgba(201,148,58,0.32), 0 0 0 1px rgba(201,148,58,0.55)',
       },
       backgroundImage: {
-        // Olive 5-stop gradient — premium feutré shimmer
-        'gradient-gold': 'linear-gradient(135deg, var(--c-accent-dark) 0%, var(--c-accent) 35%, #E8C88A 50%, var(--c-accent) 65%, var(--c-accent-dark) 100%)',
-        'gradient-gold-soft': 'linear-gradient(135deg, rgba(201,148,58,0.14) 0%, rgba(221,184,118,0.06) 100%)',
-        // Cream for brand wordmark
+        // Olive lisible (sur clair) — plus de ton clair au centre
+        'gradient-gold': 'linear-gradient(135deg, var(--c-accent-dark) 0%, var(--c-accent) 50%, var(--c-accent-dark) 100%)',
+        'gradient-gold-soft': 'linear-gradient(135deg, rgba(92,107,18,0.14) 0%, rgba(62,74,12,0.06) 100%)',
+        // Wordmark « Atlas Studio »
         'gradient-champagne': 'linear-gradient(135deg, var(--c-accent-dark) 0%, var(--c-accent) 50%, var(--c-accent-dark) 100%)',
         'gradient-ink': 'linear-gradient(180deg, #17171a 0%, #1c1c20 100%)',
         'gradient-ink-radial': 'radial-gradient(ellipse at top, #212126 0%, #17171a 60%)',

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Grand+Hotel&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Dosis:wght@300;400;500;600;700;800&family=Grand+Hotel&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,6 +16,8 @@
   --c-accent: rgb(var(--c-accent-rgb));
   --c-accent-dark: rgb(var(--c-accent-dark-rgb));
   --c-on-accent: rgb(var(--c-on-accent-rgb));
+  --c-volt: rgb(var(--c-volt-rgb));
+  --c-on-volt: rgb(var(--c-on-volt-rgb));
   --c-text: rgb(var(--c-text-rgb));
   --c-text-2: rgb(var(--c-text-2-rgb));
   --c-muted: rgb(var(--c-muted-rgb));
@@ -24,18 +26,22 @@
   --c-warn: rgb(var(--c-warn-rgb));
   --c-err: rgb(var(--c-err-rgb));
 }
+/* ===== Palette B — « Lando » (défaut) : olive-lime + volt + crème + olive-noir =====
+   accent = olive-lime LISIBLE en texte comme en aplat ; volt = ponctuation (aplats). */
 :root, :root[data-palette="b"] {
-  --c-bg-rgb: 247 243 236; --c-surface-rgb: 255 255 255; --c-surface-alt-rgb: 245 240 232;
-  --c-ink-rgb: 26 20 16; --c-accent-rgb: 152 104 20; --c-accent-dark-rgb: 126 86 22;
-  --c-on-accent-rgb: 255 250 240; --c-text-rgb: 26 20 16; --c-text-2-rgb: 74 66 56;
-  --c-muted-rgb: 110 100 86; --c-border-rgb: 226 220 208;
-  --c-ok-rgb: 60 100 74; --c-warn-rgb: 150 92 24; --c-err-rgb: 168 50 50;
+  --c-bg-rgb: 244 244 237; --c-surface-rgb: 255 255 255; --c-surface-alt-rgb: 236 236 227;
+  --c-ink-rgb: 40 44 32; --c-accent-rgb: 92 107 18; --c-accent-dark-rgb: 62 74 12;
+  --c-on-accent-rgb: 244 244 237; --c-text-rgb: 22 23 15; --c-text-2-rgb: 74 76 64;
+  --c-muted-rgb: 124 125 112; --c-border-rgb: 221 221 210;
+  --c-volt-rgb: 210 255 0; --c-on-volt-rgb: 22 23 15;
+  --c-ok-rgb: 60 122 74; --c-warn-rgb: 150 92 24; --c-err-rgb: 168 50 50;
 }
 :root[data-palette="a"] {
   --c-bg-rgb: 250 250 247; --c-surface-rgb: 255 255 255; --c-surface-alt-rgb: 245 240 232;
   --c-ink-rgb: 11 25 41; --c-accent-rgb: 134 104 36; --c-accent-dark-rgb: 122 94 40;
   --c-on-accent-rgb: 255 252 245; --c-text-rgb: 11 25 41; --c-text-2-rgb: 52 62 74;
   --c-muted-rgb: 95 104 117; --c-border-rgb: 228 226 220;
+  --c-volt-rgb: 134 104 36; --c-on-volt-rgb: 255 252 245;
   --c-ok-rgb: 4 120 87; --c-warn-rgb: 154 70 8; --c-err-rgb: 168 40 40;
 }
 
@@ -109,15 +115,15 @@
               filter 0.25s ease;
   color: #1a1c12;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%),
-    linear-gradient(135deg, var(--c-accent-dark) 0%, var(--c-accent) 35%, #E8C88A 50%, var(--c-accent) 65%, var(--c-accent-dark) 100%);
+    linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(135deg, var(--c-volt) 0%, var(--c-volt) 100%);
   background-size: 100% 100%, 240% 240%;
   background-position: 0 0, 0% 50%;
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.32),
     inset 0 -1px 0 0 rgba(0, 0, 0, 0.18),
-    0 4px 14px rgba(201, 148, 58, 0.36),
-    0 0 0 1px rgba(201, 148, 58, 0.45);
+    0 4px 16px rgba(210, 255, 0, 0.40),
+    0 0 0 1px rgba(210, 255, 0, 0.55);
 }
 
 .btn-gold::before {
@@ -909,3 +915,20 @@
 .cta-arrow--primary::after { color: #1a1c12; }
 .cta-arrow--primary:hover { color: #000; }
 
+
+/* ---- Constellation des apps ---- */
+@keyframes apps-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2.5px); }
+}
+.apps-node { animation: apps-float 4.5s ease-in-out infinite; will-change: transform; }
+.apps-node:hover { animation-play-state: paused; }
+
+@keyframes apps-dash {
+  to { stroke-dashoffset: -6; }
+}
+.apps-link { animation: apps-dash 3.5s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .apps-node, .apps-link { animation: none; }
+}
