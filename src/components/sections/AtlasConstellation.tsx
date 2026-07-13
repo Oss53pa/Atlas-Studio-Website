@@ -79,8 +79,8 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
       <svg viewBox="0 0 100 100" className="w-full h-full" role="img" aria-label="Constellation OHADA — 17 États membres">
         <defs>
           <radialGradient id="ohada-glow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%"  stopColor="rgba(169,181,126,0.18)" />
-            <stop offset="60%" stopColor="rgba(169,181,126,0.03)" />
+            <stop offset="0%"  stopColor="rgba(152,104,20,0.16)" />
+            <stop offset="60%" stopColor="rgba(152,104,20,0.03)" />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
           <filter id="ohada-soft" x="-50%" y="-50%" width="200%" height="200%">
@@ -92,7 +92,7 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
         <circle cx="50" cy="50" r="48" fill="url(#ohada-glow)" />
 
         {/* grille fine */}
-        <g stroke="rgba(255,255,255,0.04)" strokeWidth="0.15">
+        <g stroke="rgba(26,20,16,0.06)" strokeWidth="0.15">
           {[20, 40, 60, 80].map((v) => <line key={`h${v}`} x1="6" y1={v} x2="94" y2={v} />)}
           {[20, 40, 60, 80].map((v) => <line key={`v${v}`} x1={v} y1="6" x2={v} y2="94" />)}
         </g>
@@ -135,7 +135,7 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
                   textAnchor="middle"
                   fontSize="2"
                   fontFamily="JetBrains Mono, monospace"
-                  fill="rgba(245,245,245,0.55)">
+                  fill="var(--c-text-2)" fillOpacity="0.9">
                   {p.country_code}
                 </text>
               </g>
