@@ -147,12 +147,12 @@ export default {
         },
       },
       fontFamily: {
-        body: ["'Exo 2'", 'sans-serif'],
+        body: ["'Dosis'", "'Exo 2'", 'sans-serif'],
         dosis: ["'Dosis'", 'sans-serif'],
         inter: ["'Inter'", 'sans-serif'],
         logo: ["'Grand Hotel'", 'cursive'],
         mono: ["'JetBrains Mono'", 'monospace'],
-        display: ["'Inter'", "'Exo 2'", 'sans-serif'],
+        display: ["'Dosis'", "'Inter'", 'sans-serif'],
       },
       maxWidth: {
         site: '1180px',
