@@ -169,3 +169,43 @@
   .hv2 .fade,.hv2 .hcard{opacity:1!important;transform:none!important}
   .hv2 .sig path{stroke-dashoffset:0!important}
   .hv2 .live .st b,.hv2 .cue i{animation:none!important}}
+
+/* ---- Sections de contenu réel réintégrées (secteurs, comparatif, témoignages, FAQ) ---- */
+.hv2 .sect{padding:clamp(56px,8vh,96px) 0}
+.hv2 .sect h2,.hv2 .comp h2,.hv2 .tmo h2,.hv2 .faq h2{font-weight:800;letter-spacing:-.02em;font-size:clamp(26px,4vw,48px);line-height:1;text-wrap:balance}
+.hv2 .sect .lead,.hv2 .comp .lead,.hv2 .tmo .lead,.hv2 .faq .lead{margin:14px 0 8px;color:var(--hv-text2);max-width:46ch;font-size:16px}
+.hv2 .sect .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hv2 .sect .chip{display:inline-flex;align-items:center;gap:9px;padding:11px 18px;border:1px solid var(--hv-hair);
+  border-radius:999px;font-weight:600;font-size:14px;color:var(--hv-text);background:var(--hv-surface);transition:transform .25s,border-color .25s}
+.hv2 .sect .chip:hover{border-color:var(--hv-volt);transform:translateY(-2px)}
+.hv2 .sect .chip i{width:6px;height:6px;border-radius:50%;background:var(--hv-accent);flex:none}
+
+.hv2 .comp{padding:clamp(56px,8vh,96px) 0;background:var(--hv-alt)}
+.hv2 .comp .tw{overflow-x:auto;margin-top:30px;border:1px solid var(--hv-hair);border-radius:16px}
+.hv2 .comp table{width:100%;border-collapse:collapse;min-width:660px;background:var(--hv-surface)}
+.hv2 .comp th,.hv2 .comp td{padding:15px 18px;text-align:left;font-size:14px;border-bottom:1px solid var(--hv-hair)}
+.hv2 .comp tr:last-child td{border-bottom:0}
+.hv2 .comp th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--hv-muted)}
+.hv2 .comp td:first-child{font-weight:700}
+.hv2 .comp tr.hl td{background:color-mix(in srgb,var(--hv-volt) 15%,transparent)}
+.hv2 .comp tr.hl td:first-child{color:var(--hv-accent)}
+
+.hv2 .tmo{padding:clamp(56px,8vh,96px) 0}
+.hv2 .tmo .g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;margin-top:30px}
+.hv2 .tmo .q{background:var(--hv-surface);border:1px solid var(--hv-hair);border-radius:18px;padding:26px}
+.hv2 .tmo .q>p{font-size:16px;line-height:1.55;color:var(--hv-text)}
+.hv2 .tmo .who{display:flex;align-items:center;gap:12px;margin-top:20px}
+.hv2 .tmo .av{width:42px;height:42px;border-radius:50%;background:color-mix(in srgb,var(--hv-accent) 16%,transparent);
+  color:var(--hv-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.hv2 .tmo .who b{display:block;font-weight:700;font-size:14px;color:var(--hv-text)}
+.hv2 .tmo .who span{display:block;font-size:12.5px;color:var(--hv-muted)}
+
+.hv2 .faq{padding:clamp(56px,8vh,96px) 0;background:var(--hv-alt)}
+.hv2 .faq .list{margin-top:28px;max-width:820px}
+.hv2 .faq .item{border-top:1px solid var(--hv-hair)}
+.hv2 .faq .qq{width:100%;text-align:left;background:none;border:0;cursor:pointer;padding:20px 0;font-weight:600;
+  font-size:16.5px;color:var(--hv-text);display:flex;justify-content:space-between;gap:16px;align-items:center;font-family:inherit}
+.hv2 .faq .qq em{color:var(--hv-accent);font-style:normal;font-size:22px;line-height:1;transition:transform .3s;flex:none}
+.hv2 .faq .item.open .qq em{transform:rotate(45deg)}
+.hv2 .faq .aa{max-height:0;overflow:hidden;transition:max-height .35s ease;color:var(--hv-text2);font-size:15px;line-height:1.65}
+.hv2 .faq .item.open .aa{max-height:360px;padding-bottom:22px}

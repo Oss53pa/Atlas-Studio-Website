@@ -12,6 +12,7 @@ export default function HomePage() {
   const root = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [filter, setFilter] = useState("all");
+  const [faqOpen, setFaqOpen] = useState<number | null>(0);
 
   /* Contenu RÉEL du site (CMS / config), aucun texte inventé. */
   const hero = content.hero;
@@ -234,6 +235,83 @@ export default function HomePage() {
                   </Link>
                 );
               })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* SECTEURS — réels */}
+      {content.sectors && content.sectors.length > 0 && (
+        <section className="sect">
+          <div className="wrap">
+            <h2 className="ml">Pensé pour tous les secteurs</h2>
+            <p className="lead fade">Des outils qui s'adaptent aux réalités de chaque métier, partout en Afrique francophone.</p>
+            <div className="chips">
+              {content.sectors.map((s: any) => (
+                <span className="chip" key={s.name}><i />{s.name}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPARATIF — réel */}
+      {content.comparatif && content.comparatif.rows?.length > 0 && (
+        <section className="comp">
+          <div className="wrap">
+            <h2 className="ml">Pourquoi Atlas Studio</h2>
+            <p className="lead fade">Comparé aux solutions du marché, sur ce qui compte vraiment ici.</p>
+            <div className="tw fade">
+              <table>
+                <thead><tr>{content.comparatif.headers.map((h: string) => <th key={h}>{h}</th>)}</tr></thead>
+                <tbody>
+                  {content.comparatif.rows.map((row: any) => (
+                    <tr key={row.name} className={row.highlight ? "hl" : ""}>
+                      <td>{row.name}</td>
+                      {row.values.map((v: string, j: number) => <td key={j}>{v}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* TÉMOIGNAGES — réels */}
+      {content.testimonials && content.testimonials.length > 0 && (
+        <section className="tmo">
+          <div className="wrap">
+            <h2 className="ml">Ils nous font confiance</h2>
+            <div className="g2">
+              {content.testimonials.map((t: any) => (
+                <div className="q fade" key={t.name}>
+                  <p>« {t.text} »</p>
+                  <div className="who">
+                    <span className="av">{t.avatar}</span>
+                    <span><b>{t.name}</b><span>{t.role} · {t.company}</span></span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* FAQ — réelle */}
+      {content.faqs && content.faqs.length > 0 && (
+        <section className="faq">
+          <div className="wrap">
+            <h2 className="ml">Questions fréquentes</h2>
+            <div className="list">
+              {content.faqs.map((f: any, i: number) => (
+                <div className={"item" + (faqOpen === i ? " open" : "")} key={i}>
+                  <button className="qq" onClick={() => setFaqOpen(faqOpen === i ? null : i)} aria-expanded={faqOpen === i}>
+                    {f.q}<em>+</em>
+                  </button>
+                  <div className="aa">{f.a}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
