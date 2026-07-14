@@ -6,9 +6,11 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // 'prompt' mode: we register the SW manually in main.tsx and decide
-      // when to call updateSW(). Combined with the auto-reload hook, every
-      // visit picks up the latest deploy without users having to clear cache.
+      // SW AUTO-DESTRUCTEUR : génère un service worker qui se désinstalle et
+      // vide tous les caches précédents chez chaque visiteur. Neutralise
+      // définitivement l'ancien SW PWA qui servait une version périmée de la
+      // home (titre/footer obsolètes) malgré les rechargements forcés.
+      selfDestroying: true,
       registerType: 'prompt',
       injectRegister: false, // we handle registration ourselves in main.tsx
       includeAssets: ['favicon.svg', 'robots.txt'],
