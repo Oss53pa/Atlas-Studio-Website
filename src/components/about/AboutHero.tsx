@@ -17,7 +17,7 @@ export function AboutHero() {
 
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
-          <h1 className="text-4xl md:text-5xl lg:text-[58px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-9 max-w-4xl">
+          <h1 className="text-4xl md:text-5xl lg:text-[58px] font-bold text-gradient-light leading-[1.12] tracking-tight mb-9 max-w-4xl">
             Vous passez des heures à refaire ce que votre logiciel aurait dû livrer{" "}
             <span className="text-gradient-gold">directement</span>.
           </h1>

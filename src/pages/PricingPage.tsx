@@ -23,7 +23,7 @@ function BundlesSection() {
         <ScrollReveal>
           <div className="text-center mb-12">
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Suites</div>
-            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-3 tracking-tight">Économisez avec les suites</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-3 tracking-tight">Économisez avec les suites</h2>
             <p className="text-neutral-muted text-[15px] font-light max-w-xl mx-auto">
               Regroupez plusieurs applications et profitez de −20 % sur le total. Engagement annuel cumulable.
             </p>
@@ -210,7 +210,7 @@ export default function PricingPage() {
         <div className="relative max-w-3xl mx-auto text-center">
           <ScrollReveal>
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Tarifs</div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gradient-light mb-5 tracking-tight leading-[1.12]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gradient-light mb-5 tracking-tight leading-[1.12]">
               Tarifs simples et transparents
             </h1>
             <p className="text-neutral-muted text-base md:text-lg font-light max-w-xl mx-auto leading-relaxed">
@@ -237,7 +237,7 @@ export default function PricingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] glow-gold opacity-50 pointer-events-none" />
         <div className="relative">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">Prêt à démarrer ?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-4 tracking-tight">Prêt à démarrer ?</h2>
             <p className="text-neutral-muted text-[15px] font-light mb-9 max-w-md mx-auto">Souscrivez maintenant. Sans engagement, annulation à tout moment.</p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link to="/portal" className="btn-gold">

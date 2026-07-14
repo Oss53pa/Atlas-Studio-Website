@@ -69,7 +69,7 @@ export default function WelcomePage() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30 mb-5">
             <Sparkles size={26} className="text-emerald-300" strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl md:text-4xl font-medium text-gradient-light tracking-tight mb-3">
+          <h1 className="text-3xl md:text-4xl font-bold text-gradient-light tracking-tight mb-3">
             Bienvenue{firstName ? `, ${firstName}` : ""}
           </h1>
           <p className="text-neutral-muted text-[15px] font-light max-w-md mx-auto leading-relaxed">

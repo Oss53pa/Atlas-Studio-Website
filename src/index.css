@@ -32,7 +32,7 @@
   --c-bg-rgb: 244 244 237; --c-surface-rgb: 255 255 255; --c-surface-alt-rgb: 236 236 227;
   --c-ink-rgb: 40 44 32; --c-accent-rgb: 92 107 18; --c-accent-dark-rgb: 62 74 12;
   --c-on-accent-rgb: 244 244 237; --c-text-rgb: 22 23 15; --c-text-2-rgb: 74 76 64;
-  --c-muted-rgb: 124 125 112; --c-border-rgb: 221 221 210;
+  --c-muted-rgb: 106 107 95; --c-border-rgb: 221 221 210;
   --c-volt-rgb: 210 255 0; --c-on-volt-rgb: 22 23 15;
   --c-ok-rgb: 60 122 74; --c-warn-rgb: 150 92 24; --c-err-rgb: 168 50 50;
 }
@@ -696,6 +696,8 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    font-weight: 700;           /* Dosis : titres plus punchy (parité avec la home) */
+    letter-spacing: -0.02em;
   }
 
   .border-gold-subtle {

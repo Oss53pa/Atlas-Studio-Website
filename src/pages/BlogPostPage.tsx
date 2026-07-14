@@ -61,7 +61,7 @@ export default function BlogPostPage() {
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-medium text-gradient-light mb-5 leading-[1.12] tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-bold text-gradient-light mb-5 leading-[1.12] tracking-tight">
               {post.title}
             </h1>
 
@@ -105,7 +105,7 @@ export default function BlogPostPage() {
           <div className="relative max-w-site mx-auto">
             <ScrollReveal>
               <div className="section-eyebrow">Articles similaires</div>
-              <h2 className="text-2xl md:text-3xl font-medium text-gradient-light mb-10 tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-bold text-gradient-light mb-10 tracking-tight">
                 Continuer la lecture
               </h2>
             </ScrollReveal>

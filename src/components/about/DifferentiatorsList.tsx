@@ -46,7 +46,7 @@ export function DifferentiatorsList() {
       <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
-          <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-4 max-w-3xl">
+          <h2 className="text-[32px] md:text-[42px] font-bold text-gradient-light leading-[1.12] tracking-tight mb-4 max-w-3xl">
             Ce que vous pouvez faire avec{" "}
             <span className="font-logo text-gradient-champagne">Atlas Studio</span>
           </h2>

@@ -43,7 +43,7 @@ export function ProblemsGrid() {
       <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
-          <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-14 max-w-2xl">
+          <h2 className="text-[32px] md:text-[42px] font-bold text-gradient-light leading-[1.12] tracking-tight mb-14 max-w-2xl">
             Ce qui vous freine aujourd'hui, nous l'avons réglé
           </h2>
         </ScrollReveal>
@@ -54,12 +54,12 @@ export function ProblemsGrid() {
               <div className="relative h-full bg-ink-100 border border-white/[0.05] rounded-2xl p-8 card-hover shadow-premium overflow-hidden">
                 <div
                   className="absolute top-0 left-0 bottom-0 w-[3px]"
-                  style={{ background: "linear-gradient(180deg, var(--c-accent) 0%, rgba(169,181,126,0.2) 100%)" }}
+                  style={{ background: "linear-gradient(180deg, var(--c-volt) 0%, var(--c-accent) 100%)" }}
                 />
-                <h3 className="text-neutral-light text-base md:text-lg font-semibold mb-3 leading-snug tracking-tight">
+                <h3 className="text-neutral-light text-base md:text-lg font-bold mb-3 leading-snug tracking-tight">
                   {p.title}
                 </h3>
-                <p className="text-neutral-muted text-[13px] md:text-sm font-light leading-relaxed mb-3">
+                <p className="text-neutral-body text-[13px] md:text-sm font-normal leading-relaxed mb-3">
                   {p.body}
                 </p>
                 <p className="text-neutral-body text-[13px] md:text-sm font-medium leading-relaxed">

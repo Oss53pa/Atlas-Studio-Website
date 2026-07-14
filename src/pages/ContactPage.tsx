@@ -48,7 +48,7 @@ export default function ContactPage() {
         <div className="relative max-w-2xl mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">Contact</div>
-            <h1 className="text-4xl md:text-5xl font-medium text-gradient-light leading-[1.12] tracking-tight mb-4">Contactez-nous</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gradient-light leading-[1.12] tracking-tight mb-4">Contactez-nous</h1>
             <p className="text-[15px] text-neutral-muted font-light mb-12">Une question ? Notre équipe vous répond sous 24h.</p>
           </ScrollReveal>
 

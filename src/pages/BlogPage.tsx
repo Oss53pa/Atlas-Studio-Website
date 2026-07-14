@@ -95,7 +95,7 @@ export default function BlogPage() {
         <div className="relative max-w-3xl mx-auto text-center">
           <ScrollReveal>
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Le Blog</div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gradient-light mb-5 tracking-tight leading-[1.12]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gradient-light mb-5 tracking-tight leading-[1.12]">
               Le Blog <span className="font-logo text-gradient-champagne">Atlas</span>
             </h1>
             <p className="text-neutral-muted text-base md:text-lg font-light max-w-xl mx-auto leading-relaxed">
@@ -172,7 +172,7 @@ export default function BlogPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] glow-gold opacity-50 pointer-events-none" />
         <div className="relative">
           <ScrollReveal>
-            <h2 className="text-2xl md:text-3xl font-medium text-gradient-light mb-4 tracking-tight">Restez informé</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gradient-light mb-4 tracking-tight">Restez informé</h2>
             <p className="text-neutral-muted text-sm font-light mb-7 max-w-md mx-auto">
               Recevez nos derniers articles et conseils directement dans votre boîte mail.
             </p>
