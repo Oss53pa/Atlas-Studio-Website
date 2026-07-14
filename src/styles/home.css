@@ -67,6 +67,10 @@
 .hv2 .live .row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-top:1px solid var(--hv-hair-faint)}
 .hv2 .live .row span{color:var(--hv-muted)} .hv2 .live .row b{font-weight:600}
 @media(max-width:860px){.hv2 .live{display:none}}
+.hv2 .hstats{margin-top:42px;display:flex;gap:clamp(20px,4vw,52px);flex-wrap:wrap;
+  border-top:1px solid var(--hv-hair);padding-top:22px;max-width:660px}
+.hv2 .hstats .s b{display:block;font-weight:800;font-size:clamp(22px,2.6vw,32px);line-height:1;color:var(--hv-text)}
+.hv2 .hstats .s span{display:block;margin-top:6px;font-size:12.5px;color:var(--hv-muted)}
 .hv2 .cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:3;color:var(--hv-muted);
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;display:flex;flex-direction:column;align-items:center;gap:8px}
 .hv2 .cue i{width:1px;height:26px;background:linear-gradient(var(--hv-volt),transparent);animation:hv-drop 1.8s infinite}
@@ -86,8 +90,8 @@
 .hv2 .manif{background:var(--hv-dark);color:#F4F4ED;padding:clamp(90px,16vh,180px) 0;position:relative;overflow:hidden}
 .hv2 .manif .halo2{position:absolute;width:50vw;height:50vw;left:-15vw;bottom:-20vw;border-radius:50%;
   background:radial-gradient(circle,rgb(var(--c-volt-rgb) / .12),transparent 62%)}
-.hv2 .manif .big{position:relative;font-weight:700;letter-spacing:-.015em;line-height:1.08;
-  font-size:clamp(30px,5.2vw,66px);max-width:19ch;text-wrap:balance}
+.hv2 .manif .big{position:relative;font-weight:700;letter-spacing:-.015em;line-height:1.14;
+  font-size:clamp(24px,3.4vw,44px);max-width:27ch;text-wrap:balance}
 .hv2 .manif .g{color:var(--hv-volt)}
 .hv2 .manif .tagline{margin-top:34px;color:#B9C5A6;font-size:16px;max-width:46ch}
 
@@ -156,7 +160,7 @@
 .hv2 .fbig .w{display:inline-block;transform:translateY(115%);transition:transform .7s cubic-bezier(.16,1,.3,1);
   color:transparent;-webkit-text-stroke:1.4px rgba(244,244,237,.34)}
 .hv2 .fbig.on .w{transform:none}
-.hv2 .fbig .w.g{color:var(--hv-volt);-webkit-text-stroke:0}
+.hv2 .fbig .w.g,.hv2 .fbig .g{color:var(--hv-volt);-webkit-text-stroke:0}
 .hv2 .fsub{margin-top:26px;color:#B9C5A6;font-size:16px;max-width:44ch}
 .hv2 .fcta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
 
