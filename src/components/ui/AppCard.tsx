@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Clock, ArrowUpRight } from "lucide-react";
 import { AppLogo } from "./Logo";
 import { StyledText } from "./StyledText";
+import { appShotId } from "../../config/appShots.generated";
 import type { AppItem } from "../../config/content";
 import type { AppStatus } from "../../lib/database.types";
 import { planEntries } from "../../lib/utils";
@@ -26,6 +27,7 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === 'coming_soon';
   const accent = app.color || 'var(--c-accent)';
+  const shotId = appShotId(app);
 
   const sharedClassName = `relative block bg-ink-100 border border-white/[0.05] rounded-2xl p-6 card-hover shadow-premium group overflow-hidden ${isComingSoon ? 'opacity-85' : ''}`;
   const sharedStyle = { animationDelay: `${index * 60}ms` };
@@ -48,6 +50,16 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
       />
 
       <div className="relative">
+        {shotId && (
+          <div className="-mx-6 -mt-6 mb-5 h-36 overflow-hidden border-b border-white/[0.06]">
+            <img
+              src={`/app-shots/${shotId}.jpg`}
+              alt={`Aperçu de ${app.name}`}
+              loading="lazy"
+              className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]"
+            />
+          </div>
+        )}
         <div className="flex items-center justify-between mb-3">
           <AppLogo name={app.name} size={20} color="text-gold" />
           <div className="flex items-center gap-1.5">
