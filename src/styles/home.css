@@ -17,7 +17,7 @@
 .hv2 a{color:inherit;text-decoration:none}
 
 /* masked reveal */
-.hv2 .ml .ln{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.1em;margin-bottom:-.1em}
+.hv2 .ml .ln{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.26em;margin-bottom:-.26em}
 .hv2 .ml .w{display:inline-block;transform:translateY(118%);transition:transform .85s cubic-bezier(.16,1,.3,1)}
 .hv2 .ml.on .w{transform:none}
 .hv2 .fade{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
@@ -40,7 +40,7 @@
 .hv2 h1.hv-h1{font-weight:800;letter-spacing:-.02em;font-size:clamp(42px,7.4vw,102px);line-height:.98;
   text-wrap:balance;max-width:15ch}
 .hv2 .scr{font-family:'Grand Hotel',cursive;font-weight:400;color:var(--hv-on-volt);background:var(--hv-volt);
-  letter-spacing:0;font-size:1.05em;padding:0 .16em .05em;border-radius:8px;line-height:1;
+  letter-spacing:0;font-size:1.05em;padding:.02em .16em .14em;border-radius:8px;line-height:1.06;
   -webkit-box-decoration-break:clone;box-decoration-break:clone}
 .hv2 .sig{display:block;width:min(340px,60vw);height:34px;margin-top:8px}
 .hv2 .sig path{fill:none;stroke:var(--hv-volt);stroke-width:3;stroke-linecap:round;
@@ -157,7 +157,7 @@
 /* FOOTER band */
 .hv2 .fband{background:var(--hv-black);color:#F4F4ED;padding:clamp(70px,12vh,130px) 0 40px;overflow:hidden}
 .hv2 .fbig{font-weight:800;letter-spacing:-.03em;line-height:.9;font-size:clamp(46px,12vw,148px);text-wrap:balance}
-.hv2 .fbig .ln{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.06em}
+.hv2 .fbig .ln{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.22em;margin-bottom:-.14em}
 .hv2 .fbig .w{display:inline-block;transform:translateY(115%);transition:transform .7s cubic-bezier(.16,1,.3,1);
   color:transparent;-webkit-text-stroke:1.4px rgba(244,244,237,.34)}
 .hv2 .fbig.on .w{transform:none}
