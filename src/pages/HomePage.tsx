@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useContentContext } from "../components/layout/Layout";
-import { appIcon } from "../lib/appIcons";
+import { AppCard } from "../components/ui/AppCard";
+import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { SEOHead } from "../components/ui/SEOHead";
 import "../styles/home.css";
 
@@ -20,15 +21,8 @@ export default function HomePage() {
   const trust = (content.trustBar && content.trustBar.length ? content.trustBar : []) as string[];
   const steps = content.steps || [];
   const about = content.about;
-  const apps = useMemo(() => (content.apps || []).map((a: any, i: number) => ({
-    id: a.id ?? String(i),
-    code: "A" + String(i + 1).padStart(2, "0"),
-    name: a.name ?? "App",
-    color: a.color || "var(--c-accent)",
-    type: a.type || "App",
-    tagline: a.tagline || a.desc || "",
-    Icon: appIcon(a.icon),
-  })), [content.apps]);
+  const apps = useMemo(() => content.apps || [], [content.apps]);
+  const shownApps = apps.filter((a: any) => filter === "all" || a.type === filter);
 
   /* Titre du hero : 1re phrase normale, reste surligné volt (sur son vrai texte). */
   const heroTitle = (hero?.title || "").trim();
@@ -222,19 +216,10 @@ export default function HomePage() {
                 <button key={f} className={filter === f ? "act" : ""} onClick={() => setFilter(f)}>{label}</button>
               ))}
             </div>
-            <div className="grid">
-              {apps.map((a, i) => {
-                const hide = filter !== "all" && filter !== a.type;
-                const Icon = a.Icon;
-                return (
-                  <Link to={`/applications/${a.id}`} className={"hcard" + (hide ? " hide" : "")} key={a.id} style={{ ["--dot" as any]: a.color, ["--i" as any]: i }}>
-                    <div className="top"><span className="code">{a.code}</span><span className="tag">{a.type}</span></div>
-                    <div className="nm"><span className="dot"><Icon size={18} strokeWidth={1.8} /></span><h3>{a.name}</h3></div>
-                    <p>{a.tagline}</p>
-                    <div className="go">Voir l'application →</div>
-                  </Link>
-                );
-              })}
+            <div className="appgrid">
+              {shownApps.map((a: any, i: number) => (
+                <ScrollReveal key={a.id} delay={i * 55}><AppCard app={a} index={i} /></ScrollReveal>
+              ))}
             </div>
           </div>
         </section>
