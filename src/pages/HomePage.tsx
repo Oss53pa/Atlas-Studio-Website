@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useContentContext } from "../components/layout/Layout";
 import { AppCard } from "../components/ui/AppCard";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
@@ -10,6 +11,7 @@ const FILTERS: [string, string][] = [["all", "Tout"], ["Module ERP", "Modules ER
 
 export default function HomePage() {
   const { content } = useContentContext();
+  const { t } = useTranslation();
   const root = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [filter, setFilter] = useState("all");
@@ -30,10 +32,12 @@ export default function HomePage() {
   const heroHead = hParts.length > 1 ? hParts[0] : heroTitle;
   const heroTail = hParts.length > 1 ? hParts.slice(1).join(" ") : "";
 
-  /* Footer : dernier mot du vrai titre en volt. */
-  const li = heroTitle.lastIndexOf(" ");
-  const footHead = li > 0 ? heroTitle.slice(0, li) : heroTitle;
-  const footTail = li > 0 ? heroTitle.slice(li + 1) : "";
+  /* Clôture : vraie phrase d'accroche (i18n), « gestion » surligné volt. */
+  const readyTitle = t("home.readyTitle");
+  const gi = readyTitle.toLowerCase().indexOf("gestion");
+  const rtHead = gi >= 0 ? readyTitle.slice(0, gi) : readyTitle;
+  const rtKey = gi >= 0 ? readyTitle.slice(gi, gi + 7) : "";
+  const rtTail = gi >= 0 ? readyTitle.slice(gi + 7) : "";
 
   useEffect(() => {
     const r = root.current;
@@ -310,14 +314,14 @@ export default function HomePage() {
           <p>Licences, factures, tickets et téléchargements — tout au même endroit.</p><span className="arw" style={{ color: "var(--hv-volt)" }}>Ouvrir le portail →</span></Link>
       </section>
 
-      {/* FOOTER BAND — vrai titre, découpe par mots (plus de coupure) */}
+      {/* CLÔTURE — vraie phrase d'accroche (i18n), découpe par mots */}
       <section className="fband">
         <div className="wrap">
-          <div className="fbig ml">{footHead}{footTail && <> <span className="g">{footTail}</span></>}</div>
-          {about?.p3 && <p className="fsub">{about.p3}</p>}
+          <div className="fbig ml">{rtHead}{rtKey && <span className="g">{rtKey}</span>}{rtTail}</div>
+          <p className="fsub">{t("home.readySubtitle")}</p>
           <div className="fcta">
             <Link to="/portal" className="hb hb-primary mag">{hero?.cta1 || "Créer un compte"} →</Link>
-            <Link to="/tarifs" className="hb hb-ghost mag" style={{ color: "#F4F4ED", borderColor: "rgba(244,244,237,.3)" }}>Voir les tarifs</Link>
+            <Link to="/contact" className="hb hb-ghost mag" style={{ color: "#F4F4ED", borderColor: "rgba(244,244,237,.3)" }}>{t("home.contactUs")}</Link>
           </div>
         </div>
       </section>
