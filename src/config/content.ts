@@ -142,5 +142,5 @@ export const DEFAULT_CONTENT: SiteContent = {
     { q: "Puis-je combiner plusieurs apps ?", a: "Oui, chaque app est indépendante. Combinez modules ERP et apps standalone selon vos besoins." },
     { q: "Quels moyens de paiement ?", a: "Carte bancaire (Visa, Mastercard), Mobile Money (Orange Money, MTN, Wave) et virement bancaire." },
   ],
-  contact: { email: "contact@atlasstudio.com", phone: "+225 XX XX XX XX", city: "Abidjan, Côte d'Ivoire" },
+  contact: { email: "contact@atlasstudio.com", phone: "+225 07 67 31 61 67", city: "Abidjan, Côte d'Ivoire" },
 };
