@@ -13,7 +13,7 @@ export type PaletteId = "a" | "b";
 
 export const PALETTES: { id: PaletteId; name: string; accent: string; ink: string }[] = [
   { id: "a", name: "Or & Nuit", accent: "#C4A676", ink: "#0B1929" },
-  { id: "b", name: "Or Cuivré & Noir Chaud", accent: "#C9943A", ink: "#1A1410" },
+  { id: "b", name: "Vert Volt & Olive", accent: "#D2FF00", ink: "#282C20" },
 ];
 
 export const DEFAULT_PALETTE: PaletteId = "b";

@@ -52,7 +52,7 @@ export function PaletteSwitcher({ variant = "pills" }: { variant?: "pills" | "ca
             style={active ? { background: "var(--c-accent)" } : undefined}
           >
             <span className="w-3 h-3 rounded-full" style={{ background: p.accent, boxShadow: `inset 0 0 0 2px ${p.ink}` }} />
-            {p.id === "a" ? "A · Or & Nuit" : "B · Cuivré"}
+            {p.id === "a" ? "A · Or & Nuit" : "B · Volt"}
           </button>
         );
       })}
