@@ -1,5 +1,5 @@
 -- ============================================================================
--- Atlas Compass — audit automatique (RG-10).
+-- Cortex — audit automatique (RG-10).
 -- Triggers AFTER I/U/D sur les tables métier cps_ → cps_log_audit (chaîne
 -- SHA-256 immuable). Côté serveur = inviolable (le client ne peut pas sauter
 -- l'audit). L'acteur = email JWT (UI admin) ou 'system' (edge/cron/service_role).

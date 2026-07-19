@@ -1,5 +1,5 @@
 -- ============================================================================
--- Atlas Compass — RPC de lecture agrégée (Vague 1).
+-- Cortex — RPC de lecture agrégée (Vague 1).
 -- Tous les calculs monétaires sont ici (Postgres), jamais côté client (RG-07).
 -- SECURITY INVOKER : la RLS is_admin() s'applique (agrégats sur données admin).
 -- Montants FCFA en arithmétique entière (BIGINT), aucune décimale.

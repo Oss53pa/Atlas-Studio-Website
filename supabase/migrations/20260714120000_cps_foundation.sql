@@ -1,5 +1,5 @@
 -- ============================================================================
--- Atlas Compass — VAGUE 1 : socle (CDC v1.0)
+-- Cortex — VAGUE 1 : socle (CDC v1.0)
 -- Registre portefeuille, coûts, pipeline commercial, jalons, hypothèses
 -- + audit SHA-256 immuable chaîné. Montants en BIGINT FCFA (jamais de float,
 -- jamais de calcul côté client). RLS admin (public.is_admin()).
