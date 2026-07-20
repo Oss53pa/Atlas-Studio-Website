@@ -11,7 +11,7 @@ interface SEOHeadProps {
   titleOverride?: string;
 }
 
-const BASE_URL = "https://atlas-studio.com";
+const BASE_URL = "https://atlas-studio.org";
 
 export function SEOHead({ title, description, canonical, ogImage, keywords, noindex, titleOverride }: SEOHeadProps) {
   const fullTitle = titleOverride?.trim() ? titleOverride.trim() : `${title} | Atlas Studio`;

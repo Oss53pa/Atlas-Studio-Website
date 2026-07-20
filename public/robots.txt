@@ -3,4 +3,4 @@ Allow: /
 Disallow: /portal/
 Disallow: /admin/
 
-Sitemap: https://atlas-studio.com/sitemap.xml
+Sitemap: https://atlas-studio.org/sitemap.xml
