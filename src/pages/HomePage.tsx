@@ -5,12 +5,14 @@ import { useContentContext } from "../components/layout/Layout";
 import { AppCard } from "../components/ui/AppCard";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { SEOHead } from "../components/ui/SEOHead";
+import { useSeoMeta } from "../lib/useSeoMeta";
 import "../styles/home.css";
 
 const FILTERS: [string, string][] = [["all", "Tout"], ["Module ERP", "Modules ERP"], ["App", "Apps métier"], ["App mobile", "Mobile"]];
 
 export default function HomePage() {
   const { content } = useContentContext();
+  const seo = useSeoMeta();
   const { t } = useTranslation();
   const root = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -147,7 +149,15 @@ export default function HomePage() {
 
   return (
     <div className="hv2" ref={root}>
-      <SEOHead title="Accueil" description={hero?.subtitle || "Atlas Studio — apps SaaS pour les entreprises africaines."} canonical="/" />
+      <SEOHead
+        title="Accueil"
+        description={seo.metaDescription || hero?.subtitle || "Atlas Studio — apps SaaS pour les entreprises africaines."}
+        canonical={seo.canonical || "/"}
+        ogImage={seo.ogImage}
+        keywords={seo.keywords}
+        noindex={seo.noindex}
+        titleOverride={seo.metaTitle}
+      />
       <div className="prog" />
 
       {/* HERO — vrai titre / sous-titre / CTA */}

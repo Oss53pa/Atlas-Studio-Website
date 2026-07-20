@@ -16,6 +16,7 @@ import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { AppMockup } from "../components/ui/AppMockup";
 import { SEOHead } from "../components/ui/SEOHead";
+import { useSeoMeta } from "../lib/useSeoMeta";
 import { StyledText } from "../components/ui/StyledText";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -47,6 +48,7 @@ export default function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { content } = useContentContext();
   const { apps, loading } = useApps();
+  const seo = useSeoMeta(id);
 
   const appWithStatus = apps.find((a) => a.id === id);
   const app = appWithStatus || content.apps.find((a) => a.id === id);
@@ -103,7 +105,15 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="min-h-screen bg-onyx">
-      <SEOHead title={app.name} description={app.tagline} canonical={`/applications/${id}`} />
+      <SEOHead
+        title={app.name}
+        description={seo.metaDescription || app.tagline}
+        canonical={seo.canonical || `/applications/${id}`}
+        ogImage={seo.ogImage}
+        keywords={seo.keywords}
+        noindex={seo.noindex}
+        titleOverride={seo.metaTitle}
+      />
 
       {/* ===== HERO ===== */}
       <section className="relative bg-onyx text-neutral-light pt-28 pb-16 md:pt-32 md:pb-20 px-5 md:px-8 overflow-hidden">
