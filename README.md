@@ -74,7 +74,7 @@ SMTP_USER=votre-email@gmail.com
 SMTP_PASS=votre-app-password
 
 # Email de destination
-CONTACT_EMAIL=contact@atlas-studio.com
+CONTACT_EMAIL=contact@atlas-studio.org
 
 # URL du frontend
 FRONTEND_URL=http://localhost:3000
