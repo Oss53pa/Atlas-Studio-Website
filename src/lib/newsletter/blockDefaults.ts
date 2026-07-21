@@ -7,7 +7,7 @@ export function createDefaultBlock(type: BlockType, accentColor = 'var(--c-accen
     header: { type: 'header', id, props: { title: 'Titre de votre email', subtitle: 'Sous-titre', bg: 'var(--c-bg)', titleColor: accentColor, subtitleColor: '#888888' } },
     text: { type: 'text', id, props: { content: 'Bonjour {{prénom}},\n\nVotre texte ici.', fontSize: 14, color: '#333333', align: 'left', padding: '20px 32px' } },
     image: { type: 'image', id, props: { src: '', alt: '', width: '100%', align: 'center', borderRadius: 8 } },
-    button: { type: 'button', id, props: { text: 'Accéder à mon espace →', url: 'https://app.atlasstudio.africa', color: accentColor, textColor: '#000000', align: 'center', borderRadius: 8, padding: '12px 32px', fullWidth: false } },
+    button: { type: 'button', id, props: { text: 'Accéder à mon espace →', url: 'https://atlas-studio.org/portal', color: accentColor, textColor: '#000000', align: 'center', borderRadius: 8, padding: '12px 32px', fullWidth: false } },
     divider: { type: 'divider', id, props: { color: '#EEEEEE', thickness: 1, style: 'solid', margin: '10px 32px' } },
     cols2: { type: 'cols2', id, props: { left: { title: 'Fonctionnalité A', text: 'Description de la nouveauté.', iconEmoji: '✨' }, right: { title: 'Fonctionnalité B', text: 'Description de la nouveauté.', iconEmoji: '🚀' }, bg: '#F9F9F9', gap: 16 } },
     featured: { type: 'featured', id, props: { badge: 'NOUVEAU', title: 'Nom du produit', subtitle: 'Description courte', ctaText: 'Découvrir →', ctaUrl: '', bg: 'var(--c-bg)', accentColor } },
