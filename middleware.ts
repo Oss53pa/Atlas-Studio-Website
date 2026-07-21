@@ -89,9 +89,11 @@ function buildTags(seo: Seo, pageUrl: string): string {
 
 export default async function middleware(req: Request) {
   try {
-    // Seules les navigations HTML nous intéressent (pas les assets, ni fetch/XHR).
-    if (!(req.headers.get("accept") || "").includes("text/html")) return next();
-
+    // NE PAS filtrer sur l'en-tête Accept : les scrapers sociaux
+    // (facebookexternalhit, LinkedInBot, WhatsApp…) envoient « */* » et non
+    // « text/html ». Un tel filtre les excluait — donc exactement le public
+    // que cette middleware doit servir. Le `matcher` restreint déjà aux routes
+    // de pages, les assets (/assets/*) ne passent jamais ici.
     const url = new URL(req.url);
     const match = url.pathname.match(/^\/applications\/([^/]+)\/?$/);
     const appId = match ? decodeURIComponent(match[1]) : undefined;
