@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 import { apiCall } from "../../lib/api";
+import { syncAppBranding } from "../../lib/brandingSync";
 
 interface AppTokenResponse {
   token: string;
@@ -33,6 +34,11 @@ export default function LaunchPage() {
     let cancelled = false;
     (async () => {
       try {
+        // Resync du branding de l'app dans raw_user_meta_data (non bloquant) —
+        // aligne les e-mails Auth natifs sur les couleurs de l'app lancée.
+        await syncAppBranding(appId);
+        if (cancelled) return;
+
         const data = await apiCall<AppTokenResponse>("app-token", {
           method: "POST",
           body: { appId },

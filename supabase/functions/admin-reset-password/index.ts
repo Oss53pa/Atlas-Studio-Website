@@ -1,24 +1,21 @@
 /**
  * Edge Function: admin-reset-password
- * Generates a new random password for a user and sends it via email.
+ *
+ * D5/D6 — Ne génère plus de mot de passe en clair. Envoie un **lien sécurisé**
+ * de définition de mot de passe (Supabase recovery link) dans l'e-mail
+ * d'authentification harmonisé (palette par app, repli neutre Atlas Studio).
  * Admin only.
  *
  * POST /functions/v1/admin-reset-password
- * Body: { userId, email, fullName }
+ * Body: { userId?, email, fullName?, appId? }
+ *   - email  : requis (cible du lien de recovery)
+ *   - appId  : optionnel — colore l'e-mail aux couleurs de l'app
  */
 import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { requireAdmin } from "../_shared/auth.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { sendMail } from "../_shared/mailer.ts";
-
-function generatePassword(): string {
-  const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let pwd = "";
-  for (let i = 0; i < 10; i++) {
-    pwd += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return pwd + "!A1";
-}
+import { resolveAuthBrand, renderAuthEmail, escapeHtml } from "../_shared/authEmail.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -28,47 +25,46 @@ Deno.serve(async (req) => {
   try {
     await requireAdmin(req);
 
-    const { userId, email, fullName } = await req.json();
-    if (!userId || !email) {
-      return errorResponse("userId et email requis", 400);
+    const { email, fullName, appId } = await req.json();
+    if (!email) {
+      return errorResponse("email requis", 400);
     }
 
-    // Generate new password
-    const newPassword = generatePassword();
+    const siteUrl = Deno.env.get("SITE_URL") || "https://atlas-studio.org";
 
-    // Update user password
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password: newPassword,
+    // Lien de recovery — l'utilisateur définit lui-même son nouveau mot de passe.
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: { redirectTo: `${siteUrl}/portal/reset-password` },
     });
 
-    if (error) {
-      return errorResponse(`Erreur: ${error.message}`, 500);
+    if (linkError || !linkData) {
+      return errorResponse(`Impossible de générer le lien: ${linkError?.message || "inconnu"}`, 500);
     }
 
-    // Send email with new password
+    const actionLink = linkData.properties.action_link;
+
+    // E-mail harmonisé, aux couleurs de l'app si fournie.
+    const brand = await resolveAuthBrand(appId);
+    const greeting = fullName ? `Bonjour ${escapeHtml(fullName)},<br /><br />` : "";
+    const html = renderAuthEmail(brand, {
+      heading: "Réinitialisation de votre mot de passe",
+      bodyHtml:
+        `${greeting}Une réinitialisation de mot de passe a été demandée par l'administrateur pour votre compte ` +
+        `<strong style="color:${brand.accentDeep};">${escapeHtml(brand.app)}</strong>. ` +
+        `Cliquez ci-dessous pour définir un nouveau mot de passe.`,
+      ctaLabel: "Définir mon mot de passe",
+      ctaUrl: actionLink,
+      securityNote:
+        "Ce lien est valable une seule fois et expire sous peu. " +
+        "Vous n'avez pas demandé ce changement ? Ignorez cet e-mail : votre mot de passe actuel reste inchangé.",
+    });
+
     await sendMail({
       to: email,
-      subject: "Votre nouveau mot de passe — Atlas Studio",
-      html: `
-        <div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
-          <div style="background:#0A0A0A;color:#fff;padding:30px;text-align:center;border-radius:12px 12px 0 0;">
-            <h1 style="margin:0;font-size:22px;">Atlas <span style="color:#C8A960;">Studio</span></h1>
-          </div>
-          <div style="background:#fff;padding:30px;">
-            <h2>Bonjour ${fullName || ""},</h2>
-            <p>Votre mot de passe a ete reinitialise par l'administrateur.</p>
-            <div style="background:#FAFAF8;padding:20px;border-radius:10px;margin:20px 0;border-left:4px solid #C8A960;">
-              <p style="margin:5px 0;"><strong>Nouveau mot de passe :</strong></p>
-              <p style="margin:5px 0;font-size:18px;font-family:monospace;letter-spacing:2px;color:#C8A960;font-weight:bold;">${newPassword}</p>
-            </div>
-            <p>Connectez-vous et changez votre mot de passe des que possible.</p>
-            <p style="text-align:center;margin:30px 0;">
-              <a href="https://atlas-studio.org/portal/login" style="display:inline-block;background:#C8A960;color:#0A0A0A;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;">Se connecter</a>
-            </p>
-          </div>
-          <div style="text-align:center;padding:20px;color:#999;font-size:12px;">Atlas Studio</div>
-        </div>
-      `,
+      subject: "Réinitialisation de votre mot de passe — Atlas Studio",
+      html,
     });
 
     return jsonResponse({ success: true });

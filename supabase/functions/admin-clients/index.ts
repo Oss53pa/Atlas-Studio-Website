@@ -1,6 +1,20 @@
+/**
+ * Edge Function: admin-clients
+ *
+ * D6 — Création d'un client par le staff Atlas SANS mot de passe en clair.
+ * Le compte est créé sans mot de passe ; le client reçoit un **lien sécurisé**
+ * de définition de mot de passe (e-mail d'auth harmonisé, palette par app).
+ * Provisionne aussi le trial demandé. Admin only.
+ *
+ * POST   Body: { email, full_name, company_name?, phone?,
+ *                 trial_app_id?, trial_plan?, trial_days? }
+ * DELETE ?id=<userId>
+ */
 import { corsHeaders, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { requireAdmin } from "../_shared/auth.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
+import { sendMail } from "../_shared/mailer.ts";
+import { resolveAuthBrand, renderAuthEmail, escapeHtml } from "../_shared/authEmail.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -11,19 +25,34 @@ Deno.serve(async (req) => {
     await requireAdmin(req);
 
     if (req.method === "POST") {
-      const { email, password, full_name, company_name, phone, send_welcome } = await req.json();
+      const {
+        email,
+        full_name,
+        company_name,
+        phone,
+        trial_app_id,
+        trial_plan,
+        trial_days,
+      } = await req.json();
 
+      if (!email || !full_name) {
+        return errorResponse("email et full_name requis", 400);
+      }
+
+      // 1. Créer le compte SANS mot de passe (email confirmé). Le mot de passe
+      //    sera défini par le client via le lien envoyé plus bas.
       const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email,
-        password,
         email_confirm: true,
-        user_metadata: { full_name, company_name },
+        user_metadata: { full_name, company_name: company_name || "" },
       });
 
       if (authError) return errorResponse(authError.message, 400);
+      const userId = authUser.user.id;
 
+      // 2. Profil
       await supabaseAdmin.from("profiles").upsert({
-        id: authUser.user.id,
+        id: userId,
         email,
         full_name,
         company_name: company_name || "",
@@ -32,49 +61,72 @@ Deno.serve(async (req) => {
         is_active: true,
       });
 
-      // Send welcome email with credentials
-      if (send_welcome !== false) {
-        const resendKey = Deno.env.get("RESEND_API_KEY");
-        if (resendKey) {
-          try {
-            await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: "Atlas Studio <notifications@atlas-studio.org>",
-                to: [email],
-                subject: "Bienvenue sur Atlas Studio — Vos identifiants",
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-                  <div style="background:#0A0A0A;color:#fff;padding:30px;text-align:center;border-radius:12px 12px 0 0;">
-                    <h1 style="margin:0;font-size:24px;">Atlas <span style="color:#C8A960;">Studio</span></h1>
-                    <p style="margin:8px 0 0;opacity:0.7;font-size:14px;">Bienvenue !</p>
-                  </div>
-                  <div style="background:#fff;padding:30px;">
-                    <h2 style="color:#1a1a1a;margin-top:0;">Bonjour ${full_name},</h2>
-                    <p style="color:#444;line-height:1.6;">Votre compte Atlas Studio a été créé par notre équipe. Voici vos identifiants de connexion :</p>
-                    <div style="background:#FAFAF8;padding:20px;border-radius:10px;margin:20px 0;border-left:4px solid #C8A960;">
-                      <p style="margin:0 0 8px;"><strong>Email :</strong> ${email}</p>
-                      <p style="margin:0;"><strong>Mot de passe :</strong> <code style="background:#fff;padding:2px 6px;border-radius:4px;">${password}</code></p>
-                    </div>
-                    <p style="color:#666;font-size:13px;">Pour des raisons de sécurité, nous vous recommandons de changer votre mot de passe dès votre première connexion.</p>
-                    <p style="text-align:center;margin:30px 0;">
-                      <a href="https://atlas-studio.org/portal/login" style="display:inline-block;background:#C8A960;color:#0A0A0B;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;">Se connecter</a>
-                    </p>
-                  </div>
-                  <div style="text-align:center;padding:20px;color:#999;font-size:12px;">
-                    Atlas Studio — Solutions digitales professionnelles<br>
-                    Si vous n'attendiez pas cet email, contactez-nous à support@atlas-studio.org
-                  </div>
-                </div>`,
-              }),
-            });
-          } catch (emailErr) {
-            console.error("Welcome email error (non-blocking):", emailErr);
-          }
+      // 3. Trial (optionnel)
+      if (trial_app_id && trial_plan) {
+        const days = Number(trial_days) > 0 ? Number(trial_days) : 14;
+        const now = new Date();
+        const end = new Date(Date.now() + days * 86400000);
+        const { error: subError } = await supabaseAdmin.from("subscriptions").insert({
+          user_id: userId,
+          app_id: trial_app_id,
+          plan: trial_plan,
+          status: "trial",
+          price_at_subscription: 0,
+          trial_ends_at: end.toISOString(),
+          current_period_start: now.toISOString(),
+          current_period_end: end.toISOString(),
+        });
+        if (subError) {
+          // Non bloquant : le compte est créé, on signale le trial en échec.
+          console.error("admin-clients: trial insert failed (non-blocking):", subError.message);
         }
       }
 
-      return jsonResponse({ success: true, userId: authUser.user.id });
+      // 4. Lien de définition de mot de passe (D6 : jamais de MDP en clair)
+      const siteUrl = Deno.env.get("SITE_URL") || "https://atlas-studio.org";
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: "recovery",
+        email,
+        options: { redirectTo: `${siteUrl}/portal/reset-password` },
+      });
+
+      if (linkError || !linkData) {
+        // Le compte existe déjà — on renvoie une erreur explicite pour que
+        // l'admin puisse relancer l'envoi via « Reset mot de passe ».
+        return errorResponse(
+          `Client créé mais lien non généré: ${linkError?.message || "inconnu"}`,
+          207,
+        );
+      }
+
+      const actionLink = linkData.properties.action_link;
+
+      // 5. E-mail d'invitation harmonisé, aux couleurs de l'app du trial.
+      try {
+        const brand = await resolveAuthBrand(trial_app_id || null);
+        const html = renderAuthEmail(brand, {
+          heading: "Bienvenue — définissez votre mot de passe",
+          bodyHtml:
+            `Bonjour ${escapeHtml(full_name)},<br /><br />` +
+            `Un compte <strong style="color:${brand.accentDeep};">${escapeHtml(brand.app)}</strong> ` +
+            `a été créé pour vous par l'équipe Atlas Studio. ` +
+            `Cliquez ci-dessous pour définir votre mot de passe et accéder à votre espace.`,
+          ctaLabel: "Définir mon mot de passe",
+          ctaUrl: actionLink,
+          securityNote:
+            "Ce lien est valable une seule fois et expire sous peu. " +
+            "Vous n'attendiez pas cet e-mail ? Ignorez-le, aucun accès n'est actif tant que le lien n'est pas ouvert.",
+        });
+        await sendMail({
+          to: email,
+          subject: "Votre accès Atlas Studio — définissez votre mot de passe",
+          html,
+        });
+      } catch (emailErr) {
+        console.error("admin-clients: invite email failed (non-blocking):", emailErr);
+      }
+
+      return jsonResponse({ success: true, userId });
     }
 
     if (req.method === "DELETE") {
