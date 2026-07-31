@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Sparkles, Loader2, Calculator, FileText, Receipt, Shield, BarChart3, BookOpen, Zap } from "lucide-react";
+import { Send, User, Sparkles, Calculator, FileText, Receipt, Shield, BarChart3, BookOpen, Zap } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { Proph3tWorkflowStream } from "../components/Proph3tWorkflowStream";
 
@@ -116,8 +116,8 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-neutral-light text-2xl font-bold flex items-center gap-3">
-            <span className="w-9 h-9 rounded-xl bg-gold flex items-center justify-center shadow-gold-sm">
-              <Sparkles size={18} className="text-onyx" />
+            <span className="w-11 h-11 rounded-full flex items-center justify-center">
+              <img src="/proph3t.png" alt="Proph3t" className="w-full h-full object-contain drop-shadow-[0_2px_10px_rgba(212,175,55,0.45)]" />
             </span>
             <span className="font-logo text-gold text-3xl">Proph3t</span>
             <span className="text-neutral-400 text-sm font-normal">— l'IA souveraine de toute la suite Atlas Studio</span>
@@ -134,12 +134,12 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {messages.map(msg => (
             <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-              <div className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center ${
-                msg.role === "user" ? "bg-p-surface-alt" : "bg-gold"
+              <div className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden ${
+                msg.role === "user" ? "bg-p-surface-alt" : ""
               }`}>
                 {msg.role === "user"
                   ? <User size={16} className="text-neutral-light" />
-                  : <Bot size={16} className="text-onyx" />}
+                  : <img src="/proph3t.png" alt="Proph3t" className="w-full h-full object-contain" />}
               </div>
               <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                 msg.role === "user"
@@ -193,8 +193,8 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
 
           {isLoading && (
             <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
-                <Loader2 size={16} className="text-onyx animate-spin" />
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <img src="/proph3t.png" alt="Proph3t" className="w-full h-full object-contain animate-pulse" />
               </div>
               <div className="bg-p-surface-alt border border-p-border rounded-2xl px-4 py-3">
                 <div className="flex gap-1.5">
