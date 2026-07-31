@@ -28,13 +28,18 @@ const page = await ctx.newPage();
 
 for (const [id, url] of APPS) {
   try {
-    try {
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
-    } catch {
-      await page.goto(url, { waitUntil: "load", timeout: 30000 });
+    let navigated = false;
+    for (let attempt = 0; attempt < 3 && !navigated; attempt++) {
+      try {
+        await page.goto(url, { waitUntil: attempt === 0 ? "domcontentloaded" : "commit", timeout: 30000 });
+        navigated = true;
+      } catch (e) {
+        if (attempt === 2) throw e;
+        await page.waitForTimeout(1500);
+      }
     }
     await page.waitForLoadState("domcontentloaded").catch(() => {});
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(4500);
     // Rejeter les pages d'erreur / vides (déploiement absent, 404, crash…)
     const title = await page.title().catch(() => "");
     const body = await page.evaluate(() => (document.body?.innerText || "").slice(0, 500)).catch(() => "");
