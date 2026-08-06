@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
   if (!authz.ok) return errorResponse(authz.reason ?? "Non autorisé", 401);
 
   const apiKey = Deno.env.get("GROQ_API_KEY") ?? Deno.env.get("ANTHROPIC_API_KEY") ?? "";
-  const model = Deno.env.get("CORTEX_ADVISOR_MODEL") ?? "llama-3.3-70b-versatile";
+  const model = Deno.env.get("CORTEX_ADVISOR_MODEL") ?? "openai/gpt-oss-120b";
   if (!apiKey) return errorResponse("Aucune clé LLM configurée (GROQ_API_KEY / ANTHROPIC_API_KEY)", 500);
 
   // ── Agrégats (aucune PII : les prospects sont pseudonymisés) ──────────────
