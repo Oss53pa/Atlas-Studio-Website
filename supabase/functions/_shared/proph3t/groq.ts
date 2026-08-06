@@ -2,22 +2,18 @@
 // Utilise comme FALLBACK CENTRAL (un seul GROQ_API_KEY secret cote serveur,
 // partage par tous les users sans BYOK Anthropic/Gemini).
 //
-// Free tier Groq (mai 2026) :
-//   - llama-3.3-70b-versatile : 30 req/min, 14400 req/jour, 100k tokens/jour
-//   - llama-3.1-8b-instant : 30 req/min, 14400 req/jour
-// Documentation : https://console.groq.com/docs/rate-limits
-//
-// Function calling : supporte sur llama-3.3-70b et llama-3.1-70b.
+// Modeles Groq courants (llama-3.3-70b / llama-3.1-8b / mixtral / gemma2
+// deprecies par Groq le 2026-06-17). openai/gpt-oss-* supportent le function
+// calling (tool use), requis par proph3t-ask.
+// Documentation : https://console.groq.com/docs/models
 
 import type { OllamaMessage, OllamaTool, OllamaChatResult } from "./ollama.ts";
 
 export type GroqModel =
-  | "llama-3.3-70b-versatile"
-  | "llama-3.1-8b-instant"
-  | "mixtral-8x7b-32768"
-  | "gemma2-9b-it";
+  | "openai/gpt-oss-120b"
+  | "openai/gpt-oss-20b";
 
-export const DEFAULT_GROQ_MODEL: GroqModel = "llama-3.3-70b-versatile";
+export const DEFAULT_GROQ_MODEL: GroqModel = "openai/gpt-oss-120b";
 
 interface GroqMessage {
   role: "system" | "user" | "assistant" | "tool";
@@ -207,7 +203,7 @@ export function getGroqApiKey(): string | undefined {
 
 export function getGroqModel(): GroqModel {
   const m = Deno.env.get("GROQ_MODEL");
-  if (m && (["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "gemma2-9b-it"] as string[]).includes(m)) {
+  if (m && (["openai/gpt-oss-120b", "openai/gpt-oss-20b"] as string[]).includes(m)) {
     return m as GroqModel;
   }
   return DEFAULT_GROQ_MODEL;

@@ -128,7 +128,7 @@ export function routeToModel(args: {
     case "simple_qa":
       recommended = has.anthropic
         ? { provider: "anthropic", model: "claude-haiku-4-5-20251001", reason: "Q/R rapide, haiku tres performant en latence" }
-        : { provider: "groq", model: "llama-3.3-70b-versatile", reason: "Q/R rapide, gratuit via Groq" };
+        : { provider: "groq", model: "openai/gpt-oss-120b", reason: "Q/R rapide, gratuit via Groq" };
       alternatives.push({ provider: "gemini", model: "gemini-2.0-flash" });
       break;
     case "analytical":
@@ -136,7 +136,7 @@ export function routeToModel(args: {
         ? { provider: "anthropic", model: "claude-sonnet-4-6", reason: "Analyse financiere/juridique necessite raisonnement profond" }
         : has.gemini
           ? { provider: "gemini", model: "gemini-2.5-pro", reason: "Analyse complexe, contexte long" }
-          : { provider: "groq", model: "llama-3.3-70b-versatile", reason: "Fallback sans BYOK" };
+          : { provider: "groq", model: "openai/gpt-oss-120b", reason: "Fallback sans BYOK" };
       break;
     case "vision":
       recommended = has.gemini
@@ -144,7 +144,7 @@ export function routeToModel(args: {
         : { provider: "anthropic", model: "claude-sonnet-4-6", reason: "Vision via Claude (alternative)" };
       break;
     case "cost_sensitive":
-      recommended = { provider: "groq", model: "llama-3.3-70b-versatile", reason: "Gratuit, latence faible" };
+      recommended = { provider: "groq", model: "openai/gpt-oss-120b", reason: "Gratuit, latence faible" };
       alternatives.push({ provider: "anthropic", model: "claude-haiku-4-5-20251001" });
       break;
     case "long_context":
@@ -155,10 +155,10 @@ export function routeToModel(args: {
     case "code_gen":
       recommended = has.anthropic
         ? { provider: "anthropic", model: "claude-sonnet-4-6", reason: "Meilleur LLM code-gen disponible" }
-        : { provider: "groq", model: "llama-3.3-70b-versatile", reason: "Fallback code-gen" };
+        : { provider: "groq", model: "openai/gpt-oss-120b", reason: "Fallback code-gen" };
       break;
     default:
-      recommended = { provider: "groq", model: "llama-3.3-70b-versatile", reason: "Defaut prudent" };
+      recommended = { provider: "groq", model: "openai/gpt-oss-120b", reason: "Defaut prudent" };
   }
 
   return { ok: true, recommended, alternatives };
