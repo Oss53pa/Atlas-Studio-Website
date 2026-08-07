@@ -61,7 +61,11 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
           </div>
         )}
         <div className="flex items-center justify-between mb-3">
-          <AppLogo name={app.name} size={20} color="text-gold" />
+          {app.wordmarkUrl ? (
+            <img src={app.wordmarkUrl} alt={app.name} className="h-6 w-auto" loading="lazy" />
+          ) : (
+            <AppLogo name={app.name} size={20} color="text-gold" />
+          )}
           <div className="flex items-center gap-1.5">
             {isComingSoon && (
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-700 border-amber-500/25">

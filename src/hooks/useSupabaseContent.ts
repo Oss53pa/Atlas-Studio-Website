@@ -62,6 +62,9 @@ export function useSupabaseContent() {
           icon: row.icon || 'receipt',
           highlights: row.highlights || [],
           external_url: row.external_url || undefined,
+          wordmarkUrl: row.wordmark_url || undefined,
+          accentDeep: row.accent_deep || undefined,
+          accentSoft: row.accent_soft || undefined,
         }));
 
         // Sectors from DB — map names to Lucide icons from defaults
