@@ -4,6 +4,7 @@
 export const APP_SHOTS = new Set<string>([
   "atlas-people", "atlas-compta", "cockpit-fa", "cockpit-journey",
   "cockpit-cr", "cockpit-projet", "tablesmart", "wedo",
+  "advist", "taxpilot",
 ]);
 
 export const APP_SHOT_BY_HOST: Record<string, string> = {
@@ -15,6 +16,8 @@ export const APP_SHOT_BY_HOST: Record<string, string> = {
   "cockpit-projet.atlas-studio.org": "cockpit-projet",
   "tablesmart.atlas-studio.org": "tablesmart",
   "wedo.atlas-studio.org": "wedo",
+  "advist.atlas-studio.org": "advist",
+  "liasspilot.atlas-studio.org": "taxpilot",
 };
 
 /** Résout l'id de capture d'une app (par domaine d'URL puis par id), ou null. */
