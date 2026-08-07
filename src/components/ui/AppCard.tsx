@@ -26,7 +26,8 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
   const minPrice = Math.min(...planEntries(app.pricing).map(([, v]) => v));
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === 'coming_soon';
-  const accent = app.color || 'var(--c-accent)';
+  // accentDeep prime pour l'ambiance (liseré + glow), fallback sur color puis token.
+  const accent = app.accentDeep || app.color || 'var(--c-accent)';
   const shotId = appShotId(app);
 
   const sharedClassName = `relative block bg-ink-100 border border-white/[0.05] rounded-2xl p-6 card-hover shadow-premium group overflow-hidden ${isComingSoon ? 'opacity-85' : ''}`;
@@ -62,7 +63,12 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
         )}
         <div className="flex items-center justify-between mb-3">
           {app.wordmarkUrl ? (
-            <img src={app.wordmarkUrl} alt={app.name} className="h-6 w-auto" loading="lazy" />
+            <span
+              className="inline-flex items-center px-2.5 py-1 rounded-md"
+              style={{ background: app.accentSoft || 'rgba(255,255,255,0.92)' }}
+            >
+              <img src={app.wordmarkUrl} alt={app.name} className="h-5 w-auto" loading="lazy" />
+            </span>
           ) : (
             <AppLogo name={app.name} size={20} color="text-gold" />
           )}

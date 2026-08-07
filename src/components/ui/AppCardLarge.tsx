@@ -26,7 +26,9 @@ export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
   const prices = planEntries(app.pricing);
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === "coming_soon";
-  const appColor = app.color || "var(--c-accent)";
+  // accentDeep prime pour tout l'accent visuel (liseré, highlights, "Découvrir").
+  // Fallback : color (legacy) puis token CSS.
+  const appColor = app.accentDeep || app.color || "var(--c-accent)";
   const highlights = app.highlights || [];
 
   const previewFeatures = app.features.slice(0, 6);
@@ -60,7 +62,12 @@ export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
         <div className="flex-1 p-8 md:p-10">
           <div className="flex items-center gap-3 mb-5 flex-wrap">
             {app.wordmarkUrl ? (
-              <img src={app.wordmarkUrl} alt={app.name} className="h-8 w-auto" loading="lazy" />
+              <span
+                className="inline-flex items-center px-3 py-1.5 rounded-lg"
+                style={{ background: app.accentSoft || 'rgba(255,255,255,0.92)' }}
+              >
+                <img src={app.wordmarkUrl} alt={app.name} className="h-7 w-auto" loading="lazy" />
+              </span>
             ) : (
               <AppLogo name={app.name} size={26} color="text-gold" />
             )}
