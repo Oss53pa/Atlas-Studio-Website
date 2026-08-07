@@ -1,7 +1,7 @@
 // Capture une image de chaque application (via son URL) pour illustrer les cartes.
 // Sortie : public/app-shots/<id>.jpg  +  src/config/appShots.generated.ts (liste des ids OK)
 import { chromium } from "@playwright/test";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const APPS = [
@@ -57,6 +57,18 @@ for (const [id, url] of APPS) {
   }
 }
 await browser.close();
+
+// Sécurité : si une app a échoué ce run mais qu'un JPG existe déjà (ancien
+// tir OU placeholder), on préserve son entrée pour ne pas casser l'affichage
+// à cause d'une indisponibilité passagère.
+for (const [id, url] of APPS) {
+  if (!ok.find(([i]) => i === id) && existsSync(resolve(OUT, `${id}.jpg`))) {
+    try {
+      ok.push([id, new URL(url).hostname]);
+      console.log("KEEP", id, "(JPG existant préservé)");
+    } catch { /* url invalide → skip */ }
+  }
+}
 
 const ids = ok.map(([id]) => id);
 const byHost = Object.fromEntries(ok.map(([id, host]) => [host, id]));

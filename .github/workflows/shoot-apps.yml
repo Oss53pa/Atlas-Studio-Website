@@ -1,0 +1,74 @@
+name: Shoot app screenshots
+
+# Régénère public/app-shots/*.jpg + src/config/appShots.generated.ts à partir
+# des URLs prod (definies dans scripts/shoot-apps.mjs). Utile pour rafraîchir
+# les aperçus des cartes d'apps quand un site évolue visuellement.
+#
+# Déclenchement :
+#   - Manuel  : Actions → « Shoot app screenshots » → Run workflow
+#   - Hebdo   : Lundi 06:00 UTC (garde les captures fraîches sans y penser)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
+
+concurrency:
+  group: shoot-apps
+  cancel-in-progress: false
+
+jobs:
+  shoot:
+    if: github.repository == 'Oss53pa/Atlas-Studio-Website'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          # Nécessaire pour que le push ci-dessous soit accepté par GITHUB_TOKEN
+          persist-credentials: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install repo deps
+        run: npm ci
+
+      - name: Install Playwright Chromium + libs système
+        run: npx playwright install --with-deps chromium
+
+      - name: Shoot apps (peut échouer par app — non bloquant)
+        run: node scripts/shoot-apps.mjs
+        env:
+          # Le script lui-même est tolérant à l'échec par app ; on ne veut pas
+          # que le step remonte 0 si tout marche.
+          NODE_OPTIONS: '--no-warnings'
+
+      - name: Commit et push si diff
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/app-shots src/config/appShots.generated.ts
+          if git diff --cached --quiet; then
+            echo "Aucun changement — pas de commit."
+            exit 0
+          fi
+          git commit -m "chore(app-shots): refresh captures via CI ($(date -u +%Y-%m-%d))"
+          git push origin HEAD:main
+
+      - name: Résumé
+        if: always()
+        run: |
+          echo "### Captures d'apps" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          ls -la public/app-shots >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
