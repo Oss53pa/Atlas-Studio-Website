@@ -59,7 +59,11 @@ export function AppCardLarge({ app, reverse = false }: AppCardLargeProps) {
         {/* Info */}
         <div className="flex-1 p-8 md:p-10">
           <div className="flex items-center gap-3 mb-5 flex-wrap">
-            <AppLogo name={app.name} size={26} color="text-gold" />
+            {app.wordmarkUrl ? (
+              <img src={app.wordmarkUrl} alt={app.name} className="h-8 w-auto" loading="lazy" />
+            ) : (
+              <AppLogo name={app.name} size={26} color="text-gold" />
+            )}
             <div className="flex items-center gap-1.5">
               {isComingSoon && (
                 <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">

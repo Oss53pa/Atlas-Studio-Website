@@ -23,6 +23,9 @@ export interface AppItem {
   icon?: string;
   highlights?: string[];
   external_url?: string;
+  wordmarkUrl?: string;
+  accentDeep?: string;
+  accentSoft?: string;
 }
 
 export interface SiteContent {
