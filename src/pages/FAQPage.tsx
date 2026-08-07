@@ -19,7 +19,7 @@ export default function FAQPage() {
       <div className="relative max-w-2xl mx-auto">
         <ScrollReveal>
           <div className="section-eyebrow">FAQ</div>
-          <h1 className="text-4xl md:text-5xl font-medium text-gradient-light leading-[1.12] tracking-tight mb-4">Questions fréquentes</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-gradient-light leading-[1.12] tracking-tight mb-4">Questions fréquentes</h1>
           <p className="text-[15px] text-neutral-muted font-light mb-14">Trouvez rapidement les réponses à vos questions.</p>
         </ScrollReveal>
 

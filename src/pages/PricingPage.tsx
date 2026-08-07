@@ -23,7 +23,7 @@ function BundlesSection() {
         <ScrollReveal>
           <div className="text-center mb-12">
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Suites</div>
-            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-3 tracking-tight">Économisez avec les suites</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-3 tracking-tight">Économisez avec les suites</h2>
             <p className="text-neutral-muted text-[15px] font-light max-w-xl mx-auto">
               Regroupez plusieurs applications et profitez de −20 % sur le total. Engagement annuel cumulable.
             </p>
@@ -39,7 +39,7 @@ function BundlesSection() {
                     ? "border border-gold/35 shadow-[0_0_0_1px_rgba(169,181,126,0.15),0_24px_56px_-12px_rgba(169,181,126,0.18)]"
                     : "border border-white/[0.06] shadow-premium"
                 }`}
-                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20" }}
+                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), var(--c-surface)" }}
               >
                 {b.is_popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -99,7 +99,7 @@ const cleanFeatureName = (f: string) => {
 function AppPricingSection({ app }: { app: AppItem }) {
   const plans = planEntries(app.pricing);
   const period = app.pricingPeriod || "mois";
-  const appColor = app.color || "#A9B57E";
+  const appColor = app.color || "var(--c-accent)";
 
   return (
     <div className="mb-24 last:mb-0">
@@ -134,8 +134,8 @@ function AppPricingSection({ app }: { app: AppItem }) {
               }`}
               style={{
                 background: isPopular
-                  ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), #1c1c20"
-                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20",
+                  ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), var(--c-surface)"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), var(--c-surface)",
               }}
             >
               {isPopular && (
@@ -170,11 +170,11 @@ function AppPricingSection({ app }: { app: AppItem }) {
                 {app.features.map((feature, fi) => {
                   const included = i > 0 || !isPremiumFeature(feature);
                   return (
-                    <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted/40"}`}>
+                    <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted"}`}>
                       {included ? (
                         <CheckCircle2 size={16} className="text-gold flex-shrink-0 mt-0.5" strokeWidth={2} />
                       ) : (
-                        <X size={16} className="text-neutral-muted/30 flex-shrink-0 mt-0.5" />
+                        <X size={16} className="text-neutral-muted flex-shrink-0 mt-0.5" />
                       )}
                       <span>{cleanFeatureName(feature)}</span>
                     </div>
@@ -210,7 +210,7 @@ export default function PricingPage() {
         <div className="relative max-w-3xl mx-auto text-center">
           <ScrollReveal>
             <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Tarifs</div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gradient-light mb-5 tracking-tight leading-[1.12]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gradient-light mb-5 tracking-tight leading-[1.12]">
               Tarifs simples et transparents
             </h1>
             <p className="text-neutral-muted text-base md:text-lg font-light max-w-xl mx-auto leading-relaxed">
@@ -237,7 +237,7 @@ export default function PricingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] glow-gold opacity-50 pointer-events-none" />
         <div className="relative">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">Prêt à démarrer ?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-4 tracking-tight">Prêt à démarrer ?</h2>
             <p className="text-neutral-muted text-[15px] font-light mb-9 max-w-md mx-auto">Souscrivez maintenant. Sans engagement, annulation à tout moment.</p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link to="/portal" className="btn-gold">

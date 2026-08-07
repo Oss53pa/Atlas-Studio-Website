@@ -6,9 +6,9 @@ import { useId, useState, type ReactNode } from "react";
    Theme-aware (works on light cream + dark charcoal).
    ============================================================ */
 
-const OLIVE = "#A9B57E";
-const OLIVE_LIGHT = "#C2CC92";
-const OLIVE_DEEP = "#74804F";
+const OLIVE = "var(--c-accent)";
+const OLIVE_LIGHT = "var(--c-accent)";
+const OLIVE_DEEP = "var(--c-accent-dark)";
 
 const fmtFr = (n: number) => n.toLocaleString("fr-FR");
 
@@ -41,7 +41,7 @@ function Tooltip({ children, x }: { children: ReactNode; x: string }) {
       className="absolute -top-2 -translate-y-full -translate-x-1/2 z-20 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap pointer-events-none"
       style={{
         left: x,
-        background: "#0f0f11",
+        background: "var(--c-bg)",
         color: "#ECEAE3",
         border: "1px solid rgba(169,181,126,0.35)",
         boxShadow: "0 10px 28px -10px rgba(0,0,0,0.75)",

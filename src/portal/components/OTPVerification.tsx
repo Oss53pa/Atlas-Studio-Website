@@ -160,14 +160,14 @@ export function OTPVerification({ email, purpose, emailHint, onSuccess, onBack, 
             onKeyDown={e => handleKeyDown(i, e)}
             onPaste={i === 0 ? handlePaste : undefined}
             disabled={loading}
-            className="w-11 h-13 text-center text-2xl font-bold font-mono bg-[#141417] border border-white/[0.07] rounded-xl text-neutral-light outline-none shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200 disabled:opacity-50"
+            className="w-11 h-13 text-center text-2xl font-bold font-mono bg-p-surface border border-white/[0.07] rounded-xl text-neutral-light outline-none shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200 disabled:opacity-50"
             style={{ height: "52px" }}
           />
         ))}
       </div>
 
       {error && (
-        <div className="mb-4 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-[12px] text-center">
+        <div className="mb-4 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-700 text-[12px] text-center">
           {error}
         </div>
       )}

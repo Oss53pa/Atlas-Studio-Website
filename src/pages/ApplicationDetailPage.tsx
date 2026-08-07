@@ -16,6 +16,7 @@ import { AppLogo } from "../components/ui/Logo";
 import { ScrollReveal } from "../components/ui/ScrollReveal";
 import { AppMockup } from "../components/ui/AppMockup";
 import { SEOHead } from "../components/ui/SEOHead";
+import { useSeoMeta } from "../lib/useSeoMeta";
 import { StyledText } from "../components/ui/StyledText";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -47,6 +48,7 @@ export default function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { content } = useContentContext();
   const { apps, loading } = useApps();
+  const seo = useSeoMeta(id);
 
   const appWithStatus = apps.find((a) => a.id === id);
   const app = appWithStatus || content.apps.find((a) => a.id === id);
@@ -78,7 +80,7 @@ export default function ApplicationDetailPage() {
   const pricingEntries = planEntries(app.pricing);
   const status = appWithStatus?.status || "available";
   const isAvailable = status === "available";
-  const appColor = app.color || "#A9B57E";
+  const appColor = app.color || "var(--c-accent)";
   const iconName = app.icon || "receipt";
   const highlights = app.highlights || [];
   const IconComponent = ICON_MAP[iconName] || CheckCircle2;
@@ -103,7 +105,15 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="min-h-screen bg-onyx">
-      <SEOHead title={app.name} description={app.tagline} canonical={`/applications/${id}`} />
+      <SEOHead
+        title={app.name}
+        description={seo.metaDescription || app.tagline}
+        canonical={seo.canonical || `/applications/${id}`}
+        ogImage={seo.ogImage}
+        keywords={seo.keywords}
+        noindex={seo.noindex}
+        titleOverride={seo.metaTitle}
+      />
 
       {/* ===== HERO ===== */}
       <section className="relative bg-onyx text-neutral-light pt-28 pb-16 md:pt-32 md:pb-20 px-5 md:px-8 overflow-hidden">
@@ -146,7 +156,7 @@ export default function ApplicationDetailPage() {
                 </span>
               ))}
               {status === "coming_soon" && (
-                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">
+                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-700 border-amber-500/25">
                   <Clock size={12} /> Bientôt disponible
                 </span>
               )}
@@ -176,7 +186,7 @@ export default function ApplicationDetailPage() {
       {/* ===== MOCKUPS ===== */}
       <section className="relative py-20 md:py-28 px-5 md:px-8 overflow-hidden border-y border-white/[0.04]"
         style={{
-          background: "linear-gradient(180deg, #1c1c20 0%, #212126 50%, #1c1c20 100%)",
+          background: "linear-gradient(180deg, var(--c-surface) 0%, var(--c-surface-alt) 50%, var(--c-surface) 100%)",
         }}
       >
         <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
@@ -239,7 +249,7 @@ export default function ApplicationDetailPage() {
           <ScrollReveal>
             <div className="max-w-2xl mx-auto text-center mb-14">
               <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Fonctionnalités</div>
-              <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-4 tracking-tight">
                 Tout ce dont vous avez besoin
               </h2>
               <p className="text-neutral-muted text-[15px] leading-relaxed font-light">
@@ -285,7 +295,7 @@ export default function ApplicationDetailPage() {
           <ScrollReveal>
             <div className="text-center mb-14">
               <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Tarifs</div>
-              <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">
+              <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-4 tracking-tight">
                 Choisissez votre plan
               </h2>
               <p className="text-neutral-muted text-[15px] font-light">
@@ -307,8 +317,8 @@ export default function ApplicationDetailPage() {
                     }`}
                     style={{
                       background: isPopular
-                        ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), #1c1c20"
-                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), #1c1c20",
+                        ? "linear-gradient(180deg, rgba(169,181,126,0.05) 0%, rgba(169,181,126,0.01) 100%), var(--c-surface)"
+                        : "linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%), var(--c-surface)",
                     }}
                   >
                     {isPopular && (
@@ -350,11 +360,11 @@ export default function ApplicationDetailPage() {
                         {allFeatures.map((feature, fi) => {
                           const included = isFeatureIncluded(feature, pi);
                           return (
-                            <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted/40"}`}>
+                            <div key={fi} className={`flex items-start gap-2.5 text-[13px] font-light ${included ? "text-neutral-light" : "text-neutral-muted"}`}>
                               {included ? (
                                 <CheckCircle2 size={16} className="text-gold flex-shrink-0 mt-0.5" strokeWidth={2} />
                               ) : (
-                                <span className="w-4 h-4 flex-shrink-0 mt-0.5 text-center text-neutral-muted/30">&mdash;</span>
+                                <span className="w-4 h-4 flex-shrink-0 mt-0.5 text-center text-neutral-muted">&mdash;</span>
                               )}
                               <span><StyledText>{cleanFeatureName(feature)}</StyledText></span>
                             </div>
@@ -374,7 +384,7 @@ export default function ApplicationDetailPage() {
                     ) : (
                       <button
                         disabled
-                        className="w-full py-3.5 rounded-xl bg-white/[0.03] text-neutral-muted/60 font-medium text-sm cursor-not-allowed border border-white/[0.06]"
+                        className="w-full py-3.5 rounded-xl bg-white/[0.03] text-neutral-muted font-medium text-sm cursor-not-allowed border border-white/[0.06]"
                       >
                         {status === "coming_soon" ? "Bientôt disponible" : "Indisponible"}
                       </button>
@@ -402,7 +412,7 @@ export default function ApplicationDetailPage() {
             <ScrollReveal>
               <div className="text-center mb-14">
                 <div className="section-eyebrow justify-center" style={{ display: "inline-flex" }}>Comparaison</div>
-                <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-3 tracking-tight">
+                <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-3 tracking-tight">
                   Comparez les plans en détail
                 </h2>
               </div>
@@ -448,7 +458,7 @@ export default function ApplicationDetailPage() {
                               {isIncluded ? (
                                 <CheckCircle2 size={18} className="text-gold mx-auto" strokeWidth={2} />
                               ) : (
-                                <span className="text-neutral-muted/30">&mdash;</span>
+                                <span className="text-neutral-muted">&mdash;</span>
                               )}
                             </td>
                           );
@@ -490,7 +500,7 @@ export default function ApplicationDetailPage() {
         />
         <div className="relative max-w-2xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-medium text-gradient-light mb-4 tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient-light mb-4 tracking-tight">
               Prêt à essayer {app.name} ?
             </h2>
             <p className="text-neutral-muted text-[15px] mb-9 max-w-md mx-auto leading-relaxed font-light">
@@ -509,7 +519,7 @@ export default function ApplicationDetailPage() {
             ) : (
               <button
                 disabled
-                className="py-3 px-6 rounded-lg bg-white/[0.03] text-neutral-muted/60 font-medium text-sm cursor-not-allowed border border-white/[0.06]"
+                className="py-3 px-6 rounded-lg bg-white/[0.03] text-neutral-muted font-medium text-sm cursor-not-allowed border border-white/[0.06]"
               >
                 {status === "coming_soon" ? "Bientôt disponible" : "Indisponible"}
               </button>

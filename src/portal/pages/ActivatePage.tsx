@@ -11,7 +11,7 @@ import { SeatQuotaBar } from "../../components/licences/SeatQuotaBar";
 
 /* ── design tokens ── */
 const SURFACE = "#FFFFFF";
-const ACCENT = "#A9B57E";
+const ACCENT = "var(--c-accent)";
 const TEXT = "#1A1A1A";
 const MUTED = "#888";
 const BORDER = "#E8E8E0";

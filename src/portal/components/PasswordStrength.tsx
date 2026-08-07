@@ -41,8 +41,8 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
         </div>
         <span className={`text-[11px] font-semibold ${
           score >= 5 ? "text-emerald-400" :
-          score >= 3 ? "text-amber-400" :
-          "text-red-400"
+          score >= 3 ? "text-amber-700" :
+          "text-red-700"
         }`}>
           {LABELS[score]}
         </span>

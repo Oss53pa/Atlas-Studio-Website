@@ -12,7 +12,7 @@ export function SubscriptionPage({ userId }: { userId?: string }) {
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", padding: 60 }}>
-        <Loader2 size={28} style={{ color: "#A9B57E", animation: "spin 1s linear infinite" }} />
+        <Loader2 size={28} style={{ color: "var(--c-accent)", animation: "spin 1s linear infinite" }} />
       </div>
     );
   }
@@ -141,7 +141,7 @@ export function SubscriptionPage({ userId }: { userId?: string }) {
             display: "inline-flex",
             alignItems: "center",
             gap: 6,
-            background: "#A9B57E",
+            background: "var(--c-accent)",
             color: "#FFF",
             padding: "10px 20px",
             borderRadius: 8,

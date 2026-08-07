@@ -30,11 +30,11 @@ export function ProrataSimulator({
     {
       label: `Nouveau montant (${newPlanName})`,
       value: prorata.charge_fcfa,
-      color: "#A9B57E",
+      color: "var(--c-accent)",
     },
   ];
 
-  const netColor = prorata.net_fcfa > 0 ? "#A9B57E" : "#22C55E";
+  const netColor = prorata.net_fcfa > 0 ? "var(--c-accent)" : "#22C55E";
 
   return (
     <div

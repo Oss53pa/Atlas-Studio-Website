@@ -11,7 +11,7 @@ interface Props {
 const STATUS_CONF: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   draft: { label: 'Brouillon', color: '#888', icon: Pencil },
   scheduled: { label: 'Programmée', color: '#3B82F6', icon: Clock },
-  sending: { label: 'En envoi', color: '#A9B57E', icon: Send },
+  sending: { label: 'En envoi', color: 'var(--c-accent)', icon: Send },
   sent: { label: 'Envoyée', color: '#22C55E', icon: Mail },
   paused: { label: 'Pausée', color: '#F59E0B', icon: PauseCircle },
   cancelled: { label: 'Annulée', color: '#EF4444', icon: XCircle },
@@ -35,13 +35,13 @@ export function CampaignList({ onEdit, onStats, onCreate }: Props) {
           <h1 className="text-xl font-bold text-[#F5F5F5]">Campagnes Newsletter</h1>
           <p className="text-sm text-[#888] mt-1">{campaigns.length} campagne{campaigns.length !== 1 ? 's' : ''}</p>
         </div>
-        <button onClick={onCreate} className="flex items-center gap-2 px-4 py-2 bg-[#A9B57E] text-black rounded-lg text-sm font-medium hover:bg-[#C47E00] transition-colors">
+        <button onClick={onCreate} className="flex items-center gap-2 px-4 py-2 bg-p-accent text-black rounded-lg text-sm font-medium hover:bg-[#C47E00] transition-colors">
           <Plus size={16} />Nouvelle campagne
         </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 size={24} className="animate-spin text-[#A9B57E]" /></div>
+        <div className="flex justify-center py-20"><Loader2 size={24} className="animate-spin text-p-accent" /></div>
       ) : campaigns.length === 0 ? (
         <div className="text-center py-20">
           <Mail size={48} className="mx-auto text-[#888] mb-4" strokeWidth={1} />
@@ -55,7 +55,7 @@ export function CampaignList({ onEdit, onStats, onCreate }: Props) {
             const openRate = c.delivered_count > 0 ? ((c.unique_open_count / c.delivered_count) * 100).toFixed(1) : '-'
             const clickRate = c.delivered_count > 0 ? ((c.unique_click_count / c.delivered_count) * 100).toFixed(1) : '-'
             return (
-              <div key={c.id} className="bg-[#1c1c20] border border-[#2a2a30] rounded-xl p-4 hover:border-[#A9B57E]/30 transition-colors">
+              <div key={c.id} className="bg-p-surface border border-p-border rounded-xl p-4 hover:border-p-accent/30 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -73,10 +73,10 @@ export function CampaignList({ onEdit, onStats, onCreate }: Props) {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => onEdit(c.id)} className="p-2 rounded-lg hover:bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5] transition-colors" title="Modifier"><Pencil size={14} /></button>
-                    {c.status === 'sent' && <button onClick={() => onStats(c.id)} className="p-2 rounded-lg hover:bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5] transition-colors" title="Statistiques"><BarChart3 size={14} /></button>}
-                    <button onClick={() => duplicateCampaign(c)} className="p-2 rounded-lg hover:bg-[#2a2a30] text-[#888] hover:text-[#F5F5F5] transition-colors" title="Dupliquer"><Copy size={14} /></button>
-                    <button onClick={() => handleDelete(c.id)} disabled={deleting === c.id} className="p-2 rounded-lg hover:bg-red-500/10 text-[#888] hover:text-red-400 transition-colors" title="Supprimer">
+                    <button onClick={() => onEdit(c.id)} className="p-2 rounded-lg hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors" title="Modifier"><Pencil size={14} /></button>
+                    {c.status === 'sent' && <button onClick={() => onStats(c.id)} className="p-2 rounded-lg hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors" title="Statistiques"><BarChart3 size={14} /></button>}
+                    <button onClick={() => duplicateCampaign(c)} className="p-2 rounded-lg hover:bg-p-surface-alt text-[#888] hover:text-[#F5F5F5] transition-colors" title="Dupliquer"><Copy size={14} /></button>
+                    <button onClick={() => handleDelete(c.id)} disabled={deleting === c.id} className="p-2 rounded-lg hover:bg-red-500/10 text-[#888] hover:text-red-700 transition-colors" title="Supprimer">
                       {deleting === c.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                     </button>
                   </div>

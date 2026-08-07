@@ -92,7 +92,7 @@ export function Sidebar({ page, setPage, profile, onLogout }: SidebarProps) {
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onLogout(); }}
-          className="mt-3 w-full px-3 py-2 rounded-xl cursor-pointer text-neutral-500 text-[13px] text-center hover:text-red-400 hover:bg-white/5 transition-all duration-200"
+          className="mt-3 w-full px-3 py-2 rounded-xl cursor-pointer text-neutral-500 text-[13px] text-center hover:text-red-700 hover:bg-white/5 transition-all duration-200"
         >
           Déconnexion
         </button>

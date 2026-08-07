@@ -78,8 +78,8 @@ export const PAYMENT_METHODS: PaymentMethodInfo[] = [
   { id: 'mtn_momo', label: 'MTN MoMo', color: '#FFCC00', countries: ['CI','GH','CM','UG','RW','ZM'], description: 'Paiement via MTN Mobile Money' },
   { id: 'wave', label: 'Wave', color: '#1BA5B8', countries: ['CI','SN','ML','BF','GN'], description: 'Paiement rapide via Wave' },
   { id: 'moov_money', label: 'Moov Money', color: '#0055A5', countries: ['CI','BJ','TG','BF','ML','NE','GA'], description: 'Paiement via Flooz Moov' },
-  { id: 'card_visa', label: 'Carte Visa / Mastercard', color: '#17171a', countries: ['ALL'], description: 'Carte bancaire internationale' },
-  { id: 'wire_transfer', label: 'Virement bancaire', color: '#2a2a30', countries: ['ALL'], description: 'Confirmation sous 2-3 jours ouvrés' },
+  { id: 'card_visa', label: 'Carte Visa / Mastercard', color: 'var(--c-bg)', countries: ['ALL'], description: 'Carte bancaire internationale' },
+  { id: 'wire_transfer', label: 'Virement bancaire', color: 'var(--c-border)', countries: ['ALL'], description: 'Confirmation sous 2-3 jours ouvrés' },
 ]
 
 export const PAYMENT_STATUS_LABELS: Record<string, { label: string; color: string }> = {

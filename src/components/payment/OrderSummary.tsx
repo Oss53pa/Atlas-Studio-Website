@@ -29,7 +29,7 @@ export default function OrderSummary({ description, amount, invoiceNumber }: Pro
     >
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Receipt size={18} color="#A9B57E" />
+        <Receipt size={18} color="var(--c-accent)" />
         <span style={{ fontSize: 15, fontWeight: 600, color: '#1A1A1A' }}>
           R&eacute;capitulatif
         </span>
@@ -71,7 +71,7 @@ export default function OrderSummary({ description, amount, invoiceNumber }: Pro
             fontSize: 22,
             fontWeight: 700,
             fontFamily: 'monospace',
-            color: '#A9B57E',
+            color: 'var(--c-accent)',
           }}
         >
           {fmt(amount)}&nbsp;FCFA

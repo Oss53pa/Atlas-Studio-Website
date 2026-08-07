@@ -24,8 +24,8 @@ const COORDS: Record<string, [number, number]> = {
 };
 
 const ZONE_COLOR: Record<string, string> = {
-  UEMOA: "#A9B57E", // kaki (couleur de marque Atlas Studio)
-  CEMAC: "#C2CC92", // kaki clair
+  UEMOA: "var(--c-accent)", // kaki (couleur de marque Atlas Studio)
+  CEMAC: "var(--c-accent)", // kaki clair
   other: "#C8A672", // champagne
 };
 
@@ -79,8 +79,8 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
       <svg viewBox="0 0 100 100" className="w-full h-full" role="img" aria-label="Constellation OHADA — 17 États membres">
         <defs>
           <radialGradient id="ohada-glow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%"  stopColor="rgba(169,181,126,0.18)" />
-            <stop offset="60%" stopColor="rgba(169,181,126,0.03)" />
+            <stop offset="0%"  stopColor="rgba(152,104,20,0.16)" />
+            <stop offset="60%" stopColor="rgba(152,104,20,0.03)" />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
           <filter id="ohada-soft" x="-50%" y="-50%" width="200%" height="200%">
@@ -92,7 +92,7 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
         <circle cx="50" cy="50" r="48" fill="url(#ohada-glow)" />
 
         {/* grille fine */}
-        <g stroke="rgba(255,255,255,0.04)" strokeWidth="0.15">
+        <g stroke="rgba(26,20,16,0.06)" strokeWidth="0.15">
           {[20, 40, 60, 80].map((v) => <line key={`h${v}`} x1="6" y1={v} x2="94" y2={v} />)}
           {[20, 40, 60, 80].map((v) => <line key={`v${v}`} x1={v} y1="6" x2={v} y2="94" />)}
         </g>
@@ -135,7 +135,7 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
                   textAnchor="middle"
                   fontSize="2"
                   fontFamily="JetBrains Mono, monospace"
-                  fill="rgba(245,245,245,0.55)">
+                  fill="var(--c-text-2)" fillOpacity="0.9">
                   {p.country_code}
                 </text>
               </g>
@@ -149,30 +149,30 @@ export function AtlasConstellation({ className = "", countries = OHADA_COUNTRIES
                       bg-gradient-to-t from-black/40 via-black/10 to-transparent">
         {hovered ? (
           <div className="font-mono text-[11px] tracking-wide text-neutral-light flex items-baseline gap-2 flex-wrap">
-            <span className="text-[#A9B57E]">{hovered.country_code}</span>
-            <span className="text-neutral-light/90">{hovered.country_name}</span>
-            <span className="text-neutral-light/40">·</span>
-            <span className="text-neutral-light/60">{hovered.zone}</span>
-            <span className="text-neutral-light/40">·</span>
-            <span className="text-neutral-light/60">{hovered.currency}</span>
+            <span className="text-p-accent">{hovered.country_code}</span>
+            <span className="text-neutral-body">{hovered.country_name}</span>
+            <span className="text-neutral-muted">·</span>
+            <span className="text-neutral-muted">{hovered.zone}</span>
+            <span className="text-neutral-muted">·</span>
+            <span className="text-neutral-muted">{hovered.currency}</span>
             {hovered.vat_standard_rate !== null && (
               <>
-                <span className="text-neutral-light/40">·</span>
-                <span className="text-neutral-light/80">TVA {hovered.vat_standard_rate}%</span>
+                <span className="text-neutral-muted">·</span>
+                <span className="text-neutral-body">TVA {hovered.vat_standard_rate}%</span>
               </>
             )}
             {hovered.corporate_tax_rate !== null && (
               <>
-                <span className="text-neutral-light/40">·</span>
-                <span className="text-neutral-light/80">IS {hovered.corporate_tax_rate}%</span>
+                <span className="text-neutral-muted">·</span>
+                <span className="text-neutral-body">IS {hovered.corporate_tax_rate}%</span>
               </>
             )}
-            <span className="ml-auto text-[9px] uppercase tracking-[0.2em] text-neutral-light/40">
+            <span className="ml-auto text-[9px] uppercase tracking-[0.2em] text-neutral-muted">
               {hovered.rates_verified ? "vérifié" : "à confirmer"}
             </span>
           </div>
         ) : (
-          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-neutral-light/35">
+          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-neutral-muted">
             17 états · UEMOA · CEMAC · survolez un point
           </div>
         )}

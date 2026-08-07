@@ -86,7 +86,7 @@ export const LEGAL_CONTENT = {
       },
       {
         heading: "6. Vos droits",
-        content: "Vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données personnelles. Pour exercer ces droits, contactez-nous à l'adresse : contact@atlasstudio.com.",
+        content: "Vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données personnelles. Pour exercer ces droits, contactez-nous à l'adresse : contact@atlas-studio.org.",
       },
       {
         heading: "7. Cookies",

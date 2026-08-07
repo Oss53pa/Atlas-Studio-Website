@@ -32,7 +32,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
       <div className="fixed top-0 right-0 h-full w-[80vw] max-w-80 z-50 animate-slide-in-right border-l border-white/[0.06]"
         style={{
           background:
-            "linear-gradient(180deg, #1c1c20 0%, #17171a 100%)",
+            "linear-gradient(180deg, var(--c-surface) 0%, var(--c-bg) 100%)",
         }}
       >
         {/* Subtle gold accent line at top */}

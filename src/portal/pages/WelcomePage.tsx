@@ -49,7 +49,7 @@ export default function WelcomePage() {
       setAccessibleApps(subs.map(s => ({
         app_id: s.app_id,
         app_name: appMap[s.app_id]?.name || s.app_id,
-        app_color: (appMap[s.app_id] as any)?.color || "#A9B57E",
+        app_color: (appMap[s.app_id] as any)?.color || "var(--c-accent)",
         status: s.status,
         trial_ends_at: s.trial_ends_at,
       })));
@@ -69,7 +69,7 @@ export default function WelcomePage() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30 mb-5">
             <Sparkles size={26} className="text-emerald-300" strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl md:text-4xl font-medium text-gradient-light tracking-tight mb-3">
+          <h1 className="text-3xl md:text-4xl font-bold text-gradient-light tracking-tight mb-3">
             Bienvenue{firstName ? `, ${firstName}` : ""}
           </h1>
           <p className="text-neutral-muted text-[15px] font-light max-w-md mx-auto leading-relaxed">
@@ -110,7 +110,7 @@ export default function WelcomePage() {
                     className="flex items-center gap-4 p-4 rounded-2xl surface-raised hover:border-gold/30 hover:-translate-y-0.5 dark:hover:shadow-elev-3 transition-all duration-300 group"
                   >
                     <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center text-[#131316] text-sm font-bold flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                      className="w-11 h-11 rounded-xl flex items-center justify-center text-[var(--c-bg)] text-sm font-bold flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
                       style={{ backgroundColor: app.app_color }}
                     >
                       {app.app_name.slice(0, 2).toUpperCase()}
@@ -119,7 +119,7 @@ export default function WelcomePage() {
                       <div className="text-neutral-light font-medium truncate">{app.app_name}</div>
                       <div className="mt-1.5">
                         {isTrial ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-[0.02em] bg-amber-500/[0.12] text-amber-300 border border-amber-500/25">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-[0.02em] bg-amber-500/[0.12] text-amber-700 border border-amber-500/25">
                             Trial — {daysLeft !== null ? `${daysLeft}j restants` : "actif"}
                           </span>
                         ) : (
@@ -140,11 +140,11 @@ export default function WelcomePage() {
           <Link to="/portal" className="text-neutral-muted hover:text-gold transition-colors">
             Tableau de bord portail
           </Link>
-          <span className="text-neutral-muted/40">·</span>
+          <span className="text-neutral-muted">·</span>
           <Link to="/portal" className="text-neutral-muted hover:text-gold transition-colors">
             Catalogue d'applications
           </Link>
-          <span className="text-neutral-muted/40">·</span>
+          <span className="text-neutral-muted">·</span>
           <Link to="/portal" className="text-neutral-muted hover:text-gold transition-colors">
             Mon profil
           </Link>

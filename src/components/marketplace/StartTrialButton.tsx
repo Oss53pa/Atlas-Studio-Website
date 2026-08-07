@@ -112,7 +112,7 @@ export function StartTrialButton({
         {loading ? "Activation…" : `Essayer ${trialDays}j gratuit`}
       </button>
       {error && (
-        <p className="mt-2 text-[12px] text-red-400">
+        <p className="mt-2 text-[12px] text-red-700">
           {error}
         </p>
       )}

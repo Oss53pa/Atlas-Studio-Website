@@ -23,7 +23,7 @@ export function useContent() {
           id: row.id, name: row.name, type: row.type, tagline: row.tagline,
           desc: row.description, features: row.features || [], categories: row.categories || [],
           pricing: row.pricing || {}, pricingPeriod: row.pricing_period || "mois",
-          color: row.color || "#8E9A63", icon: row.icon || "receipt",
+          color: row.color || "var(--c-accent-dark)", icon: row.icon || "receipt",
           highlights: row.highlights || [], external_url: row.external_url || undefined,
         }));
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Sparkles, Loader2, Calculator, FileText, Receipt, Shield, BarChart3, BookOpen, Zap } from "lucide-react";
+import { Send, User, Sparkles, Calculator, FileText, Receipt, Shield, BarChart3, BookOpen, Zap } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { Proph3tWorkflowStream } from "../components/Proph3tWorkflowStream";
 
@@ -116,8 +116,8 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-neutral-light text-2xl font-bold flex items-center gap-3">
-            <span className="w-9 h-9 rounded-xl bg-gold flex items-center justify-center shadow-gold-sm">
-              <Sparkles size={18} className="text-onyx" />
+            <span className="w-11 h-11 rounded-full flex items-center justify-center">
+              <img src="/proph3t.png" alt="Proph3t" className="w-full h-full object-contain drop-shadow-[0_2px_10px_rgba(212,175,55,0.45)]" />
             </span>
             <span className="font-logo text-gold text-3xl">Proph3t</span>
             <span className="text-neutral-400 text-sm font-normal">— l'IA souveraine de toute la suite Atlas Studio</span>
@@ -134,17 +134,17 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {messages.map(msg => (
             <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-              <div className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center ${
-                msg.role === "user" ? "bg-white/10" : "bg-gold"
+              <div className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden ${
+                msg.role === "user" ? "bg-p-surface-alt" : ""
               }`}>
                 {msg.role === "user"
                   ? <User size={16} className="text-neutral-light" />
-                  : <Bot size={16} className="text-onyx" />}
+                  : <img src="/proph3t.png" alt="Proph3t" className="w-full h-full object-contain" />}
               </div>
               <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                 msg.role === "user"
-                  ? "bg-white/10 text-neutral-light"
-                  : "bg-white/5 text-neutral-light border border-white/10"
+                  ? "bg-p-surface-alt text-neutral-light"
+                  : "bg-p-surface-alt text-neutral-light border border-p-border"
               }`}>
                 <div className="text-[13.5px] leading-relaxed whitespace-pre-wrap">
                   {msg.content.split(/(\*\*.*?\*\*)/).map((part, i) =>
@@ -160,13 +160,13 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
                       <span className={`px-2 py-0.5 rounded-full font-mono ${
                         msg.confidence >= 70
                           ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-amber-500/20 text-amber-400"
+                          : "bg-amber-500/20 text-amber-700"
                       }`}>
                         confiance {msg.confidence}/100
                       </span>
                     )}
                     {msg.citations && msg.citations.length > 0 && (
-                      <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">
+                      <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-700">
                         {msg.citations.length} source(s)
                       </span>
                     )}
@@ -179,7 +179,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
                       className="px-2 py-1 rounded hover:bg-emerald-500/10 text-neutral-500 hover:text-emerald-400 transition-colors"
                       title="Bonne reponse">Utile</button>
                     <button onClick={() => sendFeedback(msg.message_id!, "down")}
-                      className="px-2 py-1 rounded hover:bg-red-500/10 text-neutral-500 hover:text-red-400 transition-colors"
+                      className="px-2 py-1 rounded hover:bg-red-500/10 text-neutral-500 hover:text-red-700 transition-colors"
                       title="Reponse a ameliorer">A revoir</button>
                   </div>
                 )}
@@ -193,10 +193,10 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
 
           {isLoading && (
             <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
-                <Loader2 size={16} className="text-onyx animate-spin" />
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <img src="/proph3t.png" alt="Proph3t" className="w-full h-full object-contain animate-pulse" />
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+              <div className="bg-p-surface-alt border border-p-border rounded-2xl px-4 py-3">
                 <div className="flex gap-1.5">
                   <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                   <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -211,12 +211,12 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
 
         {/* Quick prompts (cachees apres premier message) */}
         {messages.length <= 1 && (
-          <div className="px-6 py-3 border-t border-white/5">
+          <div className="px-6 py-3 border-t border-p-border">
             <div className="text-[11px] text-neutral-500 uppercase tracking-wider mb-2 font-semibold">Sujets frequents</div>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
               {QUICK_PROMPTS.map(qp => (
                 <button key={qp.label} onClick={() => sendMessage(qp.prompt)}
-                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/[0.08] text-neutral-300 hover:text-gold text-[12px] text-left transition-all duration-200 border border-white/[0.06] hover:border-gold/30 hover:-translate-y-0.5">
+                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-p-surface-alt hover:bg-p-surface-alt text-neutral-300 hover:text-gold text-[12px] text-left transition-all duration-200 border border-p-border hover:border-gold/30 hover:-translate-y-0.5">
                   <qp.icon size={14} className="flex-shrink-0" />
                   <span className="truncate">{qp.label}</span>
                 </button>
@@ -227,7 +227,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
 
         {/* Workflow shortcuts */}
         {messages.length <= 1 && (
-          <div className="px-6 py-3 border-t border-white/5">
+          <div className="px-6 py-3 border-t border-p-border">
             <div className="text-[11px] text-neutral-500 uppercase tracking-wider mb-2 font-semibold flex items-center gap-2">
               <Zap size={12} /> Workflows en 1 clic (streaming live)
             </div>
@@ -247,7 +247,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
         )}
 
         {/* Input */}
-        <div className="px-5 pb-5 pt-3 border-t border-white/10">
+        <div className="px-5 pb-5 pt-3 border-t border-p-border">
           <div className="flex gap-2 items-end">
             <textarea
               ref={textareaRef}
@@ -261,7 +261,7 @@ export function Proph3tPortalPage({ userId }: { userId?: string }) {
               }}
               placeholder="Posez votre question (Enter pour envoyer, Shift+Enter pour saut de ligne)"
               rows={1}
-              className="flex-1 bg-[#141417] text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none border border-white/[0.07] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200"
+              className="flex-1 bg-p-surface text-neutral-light placeholder-neutral-600 rounded-xl px-4 py-3 text-[13.5px] resize-none outline-none border border-p-border shadow-[inset_0_1px_3px_rgba(0,0,0,0.06)] focus:border-gold/55 focus:ring-2 focus:ring-gold/30 transition-all duration-200"
             />
             <button onClick={() => sendMessage(input)} disabled={isLoading || !input.trim()}
               className="p-3 bg-gold text-onyx rounded-xl hover:bg-gold/80 hover:shadow-gold-sm disabled:opacity-40 transition-all duration-200 flex-shrink-0">

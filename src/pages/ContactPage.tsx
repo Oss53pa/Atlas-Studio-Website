@@ -36,7 +36,7 @@ export default function ContactPage() {
     }
   };
 
-  const inputClass = "w-full px-4 py-3 bg-ink-200 border border-white/[0.06] rounded-lg text-neutral-light text-sm outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted/50";
+  const inputClass = "w-full px-4 py-3 bg-ink-200 border border-white/[0.06] rounded-lg text-neutral-light text-sm outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all duration-200 placeholder:text-neutral-muted";
 
   return (
     <>
@@ -48,7 +48,7 @@ export default function ContactPage() {
         <div className="relative max-w-2xl mx-auto">
           <ScrollReveal>
             <div className="section-eyebrow">Contact</div>
-            <h1 className="text-4xl md:text-5xl font-medium text-gradient-light leading-[1.12] tracking-tight mb-4">Contactez-nous</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gradient-light leading-[1.12] tracking-tight mb-4">Contactez-nous</h1>
             <p className="text-[15px] text-neutral-muted font-light mb-12">Une question ? Notre équipe vous répond sous 24h.</p>
           </ScrollReveal>
 
@@ -74,7 +74,7 @@ export default function ContactPage() {
                   style={{ background: "linear-gradient(90deg, transparent 0%, rgba(169,181,126,0.5) 50%, transparent 100%)" }}
                 />
                 {error && (
-                  <div className="mb-5 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-sm">
+                  <div className="mb-5 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-700 text-sm">
                     {error}
                   </div>
                 )}

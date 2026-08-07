@@ -71,9 +71,9 @@ function BlockRenderer({ block }: { block: TermsBlock }) {
 
     case "callout": {
       const variantStyles = {
-        warning: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-300", Icon: AlertTriangle },
-        info: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-300", Icon: Info },
-        important: { bg: "bg-red-500/10", border: "border-red-500/30", text: "text-red-300", Icon: AlertCircle },
+        warning: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-700", Icon: AlertTriangle },
+        info: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-700", Icon: Info },
+        important: { bg: "bg-red-500/10", border: "border-red-500/30", text: "text-red-700", Icon: AlertCircle },
       }[block.variant];
       const { Icon } = variantStyles;
       return (
@@ -166,7 +166,7 @@ export default function TermsPage() {
             <span className="text-gold text-[11px] font-semibold uppercase tracking-[0.16em]">
               Version {TERMS_V2.version}
             </span>
-            <span className="text-neutral-muted/50 text-[11px]">·</span>
+            <span className="text-neutral-muted text-[11px]">·</span>
             <span className="text-neutral-muted text-[11px]">En vigueur le {TERMS_V2.effectiveDate}</span>
           </div>
           <h1 className="text-gradient-light text-3xl md:text-5xl font-medium mb-4 tracking-tight leading-[1.12]">
@@ -233,7 +233,7 @@ export default function TermsPage() {
                 </a>
                 .
               </p>
-              <p className="text-neutral-muted/60 text-[11px] mt-2 font-light">
+              <p className="text-neutral-muted text-[11px] mt-2 font-light">
                 {TERMS_V2.editor} · {TERMS_V2.location} · {TERMS_V2.website}
               </p>
             </div>

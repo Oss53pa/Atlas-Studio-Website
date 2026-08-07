@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Clock, ArrowUpRight } from "lucide-react";
 import { AppLogo } from "./Logo";
 import { StyledText } from "./StyledText";
+import { appShotId } from "../../config/appShots.generated";
 import type { AppItem } from "../../config/content";
 import type { AppStatus } from "../../lib/database.types";
 import { planEntries } from "../../lib/utils";
@@ -13,7 +14,7 @@ interface AppCardProps {
 
 const typeBadgeClass: Record<string, string> = {
   "Module ERP": "bg-gold/10 text-gold border-gold/25",
-  "App": "bg-blue-500/10 text-blue-300 border-blue-500/25",
+  "App": "bg-blue-500/10 text-blue-700 border-blue-500/25",
   "App mobile": "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
 };
 
@@ -25,10 +26,9 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
   const minPrice = Math.min(...planEntries(app.pricing).map(([, v]) => v));
   const period = app.pricingPeriod || "mois";
   const isComingSoon = app.status === 'coming_soon';
-  // accent = teinte d'ambiance (liseré + glow). accentDeep prime sur color si posé.
-  const accent = app.accentDeep || app.color || '#A9B57E';
-  // accentSoft = fond du plateau derrière le wordmark PNG (couleur pour laquelle
-  // le PNG a été designé). Sans wordmark_url on n'affiche pas de plateau.
+  // accentDeep prime pour l'ambiance (liseré + glow), fallback sur color puis token.
+  const accent = app.accentDeep || app.color || 'var(--c-accent)';
+  const shotId = appShotId(app);
 
   const sharedClassName = `relative block bg-ink-100 border border-white/[0.05] rounded-2xl p-6 card-hover shadow-premium group overflow-hidden ${isComingSoon ? 'opacity-85' : ''}`;
   const sharedStyle = { animationDelay: `${index * 60}ms` };
@@ -51,6 +51,16 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
       />
 
       <div className="relative">
+        {shotId && (
+          <div className="-mx-6 -mt-6 mb-5 h-36 overflow-hidden border-b border-white/[0.06]">
+            <img
+              src={`/app-shots/${shotId}.jpg`}
+              alt={`Aperçu de ${app.name}`}
+              loading="lazy"
+              className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]"
+            />
+          </div>
+        )}
         <div className="flex items-center justify-between mb-3">
           {app.wordmarkUrl ? (
             <span
@@ -64,7 +74,7 @@ export function AppCard({ app, index = 0 }: AppCardProps) {
           )}
           <div className="flex items-center gap-1.5">
             {isComingSoon && (
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-300 border-amber-500/25">
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-amber-500/10 text-amber-700 border-amber-500/25">
                 <Clock size={10} />
                 Bientôt
               </span>

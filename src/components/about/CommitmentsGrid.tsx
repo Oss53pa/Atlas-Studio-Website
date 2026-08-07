@@ -44,7 +44,7 @@ export function CommitmentsGrid() {
     <section className="relative bg-ink-100 border-b border-white/[0.04] py-20 md:py-28 px-5 md:px-8 overflow-hidden">
       <div className="relative max-w-site mx-auto">
         <ScrollReveal>
-          <h2 className="text-[32px] md:text-[42px] font-medium text-gradient-light leading-[1.12] tracking-tight mb-14 max-w-2xl">
+          <h2 className="text-[32px] md:text-[42px] font-bold text-gradient-light leading-[1.12] tracking-tight mb-14 max-w-2xl">
             Ce sur quoi vous pouvez compter
           </h2>
         </ScrollReveal>

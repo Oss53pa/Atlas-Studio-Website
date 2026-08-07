@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { apiCall } from "./api";
 import type { Profile } from "./database.types";
 
 type ProductRow = { id: string; slug: string; name: string };
@@ -58,19 +59,9 @@ export async function ensureTenantForProfile(client: Profile, adminUserId: strin
   return created.id;
 }
 
-function randomKeySegment(len: number): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const bytes = crypto.getRandomValues(new Uint8Array(len));
-  return Array.from(bytes, v => chars[v % chars.length]).join("");
-}
-
-async function sha256Hex(input: string): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-// Creates an active licence + super_admin seat for the user. No email sent here —
-// the admin can regenerate/send later if needed. Returns the activation key (shown to admin once).
+// CDC v2.1 — Lot L1/L9 (sécurité) : la clé d'activation est générée et hachée
+// CÔTÉ SERVEUR par l'Edge Function `admin-grant-licence`. Le navigateur ne produit
+// plus aucune clé (Principe 5) et l'écriture directe de `licences` est gelée (L9 étape 6).
 export async function createGrantedLicence(params: {
   tenantId: string;
   productId: string;
@@ -82,38 +73,9 @@ export async function createGrantedLicence(params: {
   durationDays: number;
   productSlug: string;
   planName: string;
-}): Promise<{ licenceId: string; activationKey: string }> {
-  const slug = params.productSlug.toUpperCase().slice(0, 8);
-  const planCode = params.planName.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8) || "PLAN";
-  const activationKey = `ATLAS-${slug}-${planCode}-${randomKeySegment(8)}-${randomKeySegment(8)}`;
-  const keyHash = await sha256Hex(activationKey);
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + params.durationDays * 86400000);
-
-  const { data: licence, error: licErr } = await supabase.from("licences").insert({
-    tenant_id: params.tenantId,
-    product_id: params.productId,
-    plan_id: params.planId,
-    subscription_id: params.subscriptionId,
-    activation_key: activationKey,
-    key_hash: keyHash,
-    status: "active",
-    max_seats: params.maxSeats,
-    activated_at: now.toISOString(),
-    expires_at: expiresAt.toISOString(),
-  }).select("id").single() as { data: { id: string } | null; error: { message: string } | null };
-  if (licErr || !licence) throw new Error(`licence: ${licErr?.message || "insert failed"}`);
-
-  const { error: seatErr } = await supabase.from("licence_seats").insert({
-    licence_id: licence.id,
-    tenant_id: params.tenantId,
-    email: params.userEmail,
-    full_name: params.userName,
-    role: "app_super_admin",
-    status: "active",
-    invitation_accepted_at: now.toISOString(),
+}): Promise<{ licenceId: string; keyMasked: string }> {
+  return apiCall<{ licenceId: string; keyMasked: string }>("admin-grant-licence", {
+    method: "POST",
+    body: params,
   });
-  if (seatErr) throw new Error(`seat: ${seatErr.message}`);
-
-  return { licenceId: licence.id, activationKey };
 }
